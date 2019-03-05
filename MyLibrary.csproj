@@ -29,15 +29,22 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FirebirdSql.Data.FirebirdClient">
       <HintPath>..\..\..\..\Projects\FeldjagerSoft\FeldjagerCore\bin\FirebirdSql.Data.FirebirdClient.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\..\Portable\yamusic\libs\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\..\..\..\Projects\FeldjagerSoft\FeldjagerCore\bin\Microsoft.Office.Interop.Word.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Portable\yamusic\libs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\DataGridViewExtension.cs" />
+    <Compile Include="Controls\DataGridViewProgressColumn.cs" />
     <Compile Include="Controls\GridRowManager.cs" />
     <Compile Include="Controls\MsgBox.cs" />
     <Compile Include="Controls\MyButton.cs">
@@ -73,6 +81,7 @@
     <Compile Include="Controls\MyTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\TaskbarProgress.cs" />
     <Compile Include="DataBase\DBColumn.cs" />
     <Compile Include="DataBase\DBCommand.cs" />
     <Compile Include="DataBase\DBContext.cs" />
@@ -86,8 +95,14 @@
     <Compile Include="DataBase\Orm\DBOrmTableBase.cs" />
     <Compile Include="DataBase\SQLiteDBModel.cs" />
     <Compile Include="Data\Format.cs" />
+    <Compile Include="Data\HtmlAgilityPackExtension.cs" />
+    <Compile Include="Data\JsonNode.cs" />
     <Compile Include="Data\Serializer.cs" />
+    <Compile Include="Net\HttpRequest.cs" />
+    <Compile Include="Net\WebUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Threading\SafeThread.cs" />
+    <Compile Include="Threading\ThreadManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
