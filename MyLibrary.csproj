@@ -59,50 +59,50 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\DataGridViewExtension.cs" />
-    <Compile Include="Controls\DataGridViewProgressColumn.cs" />
-    <Compile Include="Controls\GridRowManager.cs" />
-    <Compile Include="Controls\MsgBox.cs" />
-    <Compile Include="Controls\MyButton.cs">
+    <Compile Include="MyLibrary\Controls\DataGridViewExtension.cs" />
+    <Compile Include="MyLibrary\Controls\DataGridViewProgressColumn.cs" />
+    <Compile Include="MyLibrary\Controls\GridRowManager.cs" />
+    <Compile Include="MyLibrary\Controls\MsgBox.cs" />
+    <Compile Include="MyLibrary\Controls\MyButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MyDataGridView.cs">
+    <Compile Include="MyLibrary\Controls\MyDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MyDateTimePicker.cs">
+    <Compile Include="MyLibrary\Controls\MyDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MyNumericUpDown.cs">
+    <Compile Include="MyLibrary\Controls\MyNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MyPropertyGrid.cs">
+    <Compile Include="MyLibrary\Controls\MyPropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MyTextBox.cs">
+    <Compile Include="MyLibrary\Controls\MyTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\TaskbarProgress.cs" />
-    <Compile Include="DataBase\DBColumn.cs" />
-    <Compile Include="DataBase\DBCommand.cs" />
-    <Compile Include="DataBase\DBContext.cs" />
-    <Compile Include="DataBase\DBInternal.cs" />
-    <Compile Include="DataBase\DBModelBase.cs" />
-    <Compile Include="DataBase\DBReader.cs" />
-    <Compile Include="DataBase\DBRow.cs" />
-    <Compile Include="DataBase\DBTable.cs" />
-    <Compile Include="DataBase\FireBirdDBModel.cs" />
-    <Compile Include="DataBase\Orm\DBOrmColumnAttribute.cs" />
-    <Compile Include="DataBase\Orm\DBOrmTableBase.cs" />
-    <Compile Include="DataBase\SQLiteDBModel.cs" />
-    <Compile Include="Data\Format.cs" />
-    <Compile Include="Data\HtmlAgilityPackExtension.cs" />
-    <Compile Include="Data\JsonNode.cs" />
-    <Compile Include="Data\Serializer.cs" />
-    <Compile Include="Net\HttpRequest.cs" />
-    <Compile Include="Net\WebUtility.cs" />
+    <Compile Include="MyLibrary\Controls\TaskbarProgress.cs" />
+    <Compile Include="MyLibrary\DataBase\DBColumn.cs" />
+    <Compile Include="MyLibrary\DataBase\DBCommand.cs" />
+    <Compile Include="MyLibrary\DataBase\DBContext.cs" />
+    <Compile Include="MyLibrary\DataBase\DBInternal.cs" />
+    <Compile Include="MyLibrary\DataBase\DBModelBase.cs" />
+    <Compile Include="MyLibrary\DataBase\DBReader.cs" />
+    <Compile Include="MyLibrary\DataBase\DBRow.cs" />
+    <Compile Include="MyLibrary\DataBase\DBTable.cs" />
+    <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
+    <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
+    <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableBase.cs" />
+    <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
+    <Compile Include="MyLibrary\Data\Format.cs" />
+    <Compile Include="MyLibrary\Data\HtmlAgilityPackExtension.cs" />
+    <Compile Include="MyLibrary\Data\JsonNode.cs" />
+    <Compile Include="MyLibrary\Data\Serializer.cs" />
+    <Compile Include="MyLibrary\Net\HttpRequest.cs" />
+    <Compile Include="MyLibrary\Net\WebUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Threading\SafeThread.cs" />
-    <Compile Include="Threading\ThreadManager.cs" />
+    <Compile Include="MyLibrary\Threading\SafeThread.cs" />
+    <Compile Include="MyLibrary\Threading\ThreadManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
