@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using MyLibrary.Data;
-using MyLibrary.DataBase;
 
 namespace MyLibrary.Controls
 {
@@ -91,7 +91,7 @@ namespace MyLibrary.Controls
             var gridCell = grid.CurrentCell;
             if (gridCell == null)
                 return;
-           
+
             var editingControl = grid.EditingControl;
             if (editingControl != null)
             {
@@ -183,10 +183,6 @@ namespace MyLibrary.Controls
                 return null;
             return gridCell.DataGridView.Rows[gridCell.RowIndex];
         }
-        public static DBRow GetDBRow(this DataGridViewRow gridRow)
-        {
-            return (DBRow)gridRow.Tag;
-        }
         public static DataGridViewTextBoxColumn GetTextBoxColumn(this DataGridView grid, string columnName)
         {
             return (DataGridViewTextBoxColumn)grid.Columns[columnName];
@@ -194,6 +190,28 @@ namespace MyLibrary.Controls
         public static DataGridViewTextBoxColumn GetTextBoxColumn(this DataGridView grid, int columnIndex)
         {
             return (DataGridViewTextBoxColumn)grid.Columns[columnIndex];
+        }
+        public static DataGridViewRow[] GetSelectedRows(this DataGridView grid)
+        {
+            var selectedRows = grid.SelectedRows;
+
+            var list = new List<DataGridViewRow>(selectedRows.Count);
+            for (int i = 0; i < selectedRows.Count; i++)
+                list.Add(selectedRows[i]);
+
+            list.Sort((x, y) => x.Index.CompareTo(y.Index));
+
+            return list.ToArray();
+        }
+        public static object[] GetSelectedRowsTags(this DataGridView grid)
+        {
+            var gridRows = grid.GetSelectedRows();
+
+            var tags = new object[gridRows.Length];
+            for (int i = 0; i < gridRows.Length; i++)
+                tags[i] = gridRows[i].Tag;
+
+            return tags;
         }
 
         public static T Get<T>(this DataGridViewCell gridCell, bool allowNullString = true)
@@ -286,22 +304,6 @@ namespace MyLibrary.Controls
 
             #endregion
             return row;
-        }
-        public static int AddRow(this DataGridView grid, DBRow row, int InsertIndex = -1, int EditColumnIndex = -1)
-        {
-            int index;
-            if (InsertIndex == -1)
-                index = grid.Rows.Add();
-            else
-            {
-                grid.Rows.Insert(InsertIndex, 1);
-                index = InsertIndex;
-            }
-
-            var gridRow = grid.Rows[index];
-            gridRow.Tag = row;
-
-            return AddRow(grid, gridRow, InsertIndex, EditColumnIndex);
         }
         public static int AddRow(this DataGridView grid, DataGridViewRow gridRow, int InsertIndex = -1, int EditColumnIndex = -1)
         {
