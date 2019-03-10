@@ -95,6 +95,7 @@
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableBase.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
+    <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
     <Compile Include="MyLibrary\Data\Format.cs" />
     <Compile Include="MyLibrary\Data\HtmlAgilityPackExtension.cs" />
     <Compile Include="MyLibrary\Data\JsonNode.cs" />
