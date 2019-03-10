@@ -3,6 +3,9 @@ using System.Threading;
 
 namespace MyLibrary.Threading
 {
+    /// <summary>
+    /// Поток с безопасным завершением операции через управляемое поле Aborted
+    /// </summary>
     public class SafeThread
     {
         public SafeThread(Action<SafeThread> action)
