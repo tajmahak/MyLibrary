@@ -12,12 +12,12 @@ namespace MyLibrary.Data
         public static T Convert<T>(object value, bool allowNullString)
         {
             var type = typeof(T);
-            #region Определение типа
+ 
+            // определение основного типа данных
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 type = Nullable.GetUnderlyingType(type);
             }
-            #endregion
 
             if (IsNull(value))
             {
@@ -39,6 +39,7 @@ namespace MyLibrary.Data
             }
             return (T)value;
         }
+        
         public static int Compare(object value1, object value2)
         {
             return Compare(value1, value2, false);
@@ -47,12 +48,12 @@ namespace MyLibrary.Data
         {
             if (IsNull(value1) && IsNull(value2))
                 return 0;
+           
             if (IsNull(value1))
                 return -1;
+            
             if (IsNull(value2))
                 return 1;
-
-
 
             var type1 = value1.GetType();
             var type2 = value2.GetType();
@@ -67,6 +68,7 @@ namespace MyLibrary.Data
             }
             throw new Exception("Сравнение указанных значений невозможно.");
         }
+       
         public static bool IsEquals(object value1, object value2)
         {
             return IsEquals(value1, value2, false);
@@ -75,6 +77,7 @@ namespace MyLibrary.Data
         {
             if (value1 == null && value2 == null)
                 return true;
+
             if (value1 == null || value2 == null)
                 return false;
 
@@ -125,12 +128,18 @@ namespace MyLibrary.Data
         {
             if (blob1.Length != blob2.Length)
                 return false;
+            
             int length = blob1.Length;
             for (int i = 0; i < length; i++)
+            {
                 if (!blob1[i].Equals(blob2[i]))
+                {
                     return false;
+                }
+            }
             return true;
         }
+        
         public static bool IsContains(object value1, object value2)
         {
             return IsContains(value1, value2, false);
@@ -148,6 +157,7 @@ namespace MyLibrary.Data
             }
             throw new Exception("Операция проверки содержимого не выполнима.");
         }
+        
         public static bool IsNull(object value)
         {
             return (value == null || value is DBNull);
@@ -156,8 +166,10 @@ namespace MyLibrary.Data
         {
             if (IsNull(value))
                 return true;
+
             if (value is string && string.IsNullOrEmpty((string)value))
                 return true;
+            
             return false;
         }
         public static bool HasFlag<T>(T value, T flag)
@@ -217,6 +229,7 @@ namespace MyLibrary.Data
         {
             if (IsEmpty(value))
                 return null;
+            
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals);
         }
@@ -224,14 +237,15 @@ namespace MyLibrary.Data
         {
             if (IsNull(value))
                 value = decimal.Zero;
+            
             string text = System.Convert.ToDecimal(value).ToString("N" + decimals);
             if (text.Length > 0)
             {
-                //int index = text.IndexOf(',');
-                //if (index != -1)
-                //    text = text.Insert(index + 1, "\u00A0");
                 if (text[0] == '-')
+                {
+                    // вставка пробела между минусом и значением в отрицательном числе
                     text = text.Insert(1, "\u00A0");
+                }
             }
             return text;
         }
