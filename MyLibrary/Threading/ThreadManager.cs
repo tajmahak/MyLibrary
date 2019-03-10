@@ -9,6 +9,35 @@ namespace MyLibrary.Threading
     [System.Diagnostics.DebuggerNonUserCode]
     public class ThreadManager
     {
+        // Статические методы
+        /// <summary>
+        /// Запуск обработки
+        /// </summary>
+        /// <param name="threadsCount">Количество создаваемых потоков для выполнения задач</param>
+        /// <param name="tasksCount">Количество выполняемых задач</param>
+        /// <param name="action">Делегат выполняемой операции. Action(index), index - индекс выполняемой задачи</param>
+        /// <returns></returns>
+        public static ThreadManager Start(int threadsCount, int tasksCount, Action<int> action)
+        {
+            var threadManager = new ThreadManager(threadsCount, tasksCount);
+            threadManager.Start(action);
+            return threadManager;
+        }
+        /// <summary>
+        /// Запуск обработки
+        /// </summary>
+        /// <param name="threadsCount">Количество создаваемых потоков для выполнения задач</param>
+        /// <param name="tasksCount">Количество выполняемых задач</param>
+        /// <param name="action">Делегат выполняемой операции. Action(manager, index), manager - экземпляр текущего класса ThreadManager, index - индекс выполняемой задачи</param>
+        /// <returns></returns>
+        public static ThreadManager Start(int threadsCount, int tasksCount, Action<ThreadManager, int> action)
+        {
+            var threadManager = new ThreadManager(threadsCount, tasksCount);
+            threadManager.Start(action);
+            return threadManager;
+        }
+
+        // Свойства
         public Exception ThreadException { get; private set; }
         public bool Aborted
         {
@@ -139,6 +168,7 @@ namespace MyLibrary.Threading
                 throw ThreadException;
         }
 
+        // События
         /// <summary>
         /// Происходит перед началом операций
         /// </summary>
@@ -148,6 +178,7 @@ namespace MyLibrary.Threading
         /// </summary>
         public event EventHandler<EventArgs> Completed;
 
+        // Закрытые сущности
         private Thread[] _threads;
         private volatile int _tasksCount;
         private volatile int _index;
