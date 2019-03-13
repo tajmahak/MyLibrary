@@ -203,6 +203,11 @@ namespace MyLibrary.Controls
 
             return list.ToArray();
         }
+
+        public static T GetTag<T>(this DataGridViewRow gridRow)
+        {
+            return (T)gridRow.Tag;
+        }
         public static object[] GetSelectedRowsTags(this DataGridView grid)
         {
             var gridRows = grid.GetSelectedRows();
