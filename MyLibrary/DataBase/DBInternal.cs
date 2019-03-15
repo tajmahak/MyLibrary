@@ -48,6 +48,16 @@ namespace MyLibrary.DataBase
                 return (value as DBOrmTableBase).Row;
             return (DBRow)value;
         }
+        public static string GetTableNameFromAttribute(Type type)
+        {
+            var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
+            if (attrArray.Length == 0)
+            {
+                throw DBInternal.OrmTableNotAttributeException(type);
+            }
+            var attr = (DBOrmTableAttribute)attrArray[0];
+            return attr.TableName;
+        }
 
         #region NameOf
 
@@ -157,6 +167,10 @@ namespace MyLibrary.DataBase
         public static Exception ParameterValuePairException()
         {
             return new Exception("Неверно заданы параметры запроса");
+        }
+        public static Exception OrmTableNotAttributeException(Type type)
+        {
+            return new Exception(type.FullName + " - отсутствует атрибут имени таблицы");
         }
     }
 }

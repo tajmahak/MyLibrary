@@ -230,7 +230,8 @@ namespace MyLibrary.DataBase
         }
         public T New<T>()
         {
-            return default(T);
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
+            return New<T>(tableName);
         }
 
         public bool Add<T>(T row)
@@ -317,6 +318,11 @@ namespace MyLibrary.DataBase
                 list.Add(DBInternal.PackRow<T>(row));
             }
             return list;
+        }
+        public List<T> GetSetRows<T>()
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
+            return GetSetRows<T>(tableName);
         }
         public List<DBRow> GetSetRows(string tableName)
         {
