@@ -228,6 +228,11 @@ namespace MyLibrary.DataBase
             Add(row);
             return DBInternal.PackRow<T>(row);
         }
+        public T New<T>()
+        {
+            return default(T);
+        }
+
         public bool Add<T>(T row)
         {
             if (row is IEnumerable)

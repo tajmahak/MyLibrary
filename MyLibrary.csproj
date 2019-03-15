@@ -93,6 +93,7 @@
     <Compile Include="MyLibrary\DataBase\DBTable.cs" />
     <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
+    <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableBase.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
