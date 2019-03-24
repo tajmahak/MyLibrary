@@ -208,6 +208,14 @@ namespace MyLibrary.Controls
         {
             return (T)gridRow.Tag;
         }
+        public static T GetSelectedTag<T>(this DataGridView grid)
+        {
+            var gridRow = grid.GetSelectedRow();
+            if (gridRow == null)
+                return default(T);
+
+            return GetTag<T>(gridRow);
+        }
         public static object[] GetSelectedRowsTags(this DataGridView grid)
         {
             var gridRows = grid.GetSelectedRows();
