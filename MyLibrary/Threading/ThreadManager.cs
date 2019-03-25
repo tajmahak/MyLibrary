@@ -54,6 +54,11 @@ namespace MyLibrary.Threading
         /// <param name="tasksCount">Количество выполняемых задач</param>
         public ThreadManager(int threadsCount, int tasksCount)
         {
+            if (threadsCount > tasksCount)
+            {
+                threadsCount = tasksCount;
+            }
+
             _threads = new Thread[threadsCount];
             _tasksCount = tasksCount;
         }
