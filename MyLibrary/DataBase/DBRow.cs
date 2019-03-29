@@ -6,6 +6,13 @@ namespace MyLibrary.DataBase
     public sealed class DBRow
     {
         public DBTable Table { get; private set; }
+        public bool IsNew
+        {
+            get
+            {
+                return (State == DataRowState.Added);
+            }
+        }
         internal DataRowState State;
         internal object[] Values;
 
