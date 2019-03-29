@@ -259,6 +259,41 @@ namespace MyLibrary.DataBase
 
             return true;
         }
+        public void Delete<T>(T row)
+        {
+            var dbRow = DBInternal.UnpackRow(row);
+            if (dbRow.Table.Name == null)
+                throw DBInternal.ProcessRowException();
+
+            dbRow.Delete();
+
+            if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
+            {
+                lock (_rowCollectionDict)
+                    _rowCollectionDict[dbRow.Table].Remove(dbRow);
+            }
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < _rowCollectionList.Length; i++)
+            {
+                var rowCollection = _rowCollectionList[i];
+                rowCollection.ForEach(row =>
+                {
+                    if (row.State == DataRowState.Added)
+                        row.State = DataRowState.Detached;
+                });
+
+                lock (_rowCollectionDict)
+                    rowCollection.Clear();
+            }
+        }
+        public void Clear(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+            _rowCollectionDict[table].Clear();
+        }
         public void Clear<T>(T row)
         {
             if (row is IEnumerable)
@@ -276,35 +311,6 @@ namespace MyLibrary.DataBase
 
             lock (_rowCollectionDict)
                 _rowCollectionDict[dbRow.Table].Remove(dbRow);
-        }
-        public void Clear()
-        {
-            for (int i = 0; i < _rowCollectionList.Length; i++)
-            {
-                var rowCollection = _rowCollectionList[i];
-                rowCollection.ForEach(row =>
-                {
-                    if (row.State == DataRowState.Added)
-                        row.State = DataRowState.Detached;
-                });
-
-                lock (_rowCollectionDict)
-                    rowCollection.Clear();
-            }
-        }
-        public void Delete<T>(T row)
-        {
-            var dbRow = DBInternal.UnpackRow(row);
-            if (dbRow.Table.Name == null)
-                throw DBInternal.ProcessRowException();
-
-            dbRow.Delete();
-
-            if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
-            {
-                lock (_rowCollectionDict)
-                    _rowCollectionDict[dbRow.Table].Remove(dbRow);
-            }
         }
 
         public List<T> GetSetRows<T>(string tableName)
