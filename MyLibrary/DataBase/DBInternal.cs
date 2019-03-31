@@ -22,6 +22,21 @@ namespace MyLibrary.DataBase
 
             return (T)Convert.ChangeType(value, type);
         }
+        public static object GetNotNullValue(Type type)
+        {
+            if (type == typeof(string))
+            {
+                return string.Empty;
+            }
+
+            if (type.BaseType == typeof(Array))
+            {
+                return Activator.CreateInstance(type, 0);
+            }
+
+            return Activator.CreateInstance(type);
+        }
+
         public static bool EqualsBlob(byte[] blobA, byte[] blobB)
         {
             if (blobA == null && blobB == null) return true;

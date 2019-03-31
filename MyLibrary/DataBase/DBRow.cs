@@ -56,21 +56,8 @@ namespace MyLibrary.DataBase
             var value = Values[index];
             if ((value is DBNull) && !column.AllowDBNull)
             {
-                var type = column.DataType;
-                if (type == typeof(string))
-                {
-                    value = string.Empty;
-                }
-                else if (type.BaseType == typeof(Array))
-                {
-                    value = Activator.CreateInstance(type, 0);
-                }
-                else
-                {
-                    value = Activator.CreateInstance(type);
-                }
-
-                Values[index] = value;
+                value = DBInternal.GetNotNullValue(column.DataType);
+                SetValue(index, value);
             }
         }
         public void SetNotNull(string columnName)
@@ -174,25 +161,36 @@ namespace MyLibrary.DataBase
                     throw DBInternal.GenerateSetIDException(column);
                 }
             }
-            else if (!(value is DBNull))
+            else if (value is DBNull)
             {
-                try
+                if (!column.AllowDBNull)
                 {
-                    value = Convert.ChangeType(value, column.DataType);
+                    value = DBInternal.GetNotNullValue(column.DataType);
                 }
-                catch (Exception ex)
+            }
+            else
+            {
+                var valueType = value.GetType();
+                if (valueType != column.DataType)
                 {
-                    throw DBInternal.DataConvertException(column, value, ex);
-                }
-
-                if (value is string)
-                {
-                    // проверка на максимальную длину текстовой строки
-                    string stringValue = (string)value;
-                    if (stringValue.Length > column.MaxTextLength)
+                    try
                     {
-                        throw DBInternal.StringOverflowException(column);
+                        value = Convert.ChangeType(value, column.DataType);
                     }
+                    catch (Exception ex)
+                    {
+                        throw DBInternal.DataConvertException(column, value, ex);
+                    }
+                }
+            }
+
+            if (value is string)
+            {
+                // проверка на максимальную длину текстовой строки
+                string stringValue = (string)value;
+                if (stringValue.Length > column.MaxTextLength)
+                {
+                    throw DBInternal.StringOverflowException(column);
                 }
             }
 
@@ -203,15 +201,20 @@ namespace MyLibrary.DataBase
                 object prevValue = Values[index];
                 bool isChanged = true;
                 if (value.GetType() == prevValue.GetType() && value is IComparable)
+                {
                     isChanged = !object.Equals(value, prevValue);
+                }
                 else if (value is byte[] && prevValue is byte[])
+                {
                     isChanged = !DBInternal.EqualsBlob((byte[])value, (byte[])prevValue);
+                }
 
                 if (isChanged)
                     State = DataRowState.Modified;
 
                 #endregion
             }
+
             Values[index] = value;
         }
     }
