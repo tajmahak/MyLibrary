@@ -33,7 +33,7 @@ namespace MyLibrary.DataBase
             }
             set
             {
-                SetValueInternal(value, Table.Columns[index], index, false);
+                SetValue(index, value);
             }
         }
         public object this[string columnName]
@@ -46,22 +46,44 @@ namespace MyLibrary.DataBase
             set
             {
                 var index = Table.GetIndex(columnName);
-                var column = Table.Columns[index];
-                SetValueInternal(value, column, index, false);
+                SetValue(index, value);
             }
         }
 
+        public void SetNotNull(int index)
+        {
+            var column = Table.Columns[index];
+            var value = Values[index];
+            if ((value is DBNull) && !column.AllowDBNull)
+            {
+                var type = column.DataType;
+                if (type == typeof(string))
+                {
+                    value = string.Empty;
+                }
+                else if (type.BaseType == typeof(Array))
+                {
+                    value = Activator.CreateInstance(type, 0);
+                }
+                else
+                {
+                    value = Activator.CreateInstance(type);
+                }
+
+                Values[index] = value;
+            }
+        }
+        public void SetNotNull(string columnName)
+        {
+            var index = Table.GetIndex(columnName);
+            SetNotNull(index);
+        }
         public void SetNotNull()
         {
             for (int i = 0; i < Table.Columns.Length; i++)
-                SetNotNullInternal(i);
-        }
-        public void SetNotNull(string columnName, object value)
-        {
-            var index = Table.GetIndex(columnName);
-            var column = Table.Columns[index];
-            SetValueInternal(value, column, index, true);
-            SetNotNullInternal(index);
+            {
+                SetNotNull(i);
+            }
         }
 
         public T Get<T>(int index)
@@ -134,28 +156,25 @@ namespace MyLibrary.DataBase
                 Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;
             }
         }
-
-        private void SetValueInternal(object value, DBColumn column, int index, bool allowNull)
+        private void SetValue(int index, object value)
         {
             if (Table.Name == null)
+            {
                 throw DBInternal.ProcessRowException();
+            }
+
+            var column = Table.Columns[index];
 
             value = value ?? DBNull.Value;
 
-            if (value is DBNull)
-            {
-                if (!column.AllowDBNull && !(Values[index] is DBNull))
-                {
-                    if (!allowNull)
-                        throw new ArgumentNullException(column.Name);
-                }
-            }
-            else if (value is Guid)
+            if (value is Guid)
             {
                 if (column.IsPrimary)
+                {
                     throw DBInternal.GenerateSetIDException(column);
+                }
             }
-            else
+            else if (!(value is DBNull))
             {
                 try
                 {
@@ -166,8 +185,15 @@ namespace MyLibrary.DataBase
                     throw DBInternal.DataConvertException(column, value, ex);
                 }
 
-                if (value is string && ((string)value).Length > column.MaxTextLength)
-                    throw DBInternal.StringOverflowException(column);
+                if (value is string)
+                {
+                    // проверка на максимальную длину текстовой строки
+                    string stringValue = (string)value;
+                    if (stringValue.Length > column.MaxTextLength)
+                    {
+                        throw DBInternal.StringOverflowException(column);
+                    }
+                }
             }
 
             if (State == DataRowState.Unchanged)
@@ -187,22 +213,6 @@ namespace MyLibrary.DataBase
                 #endregion
             }
             Values[index] = value;
-        }
-        private void SetNotNullInternal(int index)
-        {
-            var column = Table.Columns[index];
-            var value = Values[index];
-            if ((value is DBNull) && !column.AllowDBNull)
-            {
-                var type = column.DataType;
-                if (type == typeof(string))
-                    value = string.Empty;
-                else if (type.BaseType == typeof(Array))
-                    value = Activator.CreateInstance(type, 0);
-                else value = Activator.CreateInstance(type);
-
-                Values[index] = value;
-            }
         }
     }
 }

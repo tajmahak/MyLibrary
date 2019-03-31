@@ -4,6 +4,11 @@
     {
         public DBRow Row { get; set; }
 
+        public DBOrmTableBase(DBRow row)
+        {
+            Row = row;
+        }
+
         public void Delete()
         {
             Row.Delete();
