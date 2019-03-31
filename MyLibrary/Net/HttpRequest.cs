@@ -14,6 +14,8 @@ namespace MyLibrary.Net
         public int Timeout { get; set; }
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
+        private CookieContainer _cookieContainer;
+        private WebHeaderCollection _webHeaderCollection;
 
         #region Конструктор
 
@@ -32,6 +34,23 @@ namespace MyLibrary.Net
         {
             if (Response != null)
                 Response.Close();
+        }
+
+        public void AddHeader(string name, string value)
+        {
+            if (_webHeaderCollection == null)
+            {
+                _webHeaderCollection = new WebHeaderCollection();
+            }
+            _webHeaderCollection.Add(name, value);
+        }
+        public void AddCookie(Cookie cookie)
+        {
+            if (_cookieContainer == null)
+            {
+                _cookieContainer = new CookieContainer();
+            }
+            _cookieContainer.Add(cookie);
         }
 
         public string GetString()
@@ -123,8 +142,26 @@ namespace MyLibrary.Net
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
 
                 if (UploadData == null)
+                {
                     Request.Method = UseHeadRequest ? "HEAD" : "GET";
-                else Request.Method = "POST";
+                }
+                else
+                {
+                    Request.Method = "POST";
+                }
+
+                if (_cookieContainer != null)
+                {
+                    Request.CookieContainer = _cookieContainer;
+                }
+                if (_webHeaderCollection != null)
+                {
+                    foreach (string name in _webHeaderCollection)
+                    {
+                        var value = _webHeaderCollection[name];
+                        Request.Headers.Add(name, value);
+                    }
+                }
 
                 #endregion
 
