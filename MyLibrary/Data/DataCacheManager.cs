@@ -20,9 +20,9 @@ namespace MyLibrary.Data
         {
             var hash = CalculateMD5(key);
 
-            var cmd = _context.Command(DATACACHE._)
-                .Select(DATACACHE.TIME, DATACACHE.DATA)
-                .Where(DATACACHE.HASH, hash);
+            var cmd = _context.Command(DataCacheTable._)
+                .Select(DataCacheTable.Time, DataCacheTable.Data)
+                .Where(DataCacheTable.Hash, hash);
 
             DBRow row;
             lock (_context)
@@ -33,8 +33,8 @@ namespace MyLibrary.Data
 
             return new CacheContent<byte[]>()
             {
-                CreateTime = row.Get<DateTime>(DATACACHE.TIME),
-                Data = row.Get<byte[]>(DATACACHE.DATA),
+                CreateTime = row.Get<DateTime>(DataCacheTable.Time),
+                Data = row.Get<byte[]>(DataCacheTable.Data),
             };
         }
         public CacheContent<string> LoadString(string key)
@@ -61,9 +61,9 @@ namespace MyLibrary.Data
         }
         public void Clear(DateTime limitDate)
         {
-            var cmd = _context.Command(DATACACHE._)
+            var cmd = _context.Command(DataCacheTable._)
                 .Delete()
-                .Where(DATACACHE.TIME, "<", limitDate);
+                .Where(DataCacheTable.Time, "<", limitDate);
 
             lock (_context)
                 _context.Execute(cmd);
@@ -77,13 +77,13 @@ namespace MyLibrary.Data
         {
             var hash = CalculateMD5(key);
 
-            var cmd = _context.Command(DATACACHE._)
+            var cmd = _context.Command(DataCacheTable._)
                 .UpdateOrInsert()
-                .Set(DATACACHE.HASH, hash)
-                .Set(DATACACHE.DATA, data)
-                .Set(DATACACHE.TIME, DateTime.Now)
-                .Set(DATACACHE.TYPE, type)
-                .Matching(DATACACHE.HASH);
+                .Set(DataCacheTable.Hash, hash)
+                .Set(DataCacheTable.Data, data)
+                .Set(DataCacheTable.Time, DateTime.Now)
+                .Set(DataCacheTable.Type, type)
+                .Matching(DataCacheTable.Hash);
 
             lock (_context)
                 _context.Execute(cmd);
@@ -137,13 +137,13 @@ namespace MyLibrary.Data
             Data = 1,
             String = 2,
         }
-        private static class DATACACHE
+        private static class DataCacheTable
         {
             public const string _ = "DATACACHE";
-            public const string HASH = "DATACACHE.HASH";
-            public const string DATA = "DATACACHE.DATA";
-            public const string TIME = "DATACACHE.TIME";
-            public const string TYPE = "DATACACHE.TYPE";
+            public const string Hash = "DATACACHE.HASH";
+            public const string Data = "DATACACHE.DATA";
+            public const string Time = "DATACACHE.TIME";
+            public const string Type = "DATACACHE.TYPE";
         }
     }
 
