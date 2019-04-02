@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
+#if FW35
+
 namespace MyLibrary.Net
 {
     /// <summary>
@@ -268,3 +270,5 @@ namespace MyLibrary.Net
         }
     }
 }
+
+#endif
