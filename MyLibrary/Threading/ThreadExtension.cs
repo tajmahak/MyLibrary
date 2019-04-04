@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace MyLibrary.MyLibrary.Threading
+namespace MyLibrary.Threading
 {
     public static class ThreadExtension
     {
