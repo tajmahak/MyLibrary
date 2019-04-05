@@ -257,5 +257,21 @@ namespace MyLibrary.Data
         {
             return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
         }
+
+        public static string FormatFileSize(long value)
+        {
+            string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
+            int order = 0;
+            var len = value;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len = len / 1024;
+            }
+
+            decimal val = value / (decimal)Math.Pow(1024, order);
+            var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
+            return text;
+        }
     }
 }

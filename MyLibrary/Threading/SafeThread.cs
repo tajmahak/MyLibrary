@@ -31,6 +31,10 @@ namespace MyLibrary.Threading
                 return _aborted;
             }
         }
+        public void Start()
+        {
+            CurrentThread.Start();
+        }
         public void Join()
         {
             CurrentThread.Join();
