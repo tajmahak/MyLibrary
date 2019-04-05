@@ -252,5 +252,10 @@ namespace MyLibrary.Data
             }
             return text;
         }
+
+        public static string[] Split(string value, params string[] values)
+        {
+            return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
+        }
     }
 }
