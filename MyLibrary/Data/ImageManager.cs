@@ -2,7 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-namespace MyLibrary.MyLibrary.Data
+namespace MyLibrary.Data
 {
     public static class ImageManager
     {
