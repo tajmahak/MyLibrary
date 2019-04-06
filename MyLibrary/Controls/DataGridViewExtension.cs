@@ -216,15 +216,24 @@ namespace MyLibrary.Controls
 
             return GetTag<T>(gridRow);
         }
-        public static object[] GetSelectedRowsTags(this DataGridView grid)
+        public static List<T> GetSelectedTags<T>(this DataGridView grid)
         {
-            var gridRows = grid.GetSelectedRows();
+            var gridRows = new List<DataGridViewRow>();
+            for (int i = 0; i < grid.SelectedRows.Count; i++)
+            {
+                var gridRow = grid.SelectedRows[i];
+                gridRows.Add(gridRow);
+            }
+            gridRows.Sort((x, y) => x.Index.CompareTo(y.Index));
 
-            var tags = new object[gridRows.Length];
-            for (int i = 0; i < gridRows.Length; i++)
-                tags[i] = gridRows[i].Tag;
+            var list = new List<T>();
+            for (int i = 0; i < gridRows.Count; i++)
+            {
+                var item = gridRows[i].GetTag<T>();
+                list.Add(item);
+            }
 
-            return tags;
+            return list;
         }
 
         public static T Get<T>(this DataGridViewCell gridCell, bool allowNullString = true)

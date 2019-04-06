@@ -67,7 +67,7 @@ namespace MyLibrary.Controls
             else
             {
                 // draw the text
-                if (this.DataGridView.CurrentRow.Index == rowIndex)
+                if (this.DataGridView.CurrentRow != null && this.DataGridView.CurrentRow.Index == rowIndex)
                     g.DrawString(progressVal.ToString() + "%", cellStyle.Font, new SolidBrush(cellStyle.SelectionForeColor), cellBounds.X + 6, cellBounds.Y + 2);
                 else
                     g.DrawString(progressVal.ToString() + "%", cellStyle.Font, foreColorBrush, cellBounds.X + 6, cellBounds.Y + 2);
