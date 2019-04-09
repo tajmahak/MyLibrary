@@ -91,7 +91,7 @@ namespace MyLibrary.Threading
                     {
                         while (true)
                         {
-                            if (Aborted)
+                            if (_aborted)
                                 return;
 
                             int index;
@@ -127,7 +127,9 @@ namespace MyLibrary.Threading
                             if (_completedThreads == _threads.Length)
                             {
                                 if (Completed != null)
+                                {
                                     Completed(this, EventArgs.Empty);
+                                }
                             }
                         }
                     }
@@ -136,7 +138,9 @@ namespace MyLibrary.Threading
                 _threads[i] = thread;
             }
             for (int i = 0; i < _threads.Length; i++)
+            {
                 _threads[i].Start();
+            }
         }
         /// <summary>
         /// Принудительно останавливает выполнение операции для всех потоков вызовом метода Thread.Abort()

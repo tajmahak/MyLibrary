@@ -18,29 +18,47 @@ namespace MyLibrary.Data
 
             // удаление неиспользуемых символов
             directoryPath = ReplaceWrongChars(directoryPath, Path.GetInvalidPathChars());
-            fileName = ReplaceWrongChars(fileName, Path.GetInvalidFileNameChars());
-
+            
             directoryPath = Path.GetFullPath(directoryPath);
-            var path = Path.Combine(directoryPath, fileName);
-
-            if (path.Length > 259)
+            if (fileName == null)
             {
-                // обрезка имени файла до нужной длины
-                var fileNameExt = Path.GetExtension(fileName);
-                fileName = Path.GetFileNameWithoutExtension(fileName);
-
-                path = Path.Combine(directoryPath, fileName);
-                path = path.Substring(0, 259 - fileNameExt.Length);
-                path += fileNameExt;
+                return directoryPath;
             }
+            else
+            {
+                fileName = ReplaceWrongChars(fileName, Path.GetInvalidFileNameChars());
 
-            return path;
+                var path = Path.Combine(directoryPath, fileName);
+
+                if (path.Length > 259)
+                {
+                    // обрезка имени файла до нужной длины
+                    var fileNameExt = Path.GetExtension(fileName);
+                    fileName = Path.GetFileNameWithoutExtension(fileName);
+
+                    path = Path.Combine(directoryPath, fileName);
+                    path = path.Substring(0, 259 - fileNameExt.Length);
+                    path += fileNameExt;
+                }
+
+                return path;
+            }
         }
-        public static void CreateDirectory(string filePath)
+        /// <summary>
+        /// Создает все каталоги и подкаталоги, указанные в параметре path
+        /// </summary>
+        /// <param name="path">Путь к создаваемому каталогу</param>
+        /// <param name="isFilePath">Путь к создаваемому каталогу содержить путь к файлу</param>
+        public static void CreateDirectory(string path, bool isFilePath)
         {
-            var directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-                Directory.CreateDirectory(directoryPath);
+            if (isFilePath)
+            { 
+                path = Path.GetDirectoryName(path);
+            }
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
         }
     }
 }

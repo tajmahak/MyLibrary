@@ -235,6 +235,30 @@ namespace MyLibrary.Controls
 
             return list;
         }
+        public static List<T> GetSelectedVirtualTags<T>(this DataGridView grid, List<T> srcList)
+        {
+            var gridRows = grid.GetSelectedRows();
+            var list = new List<T>(gridRows.Length);
+            for (int i = 0; i < gridRows.Length; i++)
+            {
+                var gridRow = gridRows[i];
+                list.Add(srcList[gridRow.Index]);
+            }
+            return list;
+        }
+        public static DataGridViewRow GetRowFromTag<T>(this DataGridView grid, T item)
+        {
+            for (int i = 0; i < grid.Rows.Count; i++)
+            {
+                var gridRow = grid.Rows[i];
+                var tag = (T)gridRow.Tag;
+                if (tag.Equals(item))
+                {
+                    return gridRow;
+                }
+            }
+            return null;
+        }
 
         public static T Get<T>(this DataGridViewCell gridCell, bool allowNullString = true)
         {
