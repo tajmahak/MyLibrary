@@ -4,8 +4,18 @@ using System.Linq.Expressions;
 
 namespace MyLibrary.Data
 {
+    /// <summary>
+    /// Представляет набор методов для работы с данными
+    /// </summary>
     public static class Format
     {
+        /// <summary>
+        /// Преобразование объекта в заданный тип
+        /// </summary>
+        /// <typeparam name="T">Тип выходных данных</typeparam>
+        /// <param name="value">Исходный объект</param>
+        /// <param name="allowNullString">Указывает, допускается ли получение пустого объекта типа String со значением null</param>
+        /// <returns></returns>
         public static T Convert<T>(object value, bool allowNullString = true)
         {
             var type = typeof(T);
@@ -38,10 +48,20 @@ namespace MyLibrary.Data
 
             return (T)value;
         }
+        /// <summary>
+        /// Получение объекта типа String, не допускающего значения null
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string GetNotEmptyString(object value)
         {
             return Convert<string>(value, false);
         }
+        /// <summary>
+        /// Получение объекта заданного типа, не допускающего значения null
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static object GetNotNullValue(Type type)
         {
             if (type == typeof(string))
@@ -74,12 +94,9 @@ namespace MyLibrary.Data
             }
             return destList;
         }
-     
-        public static int Compare(object value1, object value2)
-        {
-            return Compare(value1, value2, false);
-        }
-        public static int Compare(object value1, object value2, bool ignoreCase)
+
+
+        public static int Compare<T>(T value1, T value2, bool ignoreCase = false) where T : IComparable
         {
             if (IsNull(value1) && IsNull(value2))
                 return 0;
@@ -90,25 +107,21 @@ namespace MyLibrary.Data
             if (IsNull(value2))
                 return 1;
 
-            var type1 = value1.GetType();
-            var type2 = value2.GetType();
-            if (value1 is IComparable && value2 is IComparable)
+            if (ignoreCase)
             {
-                if (ignoreCase && type1 == typeof(string) && type2 == typeof(string))
+                var type1 = value1.GetType();
+                var type2 = value2.GetType();
+                if (type1 == typeof(string) && type2 == typeof(string))
                 {
-                    value1 = ((string)value1).ToUpperInvariant();
-                    value2 = ((string)value2).ToUpperInvariant();
+                    //!!!
+                    //value1 = ((string)value1).ToUpperInvariant();
+                    //value2 = ((string)value2).ToUpperInvariant();
                 }
-                return ((IComparable)value1).CompareTo(value2);
             }
-            throw new Exception("Сравнение указанных значений невозможно.");
+            return value1.CompareTo(value2);
         }
 
-        public static bool IsEquals(object value1, object value2)
-        {
-            return IsEquals(value1, value2, false);
-        }
-        public static bool IsEquals(object value1, object value2, bool ignoreCase)
+        public static bool IsEquals(object value1, object value2, bool ignoreCase = false)
         {
             if (value1 == null && value2 == null)
                 return true;
@@ -175,11 +188,7 @@ namespace MyLibrary.Data
             return true;
         }
 
-        public static bool IsContains(object value1, object value2)
-        {
-            return IsContains(value1, value2, false);
-        }
-        public static bool IsContains(object value1, object value2, bool ignoreCase)
+        public static bool IsContains(object value1, object value2, bool ignoreCase = false)
         {
             if (value1 is string && value2 is string)
             {
@@ -239,20 +248,12 @@ namespace MyLibrary.Data
             list.Sort(comparison);
         }
 
-        public static decimal RoundDigit(object value)
-        {
-            return RoundDigit(value, 0);
-        }
-        public static decimal RoundDigit(object value, int decimals)
+        public static decimal RoundDigit(object value, int decimals = 0)
         {
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals);
         }
-        public static object RoundValue(object value)
-        {
-            return RoundValue(value, 0);
-        }
-        public static object RoundValue(object value, int decimals)
+        public static object RoundValue(object value, int decimals = 0)
         {
             if (IsEmpty(value))
                 return null;
@@ -261,9 +262,9 @@ namespace MyLibrary.Data
             return Math.Round(digit, decimals);
         }
 
-        public static string FormatString(object value, string format)
+        public static string FormatString<T>(T value, string format) where T : IFormattable
         {
-            return ((IFormattable)value).ToString(format, null);
+            return value.ToString(format, null);
         }
         public static string FormatDigit(object value, int decimals = 0, bool allowNull = false)
         {
@@ -306,26 +307,19 @@ namespace MyLibrary.Data
             return text;
         }
 
-        
 
 
 
-        #region NameOf
 
-        public static String NameOf<T>(this Expression<Func<T>> accessor)
+        /// <summary>
+        /// Получение имени экземпляра объекта
+        /// </summary>
+        /// <typeparam name="T">Тип объекта</typeparam>
+        /// <param name="accessor">Функция для передачи экземпляра объекта. Задаётся: () => member</param>
+        /// <returns></returns>
+        public static String NameOf<T>(Expression<Func<T>> accessor)
         {
-            return NameOf(accessor.Body);
-        }
-        public static String NameOf<T, TT>(this Expression<Func<T, TT>> accessor)
-        {
-            return NameOf(accessor.Body);
-        }
-        public static String NameOf<T, TT>(this T obj, Expression<Func<T, TT>> propertyAccessor)
-        {
-            return NameOf(propertyAccessor.Body);
-        }
-        public static String NameOf(Expression expression)
-        {
+            Expression expression = accessor.Body;
             if (expression.NodeType == ExpressionType.MemberAccess)
             {
                 var memberExpression = expression as MemberExpression;
@@ -335,7 +329,5 @@ namespace MyLibrary.Data
             }
             return null;
         }
-
-        #endregion
     }
 }
