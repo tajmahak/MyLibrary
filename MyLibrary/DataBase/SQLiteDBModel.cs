@@ -263,7 +263,7 @@ namespace MyLibrary.DataBase
                 string[] args;
                 int index = 0;
 
-                if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Select)
+                if (cmd.CommandType == DBCommandTypeEnum.Select)
                 {
                     #region SELECT [...] ... FROM ...
 
@@ -566,7 +566,7 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Insert)
+                else if (cmd.CommandType == DBCommandTypeEnum.Insert)
                 {
                     #region INSERT INTO ...
 
@@ -595,7 +595,7 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Update)
+                else if (cmd.CommandType == DBCommandTypeEnum.Update)
                 {
                     #region UPDATE ... SET ...
 
@@ -617,7 +617,7 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Delete)
+                else if (cmd.CommandType == DBCommandTypeEnum.Delete)
                 {
                     #region DELETE FROM ...
 
@@ -626,7 +626,7 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommand.DBCommandTypeEnum.UpdateOrInsert)
+                else if (cmd.CommandType == DBCommandTypeEnum.UpdateOrInsert)
                 {
                     #region UPDATE OR INSERT
 
@@ -677,7 +677,7 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Sql)
+                else if (cmd.CommandType == DBCommandTypeEnum.Sql)
                 {
                     #region SQL-команда
 
@@ -876,7 +876,7 @@ namespace MyLibrary.DataBase
                 }
 
                 #endregion
-                if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Select)
+                if (cmd.CommandType == DBCommandTypeEnum.Select)
                 {
                     #region GROUP BY ...
 

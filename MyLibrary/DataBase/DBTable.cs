@@ -4,17 +4,18 @@ namespace MyLibrary.DataBase
 {
     public sealed class DBTable
     {
+        public DBTable(DBModelBase model, string name)
+        {
+            Model = model;
+            Name = name;
+        }
+
         public string Name { get; private set; }
         public DBColumn[] Columns { get; private set; }
         public int PrimaryKeyIndex { get; private set; }
         public DBModelBase Model { get; private set; }
         private Dictionary<string, int> ColumnIndexDict;
 
-        public DBTable(DBModelBase model, string name)
-        {
-            Model = model;
-            Name = name;
-        }
         public int GetIndex(string columnName)
         {
             int index;

@@ -7,11 +7,6 @@ namespace MyLibrary.DataBase
 {
     public class DBCommand
     {
-        public DBCommandTypeEnum CommandType { get; private set; }
-        public DBTable Table { get; private set; }
-        public bool IsView { get; private set; }
-        internal List<object[]> Structure { get; private set; }
-
         private DBCommand()
         {
             Structure = new List<object[]>();
@@ -37,6 +32,11 @@ namespace MyLibrary.DataBase
             IsView = true;
             Structure.Add(new object[] { "Sql", sql, @params });
         }
+
+        public DBCommandTypeEnum CommandType { get; private set; }
+        public DBTable Table { get; private set; }
+        public bool IsView { get; private set; }
+        internal List<object[]> Structure { get; private set; }
 
         #region Построители SQL
 
@@ -462,15 +462,5 @@ namespace MyLibrary.DataBase
         }
 
         #endregion
-
-        public enum DBCommandTypeEnum
-        {
-            Sql,
-            Select,
-            Insert,
-            Update,
-            Delete,
-            UpdateOrInsert
-        }
     }
 }

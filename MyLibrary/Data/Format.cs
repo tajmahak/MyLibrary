@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace MyLibrary.Data
 {
     public static class Format
     {
-        public static T Convert<T>(object value)
-        {
-            return Convert<T>(value, true);
-        }
-        public static T Convert<T>(object value, bool allowNullString)
+        public static T Convert<T>(object value, bool allowNullString = true)
         {
             var type = typeof(T);
 
@@ -17,6 +14,10 @@ namespace MyLibrary.Data
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 type = Nullable.GetUnderlyingType(type);
+            }
+            else if (type.BaseType == typeof(Enum))
+            {
+                type = Enum.GetUnderlyingType(type);
             }
 
             if (IsNull(value))
@@ -30,16 +31,50 @@ namespace MyLibrary.Data
                     value = default(T);
                 }
             }
-            else
+            else if (value.GetType() != type)
             {
-                if (value.GetType() != type)
-                {
-                    value = System.Convert.ChangeType(value, type);
-                }
+                value = System.Convert.ChangeType(value, type);
             }
+
             return (T)value;
         }
+        public static string GetNotEmptyString(object value)
+        {
+            return Convert<string>(value, false);
+        }
+        public static object GetNotNullValue(Type type)
+        {
+            if (type == typeof(string))
+            {
+                return string.Empty;
+            }
 
+            if (type.BaseType == typeof(Array))
+            {
+                return Activator.CreateInstance(type, 0);
+            }
+
+            return Activator.CreateInstance(type);
+        }
+        /// <summary>
+        /// Выполняет преобразование исходного списка с использованием заданной функции преобразования элементов
+        /// </summary>
+        /// <typeparam name="T1">Исходный тип списка</typeparam>
+        /// <typeparam name="T2">Конечный тип списка</typeparam>
+        /// <param name="srcList">Исходный список</param>
+        /// <param name="convertFunc">Функция преобразования элементов</param>
+        /// <returns></returns>
+        public static List<T2> ConvertList<T1, T2>(List<T1> srcList, Func<T1, T2> convertFunc)
+        {
+            var destList = new List<T2>(srcList.Count);
+            foreach (var srcItem in srcList)
+            {
+                var destItem = convertFunc(srcItem);
+                destList.Add(destItem);
+            }
+            return destList;
+        }
+     
         public static int Compare(object value1, object value2)
         {
             return Compare(value1, value2, false);
@@ -204,14 +239,6 @@ namespace MyLibrary.Data
             list.Sort(comparison);
         }
 
-        public static string GetNotEmptyString(object value)
-        {
-            return Convert<string>(value, false);
-        }
-        public static string FormatString(object value, string format)
-        {
-            return ((IFormattable)value).ToString(format, null);
-        }
         public static decimal RoundDigit(object value)
         {
             return RoundDigit(value, 0);
@@ -232,6 +259,11 @@ namespace MyLibrary.Data
 
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals);
+        }
+
+        public static string FormatString(object value, string format)
+        {
+            return ((IFormattable)value).ToString(format, null);
         }
         public static string FormatDigit(object value, int decimals = 0, bool allowNull = false)
         {
@@ -273,5 +305,37 @@ namespace MyLibrary.Data
             var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
             return text;
         }
+
+        
+
+
+
+        #region NameOf
+
+        public static String NameOf<T>(this Expression<Func<T>> accessor)
+        {
+            return NameOf(accessor.Body);
+        }
+        public static String NameOf<T, TT>(this Expression<Func<T, TT>> accessor)
+        {
+            return NameOf(accessor.Body);
+        }
+        public static String NameOf<T, TT>(this T obj, Expression<Func<T, TT>> propertyAccessor)
+        {
+            return NameOf(propertyAccessor.Body);
+        }
+        public static String NameOf(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var memberExpression = expression as MemberExpression;
+                if (memberExpression == null)
+                    return null;
+                return memberExpression.Member.Name;
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

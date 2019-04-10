@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Data;
+using MyLibrary.Data;
 
 namespace MyLibrary.DataBase
 {
     public sealed class DBRow
     {
+        internal DBRow(DBTable table)
+        {
+            Table = table;
+            Values = new object[table.Columns.Length];
+            State = DataRowState.Detached;
+        }
+
         public DBTable Table { get; private set; }
         public bool IsNew
         {
@@ -15,13 +23,6 @@ namespace MyLibrary.DataBase
         }
         internal DataRowState State;
         internal object[] Values;
-
-        internal DBRow(DBTable table)
-        {
-            Table = table;
-            Values = new object[table.Columns.Length];
-            State = DataRowState.Detached;
-        }
 
         #region Работа с данными
 
@@ -56,7 +57,7 @@ namespace MyLibrary.DataBase
             var value = Values[index];
             if ((value is DBNull) && !column.AllowDBNull)
             {
-                value = DBInternal.GetNotNullValue(column.DataType);
+                value = Format.GetNotNullValue(column.DataType);
                 SetValue(index, value);
             }
         }
@@ -75,12 +76,12 @@ namespace MyLibrary.DataBase
 
         public T Get<T>(int index)
         {
-            return DBInternal.ConvertValue<T>(Values[index]);
+            return Format.Convert<T>(Values[index]);
         }
         public T Get<T>(string columnName)
         {
             var index = Table.GetIndex(columnName);
-            return DBInternal.ConvertValue<T>(Values[index]);
+            return Format.Convert<T>(Values[index]);
         }
 
         public string GetString(int columnIndex)
@@ -165,7 +166,7 @@ namespace MyLibrary.DataBase
             {
                 if (!column.AllowDBNull)
                 {
-                    value = DBInternal.GetNotNullValue(column.DataType);
+                    value = Format.GetNotNullValue(column.DataType);
                 }
             }
             else
@@ -206,7 +207,7 @@ namespace MyLibrary.DataBase
                 }
                 else if (value is byte[] && prevValue is byte[])
                 {
-                    isChanged = !DBInternal.EqualsBlob((byte[])value, (byte[])prevValue);
+                    isChanged = !Format.BlobEquals((byte[])value, (byte[])prevValue);
                 }
 
                 if (isChanged)

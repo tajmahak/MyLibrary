@@ -1,54 +1,12 @@
 ﻿using System;
 using System.Linq.Expressions;
+using MyLibrary.Data;
 using MyLibrary.DataBase.Orm;
 
 namespace MyLibrary.DataBase
 {
     internal static class DBInternal
     {
-        public static T ConvertValue<T>(object value)
-        {
-            if (value is DBNull || value == null)
-                return default(T);
-
-            var type = typeof(T);
-            if (value.GetType() == type)
-                return (T)value;
-
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                type = Nullable.GetUnderlyingType(type);
-            else if (type.BaseType == typeof(Enum))
-                type = Enum.GetUnderlyingType(type);
-
-            return (T)Convert.ChangeType(value, type);
-        }
-        public static object GetNotNullValue(Type type)
-        {
-            if (type == typeof(string))
-            {
-                return string.Empty;
-            }
-
-            if (type.BaseType == typeof(Array))
-            {
-                return Activator.CreateInstance(type, 0);
-            }
-
-            return Activator.CreateInstance(type);
-        }
-
-        public static bool EqualsBlob(byte[] blobA, byte[] blobB)
-        {
-            if (blobA == null && blobB == null) return true;
-            if (blobA == null || blobB == null) return false;
-            if (blobA.Length != blobB.Length) return false;
-
-            int length = blobA.Length;
-            for (int i = 0; i < length; i++)
-                if (blobA[i] != blobB[i])
-                    return false;
-            return true;
-        }
         public static T PackRow<T>(object value)
         {
             if (typeof(T) == typeof(DBRow))
@@ -74,36 +32,9 @@ namespace MyLibrary.DataBase
             return attr.TableName;
         }
 
-        #region NameOf
-
-        private static String NameOf<T, TT>(this Expression<Func<T, TT>> accessor)
-        {
-            return NameOf(accessor.Body);
-        }
-        private static String NameOf<T>(this Expression<Func<T>> accessor)
-        {
-            return NameOf(accessor.Body);
-        }
-        private static String NameOf<T, TT>(this T obj, Expression<Func<T, TT>> propertyAccessor)
-        {
-            return NameOf(propertyAccessor.Body);
-        }
-        private static String NameOf(Expression expression)
-        {
-            if (expression.NodeType == ExpressionType.MemberAccess)
-            {
-                var memberExpression = expression as MemberExpression;
-                if (memberExpression == null)
-                    return null;
-                return memberExpression.Member.Name;
-            }
-            return null;
-        }
-
-        #endregion
         public static Exception ArgumentNullException<T>(Expression<Func<T>> accessor)
         {
-            throw new ArgumentNullException(NameOf(accessor));
+            throw new ArgumentNullException(Format.NameOf(accessor));
         }
         public static Exception UnknownTableException(string tableName)
         {

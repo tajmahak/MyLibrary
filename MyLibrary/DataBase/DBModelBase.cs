@@ -5,15 +5,6 @@ namespace MyLibrary.DataBase
 {
     public abstract class DBModelBase
     {
-        public bool IsInitialized { get; protected internal set; }
-        public DBTable[] Tables { get; protected internal set; }
-        protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultDeleteCommandsDict { get; private set; }
-        protected internal Dictionary<string, DBTable> TablesDict { get; private set; }
-        protected internal Dictionary<string, DBColumn> ColumnsDict { get; private set; }
-
         public DBModelBase()
         {
             DefaultSelectCommandsDict = new Dictionary<DBTable, string>();
@@ -23,6 +14,15 @@ namespace MyLibrary.DataBase
             TablesDict = new Dictionary<string, DBTable>();
             ColumnsDict = new Dictionary<string, DBColumn>();
         }
+
+        public bool IsInitialized { get; protected internal set; }
+        public DBTable[] Tables { get; protected internal set; }
+        protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultDeleteCommandsDict { get; private set; }
+        protected internal Dictionary<string, DBTable> TablesDict { get; private set; }
+        protected internal Dictionary<string, DBColumn> ColumnsDict { get; private set; }
 
         public abstract void Initialize(DbConnection connection);
         public abstract void AddParameter(DbCommand command, string name, object value);

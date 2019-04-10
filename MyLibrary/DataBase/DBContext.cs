@@ -3,15 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using MyLibrary.Data;
 
 namespace MyLibrary.DataBase
 {
     public class DBContext : IDisposable
     {
-        public DBModelBase Model { get; private set; }
-        public DbConnection Connection { get; set; }
-        public bool AutoCommit { get; set; }
-
         public DBContext(DBModelBase model, DbConnection connection)
         {
             if (!model.IsInitialized)
@@ -31,10 +28,10 @@ namespace MyLibrary.DataBase
                 _rowCollectionDict.Add(table, rowCollection);
             }
         }
-        public void Dispose()
-        {
-            Clear();
-        }
+
+        public DBModelBase Model { get; private set; }
+        public DbConnection Connection { get; set; }
+        public bool AutoCommit { get; set; }
 
         public DBCommand Command(string tableName)
         {
@@ -51,7 +48,7 @@ namespace MyLibrary.DataBase
         }
         public void Execute(DBCommand cmd)
         {
-            if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Select)
+            if (cmd.CommandType == DBCommandTypeEnum.Select)
                 throw DBInternal.SqlExecuteException();
 
             OpenTransaction();
@@ -216,6 +213,10 @@ namespace MyLibrary.DataBase
                 Clear();
                 throw DBInternal.DbSaveException(row, ex);
             }
+        }
+        public void Dispose()
+        {
+            Clear();
         }
 
         #region Работа с коллекцией
@@ -384,7 +385,7 @@ namespace MyLibrary.DataBase
 
         public DBReader<T> Select<T>(DBCommand cmd)
         {
-            if (cmd.CommandType != DBCommand.DBCommandTypeEnum.Select && cmd.CommandType != DBCommand.DBCommandTypeEnum.Sql)
+            if (cmd.CommandType != DBCommandTypeEnum.Select && cmd.CommandType != DBCommandTypeEnum.Sql)
                 throw DBInternal.SqlExecuteException();
 
             return new DBReader<T>(Connection, Model, cmd);
@@ -397,13 +398,13 @@ namespace MyLibrary.DataBase
 
         public T GetValue<T>(DBCommand cmd)
         {
-            if (cmd.CommandType == DBCommand.DBCommandTypeEnum.Select)
+            if (cmd.CommandType == DBCommandTypeEnum.Select)
                 cmd.First(1);
 
             using (var command = Model.BuildCommand(Connection, cmd))
             {
                 var value = command.ExecuteScalar();
-                return DBInternal.ConvertValue<T>(value);
+                return Format.Convert<T>(value);
             }
         }
         public T GetValue<T>(string columnName, params object[] columnNameValuePair)
