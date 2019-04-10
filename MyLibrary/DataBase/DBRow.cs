@@ -207,7 +207,7 @@ namespace MyLibrary.DataBase
                 }
                 else if (value is byte[] && prevValue is byte[])
                 {
-                    isChanged = !Format.BlobEquals((byte[])value, (byte[])prevValue);
+                    isChanged = !Format.ArrayEquals((byte[])value, (byte[])prevValue);
                 }
 
                 if (isChanged)

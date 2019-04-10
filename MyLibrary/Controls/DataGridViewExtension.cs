@@ -98,7 +98,7 @@ namespace MyLibrary.Controls
                 object value = gridCell.Value;
                 value = value ?? string.Empty;
 
-                if (!Format.IsEquals(editingControl.Text, value))
+                if (!Format.IsEquals(editingControl.Text, (string)value))
                     editingControl.Text = value.ToString();
             }
         }
@@ -262,7 +262,12 @@ namespace MyLibrary.Controls
 
         public static T Get<T>(this DataGridViewCell gridCell, bool allowNullString = true)
         {
-            return Format.Convert<T>(gridCell.Value, allowNullString);
+            var value = Format.Convert<T>(gridCell.Value);
+            if (!allowNullString && typeof(T) == typeof(string))
+            {
+                value = (T)((object)Format.GetNotEmptyString(value));
+            }
+            return value;
         }
         public static T Get<T>(this DataGridViewRow gridRow, int columnIndex, bool allowNullString = true)
         {

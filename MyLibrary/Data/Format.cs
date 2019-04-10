@@ -9,14 +9,7 @@ namespace MyLibrary.Data
     /// </summary>
     public static class Format
     {
-        /// <summary>
-        /// Преобразование объекта в заданный тип
-        /// </summary>
-        /// <typeparam name="T">Тип выходных данных</typeparam>
-        /// <param name="value">Исходный объект</param>
-        /// <param name="allowNullString">Указывает, допускается ли получение пустого объекта типа String со значением null</param>
-        /// <returns></returns>
-        public static T Convert<T>(object value, bool allowNullString = true)
+        public static T Convert<T>(object value)
         {
             var type = typeof(T);
 
@@ -32,14 +25,7 @@ namespace MyLibrary.Data
 
             if (IsNull(value))
             {
-                if (!allowNullString && type == typeof(string))
-                {
-                    value = string.Empty;
-                }
-                else
-                {
-                    value = default(T);
-                }
+                value = default(T);
             }
             else if (value.GetType() != type)
             {
@@ -48,20 +34,16 @@ namespace MyLibrary.Data
 
             return (T)value;
         }
-        /// <summary>
-        /// Получение объекта типа String, не допускающего значения null
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetNotEmptyString(object value)
+        public static List<T2> ConvertList<T1, T2>(List<T1> srcList, Func<T1, T2> convertFunc)
         {
-            return Convert<string>(value, false);
+            var destList = new List<T2>(srcList.Count);
+            foreach (var srcItem in srcList)
+            {
+                var destItem = convertFunc(srcItem);
+                destList.Add(destItem);
+            }
+            return destList;
         }
-        /// <summary>
-        /// Получение объекта заданного типа, не допускающего значения null
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static object GetNotNullValue(Type type)
         {
             if (type == typeof(string))
@@ -76,27 +58,16 @@ namespace MyLibrary.Data
 
             return Activator.CreateInstance(type);
         }
-        /// <summary>
-        /// Выполняет преобразование исходного списка с использованием заданной функции преобразования элементов
-        /// </summary>
-        /// <typeparam name="T1">Исходный тип списка</typeparam>
-        /// <typeparam name="T2">Конечный тип списка</typeparam>
-        /// <param name="srcList">Исходный список</param>
-        /// <param name="convertFunc">Функция преобразования элементов</param>
-        /// <returns></returns>
-        public static List<T2> ConvertList<T1, T2>(List<T1> srcList, Func<T1, T2> convertFunc)
+        public static string GetNotEmptyString(object value)
         {
-            var destList = new List<T2>(srcList.Count);
-            foreach (var srcItem in srcList)
+            string sValue = Convert<string>(value);
+            if (IsNull(value))
             {
-                var destItem = convertFunc(srcItem);
-                destList.Add(destItem);
+                return string.Empty;
             }
-            return destList;
+            return sValue;
         }
-
-
-        public static int Compare<T>(T value1, T value2, bool ignoreCase = false) where T : IComparable
+        public static int Compare<T>(T value1, T value2) where T : IComparable
         {
             if (IsNull(value1) && IsNull(value2))
                 return 0;
@@ -107,21 +78,9 @@ namespace MyLibrary.Data
             if (IsNull(value2))
                 return 1;
 
-            if (ignoreCase)
-            {
-                var type1 = value1.GetType();
-                var type2 = value2.GetType();
-                if (type1 == typeof(string) && type2 == typeof(string))
-                {
-                    //!!!
-                    //value1 = ((string)value1).ToUpperInvariant();
-                    //value2 = ((string)value2).ToUpperInvariant();
-                }
-            }
             return value1.CompareTo(value2);
         }
-
-        public static bool IsEquals(object value1, object value2, bool ignoreCase = false)
+        public static bool IsEquals<T>(T value1, T value2) where T : IEquatable<T>
         {
             if (value1 == null && value2 == null)
                 return true;
@@ -129,56 +88,20 @@ namespace MyLibrary.Data
             if (value1 == null || value2 == null)
                 return false;
 
-            var type1 = value1.GetType();
-            var type2 = value2.GetType();
-
-            #region Приведение типов из Enum
-
-            if (type1.BaseType == typeof(Enum))
+            var type = typeof(T);
+            if (type.BaseType == typeof(Array))
             {
-                type1 = Enum.GetUnderlyingType(type1);
-                value1 = System.Convert.ChangeType(value1, type1);
-            }
-
-            if (type2.BaseType == typeof(Enum))
-            {
-                type2 = Enum.GetUnderlyingType(type2);
-                value2 = System.Convert.ChangeType(value2, type2);
-            }
-
-            #endregion
-
-            if (type1 != type2)
-            {
-                if ((type1.IsPrimitive || type1 == typeof(decimal)) && (type2.IsPrimitive || type2 == typeof(decimal)))
-                {
-                    value1 = System.Convert.ToDecimal(value1);
-                    value2 = System.Convert.ToDecimal(value2);
-                }
-                else
-                {
-                    value1 = value1.ToString();
-                    value2 = value2.ToString();
-                }
-            }
-            else if (ignoreCase && type1 == typeof(string))
-            {
-                value1 = ((string)value1).ToUpperInvariant();
-                value2 = ((string)value2).ToUpperInvariant();
-            }
-            else if (type1 == typeof(byte[]))
-            {
-                return BlobEquals((byte[])value1, (byte[])value2);
+                return ArrayEquals((T[])((object)value1), (T[])((object)value2));
             }
             return object.Equals(value1, value2);
         }
-        public static bool BlobEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
+        public static bool ArrayEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
             if (blob1.Length != blob2.Length)
                 return false;
 
             int length = blob1.Length;
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length; ++i)
             {
                 if (!blob1[i].Equals(blob2[i]))
                 {
@@ -187,21 +110,15 @@ namespace MyLibrary.Data
             }
             return true;
         }
-
-        public static bool IsContains(object value1, object value2, bool ignoreCase = false)
+        public static bool IsContains(string value1, string value2, bool ignoreCase = false)
         {
-            if (value1 is string && value2 is string)
+            if (ignoreCase)
             {
-                if (ignoreCase)
-                {
-                    value1 = ((string)value1).ToUpperInvariant();
-                    value2 = ((string)value2).ToUpperInvariant();
-                }
-                return ((string)value1).Contains((string)value2);
+                value1 = value1.ToUpperInvariant();
+                value2 = value2.ToUpperInvariant();
             }
-            throw new Exception("Операция проверки содержимого не выполнима.");
+            return value1.Contains(value2);
         }
-
         public static bool IsNull(object value)
         {
             return (value == null || value is DBNull);
@@ -248,10 +165,17 @@ namespace MyLibrary.Data
             list.Sort(comparison);
         }
 
-        public static decimal RoundDigit(object value, int decimals = 0)
+        /// <summary>
+        /// Округляет десятичное значение до ближайшего целого.Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами
+        /// </summary>
+        /// <param name="value">Округляемое число</param>
+        /// <param name="decimals">Значение, задающее правило округления, если его значение находится ровно посредине между двумя другими числами</param>
+        /// <param name="midpointRounding">Значение, задающее правило округления параметра value, если его значение находится ровно посредине между двумя другими числами</param>
+        /// <returns></returns>
+        public static decimal RoundDigit(object value, int decimals = 0, MidpointRounding midpointRounding = MidpointRounding.ToEven)
         {
             decimal digit = Convert<decimal>(value);
-            return Math.Round(digit, decimals);
+            return Math.Round(digit, decimals, midpointRounding);
         }
         public static object RoundValue(object value, int decimals = 0)
         {
@@ -261,7 +185,6 @@ namespace MyLibrary.Data
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals);
         }
-
         public static string FormatString<T>(T value, string format) where T : IFormattable
         {
             return value.ToString(format, null);
@@ -285,12 +208,10 @@ namespace MyLibrary.Data
             }
             return text;
         }
-
         public static string[] Split(string value, params string[] values)
         {
             return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
         }
-
         public static string FormatFileSize(long value)
         {
             string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
@@ -306,10 +227,6 @@ namespace MyLibrary.Data
             var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
             return text;
         }
-
-
-
-
 
         /// <summary>
         /// Получение имени экземпляра объекта
