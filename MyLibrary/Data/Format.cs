@@ -140,29 +140,29 @@ namespace MyLibrary.Data
             return ((uValue & uFlag) == uFlag);
         }
 
-        public static void StableSort<T>(T[] array)
+        private static void StableInsertionSort<T>(this IList<T> list, Comparison<T> comparison)
         {
-            StableSort(array, null);
-        }
-        public static void StableSort<T>(T[] array, Comparison<T> comparison)
-        {
-            //if (comparison == null)
-            //    comparison = (x, y) => ((IComparable)x).CompareTo(y);
+            // сортировка вставками
+            int count = list.Count;
+            for (int j = 1; j < count; j++)
+            {
+                T key = list[j];
 
-            //!!! не реализовано
-            Array.Sort<T>(array, comparison);
+                int i = j - 1;
+                for (; i >= 0 && comparison(list[i], key) > 0; i--)
+                {
+                    list[i + 1] = list[i];
+                }
+                list[i + 1] = key;
+            }
         }
-        public static void StableSort<T>(List<T> list)
+        private static void StableInsertionSort<T>(this IList<T> list, IComparer<T> comparer)
         {
-            StableSort(list, null);
+            StableInsertionSort(list, (x, y) => comparer.Compare(x, y));
         }
-        public static void StableSort<T>(List<T> list, Comparison<T> comparison)
+        private static void StableInsertionSort<T>(this IList<T> list) where T : IComparable
         {
-            //if (comparison == null)
-            //    comparison = (x, y) => ((IComparable)x).CompareTo(y);
-
-            //!!! не реализовано
-            list.Sort(comparison);
+            StableInsertionSort(list, (x, y) => x.CompareTo(y));
         }
 
         /// <summary>
