@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
+using System;
 
 namespace MyLibrary.Controls
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    //[System.Diagnostics.DebuggerStepThrough]
     public class MyDataGridView : DataGridView
     {
         public MyDataGridView()
@@ -13,6 +14,9 @@ namespace MyLibrary.Controls
 
         [DefaultValue(false)]
         public bool NextTabOnEnterButton { get; set; }
+
+        [DefaultValue(false)]
+        public bool StableSort { get; set; }
 
         protected override bool ProcessDialogKey(Keys keyData)
         {
@@ -42,6 +46,38 @@ namespace MyLibrary.Controls
             }
 
             return base.ProcessDataGridViewKey(e);
+        }
+
+        public override void Sort(DataGridViewColumn dataGridViewColumn, ListSortDirection direction)
+        {
+            if (!StableSort)
+            {
+                base.Sort(dataGridViewColumn, direction);
+            }
+            else
+            {
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    var column = Columns[i];
+                    if (column == dataGridViewColumn)
+                    {
+                        column.HeaderCell.SortGlyphDirection = (direction == ListSortDirection.Ascending) ? SortOrder.Ascending : SortOrder.Descending;
+                    }
+                    else
+                    {
+                        column.HeaderCell.SortGlyphDirection = SortOrder.None;
+                    }
+                }
+
+
+
+
+
+
+
+                OnSorted(EventArgs.Empty);
+            }
+            //dataGridViewColumn.HeaderCell.SortGlyphDirection = System.Windows.Forms.SortOrder.Descending;
         }
     }
 }
