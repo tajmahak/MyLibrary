@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
-using System;
+using MyLibrary.Data;
 
 namespace MyLibrary.Controls
 {
-    //[System.Diagnostics.DebuggerStepThrough]
+    [System.Diagnostics.DebuggerStepThrough]
     public class MyDataGridView : DataGridView
     {
         public MyDataGridView()
@@ -56,12 +57,16 @@ namespace MyLibrary.Controls
             }
             else
             {
+                var sortOrder = (direction == ListSortDirection.Ascending) ? SortOrder.Ascending : SortOrder.Descending;
+
+                Format.SetValue(this, "sortedColumn", dataGridViewColumn);
+                Format.SetValue(this, "sortOrder", sortOrder);
                 for (int i = 0; i < Columns.Count; i++)
                 {
                     var column = Columns[i];
                     if (column == dataGridViewColumn)
                     {
-                        column.HeaderCell.SortGlyphDirection = (direction == ListSortDirection.Ascending) ? SortOrder.Ascending : SortOrder.Descending;
+                        column.HeaderCell.SortGlyphDirection = sortOrder;
                     }
                     else
                     {
@@ -69,15 +74,36 @@ namespace MyLibrary.Controls
                     }
                 }
 
+                var rows = new DataGridViewRow[Rows.Count];
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    rows[i] = Rows[i];
+                }
 
+                Format.StableInsertionSort(rows, (x, y) =>
+                {
+                    var value1 = x.Cells[dataGridViewColumn.Index].Value;
+                    var value2 = y.Cells[dataGridViewColumn.Index].Value;
+                    return Format.Compare(value1, value2);
+                });
 
+                if (sortOrder == SortOrder.Descending)
+                {
+                    Array.Reverse(rows);
+                }
 
+                var firstDisplayedScrollingRowIndex = this.FirstDisplayedScrollingRowIndex;
 
+                Rows.Clear();
+                Rows.AddRange(rows);
 
+                if (firstDisplayedScrollingRowIndex != -1)
+                {
+                    this.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
+                }
 
                 OnSorted(EventArgs.Empty);
             }
-            //dataGridViewColumn.HeaderCell.SortGlyphDirection = System.Windows.Forms.SortOrder.Descending;
         }
     }
 }

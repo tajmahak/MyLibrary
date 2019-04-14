@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Collections;
 
 namespace MyLibrary.Data
 {
@@ -44,6 +46,59 @@ namespace MyLibrary.Data
             }
             return destList;
         }
+
+        public static int Compare<T>(T x, T y) where T : IComparable
+        {
+            if (IsNull(x) && IsNull(y))
+                return 0;
+
+            if (IsNull(x))
+                return -1;
+
+            if (IsNull(y))
+                return 1;
+
+            return x.CompareTo(y);
+        }
+        public static int Compare(object x, object y)
+        {
+
+            //if (IsNull(value1) && IsNull(value2))
+            //    return 0;
+
+            //if (IsNull(value1))
+            //    return -1;
+
+            //if (IsNull(value2))
+            //    return 1;
+
+            //var type1 = value1.GetType();
+            //var type2 = value2.GetType();
+            //if (value1 is IComparable && value2 is IComparable)
+            //{
+            //    if (ignoreCase && type1 == typeof(string) && type2 == typeof(string))
+            //    {
+            //        value1 = ((string)value1).ToUpperInvariant();
+            //        value2 = ((string)value2).ToUpperInvariant();
+            //    }
+            //    return ((IComparable)value1).CompareTo(value2);
+            //}
+            //throw new Exception("Сравнение указанных значений невозможно.");
+
+
+
+
+            return 0;
+        }
+
+
+
+
+
+
+
+
+
         public static object GetNotNullValue(Type type)
         {
             if (type == typeof(string))
@@ -66,19 +121,6 @@ namespace MyLibrary.Data
                 return string.Empty;
             }
             return sValue;
-        }
-        public static int Compare<T>(T value1, T value2) where T : IComparable
-        {
-            if (IsNull(value1) && IsNull(value2))
-                return 0;
-
-            if (IsNull(value1))
-                return -1;
-
-            if (IsNull(value2))
-                return 1;
-
-            return value1.CompareTo(value2);
         }
         public static bool IsEquals<T>(T value1, T value2) where T : IEquatable<T>
         {
@@ -140,13 +182,13 @@ namespace MyLibrary.Data
             return ((uValue & uFlag) == uFlag);
         }
 
-        private static void StableInsertionSort<T>(this IList<T> list, Comparison<T> comparison)
+        public static void StableInsertionSort(this IList list, Comparison<object> comparison)
         {
             // сортировка вставками
             int count = list.Count;
             for (int j = 1; j < count; j++)
             {
-                T key = list[j];
+                object key = list[j];
 
                 int i = j - 1;
                 for (; i >= 0 && comparison(list[i], key) > 0; i--)
@@ -156,11 +198,15 @@ namespace MyLibrary.Data
                 list[i + 1] = key;
             }
         }
-        private static void StableInsertionSort<T>(this IList<T> list, IComparer<T> comparer)
+        public static void StableInsertionSort<T>(this IList<T> list, Comparison<T> comparison)
+        {
+            StableInsertionSort((IList)list, (x, y) => comparison((T)x, (T)y));
+        }
+        public static void StableInsertionSort<T>(this IList<T> list, IComparer<T> comparer)
         {
             StableInsertionSort(list, (x, y) => comparer.Compare(x, y));
         }
-        private static void StableInsertionSort<T>(this IList<T> list) where T : IComparable
+        public static void StableInsertionSort<T>(this IList<T> list) where T : IComparable
         {
             StableInsertionSort(list, (x, y) => x.CompareTo(y));
         }
@@ -245,6 +291,41 @@ namespace MyLibrary.Data
                 return memberExpression.Member.Name;
             }
             return null;
+        }
+
+        public static void SetValue(object obj, string memberName, object value)
+        {
+            var type = obj.GetType();
+            MemberInfo[] members;
+            while (true)
+            {
+                members = type.GetMember(memberName, BindingFlags.NonPublic | BindingFlags.Instance);
+                if (members.Length == 0 && type.BaseType != null)
+                {
+                    type = type.BaseType;
+                    continue;
+                }
+                break;
+            }
+
+            if (members.Length != 1)
+                throw new NotImplementedException();
+
+            var member = members[0];
+            if (member is FieldInfo)
+            {
+                var field = member as FieldInfo;
+                field.SetValue(obj, value);
+            }
+            else if (member is PropertyInfo)
+            {
+                var property = member as PropertyInfo;
+                property.SetValue(obj, value, null);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
