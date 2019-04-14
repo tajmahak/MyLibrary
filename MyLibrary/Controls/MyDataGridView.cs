@@ -80,7 +80,7 @@ namespace MyLibrary.Controls
                     rows[i] = Rows[i];
                 }
 
-                Format.StableInsertionSort(rows, (x, y) =>
+                Sorting.StableInsertionSort(rows, (x, y) =>
                 {
                     var value1 = x.Cells[dataGridViewColumn.Index].Value;
                     var value2 = y.Cells[dataGridViewColumn.Index].Value;

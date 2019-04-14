@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Collections;
 
 namespace MyLibrary.Data
 {
@@ -62,42 +61,23 @@ namespace MyLibrary.Data
         }
         public static int Compare(object x, object y)
         {
+            if (IsNull(x) && IsNull(y))
+                return 0;
 
-            //if (IsNull(value1) && IsNull(value2))
-            //    return 0;
+            if (IsNull(x))
+                return -1;
 
-            //if (IsNull(value1))
-            //    return -1;
+            if (IsNull(y))
+                return 1;
 
-            //if (IsNull(value2))
-            //    return 1;
-
-            //var type1 = value1.GetType();
-            //var type2 = value2.GetType();
-            //if (value1 is IComparable && value2 is IComparable)
-            //{
-            //    if (ignoreCase && type1 == typeof(string) && type2 == typeof(string))
-            //    {
-            //        value1 = ((string)value1).ToUpperInvariant();
-            //        value2 = ((string)value2).ToUpperInvariant();
-            //    }
-            //    return ((IComparable)value1).CompareTo(value2);
-            //}
-            //throw new Exception("Сравнение указанных значений невозможно.");
-
-
-
-
-            return 0;
+            var type1 = x.GetType();
+            var type2 = y.GetType();
+            if (x is IComparable && y is IComparable)
+            {
+                return ((IComparable)x).CompareTo(y);
+            }
+            throw new Exception("Сравнение указанных значений невозможно.");
         }
-
-
-
-
-
-
-
-
 
         public static object GetNotNullValue(Type type)
         {
@@ -113,29 +93,68 @@ namespace MyLibrary.Data
 
             return Activator.CreateInstance(type);
         }
-        public static string GetNotEmptyString(object value)
+
+        public static bool IsEquals<T>(T x, T y) where T : IEquatable<T>
         {
-            string sValue = Convert<string>(value);
-            if (IsNull(value))
-            {
-                return string.Empty;
-            }
-            return sValue;
-        }
-        public static bool IsEquals<T>(T value1, T value2) where T : IEquatable<T>
-        {
-            if (value1 == null && value2 == null)
+            if (x == null && y == null)
                 return true;
 
-            if (value1 == null || value2 == null)
+            if (x == null || y == null)
                 return false;
 
             var type = typeof(T);
             if (type.BaseType == typeof(Array))
             {
-                return ArrayEquals((T[])((object)value1), (T[])((object)value2));
+                return ArrayEquals((T[])((object)x), (T[])((object)y));
             }
-            return object.Equals(value1, value2);
+            return object.Equals(x, y);
+        }
+        public static bool IsEquals(object x, object y)
+        {
+            if (IsNull(x) && IsNull(y))
+                return true;
+
+            if (IsNull(x) || IsNull(y))
+                return false;
+
+            var type1 = x.GetType();
+            var type2 = y.GetType();
+
+            #region Приведение типов из Enum
+
+            if (type1.BaseType == typeof(Enum))
+            {
+                type1 = Enum.GetUnderlyingType(type1);
+                x = System.Convert.ChangeType(x, type1);
+            }
+
+            if (type2.BaseType == typeof(Enum))
+            {
+                type2 = Enum.GetUnderlyingType(type2);
+                y = System.Convert.ChangeType(y, type2);
+            }
+
+            #endregion
+
+            if (type1 != type2)
+            {
+                if ((type1.IsPrimitive || type1 == typeof(decimal)) && (type2.IsPrimitive || type2 == typeof(decimal)))
+                {
+                    x = System.Convert.ToDecimal(x);
+                    y = System.Convert.ToDecimal(y);
+                }
+                else
+                {
+                    x = x.ToString();
+                    y = y.ToString();
+                }
+            }
+
+            if (type1 == typeof(byte[]))
+            {
+                return ArrayEquals((byte[])x, (byte[])y);
+            }
+            return object.Equals(x, y);
         }
         public static bool ArrayEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
@@ -152,7 +171,22 @@ namespace MyLibrary.Data
             }
             return true;
         }
-        public static bool IsContains(string value1, string value2, bool ignoreCase = false)
+
+        public static string GetNotEmptyString(object value)
+        {
+            string sValue = Convert<string>(value);
+            if (IsNull(value))
+            {
+                return string.Empty;
+            }
+            return sValue;
+        }
+        public static string GetIgnoreCaseString(object value)
+        {
+            var sValue = GetNotEmptyString(value);
+            return sValue.ToUpperInvariant();
+        }
+        public static bool IsContainsString(string value1, string value2, bool ignoreCase = false)
         {
             if (ignoreCase)
             {
@@ -161,6 +195,7 @@ namespace MyLibrary.Data
             }
             return value1.Contains(value2);
         }
+
         public static bool IsNull(object value)
         {
             return (value == null || value is DBNull);
@@ -181,34 +216,23 @@ namespace MyLibrary.Data
             ulong uFlag = System.Convert.ToUInt64(flag);
             return ((uValue & uFlag) == uFlag);
         }
-
-        public static void StableInsertionSort(this IList list, Comparison<object> comparison)
+        /// <summary>
+        /// Получение имени экземпляра объекта
+        /// </summary>
+        /// <typeparam name="T">Тип объекта</typeparam>
+        /// <param name="accessor">Функция для передачи экземпляра объекта. Задаётся: () => member</param>
+        /// <returns></returns>
+        public static String NameOf<T>(Expression<Func<T>> accessor)
         {
-            // сортировка вставками
-            int count = list.Count;
-            for (int j = 1; j < count; j++)
+            Expression expression = accessor.Body;
+            if (expression.NodeType == ExpressionType.MemberAccess)
             {
-                object key = list[j];
-
-                int i = j - 1;
-                for (; i >= 0 && comparison(list[i], key) > 0; i--)
-                {
-                    list[i + 1] = list[i];
-                }
-                list[i + 1] = key;
+                var memberExpression = expression as MemberExpression;
+                if (memberExpression == null)
+                    return null;
+                return memberExpression.Member.Name;
             }
-        }
-        public static void StableInsertionSort<T>(this IList<T> list, Comparison<T> comparison)
-        {
-            StableInsertionSort((IList)list, (x, y) => comparison((T)x, (T)y));
-        }
-        public static void StableInsertionSort<T>(this IList<T> list, IComparer<T> comparer)
-        {
-            StableInsertionSort(list, (x, y) => comparer.Compare(x, y));
-        }
-        public static void StableInsertionSort<T>(this IList<T> list) where T : IComparable
-        {
-            StableInsertionSort(list, (x, y) => x.CompareTo(y));
+            return null;
         }
 
         /// <summary>
@@ -272,25 +296,6 @@ namespace MyLibrary.Data
             decimal val = value / (decimal)Math.Pow(1024, order);
             var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
             return text;
-        }
-
-        /// <summary>
-        /// Получение имени экземпляра объекта
-        /// </summary>
-        /// <typeparam name="T">Тип объекта</typeparam>
-        /// <param name="accessor">Функция для передачи экземпляра объекта. Задаётся: () => member</param>
-        /// <returns></returns>
-        public static String NameOf<T>(Expression<Func<T>> accessor)
-        {
-            Expression expression = accessor.Body;
-            if (expression.NodeType == ExpressionType.MemberAccess)
-            {
-                var memberExpression = expression as MemberExpression;
-                if (memberExpression == null)
-                    return null;
-                return memberExpression.Member.Name;
-            }
-            return null;
         }
 
         public static void SetValue(object obj, string memberName, object value)
