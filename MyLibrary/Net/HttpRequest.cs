@@ -14,10 +14,10 @@ namespace MyLibrary.Net
         public int Timeout { get; set; }
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
-        private CookieContainer _cookieContainer;
-        private WebHeaderCollection _webHeaderCollection;
 
-        #region Конструктор
+        public event Action<HttpRequest> BeforeGetResponse;
+        public event Action<HttpRequest> AfterGetResponse;
+        public event Action<HttpRequest, DownloadProgressChangedEventArgs> DownloadProgressChanged;
 
         public HttpRequest()
         {
@@ -28,8 +28,6 @@ namespace MyLibrary.Net
         {
             RequestUri = requestUri;
         }
-
-        #endregion
         public void Dispose()
         {
             if (Response != null)
@@ -51,6 +49,11 @@ namespace MyLibrary.Net
                 _cookieContainer = new CookieContainer();
             }
             _cookieContainer.Add(cookie);
+        }
+        public void AddRange(long? from = null, long? to = null)
+        {
+            _rangeFrom = from;
+            _rangeTo = to;
         }
 
         public string GetString()
@@ -119,10 +122,35 @@ namespace MyLibrary.Net
 
             return stream;
         }
+       
+        #region Статические сущности
 
-        public event Action<HttpRequest> BeforeGetResponse;
-        public event Action<HttpRequest> AfterGetResponse;
-        public event Action<HttpRequest, DownloadProgressChangedEventArgs> DownloadProgressChanged;
+        public static string GetString(string requestUri)
+        {
+            return GetString(requestUri, null);
+        }
+        public static string GetString(string requestUri, object uploadData)
+        {
+            using (var request = new HttpRequest(requestUri))
+            {
+                request.UploadData = uploadData;
+                return request.GetString();
+            }
+        }
+        public static void GetData(Stream outputStream, string requestUri)
+        {
+            GetData(outputStream, requestUri, null);
+        }
+        public static void GetData(Stream outputStream, string requestUri, object uploadData)
+        {
+            using (var request = new HttpRequest(requestUri))
+            {
+                request.UploadData = uploadData;
+                request.GetData(outputStream);
+            }
+        }
+
+        #endregion
 
         private void GetWebData(Action getDataAction)
         {
@@ -137,7 +165,6 @@ namespace MyLibrary.Net
                 Request.KeepAlive = true;
                 Request.Timeout = Timeout;
                 Request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                Request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:54.0) Gecko/20100101 Firefox/54.0";
                 Request.Headers["Accept-Encoding"] = "gzip, deflate";
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
 
@@ -160,6 +187,17 @@ namespace MyLibrary.Net
                     {
                         var value = _webHeaderCollection[name];
                         Request.Headers.Add(name, value);
+                    }
+                }
+                if (_rangeFrom != null || _rangeTo != null)
+                {
+                    if (_rangeTo != null)
+                    {
+                        Request.AddRange(_rangeFrom.Value, _rangeTo.Value);
+                    }
+                    else
+                    {
+                        Request.AddRange(_rangeFrom.Value);
                     }
                 }
 
@@ -212,35 +250,9 @@ namespace MyLibrary.Net
                 Dispose();
             }
         }
-
-        #region Статические сущности
-
-        public static string GetString(string requestUri)
-        {
-            return GetString(requestUri, null);
-        }
-        public static string GetString(string requestUri, object uploadData)
-        {
-            using (var request = new HttpRequest(requestUri))
-            {
-                request.UploadData = uploadData;
-                return request.GetString();
-            }
-        }
-        public static void GetData(Stream outputStream, string requestUri)
-        {
-            GetData(outputStream, requestUri, null);
-        }
-        public static void GetData(Stream outputStream, string requestUri, object uploadData)
-        {
-            using (var request = new HttpRequest(requestUri))
-            {
-                request.UploadData = uploadData;
-                request.GetData(outputStream);
-            }
-        }
-
-        #endregion
+        private CookieContainer _cookieContainer;
+        private WebHeaderCollection _webHeaderCollection;
+        private long? _rangeFrom, _rangeTo;
     }
 
     public class DownloadProgressChangedEventArgs
