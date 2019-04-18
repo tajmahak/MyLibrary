@@ -38,7 +38,6 @@ namespace MyLibrary.Threading
         }
 
         // Свойства
-        public Exception ThreadException { get; private set; }
         public bool Aborted
         {
             get
@@ -79,10 +78,10 @@ namespace MyLibrary.Threading
         /// <param name="action">Делегат выполняемой операции. Action(manager, index), manager - экземпляр текущего класса ThreadManager, index - индекс выполняемой задачи</param>
         public void Start(Action<ThreadManager, int> action)
         {
-            if (Started != null)
-                Started(this, EventArgs.Empty);
+            Started?.Invoke(this, EventArgs.Empty);
 
-            _index = 0;
+            int completedThreads = 0;
+            int index = 0;
             for (int i = 0; i < _threads.Length; i++)
             {
                 var thread = new Thread(() =>
@@ -94,42 +93,27 @@ namespace MyLibrary.Threading
                             if (_aborted)
                                 return;
 
-                            int index;
+                            int current_index;
                             lock (_threads)
                             {
-                                if (_index >= _tasksCount)
+                                if (index >= _tasksCount)
+                                {
                                     break;
-                                index = _index;
-                                _index++;
+                                }
+                                current_index = index;
+                                index++;
                             }
-                            action(this, index);
-                        }
-                    }
-                    catch (ThreadAbortException)
-                    {
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (_threads)
-                        {
-                            if (ThreadException == null)
-                            {
-                                ThreadException = ex;
-                                Abort();
-                            }
+                            action(this, current_index);
                         }
                     }
                     finally
                     {
                         lock (_threads)
                         {
-                            _completedThreads++;
-                            if (_completedThreads == _threads.Length)
+                            completedThreads++;
+                            if (completedThreads == _threads.Length)
                             {
-                                if (Completed != null)
-                                {
-                                    Completed(this, EventArgs.Empty);
-                                }
+                                Completed?.Invoke(this, EventArgs.Empty);
                             }
                         }
                     }
@@ -172,9 +156,6 @@ namespace MyLibrary.Threading
             {
                 _threads[i].Join();
             }
-
-            if (ThreadException != null)
-                throw ThreadException;
         }
 
         // События
@@ -189,9 +170,7 @@ namespace MyLibrary.Threading
 
         // Закрытые сущности
         private Thread[] _threads;
-        private volatile int _tasksCount;
-        private volatile int _index;
-        private volatile int _completedThreads;
+        private int _tasksCount;
         private volatile bool _aborted;
     }
 }
