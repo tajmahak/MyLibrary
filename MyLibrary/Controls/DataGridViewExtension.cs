@@ -193,21 +193,49 @@ namespace MyLibrary.Controls
         }
         public static DataGridViewRow[] GetSelectedRows(this DataGridView grid)
         {
-            var selectedRows = grid.SelectedRows;
+            var hashSet = new HashSet<int>();
+            foreach (DataGridViewCell cell in grid.SelectedCells)
+            {
+                hashSet.Add(cell.RowIndex);
+            }
 
-            var list = new List<DataGridViewRow>(selectedRows.Count);
-            for (int i = 0; i < selectedRows.Count; i++)
-                list.Add(selectedRows[i]);
-
-            list.Sort((x, y) => x.Index.CompareTo(y.Index));
+            var list = new List<DataGridViewRow>(hashSet.Count);
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (hashSet.Contains(row.Index))
+                {
+                    list.Add(row);
+                }
+            }
 
             return list.ToArray();
         }
 
+        public static List<T> GetTags<T>(this DataGridViewRowCollection collection)
+        {
+            var tags = new List<T>(collection.Count);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                var row = (DataGridViewRow)collection[i];
+                tags.Add(row.GetTag<T>());
+            }
+            return tags;
+        }
+        public static List<T> GetTags<T>(this IList<DataGridViewRow> list)
+        {
+            var tags = new List<T>(list.Count);
+            for (int i = 0; i < list.Count; i++)
+            {
+                var row = list[i];
+                tags.Add(row.GetTag<T>());
+            }
+            return tags;
+        }
         public static T GetTag<T>(this DataGridViewRow gridRow)
         {
             return (T)gridRow.Tag;
         }
+
         public static T GetSelectedTag<T>(this DataGridView grid)
         {
             var gridRow = grid.GetSelectedRow();
