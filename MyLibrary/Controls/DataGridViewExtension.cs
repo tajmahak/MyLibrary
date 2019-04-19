@@ -211,6 +211,10 @@ namespace MyLibrary.Controls
             return list.ToArray();
         }
 
+        public static T GetTag<T>(this DataGridViewRow gridRow)
+        {
+            return (T)gridRow.Tag;
+        }
         public static List<T> GetTags<T>(this DataGridViewRowCollection collection)
         {
             var tags = new List<T>(collection.Count);
@@ -231,10 +235,6 @@ namespace MyLibrary.Controls
             }
             return tags;
         }
-        public static T GetTag<T>(this DataGridViewRow gridRow)
-        {
-            return (T)gridRow.Tag;
-        }
 
         public static T GetSelectedTag<T>(this DataGridView grid)
         {
@@ -246,22 +246,7 @@ namespace MyLibrary.Controls
         }
         public static List<T> GetSelectedTags<T>(this DataGridView grid)
         {
-            var gridRows = new List<DataGridViewRow>();
-            for (int i = 0; i < grid.SelectedRows.Count; i++)
-            {
-                var gridRow = grid.SelectedRows[i];
-                gridRows.Add(gridRow);
-            }
-            gridRows.Sort((x, y) => x.Index.CompareTo(y.Index));
-
-            var list = new List<T>();
-            for (int i = 0; i < gridRows.Count; i++)
-            {
-                var item = gridRows[i].GetTag<T>();
-                list.Add(item);
-            }
-
-            return list;
+            return grid.GetSelectedRows().GetTags<T>();
         }
         public static List<T> GetSelectedVirtualTags<T>(this DataGridView grid, List<T> srcList)
         {
