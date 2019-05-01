@@ -12,6 +12,7 @@ namespace MyLibrary.Net
         public HttpRequestPostData PostData { get; set; }
         public bool UseHeadRequest { get; set; }
         public int Timeout { get; set; }
+        public string Referer { get; set; }
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
 
@@ -165,6 +166,7 @@ namespace MyLibrary.Net
 
                 Request.KeepAlive = true;
                 Request.Timeout = Timeout;
+                Request.Referer = Referer;
                 Request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
                 Request.Headers["Accept-Encoding"] = "gzip, deflate";
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
