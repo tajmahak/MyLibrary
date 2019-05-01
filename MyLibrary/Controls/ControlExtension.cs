@@ -87,8 +87,13 @@ namespace MyLibrary.Controls
         public static void InvokeEx(this Control control, MethodInvoker action)
         {
             if (!control.IsDisposed && control.InvokeRequired)
+            {
                 control.Invoke(action);
-            else action();
+            }
+            else
+            {
+                action();
+            }
         }
 
         /// <summary>

@@ -247,7 +247,7 @@ namespace MyLibrary.Data
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals, midpointRounding);
         }
-        public static object RoundValue(object value, int decimals = 0)
+        public static object RoundDigitValue(object value, int decimals = 0)
         {
             if (IsEmpty(value))
                 return null;

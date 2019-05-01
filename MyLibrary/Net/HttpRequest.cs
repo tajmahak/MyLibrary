@@ -9,7 +9,7 @@ namespace MyLibrary.Net
     public class HttpRequest : IDisposable
     {
         public string RequestUri { get; set; }
-        public object UploadData { get; set; }
+        public HttpRequestPostData PostData { get; set; }
         public bool UseHeadRequest { get; set; }
         public int Timeout { get; set; }
         public HttpWebRequest Request { get; private set; }
@@ -122,30 +122,22 @@ namespace MyLibrary.Net
 
             return stream;
         }
-       
+
         #region Статические сущности
 
-        public static string GetString(string requestUri)
-        {
-            return GetString(requestUri, null);
-        }
-        public static string GetString(string requestUri, object uploadData)
+        public static string GetString(string requestUri, HttpRequestPostData postData = null)
         {
             using (var request = new HttpRequest(requestUri))
             {
-                request.UploadData = uploadData;
+                request.PostData = postData;
                 return request.GetString();
             }
         }
-        public static void GetData(Stream outputStream, string requestUri)
-        {
-            GetData(outputStream, requestUri, null);
-        }
-        public static void GetData(Stream outputStream, string requestUri, object uploadData)
+        public static void GetData(Stream outputStream, string requestUri, HttpRequestPostData postData = null)
         {
             using (var request = new HttpRequest(requestUri))
             {
-                request.UploadData = uploadData;
+                request.PostData = postData;
                 request.GetData(outputStream);
             }
         }
@@ -168,7 +160,7 @@ namespace MyLibrary.Net
                 Request.Headers["Accept-Encoding"] = "gzip, deflate";
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
 
-                if (UploadData == null)
+                if (PostData == null)
                 {
                     Request.Method = UseHeadRequest ? "HEAD" : "GET";
                 }
@@ -203,41 +195,27 @@ namespace MyLibrary.Net
 
                 #endregion
 
-                if (BeforeGetResponse != null)
-                    BeforeGetResponse(this);
+                BeforeGetResponse?.Invoke(this);
 
-                if (UploadData != null)
+                if (PostData != null)
                 {
-                    #region Отправка POST-данных запроса на сервер
-
-                    byte[] uploadData = null;
-                    if (UploadData is string)
-                    {
-                        Request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-                        uploadData = Encoding.UTF8.GetBytes((string)UploadData);
-                    }
-                    else if (UploadData is byte[])
-                    {
-                        Request.ContentType = "application/x-www-form-urlencoded";
-                        uploadData = (byte[])UploadData;
-                    }
-
-                    Request.ContentLength = uploadData.Length;
+                    // Отправка POST-данных запроса на сервер
+                    var content = PostData.GetContent();
+                    Request.ContentType = PostData.ContentType;
+                    Request.ContentLength = content.Length;
                     using (var requestStream = Request.GetRequestStream())
-                        requestStream.Write(uploadData, 0, uploadData.Length);
-
-                    #endregion
+                    {
+                        requestStream.Write(content, 0, content.Length);
+                    }
                 }
 
                 Response = (HttpWebResponse)Request.GetResponse();
 
-                if (AfterGetResponse != null)
-                    AfterGetResponse(this);
+                AfterGetResponse?.Invoke(this);
 
-                if (getDataAction != null)
-                    getDataAction();
+                getDataAction?.Invoke();
 
-                UploadData = null;
+                PostData = null;
             }
             catch (Exception ex)
             {
