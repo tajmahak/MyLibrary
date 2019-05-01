@@ -56,9 +56,17 @@ namespace MyLibrary.Net
         public void SetMultiPartContent(string contentDisposition, string contentType, byte[] value)
         {
             ClearContent();
+
+            var boundary = new StringBuilder();
+            boundary.Append("-----------------------------");
+            for (int i = 0; i < 14; i++)
+            {
+                boundary.Append(_rnd.Next(10));
+            }
+
             MultiPartContent = new MultiPartContentInfo()
             {
-                Boundary = string.Concat("-----------------------------", Path.GetRandomFileName()),
+                Boundary = boundary.ToString(),
                 ContentDisposition = contentDisposition,
                 ContentType = contentType,
                 Content = value,
@@ -117,6 +125,7 @@ namespace MyLibrary.Net
             BytesContent = null;
             MultiPartContent = null;
         }
+        private static Random _rnd = new Random();
     }
 
     public class MultiPartContentInfo

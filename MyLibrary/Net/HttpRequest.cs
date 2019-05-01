@@ -61,12 +61,7 @@ namespace MyLibrary.Net
             string data = null;
             GetWebData(() =>
             {
-                var encoding = string.IsNullOrEmpty(Response.CharacterSet) ?
-                    Encoding.UTF8 : Encoding.GetEncoding(Response.CharacterSet);
-
-                using (var stream = GetResponseStream())
-                using (var reader = new StreamReader(stream, encoding))
-                    data = reader.ReadToEnd();
+                data = GetStringFromResponse(Response);
             });
             return data;
         }
@@ -109,22 +104,36 @@ namespace MyLibrary.Net
         }
         public Stream GetResponseStream()
         {
-            var stream = Response.GetResponseStream();
+            return GetStreamFromResponse(Response);
+        }
+
+        #region Статические сущности
+
+        public static string GetStringFromResponse(HttpWebResponse response)
+        {
+            var encoding = string.IsNullOrEmpty(response.CharacterSet) ?
+                   Encoding.UTF8 : Encoding.GetEncoding(response.CharacterSet);
+
+            using (var stream = GetStreamFromResponse(response))
+            using (var reader = new StreamReader(stream, encoding))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+        public static Stream GetStreamFromResponse(HttpWebResponse response)
+        {
+            var stream = response.GetResponseStream();
 
             // Выбор метода распаковки потока
-            switch (Response.ContentEncoding)
+            switch (response.ContentEncoding)
             {
                 case "gzip":
                     stream = new GZipStream(stream, CompressionMode.Decompress, false); break;
                 case "deflate":
                     stream = new DeflateStream(stream, CompressionMode.Decompress, false); break;
             }
-
             return stream;
         }
-
-        #region Статические сущности
-
         public static string GetString(string requestUri, HttpRequestPostData postData = null)
         {
             using (var request = new HttpRequest(requestUri))
@@ -220,7 +229,9 @@ namespace MyLibrary.Net
             catch (Exception ex)
             {
                 if (ex is WebException)
+                {
                     Response = (HttpWebResponse)(ex as WebException).Response;
+                }
                 throw;
             }
             finally
@@ -252,7 +263,9 @@ namespace MyLibrary.Net
         public RequestParameterBuilder Add(string name, object value)
         {
             if (_str.Length > 0)
+            {
                 _str.Append("&");
+            }
             _str.Append(name);
             _str.Append("=");
             _str.Append(value);
