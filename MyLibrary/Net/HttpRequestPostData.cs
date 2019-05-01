@@ -28,7 +28,7 @@ namespace MyLibrary.Net
         {
             var postData = new HttpRequestPostData();
             postData.SetMultiPartContent(contentDisposition, contentType, value);
-            postData.ContentType = "multipart/form-data; boundary=" + postData.MultiPartContent.Boundary;
+            postData.ContentType = "multipart/form-data; boundary=---------------------------" + postData.MultiPartContent.Boundary;
             return postData;
         }
 
@@ -58,7 +58,6 @@ namespace MyLibrary.Net
             ClearContent();
 
             var boundary = new StringBuilder();
-            boundary.Append("-----------------------------");
             for (int i = 0; i < 14; i++)
             {
                 boundary.Append(_rnd.Next(10));
@@ -88,9 +87,9 @@ namespace MyLibrary.Net
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8))
+                    using (var streamWriter = new StreamWriter(memoryStream))
                     {
-                        streamWriter.WriteLine(MultiPartContent.Boundary);
+                        streamWriter.WriteLine("-----------------------------" + MultiPartContent.Boundary);
                         if (MultiPartContent.ContentDisposition != null)
                         {
                             streamWriter.Write("Content-Disposition: ");
@@ -107,10 +106,10 @@ namespace MyLibrary.Net
                         memoryStream.Write(MultiPartContent.Content, 0, MultiPartContent.Content.Length);
 
                         streamWriter.WriteLine();
-                        streamWriter.Write(MultiPartContent.Boundary);
-                        streamWriter.WriteLine("--");
+                        streamWriter.Write("-----------------------------" + MultiPartContent.Boundary + "--");
                         streamWriter.Flush();
                     }
+
                     return memoryStream.ToArray();
                 }
             }
