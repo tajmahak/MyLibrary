@@ -28,15 +28,12 @@ namespace MyLibrary.Net
         {
             var postData = new HttpRequestPostData();
             postData.SetMultiPartContent(contentDisposition, contentType, value);
-            postData.ContentType = "multipart/form-data; boundary=---------------------------" + postData.MultiPartContent.Boundary;
+            postData.ContentType = "multipart/form-data; boundary=---------------------------" + (postData.Content as MultiPartPostDataContent).Boundary;
             return postData;
         }
 
         public string ContentType { get; set; }
-        public string StringContent { get; private set; }
-        public Encoding StringContentEncoding { get; private set; }
-        public byte[] BytesContent { get; private set; }
-        public MultiPartContentInfo MultiPartContent { get; private set; }
+        public IPostDataContent Content { get; private set; }
 
         public void SetStringContent(string value)
         {
@@ -44,26 +41,28 @@ namespace MyLibrary.Net
         }
         public void SetStringContent(string value, Encoding encoding)
         {
-            ClearContent();
-            StringContent = value;
-            StringContentEncoding = encoding;
+            Content = new StringPostDataContent()
+            {
+                Text = value,
+                Encoding = encoding,
+            };
         }
         public void SetBytesContent(byte[] value)
         {
-            ClearContent();
-            BytesContent = value;
+            Content = new BytesPostDataContent()
+            {
+                Data = value,
+            };
         }
         public void SetMultiPartContent(string contentDisposition, string contentType, byte[] value)
         {
-            ClearContent();
-
             var boundary = new StringBuilder();
             for (int i = 0; i < 14; i++)
             {
                 boundary.Append(_rnd.Next(10));
             }
 
-            MultiPartContent = new MultiPartContentInfo()
+            Content = new MultiPartPostDataContent()
             {
                 Boundary = boundary.ToString(),
                 ContentDisposition = contentDisposition,
@@ -73,61 +72,72 @@ namespace MyLibrary.Net
         }
         public byte[] GetContent()
         {
-            if (StringContent != null)
+            if (Content is StringPostDataContent)
             {
-                return StringContentEncoding.GetBytes(StringContent);
+                var content = Content as StringPostDataContent;
+                return content.Encoding.GetBytes(content.Text);
             }
-
-            if (BytesContent != null)
+            if (Content is BytesPostDataContent)
             {
-                return BytesContent;
+                var content = Content as BytesPostDataContent;
+                return content.Data;
             }
-
-            if (MultiPartContent != null)
+            if (Content is MultiPartPostDataContent)
             {
+                var content = Content as MultiPartPostDataContent;
+
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var streamWriter = new StreamWriter(memoryStream))
                     {
-                        streamWriter.WriteLine("-----------------------------" + MultiPartContent.Boundary);
-                        if (MultiPartContent.ContentDisposition != null)
+                        streamWriter.WriteLine("-----------------------------" + content.Boundary);
+                        if (content.ContentDisposition != null)
                         {
                             streamWriter.Write("Content-Disposition: ");
-                            streamWriter.WriteLine(MultiPartContent.ContentDisposition);
+                            streamWriter.WriteLine(content.ContentDisposition);
                         }
-                        if (MultiPartContent.ContentType != null)
+                        if (content.ContentType != null)
                         {
                             streamWriter.Write("Content-Type: ");
-                            streamWriter.WriteLine(MultiPartContent.ContentType);
+                            streamWriter.WriteLine(content.ContentType);
                         }
                         streamWriter.WriteLine();
                         streamWriter.Flush();
 
-                        memoryStream.Write(MultiPartContent.Content, 0, MultiPartContent.Content.Length);
+                        memoryStream.Write(content.Content, 0, content.Content.Length);
 
                         streamWriter.WriteLine();
-                        streamWriter.Write("-----------------------------" + MultiPartContent.Boundary + "--");
+                        streamWriter.Write("-----------------------------" + content.Boundary + "--");
                         streamWriter.Flush();
                     }
-
                     return memoryStream.ToArray();
                 }
             }
-
             throw new NotImplementedException();
         }
 
-        private void ClearContent()
-        {
-            StringContent = null;
-            StringContentEncoding = null;
-            BytesContent = null;
-            MultiPartContent = null;
-        }
         private static Random _rnd = new Random();
     }
 
-    public class MultiPartContentInfo
+    public interface IPostDataContent { }
+
+    public class StringPostDataContent : IPostDataContent
+    {
+        public string Text { get; set; }
+        public Encoding Encoding { get; set; }
+
+        public override string ToString()
+        {
+            return Text;
+        }
+    }
+
+    public class BytesPostDataContent : IPostDataContent
+    {
+        public byte[] Data { get; set; }
+    }
+
+    public class MultiPartPostDataContent : IPostDataContent
     {
         public string Boundary { get; set; }
         public string ContentDisposition { get; set; }
