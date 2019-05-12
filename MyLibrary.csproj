@@ -107,7 +107,7 @@
     <Compile Include="MyLibrary\Data\Serializer.cs" />
     <Compile Include="MyLibrary\Data\Sorting.cs" />
     <Compile Include="MyLibrary\Net\HttpRequest.cs" />
-    <Compile Include="MyLibrary\Net\HttpRequestPostData.cs" />
+    <Compile Include="MyLibrary\Net\PostDataContent.cs" />
     <Compile Include="MyLibrary\Net\WebUtility.cs" />
     <Compile Include="MyLibrary\Threading\ThreadExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
