@@ -9,7 +9,7 @@ namespace MyLibrary.Net
     public class HttpRequest : IDisposable
     {
         public string RequestUri { get; set; }
-        public HttpRequestPostData PostData { get; set; }
+        public IPostDataContent PostDataContent { get; set; }
         public bool UseHeadRequest { get; set; }
         public int Timeout { get; set; }
         public string Referer { get; set; }
@@ -135,19 +135,19 @@ namespace MyLibrary.Net
             }
             return stream;
         }
-        public static string GetString(string requestUri, HttpRequestPostData postData = null)
+        public static string GetString(string requestUri, IPostDataContent postData = null)
         {
             using (var request = new HttpRequest(requestUri))
             {
-                request.PostData = postData;
+                request.PostDataContent = postData;
                 return request.GetString();
             }
         }
-        public static void GetData(Stream outputStream, string requestUri, HttpRequestPostData postData = null)
+        public static void GetData(Stream outputStream, string requestUri, IPostDataContent postData = null)
         {
             using (var request = new HttpRequest(requestUri))
             {
-                request.PostData = postData;
+                request.PostDataContent = postData;
                 request.GetData(outputStream);
             }
         }
@@ -171,7 +171,7 @@ namespace MyLibrary.Net
                 Request.Headers["Accept-Encoding"] = "gzip, deflate";
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
 
-                if (PostData == null)
+                if (PostDataContent == null)
                 {
                     Request.Method = UseHeadRequest ? "HEAD" : "GET";
                 }
@@ -208,11 +208,11 @@ namespace MyLibrary.Net
 
                 BeforeGetResponse?.Invoke(this);
 
-                if (PostData != null)
+                if (PostDataContent != null)
                 {
                     // Отправка POST-данных запроса на сервер
-                    var content = PostData.GetContent();
-                    Request.ContentType = PostData.ContentType;
+                    var content = PostDataContent.GetContent();
+                    Request.ContentType = PostDataContent.GetContentType();
                     Request.ContentLength = content.Length;
                     using (var requestStream = Request.GetRequestStream())
                     {
@@ -226,7 +226,7 @@ namespace MyLibrary.Net
 
                 getDataAction?.Invoke();
 
-                PostData = null;
+                PostDataContent = null;
             }
             catch (Exception ex)
             {
