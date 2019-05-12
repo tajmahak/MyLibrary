@@ -16,9 +16,9 @@ namespace MyLibrary.Net
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
 
-        public event Action<HttpRequest> BeforeGetResponse;
-        public event Action<HttpRequest> AfterGetResponse;
-        public event Action<HttpRequest, DownloadProgressChangedEventArgs> DownloadProgressChanged;
+        public event EventHandler BeforeGetResponse;
+        public event EventHandler AfterGetResponse;
+        public event EventHandler<DownloadProgressChangedEventArgs> DownloadProgressChanged;
 
         public HttpRequest()
         {
@@ -73,8 +73,8 @@ namespace MyLibrary.Net
                 var contentLength = Response.ContentLength;
                 var knownContentLength = (contentLength != -1);
 
-                var e = new DownloadProgressChangedEventArgs();
-                e.ContentLength = contentLength;
+                var args = new DownloadProgressChangedEventArgs();
+                args.ContentLength = contentLength;
 
                 var buffer = new byte[0x40000]; // размер буфера 256 КБ
                 using (var stream = GetResponseStream())
@@ -89,10 +89,10 @@ namespace MyLibrary.Net
 
                         if (DownloadProgressChanged != null)
                         {
-                            e.BytesReceived = bytesReceived;
-                            e.TotalBytesToReceive = totalBytesToReceive;
-                            DownloadProgressChanged(this, e);
-                            if (e.Cancel)
+                            args.BytesReceived = bytesReceived;
+                            args.TotalBytesToReceive = totalBytesToReceive;
+                            DownloadProgressChanged(this, args);
+                            if (args.Cancel)
                                 break;
                         }
                     } while ((knownContentLength && totalBytesToReceive < contentLength) || (!knownContentLength && bytesReceived > 0));
@@ -206,7 +206,7 @@ namespace MyLibrary.Net
 
                 #endregion
 
-                BeforeGetResponse?.Invoke(this);
+                BeforeGetResponse?.Invoke(this, EventArgs.Empty);
 
                 if (PostDataContent != null)
                 {
@@ -222,7 +222,7 @@ namespace MyLibrary.Net
 
                 Response = (HttpWebResponse)Request.GetResponse();
 
-                AfterGetResponse?.Invoke(this);
+                AfterGetResponse?.Invoke(this, EventArgs.Empty);
 
                 getDataAction?.Invoke();
 
@@ -246,12 +246,12 @@ namespace MyLibrary.Net
         private long? _rangeFrom, _rangeTo;
     }
 
-    public class DownloadProgressChangedEventArgs
+    public class DownloadProgressChangedEventArgs : EventArgs
     {
-        public bool Cancel;
-        public int BytesReceived;
-        public long TotalBytesToReceive;
-        public long ContentLength;
+        public bool Cancel { get; set; }
+        public int BytesReceived { get; internal set; }
+        public long TotalBytesToReceive { get; internal set; }
+        public long ContentLength { get; internal set; }
     }
 
     public class RequestParameterBuilder
