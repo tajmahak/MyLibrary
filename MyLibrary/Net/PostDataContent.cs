@@ -66,16 +66,16 @@ namespace MyLibrary.Net
 
     public class PostDataBytesContent : IPostDataContent
     {
-        public PostDataBytesContent(byte[] data)
+        public PostDataBytesContent(byte[] content)
         {
-            Data = data;
+            Content = content;
         }
 
-        public byte[] Data { get; set; }
+        public byte[] Content { get; set; }
 
         public byte[] GetContent()
         {
-            return Data;
+            return Content;
         }
         public string GetContentType()
         {
