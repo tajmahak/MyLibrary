@@ -146,11 +146,6 @@ namespace MyLibrary.DataBase
         }
         private void SetValue(int index, object value)
         {
-            if (Table.Name == null)
-            {
-                throw DBInternal.ProcessRowException();
-            }
-
             var column = Table.Columns[index];
 
             value = value ?? DBNull.Value;
