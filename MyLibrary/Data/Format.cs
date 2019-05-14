@@ -236,24 +236,24 @@ namespace MyLibrary.Data
         }
 
         /// <summary>
-        /// Округляет десятичное значение до ближайшего целого.Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами
+        /// Округляет десятичное значение до ближайшего целого. Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами
         /// </summary>
         /// <param name="value">Округляемое число</param>
         /// <param name="decimals">Значение, задающее правило округления, если его значение находится ровно посредине между двумя другими числами</param>
-        /// <param name="midpointRounding">Значение, задающее правило округления параметра value, если его значение находится ровно посредине между двумя другими числами</param>
+        /// <param name="mode">Значение, задающее правило округления параметра value, если его значение находится ровно посредине между двумя другими числами</param>
         /// <returns></returns>
-        public static decimal RoundDigit(object value, int decimals = 0, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+        public static decimal RoundDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
             decimal digit = Convert<decimal>(value);
-            return Math.Round(digit, decimals, midpointRounding);
+            return Math.Round(digit, decimals, mode);
         }
-        public static object RoundDigitValue(object value, int decimals = 0)
+        public static decimal? RoundDigitValue(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
             if (IsEmpty(value))
                 return null;
 
             decimal digit = Convert<decimal>(value);
-            return Math.Round(digit, decimals);
+            return Math.Round(digit, decimals, mode);
         }
         public static string FormatString<T>(T value, string format) where T : IFormattable
         {

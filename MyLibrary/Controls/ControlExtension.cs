@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace MyLibrary.Controls
@@ -22,14 +21,12 @@ namespace MyLibrary.Controls
             {
                 if (string.Equals(exePath, currentProcess.MainModule.FileName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    SetForegroundWindow(process.MainWindowHandle);
+                    NativeMethods.SetForegroundWindow(process.MainWindowHandle);
                     return true;
                 }
             }
             return false;
         }
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         /// <summary>
         /// Обработка события KeyPress при вводе текста согласно указанному формату вводимых данных

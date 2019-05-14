@@ -106,6 +106,7 @@
     <Compile Include="MyLibrary\Data\PathExtension.cs" />
     <Compile Include="MyLibrary\Data\Serializer.cs" />
     <Compile Include="MyLibrary\Data\Sorting.cs" />
+    <Compile Include="MyLibrary\NativeMethods.cs" />
     <Compile Include="MyLibrary\Net\HttpRequest.cs" />
     <Compile Include="MyLibrary\Net\PostDataContent.cs" />
     <Compile Include="MyLibrary\Net\WebUtility.cs" />
