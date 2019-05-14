@@ -109,7 +109,6 @@
     <Compile Include="MyLibrary\NativeMethods.cs" />
     <Compile Include="MyLibrary\Net\HttpRequest.cs" />
     <Compile Include="MyLibrary\Net\PostDataContent.cs" />
-    <Compile Include="MyLibrary\Net\WebUtility.cs" />
     <Compile Include="MyLibrary\Threading\ThreadExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MyLibrary\Threading\SafeThread.cs" />
