@@ -1,9 +1,9 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using MyLibrary.Data;
 
 namespace MyLibrary.DataBase
 {
@@ -33,9 +33,9 @@ namespace MyLibrary.DataBase
         public DbConnection Connection { get; set; }
         public bool AutoCommit { get; set; }
 
-        public DBCommand Command(string tableName)
+        public DBQuery Query(string tableName)
         {
-            return Model.CreateDBCommand(tableName);
+            return Model.CreateDBQuery(tableName);
         }
         public void CommitTransaction()
         {
@@ -46,21 +46,24 @@ namespace MyLibrary.DataBase
                 _transaction = null;
             }
         }
-        public void Execute(DBCommand cmd)
+        public void Execute(DBQuery query)
         {
-            if (cmd.CommandType == DBCommandTypeEnum.Select)
+            if (query.QueryType == DBQueryTypeEnum.Select)
+            {
                 throw DBInternal.SqlExecuteException();
-
-            OpenTransaction();
+            }
             try
             {
-                using (var command = Model.BuildCommand(Connection, cmd))
+                OpenTransaction();
+                using (var command = Model.BuildCommand(Connection, query))
                 {
                     command.Transaction = _transaction;
                     command.ExecuteNonQuery();
                 }
                 if (AutoCommit)
+                {
                     CommitTransaction();
+                }
             }
             catch
             {
@@ -90,7 +93,9 @@ namespace MyLibrary.DataBase
                         if (row.State == DataRowState.Deleted)
                         {
                             if (!(row[table.PrimaryKeyIndex] is Guid))
+                            {
                                 ExecuteDeleteCommand(row);
+                            }
                         }
                     }
                     rowCollection.RemoveAll(x => x.State == DataRowState.Deleted);
@@ -148,8 +153,10 @@ namespace MyLibrary.DataBase
                 {
                     var rowContainer = insertRows[i];
                     row = rowContainer.Row;
+
                     if (row.State != DataRowState.Added)
                         continue;
+
                     if (rowContainer.Value == 1)
                     {
                         Guid tempID = (Guid)row[row.Table.PrimaryKeyIndex];
@@ -173,6 +180,7 @@ namespace MyLibrary.DataBase
                     {
                         if (saveError)
                             throw DBInternal.DbSaveWrongRelationsException();
+
                         insertRows.Sort((x, y) => x.Value.CompareTo(y.Value));
                         i = -1;
                         saveError = true;
@@ -189,6 +197,7 @@ namespace MyLibrary.DataBase
                     var rowCollection = _rowCollectionList[i];
                     if (rowCollection.Count == 0)
                         continue;
+
                     var table = rowCollection[0].Table;
 
                     for (int j = 0; j < rowCollection.Count; j++)
@@ -339,10 +348,10 @@ namespace MyLibrary.DataBase
         #endregion
         #region Работа с данными
 
-        public T Get<T>(DBCommand cmd)
+        public T Get<T>(DBQuery query)
         {
-            cmd.First(1);
-            foreach (var row in Select<T>(cmd))
+            query.First(1);
+            foreach (var row in Select<T>(query))
                 return row;
             return default(T);
         }
@@ -352,9 +361,9 @@ namespace MyLibrary.DataBase
             return Get<T>(cmd);
         }
 
-        public T GetOrNew<T>(DBCommand cmd)
+        public T GetOrNew<T>(DBQuery query)
         {
-            var row = Get<T>(cmd);
+            var row = Get<T>(query);
 
             if (row != null)
             {
@@ -362,7 +371,7 @@ namespace MyLibrary.DataBase
                 return row;
             }
 
-            return New<T>(cmd.Table.Name);
+            return New<T>(query.Table.Name);
         }
         public T GetOrNew<T>(string tableName, params object[] columnNameValuePair)
         {
@@ -383,12 +392,12 @@ namespace MyLibrary.DataBase
             return DBInternal.PackRow<T>(row);
         }
 
-        public DBReader<T> Select<T>(DBCommand cmd)
+        public DBReader<T> Select<T>(DBQuery query)
         {
-            if (cmd.CommandType != DBCommandTypeEnum.Select && cmd.CommandType != DBCommandTypeEnum.Sql)
+            if (query.QueryType != DBQueryTypeEnum.Select && query.QueryType != DBQueryTypeEnum.Sql)
                 throw DBInternal.SqlExecuteException();
 
-            return new DBReader<T>(Connection, Model, cmd);
+            return new DBReader<T>(Connection, Model, query);
         }
         public DBReader<T> Select<T>(string tableName, params object[] columnNameValuePair)
         {
@@ -396,12 +405,12 @@ namespace MyLibrary.DataBase
             return Select<T>(cmd);
         }
 
-        public T GetValue<T>(DBCommand cmd)
+        public T GetValue<T>(DBQuery query)
         {
-            if (cmd.CommandType == DBCommandTypeEnum.Select)
-                cmd.First(1);
+            if (query.QueryType == DBQueryTypeEnum.Select)
+                query.First(1);
 
-            using (var command = Model.BuildCommand(Connection, cmd))
+            using (var command = Model.BuildCommand(Connection, query))
             {
                 var value = command.ExecuteScalar();
                 return Format.Convert<T>(value);
@@ -415,9 +424,9 @@ namespace MyLibrary.DataBase
             return GetValue<T>(cmd);
         }
 
-        public bool Exists(DBCommand cmd)
+        public bool Exists(DBQuery query)
         {
-            var row = Get(cmd);
+            var row = Get(query);
             return (row != null);
         }
         public bool Exists(string tableName, params object[] columnNameValuePair)
@@ -434,27 +443,27 @@ namespace MyLibrary.DataBase
             return New<DBRow>(tableName);
         }
 
-        public DBRow Get(DBCommand cmd)
+        public DBRow Get(DBQuery query)
         {
-            return Get<DBRow>(cmd);
+            return Get<DBRow>(query);
         }
         public DBRow Get(string tableName, params object[] columnNameValuePair)
         {
             return Get<DBRow>(tableName, columnNameValuePair);
         }
 
-        public DBRow GetOrNew(DBCommand cmd)
+        public DBRow GetOrNew(DBQuery query)
         {
-            return GetOrNew<DBRow>(cmd);
+            return GetOrNew<DBRow>(query);
         }
         public DBRow GetOrNew(string tableName, params object[] columnNameValuePair)
         {
             return GetOrNew<DBRow>(tableName, columnNameValuePair);
         }
 
-        public DBReader<DBRow> Select(DBCommand cmd)
+        public DBReader<DBRow> Select(DBQuery query)
         {
-            return Select<DBRow>(cmd);
+            return Select<DBRow>(query);
         }
         public DBReader<DBRow> Select(string tableName, params object[] columnNameValuePair)
         {
@@ -552,12 +561,12 @@ namespace MyLibrary.DataBase
             }
         }
 
-        private DBCommand CreateSelectCommand(string tableName, params object[] columnNameValuePair)
+        private DBQuery CreateSelectCommand(string tableName, params object[] columnNameValuePair)
         {
             if (columnNameValuePair.Length % 2 != 0)
                 throw DBInternal.ParameterValuePairException();
 
-            var cmd = Command(tableName);
+            var cmd = Query(tableName);
             for (int i = 0; i < columnNameValuePair.Length; i += 2)
             {
                 string columnName = (string)columnNameValuePair[i];

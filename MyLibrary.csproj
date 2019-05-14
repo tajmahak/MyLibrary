@@ -85,14 +85,14 @@
     </Compile>
     <Compile Include="MyLibrary\Controls\TaskbarProgress.cs" />
     <Compile Include="MyLibrary\DataBase\DBColumn.cs" />
-    <Compile Include="MyLibrary\DataBase\DBCommand.cs" />
+    <Compile Include="MyLibrary\DataBase\DBQuery.cs" />
     <Compile Include="MyLibrary\DataBase\DBContext.cs" />
     <Compile Include="MyLibrary\DataBase\DBInternal.cs" />
     <Compile Include="MyLibrary\DataBase\DBModelBase.cs" />
     <Compile Include="MyLibrary\DataBase\DBReader.cs" />
     <Compile Include="MyLibrary\DataBase\DBRow.cs" />
     <Compile Include="MyLibrary\DataBase\DBTable.cs" />
-    <Compile Include="MyLibrary\DataBase\DBCommandTypeEnum.cs" />
+    <Compile Include="MyLibrary\DataBase\DBQueryTypeEnum.cs" />
     <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableAttribute.cs" />

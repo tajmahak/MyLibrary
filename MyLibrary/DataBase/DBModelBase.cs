@@ -27,18 +27,18 @@ namespace MyLibrary.DataBase
         public abstract void Initialize(DbConnection connection);
         public abstract void AddParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
-        public abstract DbCommand BuildCommand(DbConnection connection, DBCommand command);
+        public abstract DbCommand BuildCommand(DbConnection connection, DBQuery query);
 
         public DBContext CreateDBContext(DbConnection connection)
         {
             var context = new DBContext(this, connection);
             return context;
         }
-        public DBCommand CreateDBCommand(string tableName)
+        public DBQuery CreateDBQuery(string tableName)
         {
             var table = GetTable(tableName);
-            var cmd = new DBCommand(table);
-            return cmd;
+            var query = new DBQuery(table);
+            return query;
         }
         public DBTable GetTable(string tableName)
         {

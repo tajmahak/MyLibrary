@@ -8,12 +8,12 @@ namespace MyLibrary.DataBase
 {
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
-        internal DBReader(DbConnection connection, DBModelBase model, DBCommand command)
+        internal DBReader(DbConnection connection, DBModelBase model, DBQuery query)
         {
             _model = model;
-            _command = model.BuildCommand(connection, command);
+            _command = model.BuildCommand(connection, query);
             _reader = _command.ExecuteReader();
-            _table = (!command.IsView) ? command.Table : GenerateTable();
+            _table = (!query.IsView) ? query.Table : GenerateTable();
         }
         public void Dispose()
         {
@@ -44,7 +44,9 @@ namespace MyLibrary.DataBase
         {
             var list = new List<T>();
             foreach (var row in this)
+            {
                 list.Add(row);
+            }
             return list;
         }
         public T[] ToArray()

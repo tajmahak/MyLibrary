@@ -216,24 +216,6 @@ namespace MyLibrary.Data
             ulong uFlag = System.Convert.ToUInt64(flag);
             return ((uValue & uFlag) == uFlag);
         }
-        /// <summary>
-        /// Получение имени экземпляра объекта
-        /// </summary>
-        /// <typeparam name="T">Тип объекта</typeparam>
-        /// <param name="accessor">Функция для передачи экземпляра объекта. Задаётся: () => member</param>
-        /// <returns></returns>
-        public static String NameOf<T>(Expression<Func<T>> accessor)
-        {
-            Expression expression = accessor.Body;
-            if (expression.NodeType == ExpressionType.MemberAccess)
-            {
-                var memberExpression = expression as MemberExpression;
-                if (memberExpression == null)
-                    return null;
-                return memberExpression.Member.Name;
-            }
-            return null;
-        }
 
         /// <summary>
         /// Округляет десятичное значение до ближайшего целого. Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами

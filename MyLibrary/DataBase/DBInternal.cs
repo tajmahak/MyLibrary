@@ -7,19 +7,25 @@ namespace MyLibrary.DataBase
 {
     internal static class DBInternal
     {
-        public static T PackRow<T>(object value)
+        public static T PackRow<T>(object row)
         {
             if (typeof(T) == typeof(DBRow))
-                return (T)value;
-            return (T)Activator.CreateInstance(typeof(T), value);
+            {
+                return (T)row;
+            }
+            return (T)Activator.CreateInstance(typeof(T), row);
         }
-        public static DBRow UnpackRow(object value)
+        public static DBRow UnpackRow(object row)
         {
-            if (value == null)
+            if (row == null)
+            {
                 return null;
-            if (value is DBOrmTableBase)
-                return (value as DBOrmTableBase).Row;
-            return (DBRow)value;
+            }
+            if (row is DBOrmTableBase)
+            {
+                return (row as DBOrmTableBase).Row;
+            }
+            return (DBRow)row;
         }
         public static string GetTableNameFromAttribute(Type type)
         {
@@ -32,9 +38,9 @@ namespace MyLibrary.DataBase
             return attr.TableName;
         }
 
-        public static Exception ArgumentNullException<T>(Expression<Func<T>> accessor)
+        public static Exception ArgumentNullException(string argumentName)
         {
-            throw new ArgumentNullException(Format.NameOf(accessor));
+            throw new ArgumentNullException(argumentName);
         }
         public static Exception UnknownTableException(string tableName)
         {

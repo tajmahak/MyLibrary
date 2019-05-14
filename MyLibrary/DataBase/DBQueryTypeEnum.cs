@@ -1,6 +1,6 @@
 ﻿namespace MyLibrary.DataBase
 {
-    public enum DBCommandTypeEnum
+    public enum DBQueryTypeEnum
     {
         Sql,
         Select,

@@ -28,12 +28,12 @@ namespace MyLibrary.DataBase
         {
             ((SQLiteCommand)command).Parameters.AddWithValue(name, value);
         }
-        public override DbCommand BuildCommand(DbConnection connection, DBCommand command)
+        public override DbCommand BuildCommand(DbConnection connection, DBQuery query)
         {
-            var dbCommand = (SQLiteCommand)connection.CreateCommand();
-            var builder = new SqlBuilder(this, dbCommand);
-            dbCommand.CommandText = builder.Build(command);
-            return dbCommand;
+            var command = (SQLiteCommand)connection.CreateCommand();
+            var builder = new SqlBuilder(this, command);
+            command.CommandText = builder.Build(query);
+            return command;
         }
 
         private void InitializeDBModel(SQLiteConnection connection)
@@ -245,16 +245,16 @@ namespace MyLibrary.DataBase
         private class SqlBuilder
         {
             private SQLiteDBModel _model;
-            private SQLiteCommand _dbCommand;
+            private SQLiteCommand _command;
             private int _parameterCounter;
 
-            public SqlBuilder(SQLiteDBModel model, SQLiteCommand dbCommand)
+            public SqlBuilder(SQLiteDBModel model, SQLiteCommand command)
             {
                 _model = model;
-                _dbCommand = dbCommand;
+                _command = command;
             }
 
-            public string Build(DBCommand cmd)
+            public string Build(DBQuery query)
             {
                 var sql = new StringBuilder();
 
@@ -263,14 +263,14 @@ namespace MyLibrary.DataBase
                 string[] args;
                 int index = 0;
 
-                if (cmd.CommandType == DBCommandTypeEnum.Select)
+                if (query.QueryType == DBQueryTypeEnum.Select)
                 {
                     #region SELECT [...] ... FROM ...
 
-                    blockList = FindBlockList(cmd, x => x.StartsWith("Select"));
+                    blockList = FindBlockList(query, x => x.StartsWith("Select"));
                     if (blockList.Count == 0)
                     {
-                        sql.Append(_model.DefaultSelectCommandsDict[cmd.Table]);
+                        sql.Append(_model.DefaultSelectCommandsDict[query.Table]);
                     }
                     else
                     {
@@ -443,25 +443,25 @@ namespace MyLibrary.DataBase
 
                         #endregion
                         sql.Append(" FROM ");
-                        sql.Append(GetName(cmd.Table.Name));
+                        sql.Append(GetName(query.Table.Name));
                     }
 
-                    block = FindBlock(cmd, x => x == "Distinct");
+                    block = FindBlock(query, x => x == "Distinct");
                     if (block != null)
                         sql.Insert(6, " DISTINCT");
 
-                    block = FindBlock(cmd, x => x == "Skip");
+                    block = FindBlock(query, x => x == "Skip");
                     if (block != null)
                         sql.Insert(6, string.Concat(" SKIP ", block[1]));
 
-                    block = FindBlock(cmd, x => x == "First");
+                    block = FindBlock(query, x => x == "First");
                     if (block != null)
                         sql.Insert(6, string.Concat(" FIRST ", block[1]));
 
                     #endregion
                     #region JOIN
 
-                    foreach (var item in cmd.Structure)
+                    foreach (var item in query.Structure)
                     {
                         switch ((string)item[0])
                         {
@@ -566,14 +566,14 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommandTypeEnum.Insert)
+                else if (query.QueryType == DBQueryTypeEnum.Insert)
                 {
                     #region INSERT INTO ...
 
                     sql.Append("INSERT INTO ");
-                    sql.Append(GetName(cmd.Table.Name));
+                    sql.Append(GetName(query.Table.Name));
 
-                    blockList = cmd.Structure.FindAll(x => ((string)x[0]) == "Set");
+                    blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
                     if (blockList.Count == 0)
                         throw DBInternal.InadequateInsertCommandException();
 
@@ -595,15 +595,15 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommandTypeEnum.Update)
+                else if (query.QueryType == DBQueryTypeEnum.Update)
                 {
                     #region UPDATE ... SET ...
 
                     sql.Append("UPDATE ");
-                    sql.Append(GetName(cmd.Table.Name));
+                    sql.Append(GetName(query.Table.Name));
                     sql.Append(" SET ");
 
-                    blockList = cmd.Structure.FindAll(x => ((string)x[0]) == "Set");
+                    blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
                     if (blockList.Count == 0)
                         throw DBInternal.InadequateUpdateCommandException();
                     for (int i = 0; i < blockList.Count; i++)
@@ -617,23 +617,23 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommandTypeEnum.Delete)
+                else if (query.QueryType == DBQueryTypeEnum.Delete)
                 {
                     #region DELETE FROM ...
 
                     sql.Append("DELETE FROM ");
-                    sql.Append(GetName(cmd.Table.Name));
+                    sql.Append(GetName(query.Table.Name));
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommandTypeEnum.UpdateOrInsert)
+                else if (query.QueryType == DBQueryTypeEnum.UpdateOrInsert)
                 {
                     #region UPDATE OR INSERT
 
                     sql.Append("UPDATE OR INSERT INTO ");
-                    sql.Append(GetName(cmd.Table.Name));
+                    sql.Append(GetName(query.Table.Name));
 
-                    blockList = cmd.Structure.FindAll(x => ((string)x[0]) == "Set");
+                    blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
                     if (blockList.Count == 0)
                         throw DBInternal.InadequateUpdateCommandException();
 
@@ -655,7 +655,7 @@ namespace MyLibrary.DataBase
 
                     sql.Append(")");
 
-                    blockList = FindBlockList(cmd, x => x == "Matching");
+                    blockList = FindBlockList(query, x => x == "Matching");
                     if (blockList.Count > 0)
                     {
                         sql.Append(" MATCHING(");
@@ -677,17 +677,17 @@ namespace MyLibrary.DataBase
 
                     #endregion
                 }
-                else if (cmd.CommandType == DBCommandTypeEnum.Sql)
+                else if (query.QueryType == DBQueryTypeEnum.Sql)
                 {
                     #region SQL-команда
 
-                    block = FindBlock(cmd, x => x == "Sql");
+                    block = FindBlock(query, x => x == "Sql");
                     sql.Append(block[1]);
                     index = 0;
                     foreach (var param in (object[])block[2])
                     {
                         var paramName = "@p" + index++;
-                        _model.AddParameter(_dbCommand, paramName, param);
+                        _model.AddParameter(_command, paramName, param);
                     }
 
                     #endregion
@@ -695,7 +695,7 @@ namespace MyLibrary.DataBase
 
                 #region WHERE ...
 
-                blockList = FindBlockList(cmd, x => x.Contains("Where") || x == "Or" || x == "Not" || x == "(" || x == ")");
+                blockList = FindBlockList(query, x => x.Contains("Where") || x == "Or" || x == "Not" || x == "(" || x == ")");
                 if (blockList.Count > 0)
                 {
                     sql.Append(" WHERE");
@@ -836,7 +836,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(' ');
                                 sql.Append(GetFullName(block[1]));
                                 sql.Append(" IN (");
-                                Build((DBCommand)block[2]);
+                                Build((DBQuery)block[2]);
                                 sql.Append(')');
                                 break;
                                 #endregion
@@ -876,11 +876,11 @@ namespace MyLibrary.DataBase
                 }
 
                 #endregion
-                if (cmd.CommandType == DBCommandTypeEnum.Select)
+                if (query.QueryType == DBQueryTypeEnum.Select)
                 {
                     #region GROUP BY ...
 
-                    blockList = FindBlockList(cmd, x => x == "GroupBy");
+                    blockList = FindBlockList(query, x => x == "GroupBy");
                     if (blockList.Count > 0)
                     {
                         sql.Append(" GROUP BY ");
@@ -902,7 +902,7 @@ namespace MyLibrary.DataBase
                     #endregion
                     #region ORDER BY ...
 
-                    blockList = FindBlockList(cmd, x => x.StartsWith("OrderBy"));
+                    blockList = FindBlockList(query, x => x.StartsWith("OrderBy"));
                     if (blockList.Count > 0)
                     {
                         sql.Append(" ORDER BY ");
@@ -971,7 +971,7 @@ namespace MyLibrary.DataBase
 
                 #region RETURNING ...
 
-                blockList = FindBlockList(cmd, x => x == "Returning");
+                blockList = FindBlockList(query, x => x == "Returning");
                 if (blockList.Count > 0)
                 {
                     sql.Append(" RETURNING ");
@@ -1209,17 +1209,17 @@ namespace MyLibrary.DataBase
                     value = Convert.ChangeType(value, Enum.GetUnderlyingType(type));
 
                 var paramName = string.Concat("@p", _parameterCounter++);
-                _model.AddParameter(_dbCommand, paramName, value);
+                _model.AddParameter(_command, paramName, value);
                 return paramName;
             }
-            private List<object[]> FindBlockList(DBCommand command, Predicate<string> predicate)
+            private List<object[]> FindBlockList(DBQuery query, Predicate<string> predicate)
             {
-                return command.Structure.FindAll(block =>
+                return query.Structure.FindAll(block =>
                     predicate((string)block[0]));
             }
-            private object[] FindBlock(DBCommand command, Predicate<string> predicate)
+            private object[] FindBlock(DBQuery query, Predicate<string> predicate)
             {
-                return command.Structure.Find(block =>
+                return query.Structure.Find(block =>
                     predicate((string)block[0]));
             }
             private class ExpressionInfo

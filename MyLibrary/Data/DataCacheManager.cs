@@ -20,7 +20,7 @@ namespace MyLibrary.Data
         {
             var hash = CalculateMD5(key);
 
-            var cmd = _context.Command(DataCacheTable._)
+            var cmd = _context.Query(DataCacheTable._)
                 .Select(DataCacheTable.Time, DataCacheTable.Data)
                 .Where(DataCacheTable.Hash, hash);
 
@@ -61,7 +61,7 @@ namespace MyLibrary.Data
         }
         public void Clear(DateTime limitDate)
         {
-            var cmd = _context.Command(DataCacheTable._)
+            var cmd = _context.Query(DataCacheTable._)
                 .Delete()
                 .Where(DataCacheTable.Time, "<", limitDate);
 
@@ -77,7 +77,7 @@ namespace MyLibrary.Data
         {
             var hash = CalculateMD5(key);
 
-            var cmd = _context.Command(DataCacheTable._)
+            var cmd = _context.Query(DataCacheTable._)
                 .UpdateOrInsert()
                 .Set(DataCacheTable.Hash, hash)
                 .Set(DataCacheTable.Data, data)
