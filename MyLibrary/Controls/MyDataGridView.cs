@@ -92,14 +92,14 @@ namespace MyLibrary.Controls
                     Array.Reverse(rows);
                 }
 
-                var firstDisplayedScrollingRowIndex = this.FirstDisplayedScrollingRowIndex;
+                var firstDisplayedScrollingRowIndex = FirstDisplayedScrollingRowIndex;
 
                 Rows.Clear();
                 Rows.AddRange(rows);
 
                 if (firstDisplayedScrollingRowIndex != -1)
                 {
-                    this.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
+                    FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
                 }
 
                 OnSorted(EventArgs.Empty);

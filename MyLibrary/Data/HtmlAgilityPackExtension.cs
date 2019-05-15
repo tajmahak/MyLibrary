@@ -1,5 +1,5 @@
-﻿using System;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using System;
 
 namespace MyLibrary.Data
 {
@@ -7,7 +7,7 @@ namespace MyLibrary.Data
     {
         public static HtmlDocument Parse(string html)
         {
-            var document = new HtmlAgilityPack.HtmlDocument();
+            var document = new HtmlDocument();
             document.LoadHtml(html);
             return document;
         }

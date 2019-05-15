@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq.Expressions;
-using MyLibrary.Data;
-using MyLibrary.DataBase.Orm;
+﻿using MyLibrary.DataBase.Orm;
+using System;
 
 namespace MyLibrary.DataBase
 {
