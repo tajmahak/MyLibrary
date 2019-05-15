@@ -8,8 +8,8 @@ namespace MyLibrary.Interop.Word
 {
     public class WordInterop : IDisposable
     {
-        public W.Application Application { get; set; }
-        public W.Document Document { get; set; }
+        public W.Application Application { get; private set; }
+        public W.Document Document { get; private set; }
 
         public WordInterop()
         {
@@ -21,15 +21,15 @@ namespace MyLibrary.Interop.Word
         }
         public void Dispose()
         {
-            if (Document != null)
-            {
-                Marshal.ReleaseComObject(Document);
-                Document = null;
-            }
             if (Application != null)
             {
                 Marshal.ReleaseComObject(Application);
                 Application = null;
+            }
+            if (Document != null)
+            {
+                Marshal.ReleaseComObject(Document);
+                Document = null;
             }
         }
 
@@ -51,14 +51,13 @@ namespace MyLibrary.Interop.Word
             Application.Visible = visible;
             if (visible)
             {
-                Document.Activate();
+                Document?.Activate();
                 Application.Activate();
 
-                var processes = Process.GetProcessesByName("winword");
-                processes = Array.FindAll(processes, x => x.MainWindowTitle.Contains(_caption));
-                if (processes.Length > 0)
+                var process = GetApplicationProcess();
+                if (process != null)
                 {
-                    NativeMethods.SetForegroundWindow(processes[0].Handle);
+                    NativeMethods.SetForegroundWindow(process.Handle);
                 }
             }
         }
@@ -90,7 +89,6 @@ namespace MyLibrary.Interop.Word
             wFind.Execute(
                 Replace: W.WdReplace.wdReplaceAll);
         }
-
         public WordTable GetTable(int index)
         {
             var wTable = Document.Tables[index + 1];
@@ -99,6 +97,16 @@ namespace MyLibrary.Interop.Word
         public int GetDocumentPagesCount()
         {
             return Document.ComputeStatistics(W.WdStatistic.wdStatisticPages, false);
+        }
+        public Process GetApplicationProcess()
+        {
+            var processes = Process.GetProcessesByName("winword");
+            processes = Array.FindAll(processes, x => x.MainWindowTitle.Contains(_caption));
+            if (processes.Length > 0)
+            {
+                return processes[0];
+            }
+            return null;
         }
 
         private string _caption; // для идентификации процесса при установке фокуса на окно
