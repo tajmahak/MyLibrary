@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace MyLibrary.Threading
@@ -6,7 +7,7 @@ namespace MyLibrary.Threading
     /// <summary>
     /// Менеджер многопоточной обработки данных
     /// </summary>
-    [System.Diagnostics.DebuggerNonUserCode]
+    [DebuggerStepThrough]
     public class ThreadManager
     {
         // Статические методы
@@ -119,11 +120,8 @@ namespace MyLibrary.Threading
                     }
                 });
                 thread.IsBackground = true;
+                thread.Start();
                 _threads[i] = thread;
-            }
-            for (int i = 0; i < _threads.Length; i++)
-            {
-                _threads[i].Start();
             }
         }
         /// <summary>
