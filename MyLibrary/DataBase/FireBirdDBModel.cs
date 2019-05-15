@@ -16,7 +16,7 @@ namespace MyLibrary.DataBase
         {
             InitializeDBModel((FbConnection)connection);
             InitializeDefaultCommands();
-            base.IsInitialized = true;
+            IsInitialized = true;
         }
         public override object ExecuteInsertCommand(DbCommand command)
         {
