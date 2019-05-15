@@ -59,8 +59,12 @@ namespace MyLibrary.DataBase
                 #region Подготовка ДатаСета
 
                 foreach (var tableName in tableNames)
+                {
                     using (var dataAdapter = new SQLiteDataAdapter(string.Format("SELECT * FROM \"{0}\" LIMIT 0", tableName), connection))
+                    {
                         dataAdapter.Fill(ds, 0, 0, tableName);
+                    }
+                }
 
                 #endregion
                 #region Добавление информации для таблиц
@@ -316,7 +320,7 @@ namespace MyLibrary.DataBase
                                         }
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectAs":
                                     #region
                                     if (index > 0)
@@ -326,7 +330,7 @@ namespace MyLibrary.DataBase
                                     sql.Append(GetColumnName(block[2]));
                                     index++;
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectSum":
                                     #region
                                     args = (string[])block[1];
@@ -340,7 +344,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectSumAs":
                                     #region
                                     args = (string[])block[1];
@@ -355,7 +359,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectMax":
                                     #region
                                     args = (string[])block[1];
@@ -369,7 +373,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectMaxAs":
                                     #region
                                     args = (string[])block[1];
@@ -384,7 +388,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectMin":
                                     #region
                                     args = (string[])block[1];
@@ -398,7 +402,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectMinAs":
                                     #region
                                     args = (string[])block[1];
@@ -413,7 +417,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "SelectCount":
                                     #region
                                     args = (string[])block[1];
@@ -474,7 +478,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "LeftOuterJoin":
                                 #region
                                 sql.Append(" LEFT OUTER JOIN ");
@@ -484,7 +488,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "RightOuterJoin":
                                 #region
                                 sql.Append(" RIGHT OUTER JOIN ");
@@ -494,7 +498,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "FullOuterJoin":
                                 #region
                                 sql.Append(" FULL OUTER JOIN ");
@@ -504,7 +508,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "InnerJoinAs":
                                 #region
                                 sql.Append(" INNER JOIN ");
@@ -518,7 +522,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[3]));
                                 break;
-                                #endregion
+                            #endregion
                             case "LeftOuterJoinAs":
                                 #region
                                 sql.Append(" LEFT OUTER JOIN ");
@@ -532,7 +536,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[3]));
                                 break;
-                                #endregion
+                            #endregion
                             case "RightOuterJoinAs":
                                 #region
                                 sql.Append(" RIGHT OUTER JOIN ");
@@ -546,7 +550,7 @@ namespace MyLibrary.DataBase
                                 sql.Append('=');
                                 sql.Append(GetFullName(item[3]));
                                 break;
-                                #endregion
+                            #endregion
                             case "FullOuterJoinAs":
                                 #region
                                 sql.Append(" FULL OUTER JOIN ");
@@ -747,7 +751,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(' ');
                                 sql.Append(ParseExpression((Expression)block[1], false).Text);
                                 break;
-                                #endregion
+                            #endregion
                             case "Where":
                                 #region
                                 block[3] = block[3] ?? DBNull.Value;
@@ -765,7 +769,7 @@ namespace MyLibrary.DataBase
                                     sql.Append(AddParameter(block[3]));
                                 }
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereBetween":
                                 #region
                                 sql.Append(' ');
@@ -777,7 +781,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(" AND ");
                                 sql.Append(AddParameter(block[3]));
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereUpper":
                                 #region
                                 if (prevBlockName == "Not")
@@ -787,7 +791,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(")=");
                                 sql.Append(AddParameter(block[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereContaining":
                                 #region
                                 sql.Append(' ');
@@ -797,7 +801,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(" CONTAINING ");
                                 sql.Append(AddParameter(block[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereContainingUpper":
                                 #region
                                 sql.Append(" UPPER(");
@@ -807,7 +811,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(") CONTAINING ");
                                 sql.Append(AddParameter(block[2]));
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereLike":
                                 #region
                                 sql.Append(' ');
@@ -818,7 +822,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(block[2]);
                                 sql.Append('\'');
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereLikeUpper":
                                 #region
                                 sql.Append(" UPPER(");
@@ -830,7 +834,7 @@ namespace MyLibrary.DataBase
                                 sql.Append(block[2]);
                                 sql.Append('\'');
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereIn_command":
                                 #region
                                 sql.Append(' ');
@@ -839,7 +843,7 @@ namespace MyLibrary.DataBase
                                 Build((DBQuery)block[2]);
                                 sql.Append(')');
                                 break;
-                                #endregion
+                            #endregion
                             case "WhereIn_values":
                                 #region
                                 sql.Append(' ');
@@ -923,7 +927,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "OrderByDesc":
                                     #region
                                     for (int j = 0; j < args.Length; j++)
@@ -935,7 +939,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "OrderByUpper":
                                     #region
                                     for (int j = 0; j < args.Length; j++)
@@ -948,7 +952,7 @@ namespace MyLibrary.DataBase
                                         index++;
                                     }
                                     break;
-                                    #endregion
+                                #endregion
                                 case "OrderByUpperDesc":
                                     #region
                                     for (int j = 0; j < args.Length; j++)

@@ -51,12 +51,12 @@ namespace MyLibrary.DataBase
             string text;
             if (table != null)
                 text = string.Format("Таблица \"{0}\" - неизвестный столбец \"{1}\"", table.Name, columnName);
-            else text = string.Format("Неизвестный столбец \"{0}\"", table.Name, columnName);
+            else text = string.Format("Неизвестный столбец \"{0}\"", table.Name);
             return new Exception(text);
         }
         public static Exception DataConvertException(DBColumn column, object value, Exception innerException)
         {
-            return new Exception(string.Format("{1}: приведение из \"{2}\" в \"{3}\" невозможно",
+            return new Exception(string.Format("{0}: приведение из \"{1}\" в \"{2}\" невозможно",
                 column.Name,
                 column.DataType.Name,
                 value.GetType().Name),

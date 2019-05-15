@@ -6,7 +6,7 @@ using E = Microsoft.Office.Interop.Excel;
 
 namespace MyLibrary.Interop.Excel
 {
-    public class ExcelInterop : IDisposable
+    public sealed class ExcelInterop : IDisposable
     {
         public E.Application Application { get; private set; }
         public E.Workbook Workbook { get; private set; }

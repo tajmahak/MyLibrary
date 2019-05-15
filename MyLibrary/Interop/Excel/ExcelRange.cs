@@ -3,7 +3,7 @@ using E = Microsoft.Office.Interop.Excel;
 
 namespace MyLibrary.Interop.Excel
 {
-    public class ExcelRange
+    public sealed class ExcelRange
     {
         public E.Range Range { get; private set; }
         public int RowsCount

@@ -15,7 +15,7 @@ namespace MyLibrary.Controls
     {
         public DataGridViewProgressColumn()
         {
-            CellTemplate = new DataGridViewProgressCell();
+            base.CellTemplate = new DataGridViewProgressCell();
         }
     }
 
@@ -29,7 +29,7 @@ namespace MyLibrary.Controls
         }
         public DataGridViewProgressCell()
         {
-            this.ValueType = typeof(int);
+            base.ValueType = typeof(int);
         }
         // Method required to make the Progress Cell consistent with the default Image Cell.
         // The default Image Cell assumes an Image as a value, although the value of the Progress Cell is an int.

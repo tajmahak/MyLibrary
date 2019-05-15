@@ -6,7 +6,7 @@ using W = Microsoft.Office.Interop.Word;
 
 namespace MyLibrary.Interop.Word
 {
-    public class WordInterop : IDisposable
+    public sealed class WordInterop : IDisposable
     {
         public W.Application Application { get; private set; }
         public W.Document Document { get; private set; }

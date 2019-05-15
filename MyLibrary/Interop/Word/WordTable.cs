@@ -2,7 +2,7 @@
 
 namespace MyLibrary.Interop.Word
 {
-    public class WordTable
+    public sealed class WordTable
     {
         public W.Table Table { get; private set; }
         public int RowsCount

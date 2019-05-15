@@ -3,7 +3,7 @@ using W = Microsoft.Office.Interop.Word;
 
 namespace MyLibrary.Interop.Word
 {
-    public class WordRange
+    public sealed class WordRange
     {
         public W.Range Range { get; private set; }
 
