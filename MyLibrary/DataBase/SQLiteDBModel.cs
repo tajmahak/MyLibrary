@@ -115,7 +115,7 @@ namespace MyLibrary.DataBase
 
             #region Подготовка значений
 
-            base.Tables = tables;
+            Tables = tables;
             for (int i = 0; i < tables.Length; i++)
             {
                 var table = tables[i];

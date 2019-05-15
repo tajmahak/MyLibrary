@@ -112,17 +112,17 @@ namespace MyLibrary.DataBase
 
             #region Подготовка значений
 
-            base.Tables = tables;
+            Tables = tables;
             for (int i = 0; i < tables.Length; i++)
             {
                 var table = tables[i];
-                base.TablesDict.Add(table.Name, table);
+                TablesDict.Add(table.Name, table);
 
                 for (int j = 0; j < table.Columns.Length; j++)
                 {
                     var column = table.Columns[j];
                     string longName = string.Concat(table.Name, '.', column.Name);
-                    base.ColumnsDict.Add(longName, column);
+                    ColumnsDict.Add(longName, column);
                 }
             }
 
@@ -162,7 +162,7 @@ namespace MyLibrary.DataBase
                         str.Append("NULL");
                     else
                     {
-                        str.Append(String.Concat("@p", index));
+                        str.Append(string.Concat("@p", index));
                         index++;
                     }
                 }
@@ -303,7 +303,7 @@ namespace MyLibrary.DataBase
                                             if (index > 0)
                                                 sql.Append(',');
 
-                                            var paramCol = (string)args[j];
+                                            var paramCol = args[j];
                                             if (paramCol.Contains("."))
                                             {
                                                 // Столбец
