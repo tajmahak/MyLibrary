@@ -30,11 +30,11 @@ namespace MyLibrary.Interop
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         internal static extern int SHGetPathFromIDList(IntPtr pidl, StringBuilder pszPath);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
-        internal static extern int DeleteObject(IntPtr hObject);
-
         [DllImport("shell32.dll")]
         internal static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref Shfileinfo psfi, uint cbFileInfo, uint uFlags);
+
+        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        internal static extern int DeleteObject(IntPtr hObject);
 
         #region const
 
