@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using E = Microsoft.Office.Interop.Excel;
 
-namespace MyLibrary.Interop.Excel
+namespace MyLibrary.Interop.MSOffice
 {
     public sealed class ExcelInterop : IDisposable
     {

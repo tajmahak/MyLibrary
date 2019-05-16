@@ -1,4 +1,4 @@
-﻿namespace MyLibrary.Interop.Excel
+﻿namespace MyLibrary.Interop.MSOffice
 {
     public enum ExcelVerticalAlignmentEnum
     {

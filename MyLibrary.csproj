@@ -134,14 +134,14 @@
     <Compile Include="MyLibrary\WinForms\Controls\ClipboardMonitor.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Interop\Excel\ExcelAlignmentEnum.cs" />
-    <Compile Include="MyLibrary\Interop\Excel\ExcelBorderEnum.cs" />
-    <Compile Include="MyLibrary\Interop\Excel\ExcelCellValueFormatEnum.cs" />
-    <Compile Include="MyLibrary\Interop\Excel\ExcelInterop.cs" />
-    <Compile Include="MyLibrary\Interop\Excel\ExcelRange.cs" />
-    <Compile Include="MyLibrary\Interop\Word\WordInterop.cs" />
-    <Compile Include="MyLibrary\Interop\Word\WordRange.cs" />
-    <Compile Include="MyLibrary\Interop\Word\WordTable.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\ExcelAlignmentEnum.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\ExcelBorderEnum.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\ExcelCellValueFormatEnum.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\ExcelInterop.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\ExcelRange.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\WordInterop.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\WordRange.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\WordTable.cs" />
     <Compile Include="MyLibrary\NativeMethods.cs" />
     <Compile Include="MyLibrary\Net\HttpRequest.cs" />
     <Compile Include="MyLibrary\Net\PostDataContent.cs" />
