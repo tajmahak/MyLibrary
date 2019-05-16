@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace MyLibrary.Controls
+namespace MyLibrary.WinForms.Controls
 {
     [System.Diagnostics.DebuggerStepThrough]
     public class MyButton : Button

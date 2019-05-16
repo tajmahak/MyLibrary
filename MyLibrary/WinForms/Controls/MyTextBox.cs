@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace MyLibrary.Controls
+namespace MyLibrary.WinForms.Controls
 {
     [System.Diagnostics.DebuggerStepThrough]
     public class MyTextBox : TextBox
@@ -23,7 +23,7 @@ namespace MyLibrary.Controls
             if (e.Control && e.KeyCode == Keys.A)
             {
                 e.Handled = e.SuppressKeyPress = true;
-                base.SelectAll();
+                SelectAll();
             }
 
             base.OnKeyDown(e);

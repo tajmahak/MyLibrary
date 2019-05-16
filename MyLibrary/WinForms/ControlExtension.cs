@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace MyLibrary.Controls
+namespace MyLibrary.WinForms
 {
     public static class ControlExtension
     {

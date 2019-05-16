@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using MyLibrary.Data;
 
-namespace MyLibrary.Controls
+namespace MyLibrary.WinForms
 {
     public static class DataGridViewExtension
     {

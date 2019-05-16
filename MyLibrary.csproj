@@ -83,30 +83,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyLibrary\Controls\ControlExtension.cs" />
-    <Compile Include="MyLibrary\Controls\DataGridViewExtension.cs" />
-    <Compile Include="MyLibrary\Controls\DataGridViewProgressColumn.cs" />
-    <Compile Include="MyLibrary\Controls\GridRowManager.cs" />
-    <Compile Include="MyLibrary\Controls\MsgBox.cs" />
-    <Compile Include="MyLibrary\Controls\MyButton.cs">
+    <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
+    <Compile Include="MyLibrary\WinForms\DataGridViewExtension.cs" />
+    <Compile Include="MyLibrary\WinForms\Controls\DataGridViewProgressColumn.cs" />
+    <Compile Include="MyLibrary\WinForms\GridRowManager.cs" />
+    <Compile Include="MyLibrary\WinForms\MsgBox.cs" />
+    <Compile Include="MyLibrary\WinForms\Controls\MyButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\MyDataGridView.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\MyDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\MyDateTimePicker.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\MyDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\MyNumericUpDown.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\MyNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\MyPropertyGrid.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\MyPropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\MyTextBox.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\MyTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Controls\TaskbarProgress.cs" />
+    <Compile Include="MyLibrary\WinForms\TaskbarProgress.cs" />
     <Compile Include="MyLibrary\DataBase\DBColumn.cs" />
     <Compile Include="MyLibrary\DataBase\DBQuery.cs" />
     <Compile Include="MyLibrary\DataBase\DBContext.cs" />
@@ -124,13 +124,13 @@
     <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
     <Compile Include="MyLibrary\Data\Format.cs" />
     <Compile Include="MyLibrary\Data\Formats\DBFReader.cs" />
-    <Compile Include="MyLibrary\Data\HtmlAgilityPackExtension.cs" />
+    <Compile Include="MyLibrary\Data\Formats\HtmlAgilityPackExtension.cs" />
     <Compile Include="MyLibrary\Data\ImageManager.cs" />
-    <Compile Include="MyLibrary\Data\JsonNode.cs" />
+    <Compile Include="MyLibrary\Data\Formats\JsonNode.cs" />
     <Compile Include="MyLibrary\Data\PathExtension.cs" />
     <Compile Include="MyLibrary\Data\Serializer.cs" />
     <Compile Include="MyLibrary\Data\Sorting.cs" />
-    <Compile Include="MyLibrary\Controls\ClipboardMonitor.cs">
+    <Compile Include="MyLibrary\WinForms\Controls\ClipboardMonitor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="MyLibrary\Interop\Excel\ExcelAlignmentEnum.cs" />

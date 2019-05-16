@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace MyLibrary.Controls
+namespace MyLibrary.WinForms.Controls
 {
     [System.Diagnostics.DebuggerStepThrough]
     public class MyNumericUpDown : NumericUpDown
