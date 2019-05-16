@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -10,6 +9,13 @@ namespace MyLibrary.Interop
 {
     public class ShellThumbnail : IDisposable
     {
+        /// <summary>
+        /// Получение значка, сопоставленного с расширением файла
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="smallSize"></param>
+        /// <param name="linkOverlay"></param>
+        /// <returns></returns>
         public static Icon GetFileIcon(string path, bool smallSize, bool linkOverlay = false)
         {
             var shfi = new Shfileinfo();
@@ -40,37 +46,14 @@ namespace MyLibrary.Interop
             return icon;
         }
 
-
-        public void Dispose()
+        public Bitmap Thumbnail { get; private set; }
+        public Size ThumbnailSize { get; set; } = new Size(100, 100);
+        public Bitmap GetFileThumbnail(string fileName, Size size)
         {
-            if (!_disposed)
+            if (Thumbnail != null)
             {
-                if (_alloc != null)
-                {
-                    Marshal.ReleaseComObject(_alloc);
-                }
-                _alloc = null;
-                if (ThumbNail != null)
-                {
-                    ThumbNail.Dispose();
-                }
-                _disposed = true;
-            }
-        }
-        ~ShellThumbnail()
-        {
-            Dispose();
-        }
-
-
-        public Bitmap ThumbNail { get; private set; }
-        public Size DesiredSize { get; set; } = new Size(100, 100);
-        public Bitmap GetThumbnail(string fileName)
-        {
-            if (ThumbNail != null)
-            {
-                ThumbNail.Dispose();
-                ThumbNail = null;
+                Thumbnail.Dispose();
+                Thumbnail = null;
             }
             IShellFolder folder = null;
             try
@@ -157,13 +140,29 @@ namespace MyLibrary.Interop
                 }
                 Marshal.ReleaseComObject(folder);
             }
-            return ThumbNail;
+            return Thumbnail;
         }
 
-
-
-
-
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                if (_alloc != null)
+                {
+                    Marshal.ReleaseComObject(_alloc);
+                }
+                _alloc = null;
+                if (Thumbnail != null)
+                {
+                    Thumbnail.Dispose();
+                }
+                _disposed = true;
+            }
+        }
+        ~ShellThumbnail()
+        {
+            Dispose();
+        }
         private IMalloc Allocator
         {
             get
@@ -174,10 +173,6 @@ namespace MyLibrary.Interop
                     {
                         SHGetMalloc(ref _alloc);
                     }
-                }
-                else
-                {
-                    Debug.Assert(false, "Object has been disposed.");
                 }
                 return _alloc;
             }
@@ -200,8 +195,8 @@ namespace MyLibrary.Interop
                     {
                         SIZE sz = new SIZE
                         {
-                            cx = DesiredSize.Width,
-                            cy = DesiredSize.Height
+                            cx = ThumbnailSize.Width,
+                            cy = ThumbnailSize.Height
                         };
                         StringBuilder location = new StringBuilder(260, 260);
                         int priority = 0;
@@ -219,7 +214,7 @@ namespace MyLibrary.Interop
                         }
                         if (hBmp != IntPtr.Zero)
                         {
-                            ThumbNail = Image.FromHbitmap(hBmp);
+                            Thumbnail = Image.FromHbitmap(hBmp);
                         }
                         Marshal.ReleaseComObject(extractImage);
                         extractImage = null;
@@ -266,8 +261,7 @@ namespace MyLibrary.Interop
                 return ppshf;
             }
         }
-        private IMalloc _alloc = null;
+        private IMalloc _alloc;
         private bool _disposed = false;
-
     }
 }
