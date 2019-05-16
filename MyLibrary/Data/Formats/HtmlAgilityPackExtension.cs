@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
 
-namespace MyLibrary.Data
+namespace MyLibrary.Data.Formats
 {
     public static class HtmlAgilityPackExtension
     {

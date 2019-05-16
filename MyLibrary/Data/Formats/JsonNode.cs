@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MyLibrary.Data
+namespace MyLibrary.Data.Formats
 {
     public class JsonNode : IEnumerable<JsonNode>
     {
@@ -17,7 +17,7 @@ namespace MyLibrary.Data
 
         public string Name { get; set; }
         public string Value { get; set; }
-       
+
         public JsonNode Parent { get; set; }
         public JsonNodeCollection Childs
         {
@@ -101,7 +101,7 @@ namespace MyLibrary.Data
             }
             #endregion
         }
-        
+
         public IEnumerator<JsonNode> GetEnumerator()
         {
             return Childs.GetEnumerator();
@@ -110,7 +110,7 @@ namespace MyLibrary.Data
         {
             return Childs.GetEnumerator();
         }
-        
+
         #endregion
     }
     public class JsonNodeCollection : List<JsonNode>
@@ -130,7 +130,7 @@ namespace MyLibrary.Data
         }
 
         #region Конструктор
-        
+
         public JsonNodeCollection()
         {
         }
