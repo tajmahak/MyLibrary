@@ -9,22 +9,9 @@
             Row = row;
         }
 
-        public void Delete()
-        {
-            Row.Delete();
-        }
-
-        public void SetNotNull(int index)
-        {
-            Row.SetNotNull(index);
-        }
-        public void SetNotNull(string columnName)
-        {
-            Row.SetNotNull(columnName);
-        }
-        public void SetNotNull()
-        {
-            Row.SetNotNull();
-        }
+        public void Delete() => Row.Delete();
+        public void SetNotNull(int index) => Row.SetNotNull(index);
+        public void SetNotNull(string columnName) => Row.SetNotNull(columnName);
+        public void SetNotNull() => Row.SetNotNull();
     }
 }

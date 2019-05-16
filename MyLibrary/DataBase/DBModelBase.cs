@@ -42,16 +42,20 @@ namespace MyLibrary.DataBase
         }
         public DBTable GetTable(string tableName)
         {
-            DBTable table;
-            if (!TablesDict.TryGetValue(tableName, out table))
+            if (!TablesDict.TryGetValue(tableName, out var table))
+            {
                 throw DBInternal.UnknownTableException(tableName);
+            }
+
             return table;
         }
         public DBColumn GetColumn(string columnName)
         {
-            DBColumn column;
-            if (!ColumnsDict.TryGetValue(columnName, out column))
+            if (!ColumnsDict.TryGetValue(columnName, out var column))
+            {
                 throw DBInternal.UnknownColumnException(null, columnName);
+            }
+
             return column;
         }
     }

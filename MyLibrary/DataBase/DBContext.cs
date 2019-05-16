@@ -12,7 +12,9 @@ namespace MyLibrary.DataBase
         public DBContext(DBModelBase model, DbConnection connection)
         {
             if (!model.IsInitialized)
+            {
                 model.Initialize(connection);
+            }
 
             Model = model;
             Connection = connection;
@@ -84,7 +86,9 @@ namespace MyLibrary.DataBase
                 {
                     var rowCollection = _rowCollectionList[i];
                     if (rowCollection.Count == 0)
+                    {
                         continue;
+                    }
 
                     var table = rowCollection[0].Table;
                     for (int j = 0; j < rowCollection.Count; j++)
@@ -112,7 +116,9 @@ namespace MyLibrary.DataBase
                 {
                     var rowCollection = _rowCollectionList[i];
                     if (rowCollection.Count == 0)
+                    {
                         continue;
+                    }
 
                     var table = rowCollection[0].Table;
                     for (int j = 0; j < rowCollection.Count; j++)
@@ -129,19 +135,28 @@ namespace MyLibrary.DataBase
                                 var tempID = (Guid)value;
                                 var idContainer = new InsertRowContainer(row, k);
                                 if (row.State == DataRowState.Added)
+                                {
                                     idContainer.MainContainer = mainContainer;
+                                }
 
                                 if (!tempIDs.ContainsKey(tempID))
                                 {
-                                    var list = new List<InsertRowContainer>();
-                                    list.Add(idContainer);
+                                    var list = new List<InsertRowContainer>
+                                    {
+                                        idContainer
+                                    };
                                     tempIDs.Add(tempID, list);
                                 }
-                                else tempIDs[tempID].Add(idContainer);
+                                else
+                                {
+                                    tempIDs[tempID].Add(idContainer);
+                                }
                             }
                         }
                         if (row.State == DataRowState.Added)
+                        {
                             insertRows.Add(mainContainer);
+                        }
                     }
                 }
                 insertRows.Sort((x, y) => x.Value.CompareTo(y.Value));
@@ -155,7 +170,9 @@ namespace MyLibrary.DataBase
                     row = rowContainer.Row;
 
                     if (row.State != DataRowState.Added)
+                    {
                         continue;
+                    }
 
                     if (rowContainer.Value == 1)
                     {
@@ -169,7 +186,9 @@ namespace MyLibrary.DataBase
                             var idContainer = list[j];
                             idContainer.Row[idContainer.Value] = dbID;
                             if (idContainer.MainContainer != null)
+                            {
                                 idContainer.MainContainer.Value--;
+                            }
                         }
 
                         #endregion
@@ -179,7 +198,9 @@ namespace MyLibrary.DataBase
                     else
                     {
                         if (saveError)
+                        {
                             throw DBInternal.DbSaveWrongRelationsException();
+                        }
 
                         insertRows.Sort((x, y) => x.Value.CompareTo(y.Value));
                         i = -1;
@@ -196,7 +217,9 @@ namespace MyLibrary.DataBase
                 {
                     var rowCollection = _rowCollectionList[i];
                     if (rowCollection.Count == 0)
+                    {
                         continue;
+                    }
 
                     var table = rowCollection[0].Table;
 
@@ -214,7 +237,9 @@ namespace MyLibrary.DataBase
                 #endregion
 
                 if (AutoCommit)
+                {
                     CommitTransaction();
+                }
             }
             catch (Exception ex)
             {
@@ -247,25 +272,37 @@ namespace MyLibrary.DataBase
         public bool Add<T>(T row)
         {
             if (row is IEnumerable)
+            {
                 return AddCollection((IEnumerable)row);
+            }
 
             var dbRow = DBInternal.UnpackRow(row);
             if (dbRow.Table.Name == null)
+            {
                 throw DBInternal.ProcessRowException();
+            }
 
             if (dbRow.State == DataRowState.Deleted)
+            {
                 if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
+                {
                     return false;
+                }
+            }
 
             var rowCollection = _rowCollectionDict[dbRow.Table];
             if (!rowCollection.Contains(dbRow))
             {
                 lock (_rowCollectionDict)
+                {
                     rowCollection.Add(dbRow);
+                }
             }
 
             if (dbRow.State == DataRowState.Detached)
+            {
                 dbRow.State = DataRowState.Added;
+            }
 
             return true;
         }
@@ -273,14 +310,18 @@ namespace MyLibrary.DataBase
         {
             var dbRow = DBInternal.UnpackRow(row);
             if (dbRow.Table.Name == null)
+            {
                 throw DBInternal.ProcessRowException();
+            }
 
             dbRow.Delete();
 
             if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
             {
                 lock (_rowCollectionDict)
+                {
                     _rowCollectionDict[dbRow.Table].Remove(dbRow);
+                }
             }
         }
 
@@ -292,11 +333,15 @@ namespace MyLibrary.DataBase
                 rowCollection.ForEach(row =>
                 {
                     if (row.State == DataRowState.Added)
+                    {
                         row.State = DataRowState.Detached;
+                    }
                 });
 
                 lock (_rowCollectionDict)
+                {
                     rowCollection.Clear();
+                }
             }
         }
         public void Clear(string tableName)
@@ -314,13 +359,19 @@ namespace MyLibrary.DataBase
 
             var dbRow = DBInternal.UnpackRow(row);
             if (dbRow.Table.Name == null)
+            {
                 throw DBInternal.ProcessRowException();
+            }
 
             if (dbRow.State == DataRowState.Added)
+            {
                 dbRow.State = DataRowState.Detached;
+            }
 
             lock (_rowCollectionDict)
+            {
                 _rowCollectionDict[dbRow.Table].Remove(dbRow);
+            }
         }
 
         public List<T> GetSetRows<T>(string tableName)
@@ -352,7 +403,10 @@ namespace MyLibrary.DataBase
         {
             query.First(1);
             foreach (var row in Select<T>(query))
+            {
                 return row;
+            }
+
             return default(T);
         }
         public T Get<T>(string tableName, params object[] columnNameValuePair)
@@ -395,7 +449,9 @@ namespace MyLibrary.DataBase
         public DBReader<T> Select<T>(DBQuery query)
         {
             if (query.QueryType != DBQueryTypeEnum.Select && query.QueryType != DBQueryTypeEnum.Sql)
+            {
                 throw DBInternal.SqlExecuteException();
+            }
 
             return new DBReader<T>(Connection, Model, query);
         }
@@ -408,7 +464,9 @@ namespace MyLibrary.DataBase
         public T GetValue<T>(DBQuery query)
         {
             if (query.QueryType == DBQueryTypeEnum.Select)
+            {
                 query.First(1);
+            }
 
             using (var command = Model.BuildCommand(Connection, query))
             {
@@ -493,13 +551,17 @@ namespace MyLibrary.DataBase
         private void ClearCollection(IEnumerable collection)
         {
             foreach (var row in collection)
+            {
                 Clear(row);
+            }
         }
 
         private void OpenTransaction()
         {
             if (_transaction == null)
+            {
                 _transaction = Connection.BeginTransaction();
+            }
         }
         private void RollbackTransaction()
         {
@@ -521,7 +583,10 @@ namespace MyLibrary.DataBase
                 for (int i = 0; i < row.Table.Columns.Length; i++)
                 {
                     if (row.Table.Columns[i].IsPrimary)
+                    {
                         continue;
+                    }
+
                     Model.AddParameter(cmd, "@p" + index, row[i]);
                     index++;
                 }
@@ -564,7 +629,9 @@ namespace MyLibrary.DataBase
         private DBQuery CreateSelectCommand(string tableName, params object[] columnNameValuePair)
         {
             if (columnNameValuePair.Length % 2 != 0)
+            {
                 throw DBInternal.ParameterValuePairException();
+            }
 
             var cmd = Query(tableName);
             for (int i = 0; i < columnNameValuePair.Length; i += 2)

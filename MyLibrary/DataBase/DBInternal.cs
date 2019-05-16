@@ -30,7 +30,7 @@ namespace MyLibrary.DataBase
             var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
             if (attrArray.Length == 0)
             {
-                throw DBInternal.OrmTableNotAttributeException(type);
+                throw OrmTableNotAttributeException(type);
             }
             var attr = (DBOrmTableAttribute)attrArray[0];
             return attr.TableName;
@@ -48,8 +48,14 @@ namespace MyLibrary.DataBase
         {
             string text;
             if (table != null)
+            {
                 text = string.Format("Таблица \"{0}\" - неизвестный столбец \"{1}\"", table.Name, columnName);
-            else text = string.Format("Неизвестный столбец \"{0}\"", table.Name);
+            }
+            else
+            {
+                text = string.Format("Неизвестный столбец \"{0}\"", table.Name);
+            }
+
             return new Exception(text);
         }
         public static Exception DataConvertException(DBColumn column, object value, Exception innerException)
@@ -79,7 +85,10 @@ namespace MyLibrary.DataBase
         public static Exception DbSaveException(DBRow row, Exception ex)
         {
             if (row == null)
+            {
                 return ex;
+            }
+
             throw new Exception(string.Format("Ошибка сохранения БД. \"{0}\" - {1}", row.Table.Name, ex.Message), ex);
         }
         public static Exception DbSaveWrongRelationsException()

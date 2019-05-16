@@ -18,9 +18,10 @@ namespace MyLibrary.DataBase
 
         public int GetIndex(string columnName)
         {
-            int index;
-            if (!ColumnIndexDict.TryGetValue(columnName, out index))
+            if (!ColumnIndexDict.TryGetValue(columnName, out var index))
+            {
                 throw DBInternal.UnknownColumnException(this, columnName);
+            }
             return index;
         }
 
@@ -34,8 +35,13 @@ namespace MyLibrary.DataBase
 
                 string columnName;
                 if (column.Table.Name == null)
+                {
                     columnName = column.Name;
-                else columnName = string.Concat(column.Table.Name, '.', column.Name);
+                }
+                else
+                {
+                    columnName = string.Concat(column.Table.Name, '.', column.Name);
+                }
 
                 if (!ColumnIndexDict.ContainsKey(columnName))
                 {
@@ -55,10 +61,14 @@ namespace MyLibrary.DataBase
                     }
                 }
                 if (column.IsPrimary)
+                {
                     PrimaryKeyIndex = i;
+                }
             }
             if (Name == null)
+            {
                 PrimaryKeyIndex = -1;
+            }
         }
         public override string ToString()
         {

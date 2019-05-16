@@ -11,22 +11,26 @@ namespace MyLibrary.DataBase
         {
             Structure = new List<object[]>();
         }
-        internal DBQuery(DBTable table)
-            : this()
+        internal DBQuery(DBTable table) : this()
         {
             if (table == null)
+            {
                 throw DBInternal.ArgumentNullException(nameof(table));
+            }
             if (table.Name == null)
+            {
                 throw DBInternal.ProcessViewException();
+            }
 
             Table = table;
             QueryType = DBQueryTypeEnum.Select;
         }
-        public DBQuery(string sql, params object[] @params)
-            : this()
+        public DBQuery(string sql, params object[] @params) : this()
         {
             if (sql == null)
+            {
                 throw DBInternal.ArgumentNullException(nameof(sql));
+            }
 
             QueryType = DBQueryTypeEnum.Sql;
             IsView = true;
