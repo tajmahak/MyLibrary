@@ -130,6 +130,9 @@
     <Compile Include="MyLibrary\Data\PathExtension.cs" />
     <Compile Include="MyLibrary\Data\Serializer.cs" />
     <Compile Include="MyLibrary\Data\Sorting.cs" />
+    <Compile Include="MyLibrary\Controls\ClipboardMonitor.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MyLibrary\Interop\Excel\ExcelAlignmentEnum.cs" />
     <Compile Include="MyLibrary\Interop\Excel\ExcelBorderEnum.cs" />
     <Compile Include="MyLibrary\Interop\Excel\ExcelCellValueFormatEnum.cs" />
