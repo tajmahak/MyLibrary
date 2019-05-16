@@ -8,6 +8,7 @@ namespace MyLibrary.Interop.Excel
 {
     public sealed class ExcelInterop : IDisposable
     {
+
         public E.Application Application { get; private set; }
         public E.Workbook Workbook { get; private set; }
         public E.Worksheet Worksheet { get; private set; }
@@ -42,18 +43,26 @@ namespace MyLibrary.Interop.Excel
         }
         public void Dispose()
         {
-            if (Application != null)
+            if (!_disposed)
             {
-                Marshal.FinalReleaseComObject(Application);
+                if (Application != null)
+                {
+                    Marshal.FinalReleaseComObject(Application);
+                }
+                if (Workbook != null)
+                {
+                    Marshal.FinalReleaseComObject(Workbook);
+                }
+                if (Worksheet != null)
+                {
+                    Marshal.FinalReleaseComObject(Worksheet);
+                }
+                _disposed = true;
             }
-            if (Workbook != null)
-            {
-                Marshal.FinalReleaseComObject(Workbook);
-            }
-            if (Worksheet != null)
-            {
-                Marshal.FinalReleaseComObject(Worksheet);
-            }
+        }
+        ~ExcelInterop()
+        {
+            Dispose();
         }
 
         public void OpenWorkbook(string path, bool readOnly = false)
@@ -149,5 +158,7 @@ namespace MyLibrary.Interop.Excel
             }
             return null;
         }
+
+        private bool _disposed;
     }
 }

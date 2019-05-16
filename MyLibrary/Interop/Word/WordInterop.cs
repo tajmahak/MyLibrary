@@ -21,16 +21,24 @@ namespace MyLibrary.Interop.Word
         }
         public void Dispose()
         {
-            if (Application != null)
+            if (!_disposed)
             {
-                Marshal.ReleaseComObject(Application);
-                Application = null;
+                if (Application != null)
+                {
+                    Marshal.ReleaseComObject(Application);
+                    Application = null;
+                }
+                if (Document != null)
+                {
+                    Marshal.ReleaseComObject(Document);
+                    Document = null;
+                }
+                _disposed = true;
             }
-            if (Document != null)
-            {
-                Marshal.ReleaseComObject(Document);
-                Document = null;
-            }
+        }
+        ~WordInterop()
+        {
+            Dispose();
         }
 
         public void OpenDocument(string path)
@@ -110,5 +118,6 @@ namespace MyLibrary.Interop.Word
         }
 
         private string _caption; // для идентификации процесса при установке фокуса на окно
+        private bool _disposed;
     }
 }
