@@ -142,7 +142,7 @@
     <Compile Include="MyLibrary\Interop\MSOffice\WordInterop.cs" />
     <Compile Include="MyLibrary\Interop\MSOffice\WordRange.cs" />
     <Compile Include="MyLibrary\Interop\MSOffice\WordTable.cs" />
-    <Compile Include="MyLibrary\NativeMethods.cs" />
+    <Compile Include="MyLibrary\Interop\NativeMethods.cs" />
     <Compile Include="MyLibrary\Net\HttpRequest.cs" />
     <Compile Include="MyLibrary\Net\PostDataContent.cs" />
     <Compile Include="MyLibrary\Threading\ThreadExtension.cs" />
