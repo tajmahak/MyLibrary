@@ -12,11 +12,11 @@ namespace MyLibrary.Interop
         /// <summary>
         /// Получение значка, сопоставленного с расширением файла
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="filePath"></param>
         /// <param name="smallSize"></param>
         /// <param name="linkOverlay"></param>
         /// <returns></returns>
-        public static Icon GetFileIcon(string path, bool smallSize, bool linkOverlay = false)
+        public static Icon GetFileIcon(string filePath, bool smallSize, bool linkOverlay = false)
         {
             var shfi = new Shfileinfo();
             var flags = ShgfiIcon | ShgfiUsefileattributes;
@@ -34,7 +34,7 @@ namespace MyLibrary.Interop
             {
                 flags += ShgfiLargeicon;
             }
-            SHGetFileInfo(path,
+            SHGetFileInfo(filePath,
                 FileAttributeNormal,
                 ref shfi,
                 (uint)Marshal.SizeOf(shfi),
@@ -45,16 +45,15 @@ namespace MyLibrary.Interop
             DestroyIcon(shfi.hIcon); // Cleanup
             return icon;
         }
-
-        public Bitmap Thumbnail { get; private set; }
-        public Size ThumbnailSize { get; set; } = new Size(100, 100);
-        public Bitmap GetFileThumbnail(string fileName, Size size)
+        /// <summary>
+        /// Получение эскиза файла
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public Bitmap GetFileThumbnail(string filePath, Size size)
         {
-            if (Thumbnail != null)
-            {
-                Thumbnail.Dispose();
-                Thumbnail = null;
-            }
+            Bitmap thumbnail = null;
             IShellFolder folder = null;
             try
             {
@@ -71,7 +70,7 @@ namespace MyLibrary.Interop
                 {
                     int cParsed = 0;
                     int pdwAttrib = 0;
-                    string filePath = Path.GetDirectoryName(fileName);
+                    string filePath = Path.GetDirectoryName(filePath);
                     folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, filePath, ref cParsed, ref pidlMain, ref pdwAttrib);
                 }
                 catch (Exception ex)
@@ -122,7 +121,7 @@ namespace MyLibrary.Interop
                                 }
                                 else
                                 {
-                                    if (GetThumbNail(fileName, pidl, item))
+                                    if (GetThumbNail(filePath, pidl, item, size, ref thumbnail))
                                     {
                                         complete = true;
                                     }
@@ -140,7 +139,7 @@ namespace MyLibrary.Interop
                 }
                 Marshal.ReleaseComObject(folder);
             }
-            return Thumbnail;
+            return thumbnail;
         }
 
         public void Dispose()
@@ -150,11 +149,7 @@ namespace MyLibrary.Interop
                 if (_alloc != null)
                 {
                     Marshal.ReleaseComObject(_alloc);
-                }
-                _alloc = null;
-                if (Thumbnail != null)
-                {
-                    Thumbnail.Dispose();
+                    _alloc = null;
                 }
                 _disposed = true;
             }
@@ -177,7 +172,7 @@ namespace MyLibrary.Interop
                 return _alloc;
             }
         }
-        private bool GetThumbNail(string file, IntPtr pidl, IShellFolder item)
+        private bool GetThumbNail(string file, IntPtr pidl, IShellFolder item, Size size, ref Bitmap thumbnail)
         {
             IntPtr hBmp = IntPtr.Zero;
             IExtractImage extractImage = null;
@@ -195,8 +190,8 @@ namespace MyLibrary.Interop
                     {
                         SIZE sz = new SIZE
                         {
-                            cx = ThumbnailSize.Width,
-                            cy = ThumbnailSize.Height
+                            cx = size.Width,
+                            cy = size.Height
                         };
                         StringBuilder location = new StringBuilder(260, 260);
                         int priority = 0;
@@ -214,7 +209,7 @@ namespace MyLibrary.Interop
                         }
                         if (hBmp != IntPtr.Zero)
                         {
-                            Thumbnail = Image.FromHbitmap(hBmp);
+                            thumbnail = Image.FromHbitmap(hBmp);
                         }
                         Marshal.ReleaseComObject(extractImage);
                         extractImage = null;
