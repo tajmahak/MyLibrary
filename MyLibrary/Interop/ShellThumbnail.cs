@@ -51,7 +51,7 @@ namespace MyLibrary.Interop
         /// <param name="filePath"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public Bitmap GetFileThumbnail(string fileName, Size size)
+        public Bitmap GetFileThumbnail(string filePath, Size size)
         {
             Bitmap thumbnail = null;
             IShellFolder folder = null;
@@ -70,8 +70,8 @@ namespace MyLibrary.Interop
                 {
                     int cParsed = 0;
                     int pdwAttrib = 0;
-                    string filePath = Path.GetDirectoryName(fileName);
-                    folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, filePath, ref cParsed, ref pidlMain, ref pdwAttrib);
+                    string directoryName = Path.GetDirectoryName(filePath);
+                    folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, directoryName, ref cParsed, ref pidlMain, ref pdwAttrib);
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +121,7 @@ namespace MyLibrary.Interop
                                 }
                                 else
                                 {
-                                    if (GetThumbNail(fileName, pidl, item, size, ref thumbnail))
+                                    if (GetThumbNail(filePath, pidl, item, size, ref thumbnail))
                                     {
                                         complete = true;
                                     }
