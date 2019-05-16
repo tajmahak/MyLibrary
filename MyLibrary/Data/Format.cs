@@ -209,12 +209,6 @@ namespace MyLibrary.Data
 
             return false;
         }
-        public static bool HasFlag<T>(T value, T flag)
-        {
-            ulong uValue = System.Convert.ToUInt64(value);
-            ulong uFlag = System.Convert.ToUInt64(flag);
-            return ((uValue & uFlag) == uFlag);
-        }
 
         /// <summary>
         /// Округляет десятичное значение до ближайшего целого. Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами
