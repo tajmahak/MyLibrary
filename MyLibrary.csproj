@@ -83,7 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyLibrary\Interop\ThumbnailManager.cs" />
+    <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
     <Compile Include="MyLibrary\WinForms\DataGridViewExtension.cs" />
     <Compile Include="MyLibrary\WinForms\Controls\DataGridViewProgressColumn.cs" />
