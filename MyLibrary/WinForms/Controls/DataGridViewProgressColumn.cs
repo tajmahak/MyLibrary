@@ -19,14 +19,10 @@ namespace MyLibrary.WinForms.Controls
         }
     }
 
-    class DataGridViewProgressCell : DataGridViewImageCell
+    public class DataGridViewProgressCell : DataGridViewImageCell
     {
         // Used to make custom cell consistent with a DataGridViewImageCell
-        static Image emptyImage;
-        static DataGridViewProgressCell()
-        {
-            emptyImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        }
+        private static Image emptyImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         public DataGridViewProgressCell()
         {
             base.ValueType = typeof(int);
@@ -42,7 +38,7 @@ namespace MyLibrary.WinForms.Controls
             return emptyImage;
         }
 
-        protected override void Paint(System.Drawing.Graphics g, System.Drawing.Rectangle clipBounds, System.Drawing.Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+        protected override void Paint(Graphics g, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
         {
             if (value == null)
             {
@@ -51,7 +47,7 @@ namespace MyLibrary.WinForms.Controls
             }
 
             int progressVal = (int)value;
-            float percentage = ((float)progressVal / 100.0f); // Need to convert to float before division; otherwise C# returns int which is 0 for anything but 100%.
+            float percentage = (progressVal / 100.0f); // Need to convert to float before division; otherwise C# returns int which is 0 for anything but 100%.
             Brush backColorBrush = new SolidBrush(cellStyle.BackColor);
             Brush foreColorBrush = new SolidBrush(cellStyle.ForeColor);
             // Draws the cell grid
@@ -68,9 +64,13 @@ namespace MyLibrary.WinForms.Controls
             {
                 // draw the text
                 if (DataGridView.CurrentRow != null && DataGridView.CurrentRow.Index == rowIndex)
+                {
                     g.DrawString(progressVal.ToString() + "%", cellStyle.Font, new SolidBrush(cellStyle.SelectionForeColor), cellBounds.X + 6, cellBounds.Y + 2);
+                }
                 else
+                {
                     g.DrawString(progressVal.ToString() + "%", cellStyle.Font, foreColorBrush, cellBounds.X + 6, cellBounds.Y + 2);
+                }
             }
         }
     }
