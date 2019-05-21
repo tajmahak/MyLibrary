@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -96,6 +97,10 @@ namespace MyLibrary.Interop.MSOffice
             wFind.Replacement.Text = replaceText;
             wFind.Execute(
                 Replace: W.WdReplace.wdReplaceAll);
+        }
+        public void ReplaceText(object text, object replaceText)
+        {
+            ReplaceText(Format.Convert<string>(text), Format.Convert<string>(replaceText));
         }
         public WordTable GetTable(int index)
         {

@@ -34,7 +34,7 @@ namespace MyLibrary.Data
 
             return (T)value;
         }
-        public static List<T2> ConvertList<T1, T2>(List<T1> srcList, Func<T1, T2> convertFunc)
+        public static List<T2> ConvertList<T1, T2>(IList<T1> srcList, Func<T1, T2> convertFunc)
         {
             var destList = new List<T2>(srcList.Count);
             foreach (var srcItem in srcList)

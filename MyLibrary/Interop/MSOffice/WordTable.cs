@@ -1,4 +1,5 @@
-﻿using W = Microsoft.Office.Interop.Word;
+﻿using MyLibrary.Data;
+using W = Microsoft.Office.Interop.Word;
 
 namespace MyLibrary.Interop.MSOffice
 {
@@ -24,12 +25,22 @@ namespace MyLibrary.Interop.MSOffice
         {
             Table = wTable;
         }
+        public object this[int rowIndex, int columnIndex]
+        {
+            get => GetValue(rowIndex, columnIndex);
+            set => SetValue(rowIndex, columnIndex, Format.Convert<string>(value));
+        }
 
         public void SetValue(int rowIndex, int columnIndex, string text)
         {
             text = text ?? string.Empty;
             Table.Cell(rowIndex + 1, columnIndex + 1).Range.Text = text;
         }
+        public void SetValue(int rowIndex, int columnIndex, object value)
+        {
+            SetValue(rowIndex, columnIndex, Format.Convert<string>(value));
+        }
+
         public void MergeCells(int rowIndex, int columnIndex, int rowsCount, int columnsCount)
         {
             var wCell1 = Table.Cell(rowIndex + 1, columnIndex + 1);

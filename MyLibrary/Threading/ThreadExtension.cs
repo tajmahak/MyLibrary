@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace MyLibrary.Threading
 {
@@ -15,6 +16,12 @@ namespace MyLibrary.Threading
         {
             var thread = new Thread(start);
             thread.IsBackground = true;
+            thread.Start();
+            return thread;
+        }
+        public static SafeThread StartSafeThread(Action<SafeThread> start)
+        {
+            var thread = new SafeThread(start);
             thread.Start();
             return thread;
         }
