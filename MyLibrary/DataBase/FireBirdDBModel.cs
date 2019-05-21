@@ -204,11 +204,11 @@ namespace MyLibrary.DataBase
                 blockList = FindBlockList(query, x => x.StartsWith("Select"));
                 if (blockList.Count == 0)
                 {
-                    sql.Append(Model.DefaultSelectCommandsDict[query.Table]);
+                    Add(sql, Model.DefaultSelectCommandsDict[query.Table]);
                 }
                 else
                 {
-                    sql.Append("SELECT ");
+                    Add(sql, "SELECT ");
                     #region
 
                     index = 0;
@@ -223,8 +223,10 @@ namespace MyLibrary.DataBase
                                 if (args.Length == 0)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append('*');
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, '*');
                                     index++;
                                 }
                                 else
@@ -232,19 +234,20 @@ namespace MyLibrary.DataBase
                                     for (int j = 0; j < args.Length; j++)
                                     {
                                         if (index > 0)
-                                            sql.Append(',');
+                                        {
+                                            Add(sql, ',');
+                                        }
 
                                         var paramCol = args[j];
                                         if (paramCol.Contains("."))
                                         {
                                             // Столбец
-                                            sql.Append(GetFullName(paramCol));
+                                            Add(sql, GetFullName(paramCol));
                                         }
                                         else
                                         {
                                             // Таблица
-                                            sql.Append(GetName(paramCol));
-                                            sql.Append(".*");
+                                            Add(sql, GetName(paramCol), ".*");
                                         }
                                         index++;
                                     }
@@ -254,10 +257,10 @@ namespace MyLibrary.DataBase
                             case "SelectAs":
                                 #region
                                 if (index > 0)
-                                    sql.Append(',');
-                                sql.Append(GetName(block[1]));
-                                sql.Append(".");
-                                sql.Append(GetColumnName(block[2]));
+                                {
+                                    Add(sql, ',');
+                                }
+                                Add(sql, GetName(block[1]), ".", GetColumnName(block[2]));
                                 index++;
                                 break;
                             #endregion
@@ -267,10 +270,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("SUM(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(')');
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "SUM(", GetFullName(args[j]), ')');
                                     index++;
                                 }
                                 break;
@@ -281,11 +284,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j += 2)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("SUM(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(") AS ");
-                                    sql.Append(GetName(args[j + 1]));
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "SUM(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
                                     index++;
                                 }
                                 break;
@@ -296,10 +298,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("MAX(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(')');
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "MAX(", GetFullName(args[j]), ')');
                                     index++;
                                 }
                                 break;
@@ -310,11 +312,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j += 2)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("MAX(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(") AS ");
-                                    sql.Append(GetName(args[j + 1]));
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "MAX(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
                                     index++;
                                 }
                                 break;
@@ -325,10 +326,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("MIN(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(')');
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "MIN(", GetFullName(args[j]), ')');
                                     index++;
                                 }
                                 break;
@@ -339,11 +340,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j += 2)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("MIN(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(") AS ");
-                                    sql.Append(GetName(args[j + 1]));
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "MIN(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
                                     index++;
                                 }
                                 break;
@@ -354,8 +354,10 @@ namespace MyLibrary.DataBase
                                 if (args.Length == 0)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("COUNT(*)");
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "COUNT(*)");
                                     index++;
                                 }
                                 else
@@ -363,10 +365,10 @@ namespace MyLibrary.DataBase
                                     for (int j = 0; j < args.Length; j++)
                                     {
                                         if (index > 0)
-                                            sql.Append(',');
-                                        sql.Append("COUNT(");
-                                        sql.Append(GetFullName(args[j]));
-                                        sql.Append(')');
+                                        {
+                                            Add(sql, ',');
+                                        }
+                                        Add(sql, "COUNT(", GetFullName(args[j]), ')');
                                         index++;
                                     }
                                 }
@@ -376,8 +378,7 @@ namespace MyLibrary.DataBase
                     }
 
                     #endregion
-                    sql.Append(" FROM ");
-                    sql.Append(GetName(query.Table.Name));
+                    Add(sql, " FROM ", GetName(query.Table.Name));
                 }
 
                 block = FindBlock(query, "Distinct");
@@ -406,101 +407,36 @@ namespace MyLibrary.DataBase
                     switch ((string)item[0])
                     {
                         case "InnerJoin":
-                            #region
-                            sql.Append(" INNER JOIN ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetFullName(item[1]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[2]));
+                            Add(sql, " INNER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                             break;
-                        #endregion
+
                         case "LeftOuterJoin":
-                            #region
-                            sql.Append(" LEFT OUTER JOIN ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetFullName(item[1]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[2]));
+                            Add(sql, " LEFT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                             break;
-                        #endregion
+
                         case "RightOuterJoin":
-                            #region
-                            sql.Append(" RIGHT OUTER JOIN ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetFullName(item[1]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[2]));
+                            Add(sql, " RIGHT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                             break;
-                        #endregion
+
                         case "FullOuterJoin":
-                            #region
-                            sql.Append(" FULL OUTER JOIN ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetFullName(item[1]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[2]));
+                            Add(sql, " FULL OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                             break;
-                        #endregion
+
                         case "InnerJoinAs":
-                            #region
-                            sql.Append(" INNER JOIN ");
-                            sql.Append(GetName(item[2]));
-                            sql.Append(" AS ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(".");
-                            sql.Append(GetColumnName(item[2]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[3]));
+                            Add(sql, " INNER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                             break;
-                        #endregion
+
                         case "LeftOuterJoinAs":
-                            #region
-                            sql.Append(" LEFT OUTER JOIN ");
-                            sql.Append(GetName(item[2]));
-                            sql.Append(" AS ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(".");
-                            sql.Append(GetColumnName(item[2]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[3]));
+                            Add(sql, " LEFT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                             break;
-                        #endregion
+
                         case "RightOuterJoinAs":
-                            #region
-                            sql.Append(" RIGHT OUTER JOIN ");
-                            sql.Append(GetName(item[2]));
-                            sql.Append(" AS ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(".");
-                            sql.Append(GetColumnName(item[2]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[3]));
+                            Add(sql, " RIGHT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                             break;
-                        #endregion
+
                         case "FullOuterJoinAs":
-                            #region
-                            sql.Append(" FULL OUTER JOIN ");
-                            sql.Append(GetName(item[2]));
-                            sql.Append(" AS ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(" ON ");
-                            sql.Append(GetName(item[1]));
-                            sql.Append(".");
-                            sql.Append(GetColumnName(item[2]));
-                            sql.Append('=');
-                            sql.Append(GetFullName(item[3]));
+                            Add(sql, " FULL OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                             break;
-                            #endregion
                     }
                 }
 
@@ -510,28 +446,33 @@ namespace MyLibrary.DataBase
             {
                 #region INSERT INTO ...
 
-                sql.Append("INSERT INTO ");
-                sql.Append(GetName(query.Table.Name));
+                Add(sql, "INSERT INTO ", GetName(query.Table.Name));
 
-                blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
+                blockList = FindBlockList(query, "Set");
                 if (blockList.Count == 0)
+                {
                     throw DBInternal.InadequateInsertCommandException();
+                }
 
-                sql.Append("(");
+                Add(sql, '(');
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     if (i > 0)
-                        sql.Append(',');
-                    sql.Append(GetColumnName(blockList[i][1]));
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, GetColumnName(blockList[i][1]));
                 }
-                sql.Append(")VALUES(");
+                Add(sql, ")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     if (i > 0)
-                        sql.Append(',');
-                    sql.Append(AddParameter(blockList[i][2], cQuery));
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, AddParameter(blockList[i][2], cQuery));
                 }
-                sql.Append(")");
+                Add(sql, ')');
 
                 #endregion
             }
@@ -539,20 +480,21 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE ... SET ...
 
-                sql.Append("UPDATE ");
-                sql.Append(GetName(query.Table.Name));
-                sql.Append(" SET ");
+                Add(sql, "UPDATE ", GetName(query.Table.Name), " SET ");
 
-                blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
+                blockList = FindBlockList(query, "Set");
                 if (blockList.Count == 0)
+                {
                     throw DBInternal.InadequateUpdateCommandException();
+                }
+
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     if (i > 0)
-                        sql.Append(',');
-                    sql.Append(GetFullName(blockList[i][1]));
-                    sql.Append('=');
-                    sql.Append(AddParameter(blockList[i][2], cQuery));
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, GetFullName(blockList[i][1]), '=', AddParameter(blockList[i][2], cQuery));
                 }
 
                 #endregion
@@ -561,8 +503,7 @@ namespace MyLibrary.DataBase
             {
                 #region DELETE FROM ...
 
-                sql.Append("DELETE FROM ");
-                sql.Append(GetName(query.Table.Name));
+                Add(sql, "DELETE FROM ", GetName(query.Table.Name));
 
                 #endregion
             }
@@ -570,35 +511,40 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE OR INSERT
 
-                sql.Append("UPDATE OR INSERT INTO ");
-                sql.Append(GetName(query.Table.Name));
+                Add(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
 
-                blockList = query.Structure.FindAll(x => ((string)x[0]) == "Set");
+                blockList = FindBlockList(query, "Set");
                 if (blockList.Count == 0)
+                {
                     throw DBInternal.InadequateUpdateCommandException();
+                }
 
-                sql.Append("(");
+                Add(sql, '(');
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     if (i > 0)
-                        sql.Append(',');
-                    sql.Append(GetColumnName(blockList[i][1]));
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, GetColumnName(blockList[i][1]));
                 }
 
-                sql.Append(")VALUES(");
+                Add(sql, ")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     if (i > 0)
-                        sql.Append(',');
-                    sql.Append(AddParameter(blockList[i][2], cQuery));
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, AddParameter(blockList[i][2], cQuery));
                 }
 
-                sql.Append(")");
+                Add(sql, ')');
 
                 blockList = FindBlockList(query, "Matching");
                 if (blockList.Count > 0)
                 {
-                    sql.Append(" MATCHING(");
+                    Add(sql, " MATCHING(");
                     index = 0;
                     for (int i = 0; i < blockList.Count; i++)
                     {
@@ -607,12 +553,14 @@ namespace MyLibrary.DataBase
                         for (int j = 0; j < args.Length; j++)
                         {
                             if (index > 0)
-                                sql.Append(',');
-                            sql.Append(GetColumnName(args[j]));
+                            {
+                                Add(sql, ',');
+                            }
+                            Add(sql, GetColumnName(args[j]));
                             index++;
                         }
                     }
-                    sql.Append(")");
+                    Add(sql, ')');
                 }
 
                 #endregion
@@ -622,7 +570,7 @@ namespace MyLibrary.DataBase
                 #region SQL-команда
 
                 block = FindBlock(query, "Sql");
-                sql.Append(block[1]);
+                Add(sql, block[1]);
                 index = 0;
                 foreach (var param in (object[])block[2])
                 {
@@ -641,7 +589,8 @@ namespace MyLibrary.DataBase
             blockList = FindBlockList(query, x => x.Contains("Where") || x == "Or" || x == "Not" || x == "(" || x == ")");
             if (blockList.Count > 0)
             {
-                sql.Append(" WHERE");
+                Add(sql, " WHERE");
+
                 bool needPastePredicate = false;
                 string prevBlockName = null;
                 for (int i = 0; i < blockList.Count; i++)
@@ -649,7 +598,9 @@ namespace MyLibrary.DataBase
                     block = blockList[i];
                     var blockName = (string)block[0];
                     if (i > 0)
+                    {
                         prevBlockName = (string)blockList[i - 1][0];
+                    }
 
                     #region AND,OR,NOT,(,)
 
@@ -658,22 +609,22 @@ namespace MyLibrary.DataBase
                         needPastePredicate = false;
                         if (blockName == "Or")
                         {
-                            sql.Append(" OR");
+                            Add(sql, " OR");
                             continue;
                         }
                         else if (blockName != ")")
                         {
-                            sql.Append(" AND");
+                            Add(sql, " AND");
                         }
                     }
                     if (blockName == "(")
                     {
-                        sql.Append(" (");
+                        Add(sql, " (");
                         continue;
                     }
                     else if (blockName == ")")
                     {
-                        sql.Append(" )");
+                        Add(sql, " )");
                         continue;
                     }
                     else if (blockName == "Not")
@@ -688,125 +639,121 @@ namespace MyLibrary.DataBase
                     {
                         case "Where_expression":
                             #region
-                            sql.Append(' ');
-                            sql.Append(ParseExpression((Expression)block[1], false, cQuery).Text);
+                            Add(sql, ' ', ParseExpression((Expression)block[1], false, cQuery).Text);
                             break;
                         #endregion
                         case "Where":
                             #region
                             block[3] = block[3] ?? DBNull.Value;
 
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, ' ', GetFullName(block[1]));
 
                             if ((block[3] is DBNull) && ((string)block[2]) == "=")
-                                sql.Append(" IS NULL");
+                            {
+                                Add(sql, " IS NULL");
+                            }
                             else if (block[3] is DBNull && ((string)block[2]) == "<>")
-                                sql.Append(" IS NOT NULL");
+                            {
+                                Add(sql, " IS NOT NULL");
+                            }
                             else
                             {
-                                sql.Append(block[2]); // оператор сравнения
-                                sql.Append(AddParameter(block[3], cQuery));
+                                Add(sql, block[2], AddParameter(block[3], cQuery));
                             }
                             break;
                         #endregion
                         case "WhereBetween":
                             #region
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, ' ', GetFullName(block[1]));
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" BETWEEN ");
-                            sql.Append(AddParameter(block[2], cQuery));
-                            sql.Append(" AND ");
-                            sql.Append(AddParameter(block[3], cQuery));
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " BETWEEN ", AddParameter(block[2], cQuery), " AND ", AddParameter(block[3], cQuery));
                             break;
                         #endregion
                         case "WhereUpper":
                             #region
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" UPPER(");
-                            sql.Append(GetFullName(block[1]));
-                            sql.Append(")=");
-                            sql.Append(AddParameter(block[2], cQuery));
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " UPPER(", GetFullName(block[1]), ")=", AddParameter(block[2], cQuery));
                             break;
                         #endregion
                         case "WhereContaining":
                             #region
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, ' ', GetFullName(block[1]));
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" CONTAINING ");
-                            sql.Append(AddParameter(block[2], cQuery));
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " CONTAINING ", AddParameter(block[2], cQuery));
                             break;
                         #endregion
                         case "WhereContainingUpper":
                             #region
-                            sql.Append(" UPPER(");
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, " UPPER(", GetFullName(block[1]));
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(") CONTAINING ");
-                            sql.Append(AddParameter(block[2], cQuery));
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, ") CONTAINING ", AddParameter(block[2], cQuery));
                             break;
                         #endregion
                         case "WhereLike":
                             #region
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, ' ', GetFullName(block[1]));
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" LIKE \'");
-                            sql.Append(block[2]);
-                            sql.Append('\'');
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " LIKE \'", block[2], '\'');
                             break;
                         #endregion
                         case "WhereLikeUpper":
                             #region
-                            sql.Append(" UPPER(");
-                            sql.Append(GetFullName(block[1]));
-                            sql.Append(')');
+                            Add(sql, " UPPER(", GetFullName(block[1]), ')');
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" LIKE '");
-                            sql.Append(block[2]);
-                            sql.Append('\'');
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " LIKE '", block[2], '\'');
                             break;
                         #endregion
                         case "WhereIn_command":
                             #region
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
-                            sql.Append(" IN (");
+                            Add(sql, ' ', GetFullName(block[1]), " IN (");
 
                             var innerQuery = CompileQuery((DBQuery)block[2], cQuery.Parameters.Count);
-                            sql.Append(innerQuery.CommandText);
+                            Add(sql, innerQuery.CommandText);
                             cQuery.Parameters.AddRange(innerQuery.Parameters);
 
-                            sql.Append(')');
+                            Add(sql, ')');
                             break;
                         #endregion
                         case "WhereIn_values":
                             #region
-                            sql.Append(' ');
-                            sql.Append(GetFullName(block[1]));
+                            Add(sql, ' ', GetFullName(block[1]));
                             if (prevBlockName == "Not")
-                                sql.Append(" NOT");
-                            sql.Append(" IN (");
+                            {
+                                Add(sql, " NOT");
+                            }
+                            Add(sql, " IN (");
                             #region Добавление списка значений
 
                             var values = (object[])block[2];
                             for (int j = 0; j < values.Length; j++)
                             {
                                 if (j > 0)
-                                    sql.Append(',');
+                                {
+                                    Add(sql, ',');
+                                }
 
                                 var value = values[j];
                                 if (value.GetType().IsPrimitive)
                                 {
-                                    sql.Append(value);
+                                    Add(sql, value);
                                 }
                                 else
                                 {
@@ -815,7 +762,7 @@ namespace MyLibrary.DataBase
                             }
 
                             #endregion
-                            sql.Append(')');
+                            Add(sql, ')');
                             break;
                             #endregion
                     }
@@ -831,7 +778,7 @@ namespace MyLibrary.DataBase
                 blockList = FindBlockList(query, "GroupBy");
                 if (blockList.Count > 0)
                 {
-                    sql.Append(" GROUP BY ");
+                    Add(sql, " GROUP BY ");
                     index = 0;
                     for (int i = 0; i < blockList.Count; i++)
                     {
@@ -840,8 +787,10 @@ namespace MyLibrary.DataBase
                         for (int j = 0; j < args.Length; j++)
                         {
                             if (index > 0)
-                                sql.Append(',');
-                            sql.Append(GetFullName(args[j]));
+                            {
+                                Add(sql, ',');
+                            }
+                            Add(sql, GetFullName(args[j]));
                             index++;
                         }
                     }
@@ -853,7 +802,7 @@ namespace MyLibrary.DataBase
                 blockList = FindBlockList(query, x => x.StartsWith("OrderBy"));
                 if (blockList.Count > 0)
                 {
-                    sql.Append(" ORDER BY ");
+                    Add(sql, " ORDER BY ");
                     index = 0;
                     for (int i = 0; i < blockList.Count; i++)
                     {
@@ -866,8 +815,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append(GetFullName(args[j]));
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, GetFullName(args[j]));
                                     index++;
                                 }
                                 break;
@@ -877,9 +828,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(" DESC");
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, GetFullName(args[j]), " DESC");
                                     index++;
                                 }
                                 break;
@@ -889,10 +841,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("UPPER(");
-                                    sql.Append(GetFullName(args[j]));
-                                    sql.Append(")");
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "UPPER(", GetFullName(args[j]), ")");
                                     index++;
                                 }
                                 break;
@@ -902,10 +854,10 @@ namespace MyLibrary.DataBase
                                 for (int j = 0; j < args.Length; j++)
                                 {
                                     if (index > 0)
-                                        sql.Append(',');
-                                    sql.Append("UPPER(");
-                                    sql.Append(GetFullName(block[1]));
-                                    sql.Append(") DESC");
+                                    {
+                                        Add(sql, ',');
+                                    }
+                                    Add(sql, "UPPER(", GetFullName(block[1]), ") DESC");
                                     index++;
                                 }
                                 break;
@@ -922,7 +874,7 @@ namespace MyLibrary.DataBase
             blockList = FindBlockList(query, "Returning");
             if (blockList.Count > 0)
             {
-                sql.Append(" RETURNING ");
+                Add(sql, " RETURNING ");
                 index = 0;
                 for (int i = 0; i < blockList.Count; i++)
                 {
@@ -931,8 +883,10 @@ namespace MyLibrary.DataBase
                     for (int j = 0; j < args.Length; j++)
                     {
                         if (index > 0)
-                            sql.Append(',');
-                        sql.Append(GetColumnName(args[j]));
+                        {
+                            Add(sql, ',');
+                        }
+                        Add(sql, GetColumnName(args[j]));
                         index++;
                     }
                 }
@@ -947,15 +901,14 @@ namespace MyLibrary.DataBase
         private ExpressionInfo ParseExpression(Expression exp, bool parseValue, DBCompiledQuery cQuery)
         {
             var info = new ExpressionInfo();
-            var str = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (exp is BinaryExpression)
             {
                 #region
 
                 var binaryExpression = exp as BinaryExpression;
-                str.Append('(');
-                str.Append(ParseExpression(binaryExpression.Left, false, cQuery).Text);
+                Add(sql, '(', ParseExpression(binaryExpression.Left, false, cQuery).Text);
 
                 var result = ParseExpression(binaryExpression.Right, false, cQuery).Text;
                 if (result != null)
@@ -988,27 +941,26 @@ namespace MyLibrary.DataBase
                     }
 
                     #endregion
-                    str.Append(@operator);
-                    str.Append(result);
+                    Add(sql, @operator, result);
                 }
                 else
                 {
                     #region IS [NOT] NULL
 
-                    str.Append(" IS");
+                    Add(sql, " IS");
                     switch (binaryExpression.NodeType)
                     {
                         case ExpressionType.Equal:
                             break;
                         case ExpressionType.NotEqual:
-                            str.Append(" NOT"); break;
+                            Add(sql, " NOT"); break;
                         default: throw DBInternal.UnsupportedCommandContextException();
                     }
-                    str.Append(" NULL");
+                    Add(sql, " NULL");
 
                     #endregion
                 }
-                str.Append(')');
+                Add(sql, ')');
 
                 #endregion
             }
@@ -1022,7 +974,7 @@ namespace MyLibrary.DataBase
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    str.Append(GetFullName(attr.ColumnName));
+                    Add(sql, GetFullName(attr.ColumnName));
                 }
                 else if (memberExpression.Member is PropertyInfo)
                 {
@@ -1034,14 +986,20 @@ namespace MyLibrary.DataBase
                         var innerInfo = ParseExpression(memberExpression.Expression, true, cQuery);
                         value = propertyInfo.GetValue(innerInfo.Value, null);
                     }
-                    else value = propertyInfo.GetValue(null, null);
+                    else
+                    {
+                        value = propertyInfo.GetValue(null, null);
+                    }
 
                     if (parseValue)
                     {
                         info.Value = value;
                         return info;
                     }
-                    else str.Append(AddParameter(value, cQuery));
+                    else
+                    {
+                        Add(sql, AddParameter(value, cQuery));
+                    }
                 }
                 else if (memberExpression.Member is FieldInfo)
                 {
@@ -1054,9 +1012,15 @@ namespace MyLibrary.DataBase
                         info.Value = value;
                         return info;
                     }
-                    else str.Append(AddParameter(value, cQuery));
+                    else
+                    {
+                        Add(sql, AddParameter(value, cQuery));
+                    }
                 }
-                else throw DBInternal.UnsupportedCommandContextException();
+                else
+                {
+                    throw DBInternal.UnsupportedCommandContextException();
+                }
 
                 #endregion
             }
@@ -1068,8 +1032,10 @@ namespace MyLibrary.DataBase
 
                 var value = constantExpression.Value;
                 if (value == null)
+                {
                     return info;
-                str.Append(AddParameter(value, cQuery));
+                }
+                Add(sql, AddParameter(value, cQuery));
 
                 #endregion
             }
@@ -1078,7 +1044,7 @@ namespace MyLibrary.DataBase
                 #region
 
                 var unaryExpression = exp as UnaryExpression;
-                str.Append(ParseExpression(unaryExpression.Operand, false, cQuery).Text);
+                Add(sql, ParseExpression(unaryExpression.Operand, false, cQuery).Text);
 
                 #endregion
             }
@@ -1091,9 +1057,12 @@ namespace MyLibrary.DataBase
                 if (custAttr.Length > 0)
                 {
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    str.Append(GetFullName(attr.ColumnName));
+                    Add(sql, GetFullName(attr.ColumnName));
                 }
-                else throw DBInternal.UnsupportedCommandContextException();
+                else
+                {
+                    throw DBInternal.UnsupportedCommandContextException();
+                }
 
                 #endregion
             }
@@ -1105,31 +1074,29 @@ namespace MyLibrary.DataBase
                 var method = methodCallExpression.Method;
                 if (method.DeclaringType == typeof(string) && method.Name.Contains("ToUpper"))
                 {
-                    str.Append("UPPER(");
-                    str.Append(ParseExpression(methodCallExpression.Object, false, cQuery));
-                    str.Append(")");
+                    Add(sql, "UPPER(", ParseExpression(methodCallExpression.Object, false, cQuery), ")");
                 }
                 else if (method.DeclaringType == typeof(string) && method.Name.Contains("ToLower"))
                 {
-                    str.Append("LOWER(");
-                    str.Append(ParseExpression(methodCallExpression.Object, false, cQuery));
-                    str.Append(")");
+                    Add(sql, "LOWER(", ParseExpression(methodCallExpression.Object, false, cQuery), ")");
                 }
                 else if (method.DeclaringType == typeof(string) && method.Name == "Contains")
                 {
-                    str.Append(ParseExpression(methodCallExpression.Object, false, cQuery).Text);
-                    str.Append(" CONTAINING ");
-                    str.Append(ParseExpression(methodCallExpression.Arguments[0], false, cQuery).Text);
+                    Add(sql, ParseExpression(methodCallExpression.Object, false, cQuery).Text, " CONTAINING ", ParseExpression(methodCallExpression.Arguments[0], false, cQuery).Text);
                 }
                 else
                 {
                     object obj = methodCallExpression.Object;
                     if (obj != null)
+                    {
                         obj = ParseExpression(methodCallExpression.Object, true, cQuery);
+                    }
 
                     var values = new object[methodCallExpression.Arguments.Count];
                     for (int i = 0; i < values.Length; i++)
+                    {
                         values[i] = ParseExpression(methodCallExpression.Arguments[i], true, cQuery).Value;
+                    }
 
                     var value = methodCallExpression.Method.Invoke(obj, values);
                     if (parseValue)
@@ -1137,14 +1104,20 @@ namespace MyLibrary.DataBase
                         info.Value = value;
                         return info;
                     }
-                    else str.Append(AddParameter(value, cQuery));
+                    else
+                    {
+                        Add(sql, AddParameter(value, cQuery));
+                    }
                 }
 
                 #endregion
             }
-            else throw DBInternal.UnsupportedCommandContextException();
+            else
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
 
-            info.Text = str;
+            info.Text = sql;
             return info;
         }
         private class ExpressionInfo
