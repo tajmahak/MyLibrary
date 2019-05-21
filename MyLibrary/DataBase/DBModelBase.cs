@@ -15,8 +15,9 @@ namespace MyLibrary.DataBase
             ColumnsDict = new Dictionary<string, DBColumn>();
         }
 
-        public bool IsInitialized { get; protected internal set; }
+        public bool Initialized { get; protected internal set; }
         public DBTable[] Tables { get; protected internal set; }
+
         protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
         protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
         protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
@@ -33,12 +34,6 @@ namespace MyLibrary.DataBase
         {
             var context = new DBContext(this, connection);
             return context;
-        }
-        public DBQuery CreateDBQuery(string tableName)
-        {
-            var table = GetTable(tableName);
-            var query = new DBQuery(table);
-            return query;
         }
         public DBTable GetTable(string tableName)
         {

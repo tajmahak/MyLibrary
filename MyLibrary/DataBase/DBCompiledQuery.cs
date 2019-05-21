@@ -8,10 +8,4 @@ namespace MyLibrary.DataBase
         public List<DBCompiledQueryParameter> Parameters { get; set; } = new List<DBCompiledQueryParameter>();
         public int NextParameterNumber { get; set; }
     }
-
-    public class DBCompiledQueryParameter
-    {
-        public string Name { get; set; }
-        public object Value { get; set; }
-    }
 }

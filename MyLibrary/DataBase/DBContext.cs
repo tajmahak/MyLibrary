@@ -11,7 +11,7 @@ namespace MyLibrary.DataBase
     {
         public DBContext(DBModelBase model, DbConnection connection)
         {
-            if (!model.IsInitialized)
+            if (!model.Initialized)
             {
                 model.Initialize(connection);
             }
@@ -37,7 +37,9 @@ namespace MyLibrary.DataBase
 
         public DBQuery Query(string tableName)
         {
-            return Model.CreateDBQuery(tableName);
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery(table);
+            return query;
         }
         public void CommitTransaction()
         {
