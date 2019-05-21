@@ -27,7 +27,7 @@ namespace MyLibrary.DataBase
         public abstract void Initialize(DbConnection connection);
         public abstract void AddParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
-        public abstract DbCommand BuildCommand(DbConnection connection, DBQuery query);
+        public abstract DbCommand CreateCommand(DbConnection connection, DBQuery query);
 
         public DBContext CreateDBContext(DbConnection connection)
         {

@@ -28,7 +28,7 @@ namespace MyLibrary.DataBase
         {
             ((SQLiteCommand)command).Parameters.AddWithValue(name, value);
         }
-        public override DbCommand BuildCommand(DbConnection connection, DBQuery query)
+        public override DbCommand CreateCommand(DbConnection connection, DBQuery query)
         {
             var command = (SQLiteCommand)connection.CreateCommand();
             var builder = new SqlBuilder(this, command);

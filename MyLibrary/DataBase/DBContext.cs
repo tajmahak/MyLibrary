@@ -57,7 +57,7 @@ namespace MyLibrary.DataBase
             try
             {
                 OpenTransaction();
-                using (var command = Model.BuildCommand(Connection, query))
+                using (var command = Model.CreateCommand(Connection, query))
                 {
                     command.Transaction = _transaction;
                     command.ExecuteNonQuery();
@@ -468,7 +468,7 @@ namespace MyLibrary.DataBase
                 query.First(1);
             }
 
-            using (var command = Model.BuildCommand(Connection, query))
+            using (var command = Model.CreateCommand(Connection, query))
             {
                 var value = command.ExecuteScalar();
                 return Format.Convert<T>(value);
