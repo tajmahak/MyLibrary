@@ -380,17 +380,23 @@ namespace MyLibrary.DataBase
                     sql.Append(GetName(query.Table.Name));
                 }
 
-                block = FindBlock(query, x => x == "Distinct");
+                block = FindBlock(query, "Distinct");
                 if (block != null)
+                {
                     sql.Insert(6, " DISTINCT");
+                }
 
-                block = FindBlock(query, x => x == "Skip");
+                block = FindBlock(query, "Skip");
                 if (block != null)
+                {
                     sql.Insert(6, string.Concat(" SKIP ", block[1]));
+                }
 
-                block = FindBlock(query, x => x == "First");
+                block = FindBlock(query, "First");
                 if (block != null)
+                {
                     sql.Insert(6, string.Concat(" FIRST ", block[1]));
+                }
 
                 #endregion
                 #region JOIN
@@ -589,7 +595,7 @@ namespace MyLibrary.DataBase
 
                 sql.Append(")");
 
-                blockList = FindBlockList(query, x => x == "Matching");
+                blockList = FindBlockList(query, "Matching");
                 if (blockList.Count > 0)
                 {
                     sql.Append(" MATCHING(");
@@ -615,7 +621,7 @@ namespace MyLibrary.DataBase
             {
                 #region SQL-команда
 
-                block = FindBlock(query, x => x == "Sql");
+                block = FindBlock(query, "Sql");
                 sql.Append(block[1]);
                 index = 0;
                 foreach (var param in (object[])block[2])
@@ -822,7 +828,7 @@ namespace MyLibrary.DataBase
             {
                 #region GROUP BY ...
 
-                blockList = FindBlockList(query, x => x == "GroupBy");
+                blockList = FindBlockList(query, "GroupBy");
                 if (blockList.Count > 0)
                 {
                     sql.Append(" GROUP BY ");
@@ -913,7 +919,7 @@ namespace MyLibrary.DataBase
 
             #region RETURNING ...
 
-            blockList = FindBlockList(query, x => x == "Returning");
+            blockList = FindBlockList(query, "Returning");
             if (blockList.Count > 0)
             {
                 sql.Append(" RETURNING ");

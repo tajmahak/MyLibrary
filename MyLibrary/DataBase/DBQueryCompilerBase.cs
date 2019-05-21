@@ -119,10 +119,18 @@ namespace MyLibrary.DataBase
         {
             return query.Structure.FindAll(block => predicate((string)block[0]));
         }
+        protected List<object[]> FindBlockList(DBQuery query, string name)
+        {
+            return FindBlockList(query, x => x == name);
+        }
         protected object[] FindBlock(DBQuery query, Predicate<string> predicate)
         {
             return query.Structure.Find(block =>
                 predicate((string)block[0]));
+        }
+        protected object[] FindBlock(DBQuery query, string name)
+        {
+            return FindBlock(query, x => x == name);
         }
         protected string AddParameter(object value, DBCompiledQuery cQuery)
         {
@@ -150,5 +158,12 @@ namespace MyLibrary.DataBase
             return parameter.Name;
         }
         protected DBModelBase Model { get; private set; }
+        protected void Add(StringBuilder str, params object[] values)
+        {
+            foreach (var value in values)
+            {
+                str.Append(value);
+            }
+        }
     }
 }
