@@ -29,21 +29,24 @@ namespace MyLibrary.DataBase
             }
         }
         public DBModelBase Model { get; private set; }
-        private Dictionary<string, int> ColumnIndexDict;
 
         public int GetIndex(string columnName)
         {
-            if (!ColumnIndexDict.TryGetValue(columnName, out var index))
+            if (!_columnIndexDict.TryGetValue(columnName, out var index))
             {
                 throw DBInternal.UnknownColumnException(this, columnName);
             }
             return index;
         }
+        public override string ToString()
+        {
+            return Name;
+        }
 
         internal void AddColumns(DBColumn[] columns)
         {
             Columns = columns;
-            ColumnIndexDict = new Dictionary<string, int>(columns.Length);
+            _columnIndexDict = new Dictionary<string, int>(columns.Length);
             for (int i = 0; i < columns.Length; i++)
             {
                 var column = columns[i];
@@ -58,9 +61,9 @@ namespace MyLibrary.DataBase
                     columnName = string.Concat(column.Table.Name, '.', column.Name);
                 }
 
-                if (!ColumnIndexDict.ContainsKey(columnName))
+                if (!_columnIndexDict.ContainsKey(columnName))
                 {
-                    ColumnIndexDict.Add(columnName, i);
+                    _columnIndexDict.Add(columnName, i);
                 }
                 else
                 {
@@ -68,9 +71,9 @@ namespace MyLibrary.DataBase
                     while (true)
                     {
                         var tempColumnName = string.Concat(columnName, '_', index++);
-                        if (!ColumnIndexDict.ContainsKey(tempColumnName))
+                        if (!_columnIndexDict.ContainsKey(tempColumnName))
                         {
-                            ColumnIndexDict.Add(tempColumnName, i);
+                            _columnIndexDict.Add(tempColumnName, i);
                             break;
                         }
                     }
@@ -85,9 +88,6 @@ namespace MyLibrary.DataBase
                 PrimaryKeyIndex = -1;
             }
         }
-        public override string ToString()
-        {
-            return Name;
-        }
+        private Dictionary<string, int> _columnIndexDict;
     }
 }

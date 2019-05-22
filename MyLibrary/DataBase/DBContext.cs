@@ -35,12 +35,20 @@ namespace MyLibrary.DataBase
         public DbConnection Connection { get; set; }
         public bool AutoCommit { get; set; }
 
+        /// <summary>
+        /// Создание нового запроса <see cref="DBQuery"/>
+        /// </summary>
+        /// <param name="tableName">Имя таблицы базы данных, указанной в запросе</param>
+        /// <returns></returns>
         public DBQuery Query(string tableName)
         {
             var table = Model.GetTable(tableName);
             var query = new DBQuery(table);
             return query;
         }
+        /// <summary>
+        /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>)
+        /// </summary>
         public void CommitTransaction()
         {
             if (_transaction != null)
@@ -50,6 +58,10 @@ namespace MyLibrary.DataBase
                 _transaction = null;
             }
         }
+        /// <summary>
+        /// Выполнение запроса <see cref="DBQuery"/>
+        /// </summary>
+        /// <param name="query"></param>
         public void Execute(DBQuery query)
         {
             if (query.QueryType == DBQueryTypeEnum.Select)
@@ -75,6 +87,9 @@ namespace MyLibrary.DataBase
                 throw;
             }
         }
+        /// <summary>
+        /// Сохраняет все изменения, внесенные в <see cref="DBContext"/> после его загрузки или после последнего вызова метода <see cref="Save"/>.
+        /// </summary>
         public void Save()
         {
             OpenTransaction();
@@ -250,6 +265,9 @@ namespace MyLibrary.DataBase
                 throw DBInternal.DbSaveException(row, ex);
             }
         }
+        /// <summary>
+        /// Освобождает все ресурсы, используемые объектом.
+        /// </summary>
         public void Dispose()
         {
             Clear();
@@ -257,6 +275,12 @@ namespace MyLibrary.DataBase
 
         #region Работа с коллекцией
 
+        /// <summary>
+        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
+        /// </summary>
+        /// <typeparam name="T">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
+        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
+        /// <returns></returns>
         public T New<T>(string tableName)
         {
             var table = Model.GetTable(tableName);
@@ -265,6 +289,11 @@ namespace MyLibrary.DataBase
             Add(row);
             return DBInternal.PackRow<T>(row);
         }
+        /// <summary>
+        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
+        /// </summary>
+        /// <typeparam name="T">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
+        /// <returns></returns>
         public T New<T>()
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
@@ -498,6 +527,11 @@ namespace MyLibrary.DataBase
         #endregion
         #region Работа с данными типа <DBRow>
 
+        /// <summary>
+        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
+        /// </summary>
+        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
+        /// <returns></returns>
         public DBRow New(string tableName)
         {
             return New<DBRow>(tableName);
