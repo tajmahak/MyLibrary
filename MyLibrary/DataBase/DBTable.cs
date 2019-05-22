@@ -8,11 +8,26 @@ namespace MyLibrary.DataBase
         {
             Model = model;
             Name = name;
+            PrimaryKeyIndex = -1;
         }
 
         public string Name { get; private set; }
         public DBColumn[] Columns { get; private set; }
         public int PrimaryKeyIndex { get; private set; }
+        public DBColumn PrimaryKeyColumn
+        {
+            get
+            {
+                if (PrimaryKeyIndex == -1)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Columns[PrimaryKeyIndex];
+                }
+            }
+        }
         public DBModelBase Model { get; private set; }
         private Dictionary<string, int> ColumnIndexDict;
 

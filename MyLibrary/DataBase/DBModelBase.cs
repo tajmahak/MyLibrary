@@ -15,15 +15,11 @@ namespace MyLibrary.DataBase
             ColumnsDict = new Dictionary<string, DBColumn>();
         }
 
-        public bool Initialized { get; protected internal set; }
-        public DBTable[] Tables { get; protected internal set; }
-
-        protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultDeleteCommandsDict { get; private set; }
-        protected internal Dictionary<string, DBTable> TablesDict { get; private set; }
-        protected internal Dictionary<string, DBColumn> ColumnsDict { get; private set; }
+        public DBTable[] Tables { get; protected set; }
+        public bool Initialized { get; protected set; }
+        public char OpenBlock { get; protected set; }
+        public char CloseBlock { get; protected set; }
+        public char ParameterPrefix { get; protected set; }
 
         public abstract void Initialize(DbConnection connection);
         public abstract void AddParameter(DbCommand command, string name, object value);
@@ -53,5 +49,12 @@ namespace MyLibrary.DataBase
 
             return column;
         }
+
+        protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
+        protected internal Dictionary<DBTable, string> DefaultDeleteCommandsDict { get; private set; }
+        protected internal Dictionary<string, DBTable> TablesDict { get; private set; }
+        protected internal Dictionary<string, DBColumn> ColumnsDict { get; private set; }
     }
 }

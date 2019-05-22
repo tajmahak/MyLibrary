@@ -138,7 +138,7 @@ namespace MyLibrary.DataBase
                                 var idContainer = new InsertRowContainer(row, k);
                                 if (row.State == DataRowState.Added)
                                 {
-                                    idContainer.MainContainer = mainContainer;
+                                    idContainer.ParentContainer = mainContainer;
                                 }
 
                                 if (!tempIDs.ContainsKey(tempID))
@@ -187,9 +187,9 @@ namespace MyLibrary.DataBase
                         {
                             var idContainer = list[j];
                             idContainer.Row[idContainer.Value] = dbID;
-                            if (idContainer.MainContainer != null)
+                            if (idContainer.ParentContainer != null)
                             {
-                                idContainer.MainContainer.Value--;
+                                idContainer.ParentContainer.Value--;
                             }
                         }
 
@@ -589,7 +589,7 @@ namespace MyLibrary.DataBase
                         continue;
                     }
 
-                    Model.AddParameter(cmd, "@p" + index, row[i]);
+                    Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
                     index++;
                 }
                 return Model.ExecuteInsertCommand(cmd);
@@ -607,10 +607,10 @@ namespace MyLibrary.DataBase
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
-                        Model.AddParameter(cmd, "@id", row[i]);
+                        Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[i]);
                         continue;
                     }
-                    Model.AddParameter(cmd, "@p" + index, row[i]);
+                    Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
                     index++;
                 }
 
@@ -623,7 +623,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.DefaultDeleteCommandsDict[row.Table];
-                Model.AddParameter(cmd, "@id", row[row.Table.PrimaryKeyIndex]);
+                Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyIndex]);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -649,7 +649,7 @@ namespace MyLibrary.DataBase
         {
             public DBRow Row;
             public int Value;
-            public InsertRowContainer MainContainer;
+            public InsertRowContainer ParentContainer;
 
             public InsertRowContainer(DBRow row, int value)
             {
