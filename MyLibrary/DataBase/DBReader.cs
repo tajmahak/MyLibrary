@@ -65,20 +65,25 @@ namespace MyLibrary.DataBase
                 for (int i = 0; i < schema.Rows.Count; i++)
                 {
                     var schemaRow = schema.Rows[i];
-                    var baseTableName = (string)schemaRow["BaseTableName"];
-                    if (!string.IsNullOrEmpty(baseTableName))
+                    var schemaColumnName = (string)schemaRow["ColumnName"];
+                    var schemaBaseTableName = (string)schemaRow["BaseTableName"];
+
+                    string columnName;
+                    if (string.IsNullOrEmpty(schemaBaseTableName))
                     {
-                        var baseColumnName = (string)schemaRow["BaseColumnName"];
-                        var columnName = string.Concat(baseTableName, '.', baseColumnName);
-                        columns[i] = _model.GetColumn(columnName);
+                        columnName = schemaColumnName;
                     }
                     else
                     {
-                        var columnName = (string)schemaRow["ColumnName"];
-                        var column = new DBColumn(table);
-                        column.Name = columnName;
-                        columns[i] = column;
+                        columnName = string.Concat(schemaBaseTableName, '.', schemaColumnName);
                     }
+
+                    if (!_model.TryGetColumn(columnName, out var column))
+                    {
+                        column = new DBColumn(table);
+                        column.Name = schemaColumnName;
+                    }
+                    columns[i] = column;
                 }
             }
             table.AddColumns(columns);

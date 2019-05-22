@@ -73,6 +73,10 @@ namespace MyLibrary.DataBase
 
             return column;
         }
+        public bool TryGetColumn(string columnName, out DBColumn column)
+        {
+            return ColumnsDict.TryGetValue(columnName, out column);
+        }
 
         #region [protected] Вспомогательные сущности для получения SQL-команд
 
@@ -161,12 +165,10 @@ namespace MyLibrary.DataBase
             else
             {
                 Add(sql, "SELECT ");
-                #region
 
                 var index = 0;
-                for (int i = 0; i < blockList.Count; i++)
+                foreach (var block in blockList)
                 {
-                    var block = blockList[i];
                     switch ((string)block[0])
                     {
                         case "Select":
@@ -212,7 +214,7 @@ namespace MyLibrary.DataBase
                             {
                                 Add(sql, ',');
                             }
-                            Add(sql, GetName(block[1]), ".", GetColumnName(block[2]));
+                            Add(sql, GetFullName(block[2]), " AS ", GetName(block[1]));
                             index++;
                             break;
                         #endregion
@@ -233,13 +235,13 @@ namespace MyLibrary.DataBase
                         case "SelectSumAs":
                             #region
                             args = (string[])block[1];
-                            for (int j = 0; j < args.Length; j += 2)
+                            for (int i = 0; i < args.Length; i += 2)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "SUM(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
+                                Add(sql, "SUM(", GetFullName(args[i]), ") AS ", GetName(args[i + 1]));
                                 index++;
                             }
                             break;
@@ -328,8 +330,6 @@ namespace MyLibrary.DataBase
                             #endregion
                     }
                 }
-
-                #endregion
                 Add(sql, " FROM ", GetName(query.Table.Name));
             }
         }
