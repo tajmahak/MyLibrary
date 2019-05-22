@@ -135,7 +135,7 @@
     <Compile Include="MyLibrary\WinForms\Controls\ClipboardMonitor.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\Interop\MSOffice\ExcelAlignmentEnum.cs" />
+    <Compile Include="MyLibrary\Interop\MSOffice\AlignmentEnum.cs" />
     <Compile Include="MyLibrary\Interop\MSOffice\ExcelBorderEnum.cs" />
     <Compile Include="MyLibrary\Interop\MSOffice\ExcelCellValueFormatEnum.cs" />
     <Compile Include="MyLibrary\Interop\MSOffice\ExcelInterop.cs" />

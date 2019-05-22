@@ -10,6 +10,7 @@
     {
         Left,
         Center,
+        Justify,
         Right,
     }
 }

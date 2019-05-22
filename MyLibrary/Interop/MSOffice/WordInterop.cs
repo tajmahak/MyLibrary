@@ -105,7 +105,7 @@ namespace MyLibrary.Interop.MSOffice
         public WordTable GetTable(int index)
         {
             var wTable = Document.Tables[index + 1];
-            return new WordTable(wTable);
+            return new WordTable(wTable, Document);
         }
         public int GetDocumentPagesCount()
         {

@@ -72,6 +72,8 @@ namespace MyLibrary.Interop.MSOffice
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignLeft; break;
                 case HorizontalAlignmentEnum.Center:
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignCenter; break;
+                case HorizontalAlignmentEnum.Justify:
+                    eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignJustify; break;
                 case HorizontalAlignmentEnum.Right:
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignRight; break;
             }

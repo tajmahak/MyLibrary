@@ -6,6 +6,7 @@ namespace MyLibrary.Interop.MSOffice
     public sealed class WordTable
     {
         public W.Table Table { get; private set; }
+        public W.Document Document { get; private set; }
         public int RowsCount
         {
             get
@@ -21,9 +22,10 @@ namespace MyLibrary.Interop.MSOffice
             }
         }
 
-        public WordTable(W.Table wTable)
+        public WordTable(W.Table wTable, W.Document wDocument)
         {
             Table = wTable;
+            Document = wDocument;
         }
         public object this[int rowIndex, int columnIndex]
         {
@@ -66,6 +68,13 @@ namespace MyLibrary.Interop.MSOffice
         public WordRange GetCellRange(int rowIndex, int columnIndex)
         {
             var wRange = Table.Cell(rowIndex + 1, columnIndex + 1).Range;
+            return new WordRange(wRange);
+        }
+        public WordRange GetCellRange(int rowIndex, int columnIndex, int rowsCount, int columnsCount)
+        {
+            var wCell1 = Table.Cell(rowIndex + 1, columnIndex + 1).Range.Start;
+            var wCell2 = Table.Cell(rowIndex + rowsCount, columnIndex + columnsCount).Range.End;
+            var wRange = Document.Range(wCell1, wCell2);
             return new WordRange(wRange);
         }
     }
