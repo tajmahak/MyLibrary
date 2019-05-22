@@ -63,25 +63,25 @@ namespace MyLibrary.Interop.MSOffice
                 Range.Font.Size = size;
             }
         }
-        public void SetAlignment(ExcelHorizontalAlignmentEnum horizontalAlignment = ExcelHorizontalAlignmentEnum.Left, ExcelVerticalAlignmentEnum verticalAlignment = ExcelVerticalAlignmentEnum.Top)
+        public void SetAlignment(HorizontalAlignmentEnum horizontalAlignment = HorizontalAlignmentEnum.Left, VerticalAlignmentEnum verticalAlignment = VerticalAlignmentEnum.Top)
         {
             var eStyle = (E.Style)Range.Style;
             switch (horizontalAlignment)
             {
-                case ExcelHorizontalAlignmentEnum.Left:
+                case HorizontalAlignmentEnum.Left:
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignLeft; break;
-                case ExcelHorizontalAlignmentEnum.Center:
+                case HorizontalAlignmentEnum.Center:
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignCenter; break;
-                case ExcelHorizontalAlignmentEnum.Right:
+                case HorizontalAlignmentEnum.Right:
                     eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignRight; break;
             }
             switch (verticalAlignment)
             {
-                case ExcelVerticalAlignmentEnum.Top:
+                case VerticalAlignmentEnum.Top:
                     eStyle.VerticalAlignment = E.XlVAlign.xlVAlignTop; break;
-                case ExcelVerticalAlignmentEnum.Center:
+                case VerticalAlignmentEnum.Center:
                     eStyle.VerticalAlignment = E.XlVAlign.xlVAlignCenter; break;
-                case ExcelVerticalAlignmentEnum.Bottom:
+                case VerticalAlignmentEnum.Bottom:
                     eStyle.VerticalAlignment = E.XlVAlign.xlVAlignBottom; break;
             }
         }

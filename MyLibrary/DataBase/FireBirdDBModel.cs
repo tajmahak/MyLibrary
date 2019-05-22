@@ -12,7 +12,7 @@ namespace MyLibrary.DataBase
         public FireBirdDBModel() : base()
         {
             OpenBlock = CloseBlock = '\"';
-            ParameterPrefix = ':';
+            ParameterPrefix = '@';
         }
 
         public override void Initialize(DbConnection connection)

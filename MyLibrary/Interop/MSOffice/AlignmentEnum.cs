@@ -1,12 +1,12 @@
 ﻿namespace MyLibrary.Interop.MSOffice
 {
-    public enum ExcelVerticalAlignmentEnum
+    public enum VerticalAlignmentEnum
     {
         Top,
         Center,
         Bottom,
     }
-    public enum ExcelHorizontalAlignmentEnum
+    public enum HorizontalAlignmentEnum
     {
         Left,
         Center,
