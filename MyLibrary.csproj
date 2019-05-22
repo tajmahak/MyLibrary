@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQueryParameter.cs" />
+    <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
     <Compile Include="MyLibrary\WinForms\DataGridViewExtension.cs" />
@@ -122,7 +123,6 @@
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableBase.cs" />
-    <None Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
     <Compile Include="MyLibrary\Data\Format.cs" />
     <Compile Include="MyLibrary\Data\Formats\DBFReader.cs" />

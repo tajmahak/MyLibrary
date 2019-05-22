@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
 {
     public class FireBirdDBModel : DBModelBase
     {
-        public FireBirdDBModel()
+        public FireBirdDBModel() : base()
         {
             OpenBlock = CloseBlock = '\"';
             ParameterPrefix = ':';
