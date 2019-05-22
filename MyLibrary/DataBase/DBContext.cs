@@ -59,7 +59,7 @@ namespace MyLibrary.DataBase
             try
             {
                 OpenTransaction();
-                using (var command = Model.CreateCommand(Connection, query))
+                using (var command = Model.CompileCommand(Connection, query))
                 {
                     command.Transaction = _transaction;
                     command.ExecuteNonQuery();
@@ -470,7 +470,7 @@ namespace MyLibrary.DataBase
                 query.First(1);
             }
 
-            using (var command = Model.CreateCommand(Connection, query))
+            using (var command = Model.CompileCommand(Connection, query))
             {
                 var value = command.ExecuteScalar();
                 return Format.Convert<T>(value);
@@ -589,7 +589,7 @@ namespace MyLibrary.DataBase
                         continue;
                     }
 
-                    Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
+                    Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
                     index++;
                 }
                 return Model.ExecuteInsertCommand(cmd);
@@ -607,10 +607,10 @@ namespace MyLibrary.DataBase
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
-                        Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[i]);
+                        Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[i]);
                         continue;
                     }
-                    Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
+                    Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
                     index++;
                 }
 
@@ -623,7 +623,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.DefaultDeleteCommandsDict[row.Table];
-                Model.AddParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyIndex]);
+                Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyIndex]);
                 cmd.ExecuteNonQuery();
             }
         }

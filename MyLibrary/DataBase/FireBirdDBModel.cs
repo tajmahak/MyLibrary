@@ -11,14 +11,8 @@ namespace MyLibrary.DataBase
     {
         public FireBirdDBModel()
         {
-            //!!!
-            //BeginBlock = EndBlock = '\"';
-
-            OpenBlock = '[';
-            CloseBlock = ']';
+            OpenBlock = CloseBlock = '\"';
             ParameterPrefix = ':';
-
-            _queryCompiler = new FireBirdQueryCompiler(this);
         }
 
         public override void Initialize(DbConnection connection)
@@ -27,163 +21,17 @@ namespace MyLibrary.DataBase
             InitializeDefaultCommands();
             Initialized = true;
         }
+        public override DbCommand CreateCommand(DbConnection connection)
+        {
+            return ((FbConnection)connection).CreateCommand();
+        }
         public override object ExecuteInsertCommand(DbCommand command)
         {
             return command.ExecuteScalar();
         }
-        public override void AddParameter(DbCommand command, string name, object value)
+        public override void AddCommandParameter(DbCommand command, string name, object value)
         {
             ((FbCommand)command).Parameters.AddWithValue(name, value);
-        }
-        public override DbCommand CreateCommand(DbConnection connection, DBQuery query)
-        {
-            var compiledQuery = _queryCompiler.CompileQuery(query);
-            var command = (FbCommand)connection.CreateCommand();
-            command.CommandText = compiledQuery.CommandText;
-            foreach (var parameter in compiledQuery.Parameters)
-            {
-                AddParameter(command, parameter.Name, parameter.Value);
-            }
-            return command;
-        }
-
-        private void InitializeDBModel(FbConnection connection)
-        {
-            var tableNames = new List<string>();
-            #region Получение названий таблиц
-
-            using (var dataTables = connection.GetSchema("Tables"))
-            {
-                foreach (DataRow table in dataTables.Rows)
-                {
-                    if ((short)table["IS_SYSTEM_TABLE"] == 0)
-                    {
-                        tableNames.Add((string)table["TABLE_Name"]);
-                    }
-                }
-
-                dataTables.Clear();
-            }
-
-            #endregion
-
-            var tables = new DBTable[tableNames.Count];
-
-            using (var ds = new DataSet())
-            using (var columnsInfo = connection.GetSchema("Columns"))
-            using (var primaryKeysInfo = connection.GetSchema("PrimaryKeys"))
-            {
-                #region Подготовка ДатаСета
-
-                foreach (var tableName in tableNames)
-                {
-                    using (var dataAdapter = new FbDataAdapter(string.Format("SELECT FIRST 0 * FROM \"{0}\"", tableName), connection))
-                    {
-                        dataAdapter.Fill(ds, 0, 0, tableName);
-                    }
-                }
-
-                #endregion
-                #region Добавление информации для таблиц
-
-                for (int i = 0; i < ds.Tables.Count; i++)
-                {
-                    DataTable dataTable = ds.Tables[i];
-                    DBTable table = new DBTable(this, dataTable.TableName);
-                    DBColumn[] columns = new DBColumn[dataTable.Columns.Count];
-                    for (int j = 0; j < dataTable.Columns.Count; j++)
-                    {
-                        DataColumn dataColumn = dataTable.Columns[j];
-                        DBColumn column = new DBColumn(table);
-                        #region Добавление информации для столбцов
-
-                        var columnInfo = columnsInfo.Select("TABLE_Name = '" + dataTable.TableName + "' AND COLUMN_Name = '" + dataColumn.ColumnName + "'")[0];
-                        var primaryKeyInfo = primaryKeysInfo.Select("TABLE_Name = '" + dataTable.TableName + "' AND COLUMN_Name = '" + dataColumn.ColumnName + "'");
-
-                        column.Name = dataColumn.ColumnName;
-                        column.DataType = dataColumn.DataType;
-                        column.AllowDBNull = (bool)columnInfo["IS_NULLABLE"];
-
-                        var columnDescription = columnInfo["DESCRIPTION"];
-                        if (columnDescription != DBNull.Value)
-                        {
-                            column.Comment = (string)columnDescription;
-                        }
-
-                        if (primaryKeyInfo.Length > 0)
-                        {
-                            column.IsPrimary = true;
-                        }
-
-                        var defaultValue = columnInfo["COLUMN_DEFAULT"].ToString();
-                        if (defaultValue.Length > 0)
-                        {
-                            defaultValue = defaultValue.Remove(0, 8);
-                            column.DefaultValue = Convert.ChangeType(defaultValue, column.DataType);
-                        }
-                        else
-                        {
-                            column.DefaultValue = DBNull.Value;
-                        }
-
-                        if (column.DataType == typeof(string))
-                        {
-                            column.MaxTextLength = (int)columnInfo["COLUMN_SIZE"];
-                        }
-
-                        #endregion
-                        columns[j] = column;
-                    }
-                    table.AddColumns(columns);
-                    tables[i] = table;
-                }
-
-                #endregion
-            }
-
-            #region Подготовка значений
-
-            Tables = tables;
-            for (int i = 0; i < tables.Length; i++)
-            {
-                var table = tables[i];
-                TablesDict.Add(table.Name, table);
-
-                for (int j = 0; j < table.Columns.Length; j++)
-                {
-                    var column = table.Columns[j];
-                    string longName = string.Concat(table.Name, '.', column.Name);
-                    ColumnsDict.Add(longName, column);
-                }
-            }
-
-            #endregion
-        }
-        private void InitializeDefaultCommands()
-        {
-            for (int i = 0; i < Tables.Length; i++)
-            {
-                var table = Tables[i];
-
-                var selectCommand = _queryCompiler.GetSelectCommand(table);
-                var insertCommand = string.Concat(_queryCompiler.GetInsertCommand(table), " RETURNING ", _queryCompiler.GetName(table.Columns[table.PrimaryKeyIndex].Name));
-                var updateCommand = _queryCompiler.GetUpdateCommand(table);
-                var deleteCommand = _queryCompiler.GetDeleteCommand(table);
-
-                DefaultSelectCommandsDict.Add(table, selectCommand);
-                DefaultInsertCommandsDict.Add(table, insertCommand);
-                DefaultUpdateCommandsDict.Add(table, updateCommand);
-                DefaultDeleteCommandsDict.Add(table, deleteCommand);
-            }
-        }
-
-        private FireBirdQueryCompiler _queryCompiler;
-    }
-
-    internal class FireBirdQueryCompiler : DBQueryCompilerBase
-    {
-        public FireBirdQueryCompiler(FireBirdDBModel model) : base(model)
-        {
         }
         public override DBCompiledQuery CompileQuery(DBQuery query, int nextParameterNumber = 0)
         {
@@ -332,6 +180,136 @@ namespace MyLibrary.DataBase
 
             cQuery.CommandText = sql.ToString();
             return cQuery;
+        }
+
+        private void InitializeDBModel(FbConnection connection)
+        {
+            var tableNames = new List<string>();
+            #region Получение названий таблиц
+
+            using (var dataTables = connection.GetSchema("Tables"))
+            {
+                foreach (DataRow table in dataTables.Rows)
+                {
+                    if ((short)table["IS_SYSTEM_TABLE"] == 0)
+                    {
+                        tableNames.Add((string)table["TABLE_Name"]);
+                    }
+                }
+
+                dataTables.Clear();
+            }
+
+            #endregion
+
+            var tables = new DBTable[tableNames.Count];
+
+            using (var ds = new DataSet())
+            using (var columnsInfo = connection.GetSchema("Columns"))
+            using (var primaryKeysInfo = connection.GetSchema("PrimaryKeys"))
+            {
+                #region Подготовка ДатаСета
+
+                foreach (var tableName in tableNames)
+                {
+                    using (var dataAdapter = new FbDataAdapter(string.Format("SELECT FIRST 0 * FROM \"{0}\"", tableName), connection))
+                    {
+                        dataAdapter.Fill(ds, 0, 0, tableName);
+                    }
+                }
+
+                #endregion
+                #region Добавление информации для таблиц
+
+                for (int i = 0; i < ds.Tables.Count; i++)
+                {
+                    DataTable dataTable = ds.Tables[i];
+                    DBTable table = new DBTable(this, dataTable.TableName);
+                    DBColumn[] columns = new DBColumn[dataTable.Columns.Count];
+                    for (int j = 0; j < dataTable.Columns.Count; j++)
+                    {
+                        DataColumn dataColumn = dataTable.Columns[j];
+                        DBColumn column = new DBColumn(table);
+                        #region Добавление информации для столбцов
+
+                        var columnInfo = columnsInfo.Select("TABLE_Name = '" + dataTable.TableName + "' AND COLUMN_Name = '" + dataColumn.ColumnName + "'")[0];
+                        var primaryKeyInfo = primaryKeysInfo.Select("TABLE_Name = '" + dataTable.TableName + "' AND COLUMN_Name = '" + dataColumn.ColumnName + "'");
+
+                        column.Name = dataColumn.ColumnName;
+                        column.DataType = dataColumn.DataType;
+                        column.AllowDBNull = (bool)columnInfo["IS_NULLABLE"];
+
+                        var columnDescription = columnInfo["DESCRIPTION"];
+                        if (columnDescription != DBNull.Value)
+                        {
+                            column.Comment = (string)columnDescription;
+                        }
+
+                        if (primaryKeyInfo.Length > 0)
+                        {
+                            column.IsPrimary = true;
+                        }
+
+                        var defaultValue = columnInfo["COLUMN_DEFAULT"].ToString();
+                        if (defaultValue.Length > 0)
+                        {
+                            defaultValue = defaultValue.Remove(0, 8);
+                            column.DefaultValue = Convert.ChangeType(defaultValue, column.DataType);
+                        }
+                        else
+                        {
+                            column.DefaultValue = DBNull.Value;
+                        }
+
+                        if (column.DataType == typeof(string))
+                        {
+                            column.MaxTextLength = (int)columnInfo["COLUMN_SIZE"];
+                        }
+
+                        #endregion
+                        columns[j] = column;
+                    }
+                    table.AddColumns(columns);
+                    tables[i] = table;
+                }
+
+                #endregion
+            }
+
+            #region Подготовка значений
+
+            Tables = tables;
+            for (int i = 0; i < tables.Length; i++)
+            {
+                var table = tables[i];
+                TablesDict.Add(table.Name, table);
+
+                for (int j = 0; j < table.Columns.Length; j++)
+                {
+                    var column = table.Columns[j];
+                    string longName = string.Concat(table.Name, '.', column.Name);
+                    ColumnsDict.Add(longName, column);
+                }
+            }
+
+            #endregion
+        }
+        private void InitializeDefaultCommands()
+        {
+            for (int i = 0; i < Tables.Length; i++)
+            {
+                var table = Tables[i];
+
+                var selectCommand = GetSelectCommand(table);
+                var insertCommand = string.Concat(GetInsertCommand(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyIndex].Name));
+                var updateCommand = GetUpdateCommand(table);
+                var deleteCommand = GetDeleteCommand(table);
+
+                DefaultSelectCommandsDict.Add(table, selectCommand);
+                DefaultInsertCommandsDict.Add(table, insertCommand);
+                DefaultUpdateCommandsDict.Add(table, updateCommand);
+                DefaultDeleteCommandsDict.Add(table, deleteCommand);
+            }
         }
     }
 }
