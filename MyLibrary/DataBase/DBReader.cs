@@ -28,18 +28,12 @@ namespace MyLibrary.DataBase
                 var row = new DBRow(_table);
                 _reader.GetValues(row.Values);
                 row.State = DataRowState.Unchanged;
-                _currentRow = DBInternal.PackRow<T>(row);
+                Current = DBInternal.PackRow<T>(row);
                 return true;
             }
             return false;
         }
-        public T Current
-        {
-            get
-            {
-                return _currentRow;
-            }
-        }
+        public T Current { get; private set; }
         public List<T> ToList()
         {
             var list = new List<T>();
@@ -92,7 +86,6 @@ namespace MyLibrary.DataBase
 
         private DbCommand _command;
         private DbDataReader _reader;
-        private T _currentRow;
         private DBTable _table;
         private DBModelBase _model;
 
