@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQueryParameter.cs" />
+    <Compile Include="MyLibrary\DataBase\DBFunction.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />

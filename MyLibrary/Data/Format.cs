@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace MyLibrary.Data
 {
@@ -202,11 +203,17 @@ namespace MyLibrary.Data
         public static bool IsEmpty(object value)
         {
             if (IsNull(value))
+            {
                 return true;
-
-            if (value is string && string.IsNullOrEmpty((string)value))
-                return true;
-
+            }
+            if (value is string @string)
+            {
+                return string.IsNullOrEmpty(@string);
+            }
+            if (value is StringBuilder stringBuilder)
+            {
+                return stringBuilder.Length == 0;
+            }
             return false;
         }
 

@@ -1,4 +1,5 @@
-﻿using MyLibrary.DataBase.Orm;
+﻿using MyLibrary.Data;
+using MyLibrary.DataBase.Orm;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -495,7 +496,7 @@ namespace MyLibrary.DataBase
                     {
                         case "Where_expression":
                             #region
-                            Add(sql, ' ', ParseExpression((Expression)block[1], false, cQuery).Text);
+                            Add(sql, ' ', ParseExpression((Expression)block[1], null, false, cQuery).Sql);
                             break;
                         #endregion
                         case "Where":
@@ -771,20 +772,19 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        private ExpressionInfo ParseExpression(Expression exp, bool parseValue, DBCompiledQuery cQuery)
+        private ExpressionInfo ParseExpression(Expression expression, Expression parentExpression, bool parseValue, DBCompiledQuery cQuery)
         {
             var info = new ExpressionInfo();
-            var sql = new StringBuilder();
+            info.Sql = new StringBuilder();
 
-            if (exp is BinaryExpression)
+            if (expression is BinaryExpression binaryExpression)
             {
                 #region
 
-                var binaryExpression = exp as BinaryExpression;
-                Add(sql, '(', ParseExpression(binaryExpression.Left, false, cQuery).Text);
+                Add(info.Sql, '(', ParseExpression(binaryExpression.Left, expression, false, cQuery).Sql);
 
-                var result = ParseExpression(binaryExpression.Right, false, cQuery).Text;
-                if (result != null)
+                var result = ParseExpression(binaryExpression.Right, expression, false, cQuery).Sql;
+                if (result.Length > 0)
                 {
                     string @operator;
                     #region Выбор оператора
@@ -814,40 +814,33 @@ namespace MyLibrary.DataBase
                     }
 
                     #endregion
-                    Add(sql, @operator, result);
+
+                    Add(info.Sql, @operator, result);
                 }
                 else
                 {
-                    #region IS [NOT] NULL
-
-                    Add(sql, " IS");
-                    switch (binaryExpression.NodeType)
+                    // IS [NOT] NULL
+                    Add(info.Sql, " IS");
+                    if (binaryExpression.NodeType == ExpressionType.NotEqual)
                     {
-                        case ExpressionType.Equal:
-                            break;
-                        case ExpressionType.NotEqual:
-                            Add(sql, " NOT"); break;
-                        default: throw DBInternal.UnsupportedCommandContextException();
+                        Add(info.Sql, " NOT");
                     }
-                    Add(sql, " NULL");
-
-                    #endregion
+                    Add(info.Sql, " NULL");
                 }
-                Add(sql, ')');
+
+                Add(info.Sql, ')');
 
                 #endregion
             }
-            else if (exp is MemberExpression)
+            else if (expression is MemberExpression memberExpression)
             {
                 #region
-
-                var memberExpression = exp as MemberExpression;
 
                 if (memberExpression.Expression is ParameterExpression)
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    Add(sql, GetFullName(attr.ColumnName));
+                    Add(info.Sql, GetFullName(attr.ColumnName));
                 }
                 else if (memberExpression.Member is PropertyInfo)
                 {
@@ -856,7 +849,7 @@ namespace MyLibrary.DataBase
                     object value;
                     if (memberExpression.Expression != null)
                     {
-                        var innerInfo = ParseExpression(memberExpression.Expression, true, cQuery);
+                        var innerInfo = ParseExpression(memberExpression.Expression, expression, true, cQuery);
                         value = propertyInfo.GetValue(innerInfo.Value, null);
                     }
                     else
@@ -871,7 +864,7 @@ namespace MyLibrary.DataBase
                     }
                     else
                     {
-                        Add(sql, AddParameter(value, cQuery));
+                        Add(info.Sql, AddParameter(value, cQuery));
                     }
                 }
                 else if (memberExpression.Member is FieldInfo)
@@ -887,7 +880,7 @@ namespace MyLibrary.DataBase
                     }
                     else
                     {
-                        Add(sql, AddParameter(value, cQuery));
+                        Add(info.Sql, AddParameter(value, cQuery));
                     }
                 }
                 else
@@ -897,40 +890,44 @@ namespace MyLibrary.DataBase
 
                 #endregion
             }
-            else if (exp is ConstantExpression)
+            else if (expression is ConstantExpression constantExpression)
             {
                 #region
-
-                var constantExpression = exp as ConstantExpression;
 
                 var value = constantExpression.Value;
-                if (value == null)
+                if (parseValue)
                 {
+                    info.Value = value;
                     return info;
                 }
-                Add(sql, AddParameter(value, cQuery));
+                else
+                {
+                    if (value != null)
+                    {
+                        Add(info.Sql, AddParameter(value, cQuery));
+                    }
+                    return info;
+                }
 
                 #endregion
             }
-            else if (exp is UnaryExpression)
+            else if (expression is UnaryExpression unaryExpression)
             {
                 #region
 
-                var unaryExpression = exp as UnaryExpression;
-                Add(sql, ParseExpression(unaryExpression.Operand, false, cQuery).Text);
+                Add(info.Sql, ParseExpression(unaryExpression.Operand, expression, false, cQuery).Sql);
 
                 #endregion
             }
-            else if (exp is ParameterExpression)
+            else if (expression is ParameterExpression parameterExpression)
             {
                 #region
 
-                var parameterExpression = exp as ParameterExpression;
                 var custAttr = parameterExpression.Type.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                 if (custAttr.Length > 0)
                 {
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    Add(sql, GetFullName(attr.ColumnName));
+                    Add(info.Sql, GetFullName(attr.ColumnName));
                 }
                 else
                 {
@@ -939,39 +936,31 @@ namespace MyLibrary.DataBase
 
                 #endregion
             }
-            else if (exp is MethodCallExpression)
+            else if (expression is MethodCallExpression methodCallExpression)
             {
                 #region
 
-                var methodCallExpression = exp as MethodCallExpression;
                 var method = methodCallExpression.Method;
-                if (method.DeclaringType == typeof(string) && method.Name.Contains("ToUpper"))
+                if (method.DeclaringType == typeof(DBFunction))
                 {
-                    Add(sql, "UPPER(", ParseExpression(methodCallExpression.Object, false, cQuery), ")");
-                }
-                else if (method.DeclaringType == typeof(string) && method.Name.Contains("ToLower"))
-                {
-                    Add(sql, "LOWER(", ParseExpression(methodCallExpression.Object, false, cQuery), ")");
-                }
-                else if (method.DeclaringType == typeof(string) && method.Name == "Contains")
-                {
-                    Add(sql, ParseExpression(methodCallExpression.Object, false, cQuery).Text, " CONTAINING ", ParseExpression(methodCallExpression.Arguments[0], false, cQuery).Text);
+                    Add(info.Sql, ParseFunctionExpression(methodCallExpression, parentExpression, cQuery).Sql);
                 }
                 else
                 {
                     object obj = methodCallExpression.Object;
                     if (obj != null)
                     {
-                        obj = ParseExpression(methodCallExpression.Object, true, cQuery);
+                        obj = ParseExpression(methodCallExpression.Object, expression, true, cQuery).Value;
                     }
 
-                    var values = new object[methodCallExpression.Arguments.Count];
-                    for (int i = 0; i < values.Length; i++)
+                    var arguments = new object[methodCallExpression.Arguments.Count];
+                    for (int i = 0; i < arguments.Length; i++)
                     {
-                        values[i] = ParseExpression(methodCallExpression.Arguments[i], true, cQuery).Value;
+                        arguments[i] = ParseExpression(methodCallExpression.Arguments[i], expression, true, cQuery).Value;
                     }
 
-                    var value = methodCallExpression.Method.Invoke(obj, values);
+                    var value = methodCallExpression.Method.Invoke(obj, arguments);
+
                     if (parseValue)
                     {
                         info.Value = value;
@@ -979,7 +968,7 @@ namespace MyLibrary.DataBase
                     }
                     else
                     {
-                        Add(sql, AddParameter(value, cQuery));
+                        Add(info.Sql, AddParameter(value, cQuery));
                     }
                 }
 
@@ -990,12 +979,73 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            info.Text = sql;
+            return info;
+        }
+        private ExpressionInfo ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        {
+            var info = new ExpressionInfo();
+            info.Sql = new StringBuilder();
+
+            var args = new object[expression.Arguments.Count];
+            for (int i = 0; i < args.Length; i++)
+            {
+                args[i] = ParseExpression(expression.Arguments[i], expression, false, cQuery).Sql;
+            }
+
+            string notBlock = (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Not) ? "NOT " : string.Empty;
+
+            switch (expression.Method.Name)
+            {
+                case nameof(DBFunction.CharLength):
+                    Add(info.Sql, "CHAR_LENGTH(", args[0], ")"); break;
+
+                case nameof(DBFunction.Hash):
+                    Add(info.Sql, "HASH(", args[0], ")"); break;
+
+                case nameof(DBFunction.Left):
+                    Add(info.Sql, "LEFT(", args[0], ",", args[1], ")"); break;
+
+                case nameof(DBFunction.Lower):
+                    Add(info.Sql, "LOWER(", args[0], ")"); break;
+
+                case nameof(DBFunction.LPad):
+                    Add(info.Sql, "LPAD(", args[0], ",", args[1]);
+                    if (!Format.IsEmpty(args[2]))
+                    {
+                        Add(info.Sql, ",", args[2]);
+                    }
+                    Add(info.Sql, ")"); break;
+
+                case nameof(DBFunction.Overlay):
+                    Add(info.Sql, "OVERLAY(", args[0], " PLACING ", args[1], " FROM ", args[2]);
+                    if (!Format.IsEmpty(args[3]))
+                    {
+                        Add(info.Sql, " FOR ", args[3]);
+                    }
+                    Add(info.Sql, ")"); break;
+
+                case nameof(DBFunction.Right): Add(info.Sql, "RIGHT(", args[0], ",", args[1], ")"); break;
+
+                case nameof(DBFunction.Upper): Add(info.Sql, "UPPER(", args[0], ")"); break;
+
+                case nameof(DBFunction.RPad):
+                    Add(info.Sql, "RPAD(", args[0], ",", args[1]);
+                    if (!Format.IsEmpty(args[2]))
+                    {
+                        Add(info.Sql, ",", args[2]);
+                    }
+                    Add(info.Sql, ")"); break;
+
+                case nameof(DBFunction.Containing):
+                    Add(info.Sql, string.Format("{0} {1}CONTAINING {2}", args[0], notBlock, args[1])); break;
+            }
+
+
             return info;
         }
         private class ExpressionInfo
         {
-            public StringBuilder Text;
+            public StringBuilder Sql;
             public object Value;
         }
     }

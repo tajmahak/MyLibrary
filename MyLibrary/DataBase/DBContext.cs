@@ -1,4 +1,5 @@
 ﻿using MyLibrary.Data;
+using MyLibrary.DataBase.Orm;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,6 +46,11 @@ namespace MyLibrary.DataBase
             var table = Model.GetTable(tableName);
             var query = new DBQuery(table);
             return query;
+        }
+        public DBQuery Query<T>() where T: DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
+            return Query(tableName);
         }
         /// <summary>
         /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>)
@@ -271,6 +277,7 @@ namespace MyLibrary.DataBase
         public void Dispose()
         {
             Clear();
+            CommitTransaction();
         }
 
         #region Работа с коллекцией

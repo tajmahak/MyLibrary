@@ -131,5 +131,9 @@ namespace MyLibrary.DataBase
         {
             return new Exception(type.FullName + " - отсутствует атрибут имени таблицы");
         }
+        public static Exception DBFunctionException()
+        {
+            return new Exception("Функции класса " + nameof(DBFunction) + " не могут быть вызваны напрямую.");
+        }
     }
 }
