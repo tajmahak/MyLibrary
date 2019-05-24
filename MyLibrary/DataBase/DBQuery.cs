@@ -10,6 +10,7 @@ namespace MyLibrary.DataBase
         private DBQuery()
         {
             Structure = new List<object[]>();
+            QueryType = DBQueryTypeEnum.Select;
         }
         internal DBQuery(DBTable table) : this()
         {
@@ -23,7 +24,6 @@ namespace MyLibrary.DataBase
             }
 
             Table = table;
-            QueryType = DBQueryTypeEnum.Select;
         }
         public DBQuery(string sql, params object[] @params) : this()
         {
@@ -441,13 +441,13 @@ namespace MyLibrary.DataBase
             Structure.Add(new object[] { "Select_expression", expression.Body });
             return this;
         }
-        public DBQuery Select<T>(Expression<Func<T, object>> expression)
+        public DBQuery Select<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
         {
             IsView = true;
             Structure.Add(new object[] { "Select_expression", expression.Body });
             return this;
         }
-        public DBQuery Select<T>(Expression<Func<T, object[]>> expression)
+        public DBQuery Select<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
         {
             IsView = true;
             Structure.Add(new object[] { "Select_expression", expression.Body });
@@ -459,23 +459,23 @@ namespace MyLibrary.DataBase
             Structure.Add(new object[] { "Where_expression", expression.Body });
             return this;
         }
-        public DBQuery Where<T1, T2>(Expression<Func<T1, T2, bool>> expression)
-            where T1 : DBOrmTableBase
+        public DBQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             Structure.Add(new object[] { "Where_expression", expression.Body });
             return this;
         }
-        public DBQuery Where<T1, T2, T3>(Expression<Func<T1, T2, T3, bool>> expression)
-            where T1 : DBOrmTableBase
+        public DBQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
             Structure.Add(new object[] { "Where_expression", expression.Body });
             return this;
         }
-        public DBQuery Where<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, bool>> expression)
-            where T1 : DBOrmTableBase
+        public DBQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
@@ -487,23 +487,52 @@ namespace MyLibrary.DataBase
         #endregion
     }
 
-    public class DBQuery<T> where T : DBOrmTableBase
+    public class DBQuery<T> : DBQuery where T : DBOrmTableBase
     {
-        public DBQuery Query { get; private set; }
-
-        public DBQuery(DBQuery query)
+        public DBQuery(DBTable table) : base(table)
         {
-            Query = query;
         }
 
-        public DBQuery<T> Select(Expression<Func<T, object>> expression)
+        public new DBQuery<T> Select(Expression<Func<object>> expression)
         {
-            Query.Select(expression);
+            base.Select(expression);
             return this;
         }
+        public DBQuery<T> Select(Expression<Func<T, object>> expression)
+        {
+            base.Select(expression);
+            return this;
+        }
+        public DBQuery<T> Select(Expression<Func<T, object[]>> expression)
+        {
+            base.Select(expression);
+            return this;
+        }
+
         public DBQuery<T> Where(Expression<Func<T, bool>> expression)
         {
-            Query.Where(expression);
+            base.Where(expression);
+            return this;
+        }
+        public DBQuery<T> Where<T2>(Expression<Func<T, T2, bool>> expression)
+            where T2 : DBOrmTableBase
+        {
+            base.Where(expression);
+            return this;
+        }
+        public DBQuery<T> Where<T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            base.Where(expression);
+            return this;
+        }
+        public DBQuery<T> Where<T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+            where T4 : DBOrmTableBase
+        {
+            base.Where(expression);
             return this;
         }
     }

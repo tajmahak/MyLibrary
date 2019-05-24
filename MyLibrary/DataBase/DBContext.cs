@@ -47,10 +47,17 @@ namespace MyLibrary.DataBase
             var query = new DBQuery(table);
             return query;
         }
-        public DBQuery Query<T>() where T: DBOrmTableBase
+        /// <summary>
+        /// Создание нового запроса <see cref="DBQuery"/>
+        /// </summary>
+        /// <typeparam name="T">Тип данных для таблицы</typeparam>
+        /// <returns></returns>
+        public DBQuery<T> Query<T>() where T : DBOrmTableBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
-            return Query(tableName);
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery<T>(table);
+            return query;
         }
         /// <summary>
         /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>)
