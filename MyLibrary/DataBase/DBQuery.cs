@@ -437,16 +437,19 @@ namespace MyLibrary.DataBase
 
         public DBQuery Select(Expression<Func<object>> expression)
         {
+            IsView = true;
             Structure.Add(new object[] { "Select_expression", expression.Body });
             return this;
         }
         public DBQuery Select<T>(Expression<Func<T, object>> expression)
         {
+            IsView = true;
             Structure.Add(new object[] { "Select_expression", expression.Body });
             return this;
         }
         public DBQuery Select<T>(Expression<Func<T, object[]>> expression)
         {
+            IsView = true;
             Structure.Add(new object[] { "Select_expression", expression.Body });
             return this;
         }
@@ -503,6 +506,5 @@ namespace MyLibrary.DataBase
             Query.Where(expression);
             return this;
         }
-
     }
 }
