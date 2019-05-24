@@ -435,6 +435,22 @@ namespace MyLibrary.DataBase
         #endregion
         #region Построители дерева выражений
 
+        public DBQuery Select(Expression<Func<object>> expression)
+        {
+            Structure.Add(new object[] { "Select_expression", expression.Body });
+            return this;
+        }
+        public DBQuery Select<T>(Expression<Func<T, object>> expression)
+        {
+            Structure.Add(new object[] { "Select_expression", expression.Body });
+            return this;
+        }
+        public DBQuery Select<T>(Expression<Func<T, object[]>> expression)
+        {
+            Structure.Add(new object[] { "Select_expression", expression.Body });
+            return this;
+        }
+
         public DBQuery Where<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
         {
             Structure.Add(new object[] { "Where_expression", expression.Body });
@@ -466,5 +482,27 @@ namespace MyLibrary.DataBase
         }
 
         #endregion
+    }
+
+    public class DBQuery<T> where T : DBOrmTableBase
+    {
+        public DBQuery Query { get; private set; }
+
+        public DBQuery(DBQuery query)
+        {
+            Query = query;
+        }
+
+        public DBQuery<T> Select(Expression<Func<T, object>> expression)
+        {
+            Query.Select(expression);
+            return this;
+        }
+        public DBQuery<T> Where(Expression<Func<T, bool>> expression)
+        {
+            Query.Where(expression);
+            return this;
+        }
+
     }
 }

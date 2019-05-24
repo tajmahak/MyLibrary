@@ -48,7 +48,7 @@ namespace MyLibrary.DataBase
             var sql = new StringBuilder();
             if (query.QueryType == DBQueryTypeEnum.Select)
             {
-                PrepareSelectCommand(sql, query);
+                PrepareSelectCommand(sql, query, cQuery);
 
                 block = FindBlock(query, "Distinct");
                 if (block != null)

@@ -156,7 +156,7 @@ namespace MyLibrary.DataBase
             return string.Concat(OpenBlock, split[1], CloseBlock);
         }
 
-        protected void PrepareSelectCommand(StringBuilder sql, DBQuery query)
+        protected void PrepareSelectCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
         {
             var blockList = FindBlockList(query, x => x.StartsWith("Select"));
             if (blockList.Count == 0)
@@ -328,7 +328,10 @@ namespace MyLibrary.DataBase
                                 }
                             }
                             break;
-                            #endregion
+                        #endregion
+                        case "Select_expression":
+                            Add(sql, ParseSelectExpression((Expression)block[1], cQuery).Sql);
+                            break;
                     }
                 }
                 Add(sql, " FROM ", GetName(query.Table.Name));
@@ -772,10 +775,10 @@ namespace MyLibrary.DataBase
 
         #endregion
 
+
         private ExpressionInfo ParseExpression(Expression expression, Expression parentExpression, bool parseValue, DBCompiledQuery cQuery)
         {
             var info = new ExpressionInfo();
-            info.Sql = new StringBuilder();
 
             if (expression is BinaryExpression binaryExpression)
             {
@@ -981,10 +984,31 @@ namespace MyLibrary.DataBase
 
             return info;
         }
+        private ExpressionInfo ParseSelectExpression(Expression expression, DBCompiledQuery cQuery)
+        {
+            var info = new ExpressionInfo();
+
+            if (expression is NewArrayExpression newArrayExpression)
+            {
+                foreach (var exprArg in newArrayExpression.Expressions)
+                {
+                    if (info.Sql.Length > 0)
+                    {
+                        Add(info.Sql, ',');
+                    }
+                    Add(info.Sql, ParseExpression(exprArg, expression, false, cQuery).Sql);
+                }
+            }
+            else
+            {
+                Add(info.Sql, ParseExpression(expression, null, false, cQuery).Sql);
+            }
+
+            return info;
+        }
         private ExpressionInfo ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
             var info = new ExpressionInfo();
-            info.Sql = new StringBuilder();
 
             var args = new object[expression.Arguments.Count];
             for (int i = 0; i < args.Length; i++)
@@ -1098,14 +1122,32 @@ namespace MyLibrary.DataBase
                     }
                     break;
 
-                    #endregion
+                #endregion
+
+                #region Агрегатные функции
+
+                case nameof(DBFunction.Count):
+                    if (args.Length > 0)
+                    {
+                        Add(info.Sql, "COUNT(", args[0], ")"); break;
+                    }
+                    else
+                    {
+                        Add(info.Sql, "COUNT(*)"); break;
+                    }
+
+                #endregion
+
+                case nameof(DBFunction.As):
+                    Add(info.Sql, args[0], " AS ", OpenBlock, (expression.Arguments[1] as ConstantExpression).Value, CloseBlock); break;
             }
 
             return info;
         }
+
         private class ExpressionInfo
         {
-            public StringBuilder Sql;
+            public StringBuilder Sql = new StringBuilder();
             public object Value;
         }
     }

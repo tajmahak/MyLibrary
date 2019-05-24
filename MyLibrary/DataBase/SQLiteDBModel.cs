@@ -45,7 +45,7 @@ namespace MyLibrary.DataBase
             var sql = new StringBuilder();
             if (query.QueryType == DBQueryTypeEnum.Select)
             {
-                PrepareSelectCommand(sql, query);
+                PrepareSelectCommand(sql, query, cQuery);
                 PrepareJoinCommand(sql, query);
             }
             else if (query.QueryType == DBQueryTypeEnum.Insert)
