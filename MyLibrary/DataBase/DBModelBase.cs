@@ -996,50 +996,110 @@ namespace MyLibrary.DataBase
 
             switch (expression.Method.Name)
             {
+                #region Функции для работы со строками
+
                 case nameof(DBFunction.CharLength):
                     Add(info.Sql, "CHAR_LENGTH(", args[0], ")"); break;
+
 
                 case nameof(DBFunction.Hash):
                     Add(info.Sql, "HASH(", args[0], ")"); break;
 
+
                 case nameof(DBFunction.Left):
                     Add(info.Sql, "LEFT(", args[0], ",", args[1], ")"); break;
+
 
                 case nameof(DBFunction.Lower):
                     Add(info.Sql, "LOWER(", args[0], ")"); break;
 
+
                 case nameof(DBFunction.LPad):
                     Add(info.Sql, "LPAD(", args[0], ",", args[1]);
-                    if (!Format.IsEmpty(args[2]))
+                    if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
                         Add(info.Sql, ",", args[2]);
                     }
                     Add(info.Sql, ")"); break;
 
+
                 case nameof(DBFunction.Overlay):
                     Add(info.Sql, "OVERLAY(", args[0], " PLACING ", args[1], " FROM ", args[2]);
-                    if (!Format.IsEmpty(args[3]))
+                    if (args.Length > 3 && !Format.IsEmpty(args[3]))
                     {
                         Add(info.Sql, " FOR ", args[3]);
                     }
                     Add(info.Sql, ")"); break;
 
-                case nameof(DBFunction.Right): Add(info.Sql, "RIGHT(", args[0], ",", args[1], ")"); break;
 
-                case nameof(DBFunction.Upper): Add(info.Sql, "UPPER(", args[0], ")"); break;
+                case nameof(DBFunction.Replace):
+                    Add(info.Sql, "REPLACE(", args[0], ",", args[1], ",", args[2], ")"); break;
+
+
+                case nameof(DBFunction.Reverse):
+                    Add(info.Sql, "REVERSE(", args[0], ")"); break;
+
+
+                case nameof(DBFunction.Right):
+                    Add(info.Sql, "RIGHT(", args[0], ",", args[1], ")"); break;
+
 
                 case nameof(DBFunction.RPad):
                     Add(info.Sql, "RPAD(", args[0], ",", args[1]);
-                    if (!Format.IsEmpty(args[2]))
+                    if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
                         Add(info.Sql, ",", args[2]);
                     }
                     Add(info.Sql, ")"); break;
 
-                case nameof(DBFunction.Containing):
-                    Add(info.Sql, string.Format("{0} {1}CONTAINING {2}", args[0], notBlock, args[1])); break;
-            }
 
+                case nameof(DBFunction.SubString):
+                    Add(info.Sql, "SUBSTRING (", args[0], " FROM ", args[1]);
+                    if (args.Length > 2 && !Format.IsEmpty(args[2]))
+                    {
+                        Add(info.Sql, " FOR ", args[2]);
+                    }
+                    Add(info.Sql, ")"); break;
+
+
+                case nameof(DBFunction.Upper):
+                    Add(info.Sql, "UPPER(", args[0], ")"); break;
+
+                #endregion
+
+                #region Предикаты сравнения
+
+                case nameof(DBFunction.Between):
+                    Add(info.Sql, args[0], " ", notBlock, "BETWEEN ", args[1], " AND ", args[2]); break;
+
+
+                case nameof(DBFunction.Like):
+                    Add(info.Sql, args[0], " ", notBlock, "LIKE ", args[1]);
+                    if (args.Length > 2 && !Format.IsEmpty(args[2]))
+                    {
+                        Add(info.Sql, " ESCAPE ", args[2]);
+                    }
+                    break;
+
+
+                case nameof(DBFunction.StartingWith):
+                    Add(info.Sql, args[0], " ", notBlock, "STARTING WITH ", args[1]); break;
+
+
+                case nameof(DBFunction.Containing):
+                    Add(info.Sql, args[0], " ", notBlock, "CONTAINING ", args[1]); break;
+
+
+                case nameof(DBFunction.SimilarTo):
+                    Add(info.Sql, args[0], " ", notBlock, "SIMILAR TO ", args[1]);
+                    if (args.Length > 2 && !Format.IsEmpty(args[2]))
+                    {
+                        Add(info.Sql, " ESCAPE ", args[2]);
+                    }
+                    break;
+
+                    #endregion
+            }
 
             return info;
         }
