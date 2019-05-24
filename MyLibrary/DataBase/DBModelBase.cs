@@ -722,6 +722,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
+        //!!! реализовать Union команду
 
         protected List<object[]> FindBlockList(DBQuery query, Predicate<string> predicate)
         {
@@ -775,19 +776,18 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-
-        private ExpressionInfo ParseExpression(Expression expression, Expression parentExpression, bool parseValue, DBCompiledQuery cQuery)
+        private ParseExpressionResult ParseExpression(Expression expression, Expression parentExpression, bool parseValue, DBCompiledQuery cQuery)
         {
-            var info = new ExpressionInfo();
+            var result = new ParseExpressionResult();
 
             if (expression is BinaryExpression binaryExpression)
             {
                 #region
 
-                Add(info.Sql, '(', ParseExpression(binaryExpression.Left, expression, false, cQuery).Sql);
+                Add(result.Sql, '(', ParseExpression(binaryExpression.Left, expression, false, cQuery).Sql);
 
-                var result = ParseExpression(binaryExpression.Right, expression, false, cQuery).Sql;
-                if (result.Length > 0)
+                var rightBlock = ParseExpression(binaryExpression.Right, expression, false, cQuery).Sql;
+                if (rightBlock.Length > 0)
                 {
                     string @operator;
                     #region Выбор оператора
@@ -818,20 +818,20 @@ namespace MyLibrary.DataBase
 
                     #endregion
 
-                    Add(info.Sql, @operator, result);
+                    Add(result.Sql, @operator, rightBlock);
                 }
                 else
                 {
                     // IS [NOT] NULL
-                    Add(info.Sql, " IS");
+                    Add(result.Sql, " IS");
                     if (binaryExpression.NodeType == ExpressionType.NotEqual)
                     {
-                        Add(info.Sql, " NOT");
+                        Add(result.Sql, " NOT");
                     }
-                    Add(info.Sql, " NULL");
+                    Add(result.Sql, " NULL");
                 }
 
-                Add(info.Sql, ')');
+                Add(result.Sql, ')');
 
                 #endregion
             }
@@ -843,7 +843,7 @@ namespace MyLibrary.DataBase
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    Add(info.Sql, GetFullName(attr.ColumnName));
+                    Add(result.Sql, GetFullName(attr.ColumnName));
                 }
                 else if (memberExpression.Member is PropertyInfo)
                 {
@@ -862,12 +862,12 @@ namespace MyLibrary.DataBase
 
                     if (parseValue)
                     {
-                        info.Value = value;
-                        return info;
+                        result.Value = value;
+                        return result;
                     }
                     else
                     {
-                        Add(info.Sql, AddParameter(value, cQuery));
+                        Add(result.Sql, AddParameter(value, cQuery));
                     }
                 }
                 else if (memberExpression.Member is FieldInfo)
@@ -878,12 +878,12 @@ namespace MyLibrary.DataBase
 
                     if (parseValue)
                     {
-                        info.Value = value;
-                        return info;
+                        result.Value = value;
+                        return result;
                     }
                     else
                     {
-                        Add(info.Sql, AddParameter(value, cQuery));
+                        Add(result.Sql, AddParameter(value, cQuery));
                     }
                 }
                 else
@@ -900,16 +900,16 @@ namespace MyLibrary.DataBase
                 var value = constantExpression.Value;
                 if (parseValue)
                 {
-                    info.Value = value;
-                    return info;
+                    result.Value = value;
+                    return result;
                 }
                 else
                 {
                     if (value != null)
                     {
-                        Add(info.Sql, AddParameter(value, cQuery));
+                        Add(result.Sql, AddParameter(value, cQuery));
                     }
-                    return info;
+                    return result;
                 }
 
                 #endregion
@@ -918,7 +918,7 @@ namespace MyLibrary.DataBase
             {
                 #region
 
-                Add(info.Sql, ParseExpression(unaryExpression.Operand, expression, false, cQuery).Sql);
+                Add(result.Sql, ParseExpression(unaryExpression.Operand, expression, false, cQuery).Sql);
 
                 #endregion
             }
@@ -930,7 +930,7 @@ namespace MyLibrary.DataBase
                 if (custAttr.Length > 0)
                 {
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    Add(info.Sql, GetFullName(attr.ColumnName));
+                    Add(result.Sql, GetFullName(attr.ColumnName));
                 }
                 else
                 {
@@ -946,7 +946,7 @@ namespace MyLibrary.DataBase
                 var method = methodCallExpression.Method;
                 if (method.DeclaringType == typeof(DBFunction))
                 {
-                    Add(info.Sql, ParseFunctionExpression(methodCallExpression, parentExpression, cQuery).Sql);
+                    Add(result.Sql, ParseFunctionExpression(methodCallExpression, parentExpression, cQuery).Sql);
                 }
                 else
                 {
@@ -966,12 +966,12 @@ namespace MyLibrary.DataBase
 
                     if (parseValue)
                     {
-                        info.Value = value;
-                        return info;
+                        result.Value = value;
+                        return result;
                     }
                     else
                     {
-                        Add(info.Sql, AddParameter(value, cQuery));
+                        Add(result.Sql, AddParameter(value, cQuery));
                     }
                 }
 
@@ -982,33 +982,33 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            return info;
+            return result;
         }
-        private ExpressionInfo ParseSelectExpression(Expression expression, DBCompiledQuery cQuery)
+        private ParseExpressionResult ParseSelectExpression(Expression expression, DBCompiledQuery cQuery)
         {
-            var info = new ExpressionInfo();
+            var result = new ParseExpressionResult();
 
             if (expression is NewArrayExpression newArrayExpression)
             {
                 foreach (var exprArg in newArrayExpression.Expressions)
                 {
-                    if (info.Sql.Length > 0)
+                    if (result.Sql.Length > 0)
                     {
-                        Add(info.Sql, ',');
+                        Add(result.Sql, ',');
                     }
-                    Add(info.Sql, ParseExpression(exprArg, expression, false, cQuery).Sql);
+                    Add(result.Sql, ParseExpression(exprArg, expression, false, cQuery).Sql);
                 }
             }
             else
             {
-                Add(info.Sql, ParseExpression(expression, null, false, cQuery).Sql);
+                Add(result.Sql, ParseExpression(expression, null, false, cQuery).Sql);
             }
 
-            return info;
+            return result;
         }
-        private ExpressionInfo ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        private ParseExpressionResult ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
-            var info = new ExpressionInfo();
+            var result = new ParseExpressionResult();
 
             var args = new object[expression.Arguments.Count];
             for (int i = 0; i < args.Length; i++)
@@ -1023,102 +1023,102 @@ namespace MyLibrary.DataBase
                 #region Функции для работы со строками
 
                 case nameof(DBFunction.CharLength):
-                    Add(info.Sql, "CHAR_LENGTH(", args[0], ")"); break;
+                    Add(result.Sql, "CHAR_LENGTH(", args[0], ")"); break;
 
 
                 case nameof(DBFunction.Hash):
-                    Add(info.Sql, "HASH(", args[0], ")"); break;
+                    Add(result.Sql, "HASH(", args[0], ")"); break;
 
 
                 case nameof(DBFunction.Left):
-                    Add(info.Sql, "LEFT(", args[0], ",", args[1], ")"); break;
+                    Add(result.Sql, "LEFT(", args[0], ",", args[1], ")"); break;
 
 
                 case nameof(DBFunction.Lower):
-                    Add(info.Sql, "LOWER(", args[0], ")"); break;
+                    Add(result.Sql, "LOWER(", args[0], ")"); break;
 
 
                 case nameof(DBFunction.LPad):
-                    Add(info.Sql, "LPAD(", args[0], ",", args[1]);
+                    Add(result.Sql, "LPAD(", args[0], ",", args[1]);
                     if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
-                        Add(info.Sql, ",", args[2]);
+                        Add(result.Sql, ",", args[2]);
                     }
-                    Add(info.Sql, ")"); break;
+                    Add(result.Sql, ")"); break;
 
 
                 case nameof(DBFunction.Overlay):
-                    Add(info.Sql, "OVERLAY(", args[0], " PLACING ", args[1], " FROM ", args[2]);
+                    Add(result.Sql, "OVERLAY(", args[0], " PLACING ", args[1], " FROM ", args[2]);
                     if (args.Length > 3 && !Format.IsEmpty(args[3]))
                     {
-                        Add(info.Sql, " FOR ", args[3]);
+                        Add(result.Sql, " FOR ", args[3]);
                     }
-                    Add(info.Sql, ")"); break;
+                    Add(result.Sql, ")"); break;
 
 
                 case nameof(DBFunction.Replace):
-                    Add(info.Sql, "REPLACE(", args[0], ",", args[1], ",", args[2], ")"); break;
+                    Add(result.Sql, "REPLACE(", args[0], ",", args[1], ",", args[2], ")"); break;
 
 
                 case nameof(DBFunction.Reverse):
-                    Add(info.Sql, "REVERSE(", args[0], ")"); break;
+                    Add(result.Sql, "REVERSE(", args[0], ")"); break;
 
 
                 case nameof(DBFunction.Right):
-                    Add(info.Sql, "RIGHT(", args[0], ",", args[1], ")"); break;
+                    Add(result.Sql, "RIGHT(", args[0], ",", args[1], ")"); break;
 
 
                 case nameof(DBFunction.RPad):
-                    Add(info.Sql, "RPAD(", args[0], ",", args[1]);
+                    Add(result.Sql, "RPAD(", args[0], ",", args[1]);
                     if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
-                        Add(info.Sql, ",", args[2]);
+                        Add(result.Sql, ",", args[2]);
                     }
-                    Add(info.Sql, ")"); break;
+                    Add(result.Sql, ")"); break;
 
 
                 case nameof(DBFunction.SubString):
-                    Add(info.Sql, "SUBSTRING (", args[0], " FROM ", args[1]);
+                    Add(result.Sql, "SUBSTRING (", args[0], " FROM ", args[1]);
                     if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
-                        Add(info.Sql, " FOR ", args[2]);
+                        Add(result.Sql, " FOR ", args[2]);
                     }
-                    Add(info.Sql, ")"); break;
+                    Add(result.Sql, ")"); break;
 
 
                 case nameof(DBFunction.Upper):
-                    Add(info.Sql, "UPPER(", args[0], ")"); break;
+                    Add(result.Sql, "UPPER(", args[0], ")"); break;
 
                 #endregion
 
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
-                    Add(info.Sql, args[0], " ", notBlock, "BETWEEN ", args[1], " AND ", args[2]); break;
+                    Add(result.Sql, args[0], " ", notBlock, "BETWEEN ", args[1], " AND ", args[2]); break;
 
 
                 case nameof(DBFunction.Like):
-                    Add(info.Sql, args[0], " ", notBlock, "LIKE ", args[1]);
+                    Add(result.Sql, args[0], " ", notBlock, "LIKE ", args[1]);
                     if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
-                        Add(info.Sql, " ESCAPE ", args[2]);
+                        Add(result.Sql, " ESCAPE ", args[2]);
                     }
                     break;
 
 
                 case nameof(DBFunction.StartingWith):
-                    Add(info.Sql, args[0], " ", notBlock, "STARTING WITH ", args[1]); break;
+                    Add(result.Sql, args[0], " ", notBlock, "STARTING WITH ", args[1]); break;
 
 
                 case nameof(DBFunction.Containing):
-                    Add(info.Sql, args[0], " ", notBlock, "CONTAINING ", args[1]); break;
+                    Add(result.Sql, args[0], " ", notBlock, "CONTAINING ", args[1]); break;
 
 
                 case nameof(DBFunction.SimilarTo):
-                    Add(info.Sql, args[0], " ", notBlock, "SIMILAR TO ", args[1]);
+                    Add(result.Sql, args[0], " ", notBlock, "SIMILAR TO ", args[1]);
                     if (args.Length > 2 && !Format.IsEmpty(args[2]))
                     {
-                        Add(info.Sql, " ESCAPE ", args[2]);
+                        Add(result.Sql, " ESCAPE ", args[2]);
                     }
                     break;
 
@@ -1126,26 +1126,89 @@ namespace MyLibrary.DataBase
 
                 #region Агрегатные функции
 
+                case nameof(DBFunction.Avg):
+                    string operation = string.Empty;
+                    if (args.Length > 1)
+                    {
+                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                    }
+                    Add(result.Sql, "AVG(", operation, args[0], ")"); break;
+
+
                 case nameof(DBFunction.Count):
                     if (args.Length > 0)
                     {
-                        Add(info.Sql, "COUNT(", args[0], ")"); break;
+                        Add(result.Sql, "COUNT(", args[0], ")");
                     }
                     else
                     {
-                        Add(info.Sql, "COUNT(*)"); break;
+                        Add(result.Sql, "COUNT(*)");
                     }
+                    break;
+
+
+                case nameof(DBFunction.List):
+                    operation = string.Empty;
+                    if (args.Length > 2)
+                    {
+                        operation = ParseAggregateExpression(expression.Arguments[2]);
+                    }
+                    Add(result.Sql, "LIST(", operation, args[0]);
+                    if (args.Length > 1)
+                    {
+                        Add(result.Sql, ",", args[1]);
+                    }
+                    Add(result.Sql, ")"); break;
+
+
+                case nameof(DBFunction.Max):
+                    operation = string.Empty;
+                    if (args.Length > 1)
+                    {
+                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                    }
+                    Add(result.Sql, "MAX(", operation, args[0], ")"); break;
+
+
+                case nameof(DBFunction.Min):
+                    operation = string.Empty;
+                    if (args.Length > 1)
+                    {
+                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                    }
+                    Add(result.Sql, "MIN(", operation, args[0], ")"); break;
+
+
+                case nameof(DBFunction.Sum):
+                    operation = string.Empty;
+                    if (args.Length > 1)
+                    {
+                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                    }
+                    Add(result.Sql, "MIN(", operation, args[0], ")"); break;
 
                 #endregion
 
                 case nameof(DBFunction.As):
-                    Add(info.Sql, args[0], " AS ", OpenBlock, (expression.Arguments[1] as ConstantExpression).Value, CloseBlock); break;
+                    Add(result.Sql, args[0], " AS ", OpenBlock, (expression.Arguments[1] as ConstantExpression).Value, CloseBlock); break;
             }
 
-            return info;
+            return result;
+        }
+        private string ParseAggregateExpression(Expression expression)
+        {
+            var constantExpression = (ConstantExpression)expression;
+            switch ((DBFunction.AggregateEnum)constantExpression.Value)
+            {
+                case DBFunction.AggregateEnum.All:
+                    return "ALL ";
+                case DBFunction.AggregateEnum.Distinct:
+                    return "DISTINCT ";
+            }
+            throw new Exception();
         }
 
-        private class ExpressionInfo
+        private class ParseExpressionResult
         {
             public StringBuilder Sql = new StringBuilder();
             public object Value;

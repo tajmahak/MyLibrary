@@ -196,6 +196,14 @@ namespace MyLibrary.DataBase
             return this;
         }
 
+        public DBQuery Union(DBQuery query, DBFunction.AggregateEnum? operation = null)
+        {
+            if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
+
+            Structure.Add(new object[] { "Union", query, operation });
+            return this;
+        }
+
         public DBQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));

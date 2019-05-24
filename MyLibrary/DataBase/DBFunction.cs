@@ -2,6 +2,17 @@
 {
     public static class DBFunction
     {
+        //!!!
+        // Предикаты существования
+        // [NOT] EXISTS (<select_stmt>)
+        // <value> [NOT] IN (<select_stmt> | <value_list>)
+        // [NOT] SINGULAR (<select_stmt>)
+
+        //Количественные предикаты подзапросов
+        // <value> <op> ALL (<select_stmt>)
+        // <value> <op> {ANY | SOME} (<select_stmt>)
+
+
         #region Функции для работы со строками
 
         /// <summary>
@@ -188,6 +199,7 @@
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает числовой тип данных.Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
         public static object Avg(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Avg(object expr) => throw DBInternal.DBFunctionException();
 
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
@@ -208,14 +220,14 @@
         /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static object List(object expr, string separator = null, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object List(object expr, char? separator = null, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
         /// <returns></returns>
-        public static object List(object expr, string separator = null) => throw DBInternal.DBFunctionException();
+        public static object List(object expr, char? separator = null) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
