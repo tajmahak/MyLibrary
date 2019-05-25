@@ -12,7 +12,6 @@
         // <value> <op> ALL (<select_stmt>)
         // <value> <op> {ANY | SOME} (<select_stmt>)
 
-
         #region Функции для работы со строками
 
         /// <summary>
@@ -198,7 +197,7 @@
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает числовой тип данных.Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Avg(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Avg(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         public static object Avg(object expr) => throw DBInternal.DBFunctionException();
 
         /// <summary>
@@ -206,7 +205,7 @@
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Count(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Count(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
         /// </summary>
@@ -220,7 +219,7 @@
         /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static object List(object expr, char? separator = null, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object List(object expr, char? separator = null, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
@@ -241,7 +240,7 @@
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static object Max(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Max(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает максимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется последним в сортировке при применении COLLATE.
         /// </summary>
@@ -255,7 +254,7 @@
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static object Min(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Min(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает минимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется первым в сортировке при применении COLLATE.
         /// </summary>
@@ -269,7 +268,7 @@
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static object Sum(object expr, AggregateEnum option = AggregateEnum.All) => throw DBInternal.DBFunctionException();
+        public static object Sum(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Функция SUM возвращает сумму элементов выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL.
         /// </summary>
@@ -281,7 +280,7 @@
 
         public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
 
-        public enum AggregateEnum
+        public enum OptionEnum
         {
             /// <summary>
             /// Обрабатываются все значения из выборки, не содержащие NULL.

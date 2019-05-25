@@ -196,7 +196,7 @@ namespace MyLibrary.DataBase
             return this;
         }
 
-        public DBQuery Union(DBQuery query, DBFunction.AggregateEnum? operation = null)
+        public DBQuery Union(DBQuery query, DBFunction.OptionEnum? operation = null)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 

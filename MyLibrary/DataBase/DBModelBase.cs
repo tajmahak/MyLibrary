@@ -1127,12 +1127,12 @@ namespace MyLibrary.DataBase
                 #region Агрегатные функции
 
                 case nameof(DBFunction.Avg):
-                    string operation = string.Empty;
+                    string option = string.Empty;
                     if (args.Length > 1)
                     {
-                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                        option = ParseAggregateExpression(expression.Arguments[1]);
                     }
-                    Add(result.Sql, "AVG(", operation, args[0], ")"); break;
+                    Add(result.Sql, "AVG(", option, args[0], ")"); break;
 
 
                 case nameof(DBFunction.Count):
@@ -1148,12 +1148,12 @@ namespace MyLibrary.DataBase
 
 
                 case nameof(DBFunction.List):
-                    operation = string.Empty;
+                    option = string.Empty;
                     if (args.Length > 2)
                     {
-                        operation = ParseAggregateExpression(expression.Arguments[2]);
+                        option = ParseAggregateExpression(expression.Arguments[2]);
                     }
-                    Add(result.Sql, "LIST(", operation, args[0]);
+                    Add(result.Sql, "LIST(", option, args[0]);
                     if (args.Length > 1)
                     {
                         Add(result.Sql, ",", args[1]);
@@ -1162,30 +1162,30 @@ namespace MyLibrary.DataBase
 
 
                 case nameof(DBFunction.Max):
-                    operation = string.Empty;
+                    option = string.Empty;
                     if (args.Length > 1)
                     {
-                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                        option = ParseAggregateExpression(expression.Arguments[1]);
                     }
-                    Add(result.Sql, "MAX(", operation, args[0], ")"); break;
+                    Add(result.Sql, "MAX(", option, args[0], ")"); break;
 
 
                 case nameof(DBFunction.Min):
-                    operation = string.Empty;
+                    option = string.Empty;
                     if (args.Length > 1)
                     {
-                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                        option = ParseAggregateExpression(expression.Arguments[1]);
                     }
-                    Add(result.Sql, "MIN(", operation, args[0], ")"); break;
+                    Add(result.Sql, "MIN(", option, args[0], ")"); break;
 
 
                 case nameof(DBFunction.Sum):
-                    operation = string.Empty;
+                    option = string.Empty;
                     if (args.Length > 1)
                     {
-                        operation = ParseAggregateExpression(expression.Arguments[1]);
+                        option = ParseAggregateExpression(expression.Arguments[1]);
                     }
-                    Add(result.Sql, "MIN(", operation, args[0], ")"); break;
+                    Add(result.Sql, "MIN(", option, args[0], ")"); break;
 
                 #endregion
 
@@ -1198,11 +1198,11 @@ namespace MyLibrary.DataBase
         private string ParseAggregateExpression(Expression expression)
         {
             var constantExpression = (ConstantExpression)expression;
-            switch ((DBFunction.AggregateEnum)constantExpression.Value)
+            switch ((DBFunction.OptionEnum)constantExpression.Value)
             {
-                case DBFunction.AggregateEnum.All:
+                case DBFunction.OptionEnum.All:
                     return "ALL ";
-                case DBFunction.AggregateEnum.Distinct:
+                case DBFunction.OptionEnum.Distinct:
                     return "DISTINCT ";
             }
             throw new Exception();
