@@ -270,6 +270,51 @@ namespace MyLibrary.DataBase
             return this;
         }
 
+        public DBQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
+            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoinAs, alias, joinColumnName, columnName });
+            return this;
+        }
+        public DBQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
+            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName });
+            return this;
+        }
+        public DBQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
+            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName });
+            return this;
+        }
+        public DBQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
+            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName });
+            return this;
+        }
+
         public DBQuery Where(string column, object value)
         {
             Where(column, "=", value);

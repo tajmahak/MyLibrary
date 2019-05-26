@@ -415,6 +415,22 @@ namespace MyLibrary.DataBase
                         Add(sql, " FULL OUTER JOIN ", GetName(block[1]), " ON ", GetFullName(block[1]), '=', GetFullName(block[2]));
                         break;
 
+                    case DBQueryTypeEnum.InnerJoinAs:
+                        Add(sql, " INNER JOIN ", GetName(block[2]), " AS ", GetName(block[1]), " ON ", GetName(block[1]), ".", GetColumnName(block[2]), '=', GetFullName(block[3]));
+                        break;
+
+                    case DBQueryTypeEnum.LeftOuterJoinAs:
+                        Add(sql, " LEFT OUTER JOIN ", GetName(block[2]), " AS ", GetName(block[1]), " ON ", GetName(block[1]), ".", GetColumnName(block[2]), '=', GetFullName(block[3]));
+                        break;
+
+                    case DBQueryTypeEnum.RightOuterJoinAs:
+                        Add(sql, " RIGHT OUTER JOIN ", GetName(block[2]), " AS ", GetName(block[1]), " ON ", GetName(block[1]), ".", GetColumnName(block[2]), '=', GetFullName(block[3]));
+                        break;
+
+                    case DBQueryTypeEnum.FullOuterJoinAs:
+                        Add(sql, " FULL OUTER JOIN ", GetName(block[2]), " AS ", GetName(block[1]), " ON ", GetName(block[1]), ".", GetColumnName(block[2]), '=', GetFullName(block[3]));
+                        break;
+
                     case DBQueryTypeEnum.InnerJoin_type:
                     case DBQueryTypeEnum.LeftOuterJoin_type:
                     case DBQueryTypeEnum.RightOuterJoin_type:
@@ -437,10 +453,6 @@ namespace MyLibrary.DataBase
                                 Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
                         }
                         break;
-
-
-
-
                 }
             }
         }
@@ -603,7 +615,8 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryTypeEnum.GroupBy_expression:
-                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql); break;
+                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql);
+                            break;
                     }
                 }
             }
@@ -651,7 +664,8 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryTypeEnum.OrderBy_expression:
-                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql); break;
+                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql);
+                            break;
                     }
                 }
             }
@@ -944,7 +958,6 @@ namespace MyLibrary.DataBase
 
             return result;
         }
-
         private ParseExpressionResult ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
             var result = new ParseExpressionResult();
