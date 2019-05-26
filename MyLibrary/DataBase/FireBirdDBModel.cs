@@ -50,19 +50,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectCommand(sql, query, cQuery);
 
-                block = FindBlock(query, DBQueryTypeEnum.Distinct);
+                block = FindBlock(query, DBQueryStructureTypeEnum.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = FindBlock(query, DBQueryTypeEnum.Skip);
+                block = FindBlock(query, DBQueryStructureTypeEnum.Skip);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[1]));
                 }
 
-                block = FindBlock(query, DBQueryTypeEnum.First);
+                block = FindBlock(query, DBQueryStructureTypeEnum.First);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[1]));
@@ -88,7 +88,7 @@ namespace MyLibrary.DataBase
 
                 Add(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
 
-                blockList = FindBlockList(query, DBQueryTypeEnum.Set);
+                blockList = FindBlockList(query, DBQueryStructureTypeEnum.Set);
                 if (blockList.Count == 0)
                 {
                     throw DBInternal.InadequateUpdateCommandException();
@@ -116,7 +116,7 @@ namespace MyLibrary.DataBase
 
                 Add(sql, ')');
 
-                blockList = FindBlockList(query, DBQueryTypeEnum.Matching);
+                blockList = FindBlockList(query, DBQueryStructureTypeEnum.Matching);
                 if (blockList.Count > 0)
                 {
                     Add(sql, " MATCHING(");
@@ -151,7 +151,7 @@ namespace MyLibrary.DataBase
 
             #region RETURNING ...
 
-            blockList = FindBlockList(query, DBQueryTypeEnum.Returning);
+            blockList = FindBlockList(query, DBQueryStructureTypeEnum.Returning);
             if (blockList.Count > 0)
             {
                 Add(sql, " RETURNING ");
