@@ -459,14 +459,20 @@ namespace MyLibrary.DataBase
                                 Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-
                             case DBQueryStructureTypeEnum.InnerJoinAs_type:
+                                Add(sql, " INNER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
+
                             case DBQueryStructureTypeEnum.LeftOuterJoinAs_type:
+                                Add(sql, " LEFT OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
+
                             case DBQueryStructureTypeEnum.RightOuterJoinAs_type:
+                                Add(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
+
                             case DBQueryStructureTypeEnum.FullOuterJoinAs_type:
+                                Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
                         }
                         break;

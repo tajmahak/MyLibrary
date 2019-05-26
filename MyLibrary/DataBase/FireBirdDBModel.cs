@@ -42,7 +42,6 @@ namespace MyLibrary.DataBase
 
             DBQueryStructureBlock block;
             List<DBQueryStructureBlock> blockList;
-            int index = 0;
 
             var sql = new StringBuilder();
             if (query.Type == DBQueryTypeEnum.Select)
@@ -58,13 +57,13 @@ namespace MyLibrary.DataBase
                 block = FindBlock(query, DBQueryStructureTypeEnum.Skip);
                 if (block != null)
                 {
-                    sql.Insert(6, string.Concat(" SKIP ", block[1]));
+                    sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
                 block = FindBlock(query, DBQueryStructureTypeEnum.First);
                 if (block != null)
                 {
-                    sql.Insert(6, string.Concat(" FIRST ", block[1]));
+                    sql.Insert(6, string.Concat(" FIRST ", block[0]));
                 }
 
                 PrepareJoinCommand(sql, query);
@@ -96,21 +95,23 @@ namespace MyLibrary.DataBase
                 Add(sql, '(');
                 for (int i = 0; i < blockList.Count; i++)
                 {
+                    block = blockList[i];
                     if (i > 0)
                     {
                         Add(sql, ',');
                     }
-                    Add(sql, GetColumnName(blockList[i][1]));
+                    Add(sql, GetColumnName(block[0]));
                 }
 
                 Add(sql, ")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
+                    block = blockList[i];
                     if (i > 0)
                     {
                         Add(sql, ',');
                     }
-                    Add(sql, AddParameter(blockList[i][2], cQuery));
+                    Add(sql, AddParameter(block[1], cQuery));
                 }
 
                 Add(sql, ')');
@@ -119,18 +120,16 @@ namespace MyLibrary.DataBase
                 if (blockList.Count > 0)
                 {
                     Add(sql, " MATCHING(");
-                    index = 0;
                     for (int i = 0; i < blockList.Count; i++)
                     {
                         block = blockList[i];
                         for (int j = 0; j < block.Length; j++)
                         {
-                            if (index > 0)
+                            if (j > 0)
                             {
                                 Add(sql, ',');
                             }
                             Add(sql, GetColumnName(block[j]));
-                            index++;
                         }
                     }
                     Add(sql, ')');
@@ -153,18 +152,16 @@ namespace MyLibrary.DataBase
             if (blockList.Count > 0)
             {
                 Add(sql, " RETURNING ");
-                index = 0;
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     block = blockList[i];
                     for (int j = 0; j < block.Length; j++)
                     {
-                        if (index > 0)
+                        if (i > 0)
                         {
                             Add(sql, ',');
                         }
                         Add(sql, GetColumnName(block[j]));
-                        index++;
                     }
                 }
             }
