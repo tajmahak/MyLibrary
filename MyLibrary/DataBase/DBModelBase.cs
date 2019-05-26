@@ -427,6 +427,9 @@ namespace MyLibrary.DataBase
                     case "FullOuterJoinAs":
                         Add(sql, " FULL OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                         break;
+
+                    case "InnerJoin_type":
+                        break;
                 }
             }
         }

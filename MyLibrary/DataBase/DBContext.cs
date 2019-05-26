@@ -77,7 +77,7 @@ namespace MyLibrary.DataBase
         /// <param name="query"></param>
         public void Execute(DBQuery query)
         {
-            if (query.QueryType == DBQueryTypeEnum.Select)
+            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -493,7 +493,7 @@ namespace MyLibrary.DataBase
 
         public DBReader<T> Select<T>(DBQuery query)
         {
-            if (query.QueryType != DBQueryTypeEnum.Select && query.QueryType != DBQueryTypeEnum.Sql)
+            if (query.QueryCommandType != DBQueryCommandTypeEnum.Select && query.QueryCommandType != DBQueryCommandTypeEnum.Sql)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -508,7 +508,7 @@ namespace MyLibrary.DataBase
 
         public T GetValue<T>(DBQuery query)
         {
-            if (query.QueryType == DBQueryTypeEnum.Select)
+            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
             {
                 query.First(1);
             }

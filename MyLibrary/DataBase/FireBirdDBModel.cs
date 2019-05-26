@@ -46,7 +46,7 @@ namespace MyLibrary.DataBase
             int index = 0;
 
             var sql = new StringBuilder();
-            if (query.QueryType == DBQueryTypeEnum.Select)
+            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
             {
                 PrepareSelectCommand(sql, query, cQuery);
 
@@ -70,19 +70,19 @@ namespace MyLibrary.DataBase
 
                 PrepareJoinCommand(sql, query);
             }
-            else if (query.QueryType == DBQueryTypeEnum.Insert)
+            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Insert)
             {
                 PrepareInsertCommand(sql, query, cQuery);
             }
-            else if (query.QueryType == DBQueryTypeEnum.Update)
+            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Update)
             {
                 PrepareUpdateCommand(sql, query, cQuery);
             }
-            else if (query.QueryType == DBQueryTypeEnum.Delete)
+            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Delete)
             {
                 PrepareDeleteCommand(sql, query);
             }
-            else if (query.QueryType == DBQueryTypeEnum.UpdateOrInsert)
+            else if (query.QueryCommandType == DBQueryCommandTypeEnum.UpdateOrInsert)
             {
                 #region UPDATE OR INSERT
 
@@ -140,14 +140,14 @@ namespace MyLibrary.DataBase
 
                 #endregion
             }
-            else if (query.QueryType == DBQueryTypeEnum.Sql)
+            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Sql)
             {
                 PrepareSqlCommand(sql, query, cQuery);
             }
 
             PrepareWhereCommand(sql, query, cQuery);
 
-            if (query.QueryType == DBQueryTypeEnum.Select)
+            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
             {
                 PrepareGroupByCommand(sql, query);
                 PrepareOrderByCommand(sql, query);
@@ -184,6 +184,8 @@ namespace MyLibrary.DataBase
 
         private void InitializeDBModel(FbConnection connection)
         {
+            //!!! думаю можно упростить
+
             var tableNames = new List<string>();
             #region Получение названий таблиц
 
