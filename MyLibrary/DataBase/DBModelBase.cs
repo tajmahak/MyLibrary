@@ -576,7 +576,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareGroupByCommand(StringBuilder sql, DBQuery query)
         {
-            var blockList = FindBlockList(query, DBQueryTypeEnum.GroupBy);
+            var blockList = FindBlockList(query, x => x.StartsWith("GroupBy"));
             if (blockList.Count > 0)
             {
                 Add(sql, " GROUP BY ");
@@ -584,15 +584,26 @@ namespace MyLibrary.DataBase
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
-                    var args = (string[])block[1];
-                    for (int j = 0; j < args.Length; j++)
+                    var queryType = (DBQueryTypeEnum)block[0];
+                    switch (queryType)
                     {
-                        if (index > 0)
-                        {
-                            Add(sql, ',');
-                        }
-                        Add(sql, GetFullName(args[j]));
-                        index++;
+                        case DBQueryTypeEnum.GroupBy:
+                            #region
+                            var args = (string[])block[1];
+                            for (int j = 0; j < args.Length; j++)
+                            {
+                                if (index > 0)
+                                {
+                                    Add(sql, ',');
+                                }
+                                Add(sql, GetFullName(args[j]));
+                                index++;
+                            }
+                            break;
+                        #endregion
+
+                        case DBQueryTypeEnum.GroupBy_expression:
+                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql); break;
                     }
                 }
             }

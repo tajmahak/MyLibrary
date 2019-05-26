@@ -481,6 +481,32 @@ namespace MyLibrary.DataBase
             return this;
         }
 
+        public DBQuery GroupBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery GroupBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery GroupBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery GroupBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
+            return this;
+        }
+
         #endregion
     }
 
@@ -561,20 +587,44 @@ namespace MyLibrary.DataBase
         }
         public DBQuery<T> OrderBy(Expression<Func<T, object[]>> expression)
         {
-            base.OrderBy<T>(expression);
+            OrderBy<T>(expression);
             return this;
         }
         public DBQuery<T> OrderBy<T2>(Expression<Func<T, T2, object[]>> expression)
             where T2 : DBOrmTableBase
         {
-            base.OrderBy<T, T2>(expression);
+            OrderBy<T, T2>(expression);
             return this;
         }
         public DBQuery<T> OrderBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            base.OrderBy<T, T2, T3>(expression);
+            OrderBy<T, T2, T3>(expression);
+            return this;
+        }
+
+        public DBQuery<T> GroupBy(Expression<Func<T, object>> expression)
+        {
+            GroupBy<T>(expression);
+            return this;
+        }
+        public DBQuery<T> GroupBy(Expression<Func<T, object[]>> expression)
+        {
+            GroupBy<T>(expression);
+            return this;
+        }
+        public DBQuery<T> GroupBy<T2>(Expression<Func<T, T2, object[]>> expression)
+            where T2 : DBOrmTableBase
+        {
+            GroupBy<T, T2>(expression);
+            return this;
+        }
+        public DBQuery<T> GroupBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            GroupBy<T, T2, T3>(expression);
             return this;
         }
     }

@@ -5,6 +5,12 @@
         Set,
         Matching,
         Returning,
+        First,
+        Skip,
+        Distinct,
+        Union,
+        Sql,
+
         Select,
         SelectAs,
         SelectSum,
@@ -14,22 +20,16 @@
         SelectMin,
         SelectMinAs,
         SelectCount,
-        Distinct,
-        First,
-        Skip,
-        Union,
+        Select_expression,
 
         InnerJoin,
         LeftOuterJoin,
         RightOuterJoin,
         FullOuterJoin,
-
         InnerJoin_type,
         LeftOuterJoin_type,
         RightOuterJoin_type,
         FullOuterJoin_type,
-
-
 
         Where,
         WhereBetween,
@@ -40,14 +40,15 @@
         WhereLikeUpper,
         WhereIn_command,
         WhereIn_values,
+        Where_expression,
+
         OrderBy,
         OrderByDesc,
         OrderByUpper,
         OrderByUpperDesc,
-        GroupBy,
-        Select_expression,
-        Where_expression,
-        Sql,
         OrderBy_expression,
+
+        GroupBy,
+        GroupBy_expression,
     }
 }
