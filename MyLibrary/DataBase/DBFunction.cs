@@ -279,6 +279,7 @@
         #endregion
 
         public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
+        public static object Desc(object expr) => throw DBInternal.DBFunctionException();
 
         public enum OptionEnum
         {

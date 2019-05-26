@@ -331,7 +331,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryTypeEnum.Select_expression:
                             #region
-                            Add(sql, ParseSelectExpression((Expression)block[1], cQuery).Sql);
+                            Add(sql, ParseExpressionList((Expression)block[1], cQuery).Sql);
                             break;
                             #endregion
                     }
@@ -394,45 +394,53 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareJoinCommand(StringBuilder sql, DBQuery query)
         {
-            foreach (var item in query.Structure)
+            foreach (var block in query.Structure)
             {
-                switch ((DBQueryTypeEnum)item[0])
+                var queryType = (DBQueryTypeEnum)block[0];
+                switch (queryType)
                 {
                     case DBQueryTypeEnum.InnerJoin:
-                        Add(sql, " INNER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
+                        Add(sql, " INNER JOIN ", GetName(block[1]), " ON ", GetFullName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryTypeEnum.LeftOuterJoin:
-                        Add(sql, " LEFT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
+                        Add(sql, " LEFT OUTER JOIN ", GetName(block[1]), " ON ", GetFullName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryTypeEnum.RightOuterJoin:
-                        Add(sql, " RIGHT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
+                        Add(sql, " RIGHT OUTER JOIN ", GetName(block[1]), " ON ", GetFullName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryTypeEnum.FullOuterJoin:
-                        Add(sql, " FULL OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
-                        break;
-
-                    case DBQueryTypeEnum.InnerJoinAs:
-                        Add(sql, " INNER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
-                        break;
-
-                    case DBQueryTypeEnum.LeftOuterJoinAs:
-                        Add(sql, " LEFT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
-                        break;
-
-                    case DBQueryTypeEnum.RightOuterJoinAs:
-                        Add(sql, " RIGHT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
-                        break;
-
-                    case DBQueryTypeEnum.FullOuterJoinAs:
-                        Add(sql, " FULL OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
+                        Add(sql, " FULL OUTER JOIN ", GetName(block[1]), " ON ", GetFullName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryTypeEnum.InnerJoin_type:
-                        //!!!
+                    case DBQueryTypeEnum.LeftOuterJoin_type:
+                    case DBQueryTypeEnum.RightOuterJoin_type:
+                    case DBQueryTypeEnum.FullOuterJoin_type:
+                        var foreignKey = DBInternal.GetForeignKey((Type)block[1], (Type)block[2]);
+                        if (foreignKey == null)
+                        {
+                            throw DBInternal.ForeignKeyException();
+                        }
+                        var split = foreignKey[1].Split('.');
+                        switch (queryType)
+                        {
+                            case DBQueryTypeEnum.InnerJoin_type:
+                                Add(sql, " INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                            case DBQueryTypeEnum.LeftOuterJoin_type:
+                                Add(sql, " LEFT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                            case DBQueryTypeEnum.RightOuterJoin_type:
+                                Add(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                            case DBQueryTypeEnum.FullOuterJoin_type:
+                                Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                        }
                         break;
+
+
+
+
                 }
             }
         }
@@ -515,7 +523,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryTypeEnum.WhereLike:
                             #region
-                            Add(sql,  GetFullName(block[1]), " LIKE \'", block[2], '\'');
+                            Add(sql, GetFullName(block[1]), " LIKE \'", block[2], '\'');
                             break;
                         #endregion
                         case DBQueryTypeEnum.WhereLikeUpper:
@@ -527,7 +535,7 @@ namespace MyLibrary.DataBase
                             #region
                             Add(sql, GetFullName(block[1]), " IN (");
 
-                            var innerQuery = CompileQuery((DBQuery)block[2], cQuery.Parameters.Count); //!!! кол-во параметров
+                            var innerQuery = CompileQuery((DBQuery)block[2], cQuery.Parameters.Count);
                             Add(sql, innerQuery.CommandText);
                             cQuery.Parameters.AddRange(innerQuery.Parameters);
 
@@ -599,61 +607,40 @@ namespace MyLibrary.DataBase
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
-                    var args = (string[])block[1];
-                    switch ((DBQueryTypeEnum)block[0])
+                    var queryType = (DBQueryTypeEnum)block[0];
+                    switch (queryType)
                     {
                         case DBQueryTypeEnum.OrderBy:
-                            #region
-                            for (int j = 0; j < args.Length; j++)
-                            {
-                                if (index > 0)
-                                {
-                                    Add(sql, ',');
-                                }
-                                Add(sql, GetFullName(args[j]));
-                                index++;
-                            }
-                            break;
-                        #endregion
                         case DBQueryTypeEnum.OrderByDesc:
-                            #region
-                            for (int j = 0; j < args.Length; j++)
-                            {
-                                if (index > 0)
-                                {
-                                    Add(sql, ',');
-                                }
-                                Add(sql, GetFullName(args[j]), " DESC");
-                                index++;
-                            }
-                            break;
-                        #endregion
                         case DBQueryTypeEnum.OrderByUpper:
-                            #region
-                            for (int j = 0; j < args.Length; j++)
-                            {
-                                if (index > 0)
-                                {
-                                    Add(sql, ',');
-                                }
-                                Add(sql, "UPPER(", GetFullName(args[j]), ")");
-                                index++;
-                            }
-                            break;
-                        #endregion
                         case DBQueryTypeEnum.OrderByUpperDesc:
                             #region
+                            var args = (string[])block[1];
                             for (int j = 0; j < args.Length; j++)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "UPPER(", GetFullName(block[1]), ") DESC");
+                                switch (queryType)
+                                {
+                                    case DBQueryTypeEnum.OrderBy:
+                                        Add(sql, GetFullName(args[j])); break;
+                                    case DBQueryTypeEnum.OrderByDesc:
+                                        Add(sql, GetFullName(args[j]), " DESC"); break;
+                                    case DBQueryTypeEnum.OrderByUpper:
+                                        Add(sql, "UPPER(", GetFullName(args[j]), ")"); break;
+                                    case DBQueryTypeEnum.OrderByUpperDesc:
+                                        Add(sql, "UPPER(", GetFullName(block[1]), ") DESC"); break;
+                                }
+
                                 index++;
                             }
                             break;
-                            #endregion
+                        #endregion
+
+                        case DBQueryTypeEnum.OrderBy_expression:
+                            Add(sql, ParseExpressionList((Expression)block[1], null).Sql); break;
                     }
                 }
             }
@@ -924,7 +911,7 @@ namespace MyLibrary.DataBase
 
             return result;
         }
-        private ParseExpressionResult ParseSelectExpression(Expression expression, DBCompiledQuery cQuery)
+        private ParseExpressionResult ParseExpressionList(Expression expression, DBCompiledQuery cQuery)
         {
             var result = new ParseExpressionResult();
 
@@ -946,6 +933,7 @@ namespace MyLibrary.DataBase
 
             return result;
         }
+
         private ParseExpressionResult ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
             var result = new ParseExpressionResult();
@@ -1131,6 +1119,9 @@ namespace MyLibrary.DataBase
 
                 case nameof(DBFunction.As):
                     Add(result.Sql, args[0], " AS ", OpenBlock, (expression.Arguments[1] as ConstantExpression).Value, CloseBlock); break;
+
+                case nameof(DBFunction.Desc):
+                    Add(result.Sql, args[0], " DESC"); break;
             }
 
             return result;

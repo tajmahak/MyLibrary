@@ -39,7 +39,7 @@ namespace MyLibrary.DataBase
 
         public DBQueryCommandTypeEnum QueryCommandType { get; private set; }
         public DBTable Table { get; private set; }
-        public bool IsView { get; private set; }
+        public bool IsView { get; protected set; }
         internal List<object[]> Structure { get; private set; }
 
         #region Построители SQL
@@ -241,55 +241,32 @@ namespace MyLibrary.DataBase
             return this;
         }
 
-        public DBQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
+        public DBQuery InnerJoin<T1, T2>()
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
         {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoinAs, alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin_type, typeof(T1), typeof(T2) });
             return this;
         }
-        public DBQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public DBQuery LeftOuterJoin<T1, T2>()
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
         {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoin_type, typeof(T1), typeof(T2) });
             return this;
         }
-        public DBQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public DBQuery RightOuterJoin<T1, T2>()
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
         {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoin_type, typeof(T1), typeof(T2) });
             return this;
         }
-        public DBQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public DBQuery FullOuterJoin<T1, T2>()
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
         {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName });
-            return this;
-        }
-
-        public DBQuery InnerJoin<T2>()
-        {
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin_type, typeof(T2) });
+            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoin_type, typeof(T1), typeof(T2) });
             return this;
         }
 
@@ -478,6 +455,32 @@ namespace MyLibrary.DataBase
             return this;
         }
 
+        public DBQuery OrderBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery OrderBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery OrderBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
+            return this;
+        }
+        public DBQuery OrderBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
+            where T1 : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
+            return this;
+        }
+
         #endregion
     }
 
@@ -530,11 +533,49 @@ namespace MyLibrary.DataBase
             return this;
         }
 
+        public DBQuery<T> InnerJoin<T2>() where T2 : DBOrmTableBase
+        {
+            InnerJoin<T, T2>();
+            return this;
+        }
+        public DBQuery<T> LeftOuterJoin<T2>() where T2 : DBOrmTableBase
+        {
+            LeftOuterJoin<T, T2>();
+            return this;
+        }
+        public DBQuery<T> RightOuterJoin<T2>() where T2 : DBOrmTableBase
+        {
+            RightOuterJoin<T, T2>();
+            return this;
+        }
+        public DBQuery<T> FullOuterJoin<T2>() where T2 : DBOrmTableBase
+        {
+            FullOuterJoin<T, T2>();
+            return this;
+        }
 
-        //!!!
-        //JOIN
-        // Order By Desc()
-
-
+        public DBQuery<T> OrderBy(Expression<Func<T, object>> expression)
+        {
+            OrderBy<T>(expression);
+            return this;
+        }
+        public DBQuery<T> OrderBy(Expression<Func<T, object[]>> expression)
+        {
+            base.OrderBy<T>(expression);
+            return this;
+        }
+        public DBQuery<T> OrderBy<T2>(Expression<Func<T, T2, object[]>> expression)
+            where T2 : DBOrmTableBase
+        {
+            base.OrderBy<T, T2>(expression);
+            return this;
+        }
+        public DBQuery<T> OrderBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            base.OrderBy<T, T2, T3>(expression);
+            return this;
+        }
     }
 }

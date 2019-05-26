@@ -18,14 +18,19 @@
         First,
         Skip,
         Union,
+
         InnerJoin,
         LeftOuterJoin,
         RightOuterJoin,
         FullOuterJoin,
-        InnerJoinAs,
-        LeftOuterJoinAs,
-        RightOuterJoinAs,
-        FullOuterJoinAs,
+
+        InnerJoin_type,
+        LeftOuterJoin_type,
+        RightOuterJoin_type,
+        FullOuterJoin_type,
+
+
+
         Where,
         WhereBetween,
         WhereUpper,
@@ -42,7 +47,7 @@
         GroupBy,
         Select_expression,
         Where_expression,
-        InnerJoin_type,
         Sql,
+        OrderBy_expression,
     }
 }

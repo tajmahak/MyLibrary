@@ -35,6 +35,42 @@ namespace MyLibrary.DataBase
             var attr = (DBOrmTableAttribute)attrArray[0];
             return attr.TableName;
         }
+        public static string[] GetForeignKey(Type type1, Type type2)
+        {
+            var table = GetTableNameFromAttribute(type2);
+            foreach (var property in type1.GetProperties())
+            {
+                foreach (DBOrmColumnAttribute attribute in property.GetCustomAttributes(typeof(DBOrmColumnAttribute), false))
+                {
+                    if (attribute.ForeignKey != null)
+                    {
+                        var split = attribute.ForeignKey.Split('.');
+                        if (split[0] == table)
+                        {
+                            return new string[] { attribute.ColumnName, attribute.ForeignKey };
+                        }
+                    }
+                }
+            }
+
+            table = GetTableNameFromAttribute(type1);
+            foreach (var property in type2.GetProperties())
+            {
+                foreach (DBOrmColumnAttribute attribute in property.GetCustomAttributes(typeof(DBOrmColumnAttribute), false))
+                {
+                    if (attribute.ForeignKey != null)
+                    {
+                        var split = attribute.ForeignKey.Split('.');
+                        if (split[0] == table)
+                        {
+                            return new string[] { attribute.ForeignKey, attribute.ColumnName };
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
 
         public static Exception ArgumentNullException(string argumentName)
         {
@@ -134,6 +170,10 @@ namespace MyLibrary.DataBase
         public static Exception DBFunctionException()
         {
             return new Exception("Функции класса " + nameof(DBFunction) + " не могут быть вызваны напрямую.");
+        }
+        public static Exception ForeignKeyException()
+        {
+            return new Exception("Отсутствует внешний ключ");
         }
     }
 }
