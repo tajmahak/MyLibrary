@@ -10,5 +10,9 @@
             get => Args[index];
             set => Args[index] = value;
         }
+        public int Length
+        {
+            get => Args.Length;
+        }
     }
 }

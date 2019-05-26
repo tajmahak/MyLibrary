@@ -45,7 +45,7 @@ namespace MyLibrary.DataBase
         {
         }
 
-        #region Построители SQL
+        #region Строковые методы
 
         public TQuery Insert()
         {
@@ -198,7 +198,6 @@ namespace MyLibrary.DataBase
             AddItem(DBQueryStructureTypeEnum.Skip, count);
             return This;
         }
-
         public TQuery Union(DBQuery query, DBFunction.OptionEnum? operation = null)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
@@ -241,35 +240,6 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.FullOuterJoin, joinColumnName, columnName);
-            return This;
-        }
-
-        public TQuery InnerJoin<T1, T2>()
-            where T1 : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            AddItem(DBQueryStructureTypeEnum.InnerJoin_type, typeof(T1), typeof(T2));
-            return This;
-        }
-        public TQuery LeftOuterJoin<T1, T2>()
-            where T1 : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            AddItem(DBQueryStructureTypeEnum.LeftOuterJoin_type, typeof(T1), typeof(T2));
-            return This;
-        }
-        public TQuery RightOuterJoin<T1, T2>()
-            where T1 : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            AddItem(DBQueryStructureTypeEnum.RightOuterJoin_type, typeof(T1), typeof(T2));
-            return This;
-        }
-        public TQuery FullOuterJoin<T1, T2>()
-            where T1 : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            AddItem(DBQueryStructureTypeEnum.FullOuterJoin_type, typeof(T1), typeof(T2));
             return This;
         }
 
@@ -452,7 +422,7 @@ namespace MyLibrary.DataBase
         }
 
         #endregion
-        #region Построители дерева выражений
+        #region Типизированные методы, дерево выражений
 
         public TQuery Select(Expression<Func<object>> expression)
         {
@@ -460,20 +430,109 @@ namespace MyLibrary.DataBase
             AddItem(DBQueryStructureTypeEnum.Select_expression, expression.Body);
             return This;
         }
-        public TQuery Select<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery Select<T>(Expression<Func<T, object>> expression)
+            where T : DBOrmTableBase
         {
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.Select_expression, expression.Body);
             return This;
         }
-        public TQuery Select<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery Select<T>(Expression<Func<T, object[]>> expression)
+            where T : DBOrmTableBase
         {
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.Select_expression, expression.Body);
             return This;
         }
 
-        public TQuery Where<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
+        public TQuery InnerJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.InnerJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery LeftOuterJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.LeftOuterJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery RightOuterJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.RightOuterJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery FullOuterJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.FullOuterJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+
+        public TQuery InnerJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.InnerJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery LeftOuterJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.LeftOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery RightOuterJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.RightOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery FullOuterJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddItem(DBQueryStructureTypeEnum.FullOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+
+        public TQuery Where<T>(Expression<Func<T, bool>> expression)
+            where T : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.Where_expression, expression.Body);
             return This;
@@ -503,25 +562,27 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery OrderBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery OrderBy<T>(Expression<Func<T, object>> expression)
+            where T : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.OrderBy_expression, expression.Body);
             return This;
         }
-        public TQuery OrderBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery OrderBy<T>(Expression<Func<T, object[]>> expression)
+            where T : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.OrderBy_expression, expression.Body);
             return This;
         }
-        public TQuery OrderBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
-            where T1 : DBOrmTableBase
+        public TQuery OrderBy<T, T2>(Expression<Func<T, T2, object[]>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.OrderBy_expression, expression.Body);
             return This;
         }
-        public TQuery OrderBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
-            where T1 : DBOrmTableBase
+        public TQuery OrderBy<T, T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
@@ -529,25 +590,27 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery GroupBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery GroupBy<T>(Expression<Func<T, object>> expression)
+            where T : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.GroupBy_expression, expression.Body);
             return This;
         }
-        public TQuery GroupBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery GroupBy<T>(Expression<Func<T, object[]>> expression)
+            where T : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.GroupBy_expression, expression.Body);
             return This;
         }
-        public TQuery GroupBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
-            where T1 : DBOrmTableBase
+        public TQuery GroupBy<T, T2>(Expression<Func<T, T2, object[]>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             AddItem(DBQueryStructureTypeEnum.GroupBy_expression, expression.Body);
             return This;
         }
-        public TQuery GroupBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
-            where T1 : DBOrmTableBase
+        public TQuery GroupBy<T, T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
@@ -636,6 +699,27 @@ namespace MyLibrary.DataBase
         public DBQuery<T> FullOuterJoin<T2>() where T2 : DBOrmTableBase
         {
             FullOuterJoin<T, T2>();
+            return this;
+        }
+
+        public DBQuery<T> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        {
+            InnerJoinAs<T, T2>(alias);
+            return this;
+        }
+        public DBQuery<T> LeftOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        {
+            LeftOuterJoinAs<T, T2>(alias);
+            return this;
+        }
+        public DBQuery<T> RightOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        {
+            RightOuterJoinAs<T, T2>(alias);
+            return this;
+        }
+        public DBQuery<T> FullOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        {
+            FullOuterJoinAs<T, T2>(alias);
             return this;
         }
 

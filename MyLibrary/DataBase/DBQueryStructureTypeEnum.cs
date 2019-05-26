@@ -33,6 +33,10 @@
         LeftOuterJoin_type,
         RightOuterJoin_type,
         FullOuterJoin_type,
+        InnerJoinAs_type,
+        LeftOuterJoinAs_type,
+        RightOuterJoinAs_type,
+        FullOuterJoinAs_type,
 
         Where,
         WhereBetween,

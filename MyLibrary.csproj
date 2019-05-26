@@ -86,7 +86,7 @@
     <Compile Include="MyLibrary\DataBase\DBCompiledQueryParameter.cs" />
     <Compile Include="MyLibrary\DataBase\DBFunction.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureBlock.cs" />
-    <Compile Include="MyLibrary\DataBase\DBQueryTypeEnum.cs" />
+    <Compile Include="MyLibrary\DataBase\DBQueryStructureTypeEnum.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
@@ -121,7 +121,7 @@
     <Compile Include="MyLibrary\DataBase\DBReader.cs" />
     <Compile Include="MyLibrary\DataBase\DBRow.cs" />
     <Compile Include="MyLibrary\DataBase\DBTable.cs" />
-    <Compile Include="MyLibrary\DataBase\DBQueryCommandTypeEnum.cs" />
+    <Compile Include="MyLibrary\DataBase\DBQueryTypeEnum.cs" />
     <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableAttribute.cs" />

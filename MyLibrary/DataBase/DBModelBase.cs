@@ -174,8 +174,7 @@ namespace MyLibrary.DataBase
                     {
                         case DBQueryStructureTypeEnum.Select:
                             #region
-                            var args = (string[])block[0];
-                            if (args.Length == 0)
+                            if (block.Length == 0)
                             {
                                 if (index > 0)
                                 {
@@ -186,14 +185,14 @@ namespace MyLibrary.DataBase
                             }
                             else
                             {
-                                for (int j = 0; j < args.Length; j++)
+                                for (int j = 0; j < block.Length; j++)
                                 {
                                     if (index > 0)
                                     {
                                         Add(sql, ',');
                                     }
 
-                                    var paramCol = args[j];
+                                    var paramCol = (string)block[j];
                                     if (paramCol.Contains("."))
                                     {
                                         // Столбец
@@ -221,92 +220,85 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureTypeEnum.SelectSum:
                             #region
-                            args = (string[])block[0];
-                            for (int j = 0; j < args.Length; j++)
+                            for (int j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "SUM(", GetFullName(args[j]), ')');
+                                Add(sql, "SUM(", GetFullName(block[j]), ')');
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectSumAs:
                             #region
-                            args = (string[])block[0];
-                            for (int i = 0; i < args.Length; i += 2)
+                            for (int i = 0; i < block.Length; i += 2)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "SUM(", GetFullName(args[i]), ") AS ", GetName(args[i + 1]));
+                                Add(sql, "SUM(", GetFullName(block[i]), ") AS ", GetName(block[i + 1]));
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectMax:
                             #region
-                            args = (string[])block[0];
-                            for (int j = 0; j < args.Length; j++)
+                            for (int j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "MAX(", GetFullName(args[j]), ')');
+                                Add(sql, "MAX(", GetFullName(block[j]), ')');
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectMaxAs:
                             #region
-                            args = (string[])block[0];
-                            for (int j = 0; j < args.Length; j += 2)
+                            for (int j = 0; j < block.Length; j += 2)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "MAX(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
+                                Add(sql, "MAX(", GetFullName(block[j]), ") AS ", GetName(block[j + 1]));
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectMin:
                             #region
-                            args = (string[])block[0];
-                            for (int j = 0; j < args.Length; j++)
+                            for (int j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "MIN(", GetFullName(args[j]), ')');
+                                Add(sql, "MIN(", GetFullName(block[j]), ')');
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectMinAs:
                             #region
-                            args = (string[])block[0];
-                            for (int j = 0; j < args.Length; j += 2)
+                            for (int j = 0; j < block.Length; j += 2)
                             {
                                 if (index > 0)
                                 {
                                     Add(sql, ',');
                                 }
-                                Add(sql, "MIN(", GetFullName(args[j]), ") AS ", GetName(args[j + 1]));
+                                Add(sql, "MIN(", GetFullName(block[j]), ") AS ", GetName(block[j + 1]));
                                 index++;
                             }
                             break;
                         #endregion
                         case DBQueryStructureTypeEnum.SelectCount:
                             #region
-                            args = (string[])block[0];
-                            if (args.Length == 0)
+                            if (block.Length == 0)
                             {
                                 if (index > 0)
                                 {
@@ -317,13 +309,13 @@ namespace MyLibrary.DataBase
                             }
                             else
                             {
-                                for (int j = 0; j < args.Length; j++)
+                                for (int j = 0; j < block.Length; j++)
                                 {
                                     if (index > 0)
                                     {
                                         Add(sql, ',');
                                     }
-                                    Add(sql, "COUNT(", GetFullName(args[j]), ')');
+                                    Add(sql, "COUNT(", GetFullName(block[j]), ')');
                                     index++;
                                 }
                             }
@@ -437,6 +429,11 @@ namespace MyLibrary.DataBase
                     case DBQueryStructureTypeEnum.LeftOuterJoin_type:
                     case DBQueryStructureTypeEnum.RightOuterJoin_type:
                     case DBQueryStructureTypeEnum.FullOuterJoin_type:
+
+                    case DBQueryStructureTypeEnum.InnerJoinAs_type:
+                    case DBQueryStructureTypeEnum.LeftOuterJoinAs_type:
+                    case DBQueryStructureTypeEnum.RightOuterJoinAs_type:
+                    case DBQueryStructureTypeEnum.FullOuterJoinAs_type:
                         #region
                         var foreignKey = DBInternal.GetForeignKey((Type)block[0], (Type)block[1]);
                         if (foreignKey == null)
@@ -447,16 +444,35 @@ namespace MyLibrary.DataBase
                         switch (block.Type)
                         {
                             case DBQueryStructureTypeEnum.InnerJoin_type:
-                                Add(sql, " INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                                Add(sql, " INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                                break;
+
                             case DBQueryStructureTypeEnum.LeftOuterJoin_type:
-                                Add(sql, " LEFT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                                Add(sql, " LEFT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                                break;
+
                             case DBQueryStructureTypeEnum.RightOuterJoin_type:
-                                Add(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                                Add(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                                break;
+
                             case DBQueryStructureTypeEnum.FullOuterJoin_type:
-                                Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0])); break;
+                                Add(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                                break;
+
+
+                            case DBQueryStructureTypeEnum.InnerJoinAs_type:
+                                break;
+                            case DBQueryStructureTypeEnum.LeftOuterJoinAs_type:
+                                break;
+                            case DBQueryStructureTypeEnum.RightOuterJoinAs_type:
+                                break;
+                            case DBQueryStructureTypeEnum.FullOuterJoinAs_type:
+                                break;
                         }
                         break;
                         #endregion
+
+
                 }
             }
         }

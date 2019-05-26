@@ -42,7 +42,6 @@ namespace MyLibrary.DataBase
 
             DBQueryStructureBlock block;
             List<DBQueryStructureBlock> blockList;
-            string[] args;
             int index = 0;
 
             var sql = new StringBuilder();
@@ -124,14 +123,13 @@ namespace MyLibrary.DataBase
                     for (int i = 0; i < blockList.Count; i++)
                     {
                         block = blockList[i];
-                        args = (string[])block[1];
-                        for (int j = 0; j < args.Length; j++)
+                        for (int j = 0; j < block.Length; j++)
                         {
                             if (index > 0)
                             {
                                 Add(sql, ',');
                             }
-                            Add(sql, GetColumnName(args[j]));
+                            Add(sql, GetColumnName(block[j]));
                             index++;
                         }
                     }
@@ -159,14 +157,13 @@ namespace MyLibrary.DataBase
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     block = blockList[i];
-                    args = (string[])block[1];
-                    for (int j = 0; j < args.Length; j++)
+                    for (int j = 0; j < block.Length; j++)
                     {
                         if (index > 0)
                         {
                             Add(sql, ',');
                         }
-                        Add(sql, GetColumnName(args[j]));
+                        Add(sql, GetColumnName(block[j]));
                         index++;
                     }
                 }
