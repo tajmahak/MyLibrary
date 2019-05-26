@@ -75,7 +75,7 @@ namespace MyLibrary.DataBase
         /// Выполнение запроса <see cref="DBQuery"/>
         /// </summary>
         /// <param name="query"></param>
-        public void Execute(DBQuery query)
+        public void Execute(DBQueryBase query)
         {
             if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
             {
@@ -493,7 +493,7 @@ namespace MyLibrary.DataBase
 
         public DBReader<T> Select<T>(DBQuery query)
         {
-            if (query.QueryCommandType != DBQueryCommandTypeEnum.Select && query.QueryCommandType != DBQueryCommandTypeEnum.Sql)
+            if (query.QueryCommandType != DBQueryCommandTypeEnum.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }

@@ -9,7 +9,6 @@
         Skip,
         Distinct,
         Union,
-        Sql,
 
         Select,
         SelectAs,

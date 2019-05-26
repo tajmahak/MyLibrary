@@ -5,15 +5,13 @@ using System.Linq.Expressions;
 
 namespace MyLibrary.DataBase
 {
-    public class DBQuery
+    public abstract class DBQueryBase
     {
-        private DBQuery()
+        protected DBQueryBase(DBTable table)
         {
             Structure = new List<object[]>();
             QueryCommandType = DBQueryCommandTypeEnum.Select;
-        }
-        internal DBQuery(DBTable table) : this()
-        {
+
             if (table == null)
             {
                 throw DBInternal.ArgumentNullException(nameof(table));
@@ -25,252 +23,258 @@ namespace MyLibrary.DataBase
 
             Table = table;
         }
-        public DBQuery(string sql, params object[] @params) : this()
-        {
-            if (sql == null)
-            {
-                throw DBInternal.ArgumentNullException(nameof(sql));
-            }
 
-            QueryCommandType = DBQueryCommandTypeEnum.Sql;
-            IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.Sql, sql, @params });
-        }
-
-        public DBQueryCommandTypeEnum QueryCommandType { get; private set; }
-        public DBTable Table { get; private set; }
+        public DBQueryCommandTypeEnum QueryCommandType { get; protected set; }
         public bool IsView { get; protected set; }
-        internal List<object[]> Structure { get; private set; }
+        public DBTable Table { get; private set; }
+        protected internal List<object[]> Structure { get; private set; }
+        protected internal List<DBQueryStructureItem> Structure1 { get; private set; }
+
+        protected void AddItem(DBQueryTypeEnum type, params object[] args)
+        {
+            Structure1.Add(new DBQueryStructureItem()
+            {
+                Type = type,
+                Args = args,
+            });
+        }
+    }
+
+    public abstract class DBQueryBase<TQuery> : DBQueryBase
+    {
+        public DBQueryBase(DBTable table) : base(table)
+        {
+        }
 
         #region Построители SQL
 
-        public DBQuery Insert()
+        public TQuery Insert()
         {
             QueryCommandType = DBQueryCommandTypeEnum.Insert;
-            return this;
+            return This;
         }
-        public DBQuery Update()
+        public TQuery Update()
         {
             QueryCommandType = DBQueryCommandTypeEnum.Update;
-            return this;
+            return This;
         }
-        public DBQuery UpdateOrInsert()
+        public TQuery UpdateOrInsert()
         {
             QueryCommandType = DBQueryCommandTypeEnum.UpdateOrInsert;
-            return this;
+            return This;
         }
-        public DBQuery Delete()
+        public TQuery Delete()
         {
             QueryCommandType = DBQueryCommandTypeEnum.Delete;
-            return this;
+            return This;
         }
 
-        public DBQuery Set(string columnName, object value)
+        public TQuery Set(string columnName, object value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Insert && QueryCommandType != DBQueryCommandTypeEnum.Update && QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Set, columnName, value });
-            return this;
+            AddItem(DBQueryTypeEnum.Set, columnName, value);
+            return This;
         }
-        public DBQuery Matching(params string[] columns)
+        public TQuery Matching(params string[] columns)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Matching, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.Matching, columns);
+            return This;
         }
-        public DBQuery Returning(params string[] columns)
+        public TQuery Returning(params string[] columns)
         {
             if (QueryCommandType == DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Returning, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.Returning, columns);
+            return This;
         }
 
-        public DBQuery Select(params string[] columns)
+        public TQuery Select(params string[] columns)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.Select, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.Select, columns);
+            return This;
         }
-        public DBQuery SelectAs(string alias, string columnName)
+        public TQuery SelectAs(string alias, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectAs, alias, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectAs, alias, columnName);
+            return This;
         }
-        public DBQuery SelectSum(params string[] columns)
+        public TQuery SelectSum(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectSum, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectSum, columns);
+            return This;
         }
-        public DBQuery SelectSumAs(params string[] columns)
+        public TQuery SelectSumAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectSumAs, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectSumAs, columns);
+            return This;
         }
-        public DBQuery SelectMax(params string[] columns)
+        public TQuery SelectMax(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectMax, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectMax, columns);
+            return This;
         }
-        public DBQuery SelectMaxAs(params string[] columns)
+        public TQuery SelectMaxAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectMaxAs, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectMaxAs, columns);
+            return This;
         }
-        public DBQuery SelectMin(params string[] columns)
+        public TQuery SelectMin(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectMin, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectMin, columns);
+            return This;
         }
-        public DBQuery SelectMinAs(params string[] columns)
+        public TQuery SelectMinAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectMinAs, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectMinAs, columns);
+            return This;
         }
-        public DBQuery SelectCount(params string[] columns)
+        public TQuery SelectCount(params string[] columns)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.SelectCount, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.SelectCount, columns);
+            return This;
         }
 
-        public DBQuery Distinct()
+        public TQuery Distinct()
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Distinct });
-            return this;
+            AddItem(DBQueryTypeEnum.Distinct);
+            return This;
         }
-        public DBQuery First(int count)
+        public TQuery First(int count)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.First, count });
-            return this;
+            AddItem(DBQueryTypeEnum.First, count);
+            return This;
         }
-        public DBQuery First()
+        public TQuery First()
         {
             First(1);
-            return this;
+            return This;
         }
-        public DBQuery Skip(int count)
+        public TQuery Skip(int count)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Skip, count });
-            return this;
+            AddItem(DBQueryTypeEnum.Skip, count);
+            return This;
         }
 
-        public DBQuery Union(DBQuery query, DBFunction.OptionEnum? operation = null)
+        public TQuery Union(DBQuery query, DBFunction.OptionEnum? operation = null)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Union, query, operation });
-            return this;
+            AddItem(DBQueryTypeEnum.Union, query, operation);
+            return This;
         }
 
-        public DBQuery InnerJoin(string joinColumnName, string columnName)
+        public TQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.InnerJoin, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery LeftOuterJoin(string joinColumnName, string columnName)
+        public TQuery LeftOuterJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoin, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.LeftOuterJoin, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery RightOuterJoin(string joinColumnName, string columnName)
+        public TQuery RightOuterJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoin, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.RightOuterJoin, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery FullOuterJoin(string joinColumnName, string columnName)
+        public TQuery FullOuterJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoin, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.FullOuterJoin, joinColumnName, columnName);
+            return This;
         }
 
-        public DBQuery InnerJoin<T1, T2>()
+        public TQuery InnerJoin<T1, T2>()
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin_type, typeof(T1), typeof(T2) });
-            return this;
+            AddItem(DBQueryTypeEnum.InnerJoin_type, typeof(T1), typeof(T2));
+            return This;
         }
-        public DBQuery LeftOuterJoin<T1, T2>()
+        public TQuery LeftOuterJoin<T1, T2>()
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoin_type, typeof(T1), typeof(T2) });
-            return this;
+            AddItem(DBQueryTypeEnum.LeftOuterJoin_type, typeof(T1), typeof(T2));
+            return This;
         }
-        public DBQuery RightOuterJoin<T1, T2>()
+        public TQuery RightOuterJoin<T1, T2>()
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoin_type, typeof(T1), typeof(T2) });
-            return this;
+            AddItem(DBQueryTypeEnum.RightOuterJoin_type, typeof(T1), typeof(T2));
+            return This;
         }
-        public DBQuery FullOuterJoin<T1, T2>()
+        public TQuery FullOuterJoin<T1, T2>()
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoin_type, typeof(T1), typeof(T2) });
-            return this;
+            AddItem(DBQueryTypeEnum.FullOuterJoin_type, typeof(T1), typeof(T2));
+            return This;
         }
 
-        public DBQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -278,10 +282,10 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoinAs, alias, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.InnerJoinAs, alias, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -289,10 +293,10 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -300,10 +304,10 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName);
+            return This;
         }
-        public DBQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -311,256 +315,267 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName });
-            return this;
+            AddItem(DBQueryTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName);
+            return This;
         }
 
-        public DBQuery Where(string column, object value)
+        public TQuery Where(string column, object value)
         {
             Where(column, "=", value);
-            return this;
+            return This;
         }
-        public DBQuery Where(string column1, object value1, string column2, object value2)
+        public TQuery Where(string column1, object value1, string column2, object value2)
         {
             Where(column1, "=", value1);
             Where(column2, "=", value2);
-            return this;
+            return This;
         }
-        public DBQuery Where(string column1, object value1, string column2, object value2, string column3, object value3)
+        public TQuery Where(string column1, object value1, string column2, object value2, string column3, object value3)
         {
             Where(column1, "=", value1);
             Where(column2, "=", value2);
             Where(column3, "=", value3);
-            return this;
+            return This;
         }
-        public DBQuery Where(string columnName, string equalOperator, object value)
+        public TQuery Where(string columnName, string equalOperator, object value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(equalOperator)) throw DBInternal.ArgumentNullException(nameof(equalOperator));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.Where, columnName, equalOperator, value });
-            return this;
+            AddItem(DBQueryTypeEnum.Where, columnName, equalOperator, value);
+            return This;
         }
-        public DBQuery WhereBetween(string columnName, object value1, object value2)
+        public TQuery WhereBetween(string columnName, object value1, object value2)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereBetween, columnName, value1, value2 });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereBetween, columnName, value1, value2);
+            return This;
         }
-        public DBQuery WhereUpper(string columnName, string value)
-        {
-            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
-
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereUpper, columnName, value });
-            return this;
-        }
-        public DBQuery WhereContaining(string columnName, string value)
+        public TQuery WhereUpper(string columnName, string value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereContaining, columnName, value });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereUpper, columnName, value);
+            return This;
         }
-        public DBQuery WhereContainingUpper(string columnName, string value)
+        public TQuery WhereContaining(string columnName, string value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereContainingUpper, columnName, value });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereContaining, columnName, value);
+            return This;
         }
-        public DBQuery WhereLike(string columnName, string value)
+        public TQuery WhereContainingUpper(string columnName, string value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereLike, columnName, value });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereContainingUpper, columnName, value);
+            return This;
         }
-        public DBQuery WhereLikeUpper(string columnName, string value)
+        public TQuery WhereLike(string columnName, string value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereLikeUpper, columnName, value });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereLike, columnName, value);
+            return This;
         }
-        public DBQuery WhereIn(string columnName, DBQuery query)
+        public TQuery WhereLikeUpper(string columnName, string value)
+        {
+            if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
+            if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
+
+            AddItem(DBQueryTypeEnum.WhereLikeUpper, columnName, value);
+            return This;
+        }
+        public TQuery WhereIn(string columnName, DBQuery query)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereIn_command, columnName, query });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereIn_command, columnName, query);
+            return This;
         }
-        public DBQuery WhereIn(string columnName, params object[] values)
+        public TQuery WhereIn(string columnName, params object[] values)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (values == null || values.Length == 0) throw DBInternal.ArgumentNullException(nameof(values));
 
-            Structure.Add(new object[] { DBQueryTypeEnum.WhereIn_values, columnName, values });
-            return this;
+            AddItem(DBQueryTypeEnum.WhereIn_values, columnName, values);
+            return This;
         }
 
-        public DBQuery OrderBy(params string[] columns)
+        public TQuery OrderBy(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderBy, columns);
+            return This;
         }
-        public DBQuery OrderByDesc(params string[] columns)
+        public TQuery OrderByDesc(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderByDesc, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderByDesc, columns);
+            return This;
         }
-        public DBQuery OrderByUpper(params string[] columns)
+        public TQuery OrderByUpper(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderByUpper, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderByUpper, columns);
+            return This;
         }
-        public DBQuery OrderByUpperDesc(params string[] columns)
+        public TQuery OrderByUpperDesc(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderByUpperDesc, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderByUpperDesc, columns);
+            return This;
         }
 
-        public DBQuery GroupBy(params string[] columns)
+        public TQuery GroupBy(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy, columns });
-            return this;
+            AddItem(DBQueryTypeEnum.GroupBy, columns);
+            return This;
         }
 
         #endregion
         #region Построители дерева выражений
 
-        public DBQuery Select(Expression<Func<object>> expression)
+        public TQuery Select(Expression<Func<object>> expression)
         {
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Select_expression, expression.Body);
+            return This;
         }
-        public DBQuery Select<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery Select<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
         {
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Select_expression, expression.Body);
+            return This;
         }
-        public DBQuery Select<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery Select<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
         {
             IsView = true;
-            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Select_expression, expression.Body);
+            return This;
         }
 
-        public DBQuery Where<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
+        public TQuery Where<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Where_expression, expression.Body);
+            return This;
         }
-        public DBQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
+        public TQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Where_expression, expression.Body);
+            return This;
         }
-        public DBQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
+        public TQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Where_expression, expression.Body);
+            return This;
         }
-        public DBQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
+        public TQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.Where_expression, expression.Body);
+            return This;
         }
 
-        public DBQuery OrderBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery OrderBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery OrderBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery OrderBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery OrderBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
+        public TQuery OrderBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery OrderBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
+        public TQuery OrderBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.OrderBy_expression, expression.Body);
+            return This;
         }
 
-        public DBQuery GroupBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
+        public TQuery GroupBy<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.GroupBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery GroupBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
+        public TQuery GroupBy<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.GroupBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery GroupBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
+        public TQuery GroupBy<T1, T2>(Expression<Func<T1, T2, object[]>> expression)
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.GroupBy_expression, expression.Body);
+            return This;
         }
-        public DBQuery GroupBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
+        public TQuery GroupBy<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> expression)
             where T1 : DBOrmTableBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy_expression, expression.Body });
-            return this;
+            AddItem(DBQueryTypeEnum.GroupBy_expression, expression.Body);
+            return This;
         }
 
         #endregion
+
+        private TQuery This
+        {
+            get => (TQuery)((object)this);
+        }
     }
 
-    public class DBQuery<T> : DBQuery where T : DBOrmTableBase
+    public class DBQuery : DBQueryBase<DBQuery>
     {
         public DBQuery(DBTable table) : base(table)
         {
         }
+    }
 
+    public class DBQuery<T> : DBQueryBase<DBQuery<T>> where T : DBOrmTableBase
+    {
+        public DBQuery(DBTable table) : base(table)
+        {
+        }
         public new DBQuery<T> Select(Expression<Func<object>> expression)
         {
             base.Select(expression);
@@ -672,5 +687,11 @@ namespace MyLibrary.DataBase
             GroupBy<T, T2, T3>(expression);
             return this;
         }
+    }
+
+    public class DBQueryStructureItem
+    {
+        public DBQueryTypeEnum Type { get; set; }
+        public object[] Args { get; set; }
     }
 }

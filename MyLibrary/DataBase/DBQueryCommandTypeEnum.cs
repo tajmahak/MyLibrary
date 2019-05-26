@@ -2,7 +2,6 @@
 {
     public enum DBQueryCommandTypeEnum
     {
-        Sql,
         Select,
         Insert,
         Update,

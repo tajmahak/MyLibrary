@@ -35,7 +35,7 @@ namespace MyLibrary.DataBase
         {
             ((SQLiteCommand)command).Parameters.AddWithValue(name, value);
         }
-        public override DBCompiledQuery CompileQuery(DBQuery query, int nextParameterNumber = 0)
+        public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
         {
             var cQuery = new DBCompiledQuery()
             {
@@ -59,10 +59,6 @@ namespace MyLibrary.DataBase
             else if (query.QueryCommandType == DBQueryCommandTypeEnum.Delete)
             {
                 PrepareDeleteCommand(sql, query);
-            }
-            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Sql)
-            {
-                PrepareSqlCommand(sql, query, cQuery);
             }
 
             PrepareWhereCommand(sql, query, cQuery);

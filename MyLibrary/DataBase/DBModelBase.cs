@@ -38,9 +38,9 @@ namespace MyLibrary.DataBase
         public abstract DbCommand CreateCommand(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
-        public abstract DBCompiledQuery CompileQuery(DBQuery query, int nextParameterNumber = 0);
+        public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
 
-        public DbCommand CompileCommand(DbConnection connection, DBQuery query)
+        public DbCommand CompileCommand(DbConnection connection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
             var command = CreateCommand(connection);
@@ -156,7 +156,7 @@ namespace MyLibrary.DataBase
             return string.Concat(OpenBlock, split[1], CloseBlock);
         }
 
-        protected void PrepareSelectCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
+        protected void PrepareSelectCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = FindBlockList(query, x => x.StartsWith("Select"));
             if (blockList.Count == 0)
@@ -339,7 +339,7 @@ namespace MyLibrary.DataBase
                 Add(sql, " FROM ", GetName(query.Table.Name));
             }
         }
-        protected void PrepareInsertCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
+        protected void PrepareInsertCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             Add(sql, "INSERT INTO ", GetName(query.Table.Name));
 
@@ -369,7 +369,7 @@ namespace MyLibrary.DataBase
             }
             Add(sql, ')');
         }
-        protected void PrepareUpdateCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
+        protected void PrepareUpdateCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             Add(sql, "UPDATE ", GetName(query.Table.Name), " SET ");
 
@@ -388,11 +388,11 @@ namespace MyLibrary.DataBase
                 Add(sql, GetFullName(blockList[i][1]), '=', AddParameter(blockList[i][2], cQuery));
             }
         }
-        protected void PrepareDeleteCommand(StringBuilder sql, DBQuery query)
+        protected void PrepareDeleteCommand(StringBuilder sql, DBQueryBase query)
         {
             Add(sql, "DELETE FROM ", GetName(query.Table.Name));
         }
-        protected void PrepareJoinCommand(StringBuilder sql, DBQuery query)
+        protected void PrepareJoinCommand(StringBuilder sql, DBQueryBase query)
         {
             foreach (var block in query.Structure)
             {
@@ -456,21 +456,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareSqlCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
-        {
-            var block = FindBlock(query, DBQueryTypeEnum.Sql);
-            Add(sql, block[1]);
-            var index = 0;
-            foreach (var param in (object[])block[2])
-            {
-                cQuery.Parameters.Add(new DBCompiledQueryParameter()
-                {
-                    Name = string.Concat(ParameterPrefix, 'p', index++),
-                    Value = param,
-                });
-            }
-        }
-        protected void PrepareWhereCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
+        protected void PrepareWhereCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = FindBlockList(query, x => x.StartsWith("Where"));
 
@@ -586,7 +572,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareGroupByCommand(StringBuilder sql, DBQuery query)
+        protected void PrepareGroupByCommand(StringBuilder sql, DBQueryBase query)
         {
             var blockList = FindBlockList(query, x => x.StartsWith("GroupBy"));
             if (blockList.Count > 0)
@@ -621,7 +607,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareOrderByCommand(StringBuilder sql, DBQuery query)
+        protected void PrepareOrderByCommand(StringBuilder sql, DBQueryBase query)
         {
             var blockList = FindBlockList(query, x => x.StartsWith("OrderBy"));
             if (blockList.Count > 0)
@@ -672,24 +658,24 @@ namespace MyLibrary.DataBase
         }
         //!!! реализовать Union команду
 
-        protected List<object[]> FindBlockList(DBQuery query, Predicate<DBQueryTypeEnum> predicate)
+        protected List<object[]> FindBlockList(DBQueryBase query, Predicate<DBQueryTypeEnum> predicate)
         {
             return query.Structure.FindAll(block => predicate((DBQueryTypeEnum)block[0]));
         }
-        protected List<object[]> FindBlockList(DBQuery query, DBQueryTypeEnum type)
+        protected List<object[]> FindBlockList(DBQueryBase query, DBQueryTypeEnum type)
         {
             return FindBlockList(query, x => x == type);
         }
-        protected List<object[]> FindBlockList(DBQuery query, Predicate<string> predicate)
+        protected List<object[]> FindBlockList(DBQueryBase query, Predicate<string> predicate)
         {
             return query.Structure.FindAll(block => predicate(block[0].ToString()));
         }
-        protected object[] FindBlock(DBQuery query, Predicate<DBQueryTypeEnum> type)
+        protected object[] FindBlock(DBQueryBase query, Predicate<DBQueryTypeEnum> type)
         {
             return query.Structure.Find(block =>
                 type((DBQueryTypeEnum)block[0]));
         }
-        protected object[] FindBlock(DBQuery query, DBQueryTypeEnum type)
+        protected object[] FindBlock(DBQueryBase query, DBQueryTypeEnum type)
         {
             return FindBlock(query, x => x == type);
         }
