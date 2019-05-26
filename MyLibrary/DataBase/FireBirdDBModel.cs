@@ -40,8 +40,8 @@ namespace MyLibrary.DataBase
                 NextParameterNumber = nextParameterNumber,
             };
 
-            object[] block;
-            List<object[]> blockList;
+            DBQueryStructureBlock block;
+            List<DBQueryStructureBlock> blockList;
             string[] args;
             int index = 0;
 

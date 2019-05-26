@@ -667,23 +667,23 @@ namespace MyLibrary.DataBase
 
         //!!! реализовать Union команду
 
-        protected List<DBQueryStructureItem> FindBlockList(DBQueryBase query, Predicate<DBQueryTypeEnum> predicate)
+        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, Predicate<DBQueryTypeEnum> predicate)
         {
             return query.Structure.FindAll(x => predicate(x.Type));
         }
-        protected List<DBQueryStructureItem> FindBlockList(DBQueryBase query, DBQueryTypeEnum type)
+        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, DBQueryTypeEnum type)
         {
             return FindBlockList(query, x => x == type);
         }
-        protected List<DBQueryStructureItem> FindBlockList(DBQueryBase query, Predicate<string> predicate)
+        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, Predicate<string> predicate)
         {
             return query.Structure.FindAll(x => predicate(x.Type.ToString()));
         }
-        protected DBQueryStructureItem FindBlock(DBQueryBase query, Predicate<DBQueryTypeEnum> type)
+        protected DBQueryStructureBlock FindBlock(DBQueryBase query, Predicate<DBQueryTypeEnum> type)
         {
             return query.Structure.Find(x => type(x.Type));
         }
-        protected DBQueryStructureItem FindBlock(DBQueryBase query, DBQueryTypeEnum type)
+        protected DBQueryStructureBlock FindBlock(DBQueryBase query, DBQueryTypeEnum type)
         {
             return FindBlock(query, x => x == type);
         }

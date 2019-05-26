@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
     {
         protected DBQueryBase(DBTable table)
         {
-            Structure = new List<object[]>();
+            Structure = new List<DBQueryStructureBlock>();
             QueryCommandType = DBQueryCommandTypeEnum.Select;
 
             if (table == null)
@@ -27,11 +27,11 @@ namespace MyLibrary.DataBase
         public DBQueryCommandTypeEnum QueryCommandType { get; protected set; }
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
-        protected internal List<DBQueryStructureItem> Structure { get; private set; }
+        protected internal List<DBQueryStructureBlock> Structure { get; private set; }
 
         protected void AddItem(DBQueryTypeEnum type, params object[] args)
         {
-            Structure.Add(new DBQueryStructureItem()
+            Structure.Add(new DBQueryStructureBlock()
             {
                 Type = type,
                 Args = args,
@@ -685,18 +685,6 @@ namespace MyLibrary.DataBase
         {
             GroupBy<T, T2, T3>(expression);
             return this;
-        }
-    }
-
-    public class DBQueryStructureItem
-    {
-        public DBQueryTypeEnum Type { get; set; }
-        public object[] Args { get; set; }
-
-        public object this[int index]
-        {
-            get => Args[index];
-            set => Args[index] = value;
         }
     }
 }
