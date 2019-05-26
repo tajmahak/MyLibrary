@@ -10,7 +10,7 @@ namespace MyLibrary.DataBase
         protected DBQueryBase(DBTable table)
         {
             Structure = new List<DBQueryStructureBlock>();
-            QueryCommandType = DBQueryCommandTypeEnum.Select;
+            Type = DBQueryTypeEnum.Select;
 
             if (table == null)
             {
@@ -24,7 +24,7 @@ namespace MyLibrary.DataBase
             Table = table;
         }
 
-        public DBQueryCommandTypeEnum QueryCommandType { get; protected set; }
+        public DBQueryTypeEnum Type { get; protected set; }
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
         protected internal List<DBQueryStructureBlock> Structure { get; private set; }
@@ -49,43 +49,43 @@ namespace MyLibrary.DataBase
 
         public TQuery Insert()
         {
-            QueryCommandType = DBQueryCommandTypeEnum.Insert;
+            Type = DBQueryTypeEnum.Insert;
             return This;
         }
         public TQuery Update()
         {
-            QueryCommandType = DBQueryCommandTypeEnum.Update;
+            Type = DBQueryTypeEnum.Update;
             return This;
         }
         public TQuery UpdateOrInsert()
         {
-            QueryCommandType = DBQueryCommandTypeEnum.UpdateOrInsert;
+            Type = DBQueryTypeEnum.UpdateOrInsert;
             return This;
         }
         public TQuery Delete()
         {
-            QueryCommandType = DBQueryCommandTypeEnum.Delete;
+            Type = DBQueryTypeEnum.Delete;
             return This;
         }
 
         public TQuery Set(string columnName, object value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Insert && QueryCommandType != DBQueryCommandTypeEnum.Update && QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Insert && Type != DBQueryTypeEnum.Update && Type != DBQueryTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.Set, columnName, value);
             return This;
         }
         public TQuery Matching(params string[] columns)
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.Matching, columns);
             return This;
         }
         public TQuery Returning(params string[] columns)
         {
-            if (QueryCommandType == DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type == DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.Returning, columns);
             return This;
@@ -93,7 +93,7 @@ namespace MyLibrary.DataBase
 
         public TQuery Select(params string[] columns)
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.Select, columns);
@@ -103,7 +103,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectAs, alias, columnName);
@@ -112,7 +112,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectSum(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectSum, columns);
@@ -121,7 +121,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectSumAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectSumAs, columns);
@@ -130,7 +130,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectMax(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectMax, columns);
@@ -139,7 +139,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectMaxAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectMaxAs, columns);
@@ -148,7 +148,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectMin(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectMin, columns);
@@ -157,7 +157,7 @@ namespace MyLibrary.DataBase
         public TQuery SelectMinAs(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectMinAs, columns);
@@ -165,7 +165,7 @@ namespace MyLibrary.DataBase
         }
         public TQuery SelectCount(params string[] columns)
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.SelectCount, columns);
@@ -174,14 +174,14 @@ namespace MyLibrary.DataBase
 
         public TQuery Distinct()
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.Distinct);
             return This;
         }
         public TQuery First(int count)
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.First, count);
             return This;
@@ -193,7 +193,7 @@ namespace MyLibrary.DataBase
         }
         public TQuery Skip(int count)
         {
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.Skip, count);
             return This;
@@ -211,7 +211,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.InnerJoin, joinColumnName, columnName);
             return This;
@@ -220,7 +220,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.LeftOuterJoin, joinColumnName, columnName);
             return This;
@@ -229,7 +229,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.RightOuterJoin, joinColumnName, columnName);
             return This;
@@ -238,7 +238,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.FullOuterJoin, joinColumnName, columnName);
             return This;
@@ -278,7 +278,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.InnerJoinAs, alias, joinColumnName, columnName);
@@ -289,7 +289,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName);
@@ -300,7 +300,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName);
@@ -311,7 +311,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName);
@@ -411,7 +411,7 @@ namespace MyLibrary.DataBase
         public TQuery OrderBy(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.OrderBy, columns);
             return This;
@@ -419,7 +419,7 @@ namespace MyLibrary.DataBase
         public TQuery OrderByDesc(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.OrderByDesc, columns);
             return This;
@@ -427,7 +427,7 @@ namespace MyLibrary.DataBase
         public TQuery OrderByUpper(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.OrderByUpper, columns);
             return This;
@@ -435,7 +435,7 @@ namespace MyLibrary.DataBase
         public TQuery OrderByUpperDesc(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddItem(DBQueryStructureTypeEnum.OrderByUpperDesc, columns);
             return This;
@@ -444,7 +444,7 @@ namespace MyLibrary.DataBase
         public TQuery GroupBy(params string[] columns)
         {
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
+            if (Type != DBQueryTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
             AddItem(DBQueryStructureTypeEnum.GroupBy, columns);

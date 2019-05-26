@@ -43,27 +43,27 @@ namespace MyLibrary.DataBase
             };
 
             var sql = new StringBuilder();
-            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
+            if (query.Type == DBQueryTypeEnum.Select)
             {
                 PrepareSelectCommand(sql, query, cQuery);
                 PrepareJoinCommand(sql, query);
             }
-            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Insert)
+            else if (query.Type == DBQueryTypeEnum.Insert)
             {
                 PrepareInsertCommand(sql, query, cQuery);
             }
-            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Update)
+            else if (query.Type == DBQueryTypeEnum.Update)
             {
                 PrepareUpdateCommand(sql, query, cQuery);
             }
-            else if (query.QueryCommandType == DBQueryCommandTypeEnum.Delete)
+            else if (query.Type == DBQueryTypeEnum.Delete)
             {
                 PrepareDeleteCommand(sql, query);
             }
 
             PrepareWhereCommand(sql, query, cQuery);
 
-            if (query.QueryCommandType == DBQueryCommandTypeEnum.Select)
+            if (query.Type == DBQueryTypeEnum.Select)
             {
                 PrepareGroupByCommand(sql, query);
                 PrepareOrderByCommand(sql, query);
