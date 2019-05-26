@@ -34,7 +34,7 @@ namespace MyLibrary.DataBase
 
             QueryCommandType = DBQueryCommandTypeEnum.Sql;
             IsView = true;
-            Structure.Add(new object[] { "Sql", sql, @params });
+            Structure.Add(new object[] { DBQueryTypeEnum.Sql, sql, @params });
         }
 
         public DBQueryCommandTypeEnum QueryCommandType { get; private set; }
@@ -70,21 +70,21 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Insert && QueryCommandType != DBQueryCommandTypeEnum.Update && QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "Set", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.Set, columnName, value });
             return this;
         }
         public DBQuery Matching(params string[] columns)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "Matching", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.Matching, columns });
             return this;
         }
         public DBQuery Returning(params string[] columns)
         {
             if (QueryCommandType == DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "Returning", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.Returning, columns });
             return this;
         }
 
@@ -93,7 +93,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "Select", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.Select, columns });
             return this;
         }
         public DBQuery SelectAs(string alias, string columnName)
@@ -103,7 +103,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectAs", alias, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectAs, alias, columnName });
             return this;
         }
         public DBQuery SelectSum(params string[] columns)
@@ -112,7 +112,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectSum", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectSum, columns });
             return this;
         }
         public DBQuery SelectSumAs(params string[] columns)
@@ -121,7 +121,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectSumAs", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectSumAs, columns });
             return this;
         }
         public DBQuery SelectMax(params string[] columns)
@@ -130,7 +130,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectMax", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectMax, columns });
             return this;
         }
         public DBQuery SelectMaxAs(params string[] columns)
@@ -139,7 +139,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectMaxAs", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectMaxAs, columns });
             return this;
         }
         public DBQuery SelectMin(params string[] columns)
@@ -148,7 +148,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectMin", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectMin, columns });
             return this;
         }
         public DBQuery SelectMinAs(params string[] columns)
@@ -157,7 +157,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectMinAs", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectMinAs, columns });
             return this;
         }
         public DBQuery SelectCount(params string[] columns)
@@ -165,7 +165,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "SelectCount", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.SelectCount, columns });
             return this;
         }
 
@@ -173,14 +173,14 @@ namespace MyLibrary.DataBase
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "Distinct" });
+            Structure.Add(new object[] { DBQueryTypeEnum.Distinct });
             return this;
         }
         public DBQuery First(int count)
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "First", count });
+            Structure.Add(new object[] { DBQueryTypeEnum.First, count });
             return this;
         }
         public DBQuery First()
@@ -192,7 +192,7 @@ namespace MyLibrary.DataBase
         {
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "Skip", count });
+            Structure.Add(new object[] { DBQueryTypeEnum.Skip, count });
             return this;
         }
 
@@ -200,7 +200,7 @@ namespace MyLibrary.DataBase
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            Structure.Add(new object[] { "Union", query, operation });
+            Structure.Add(new object[] { DBQueryTypeEnum.Union, query, operation });
             return this;
         }
 
@@ -210,7 +210,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "InnerJoin", joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin, joinColumnName, columnName });
             return this;
         }
         public DBQuery LeftOuterJoin(string joinColumnName, string columnName)
@@ -219,7 +219,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "LeftOuterJoin", joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoin, joinColumnName, columnName });
             return this;
         }
         public DBQuery RightOuterJoin(string joinColumnName, string columnName)
@@ -228,7 +228,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "RightOuterJoin", joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoin, joinColumnName, columnName });
             return this;
         }
         public DBQuery FullOuterJoin(string joinColumnName, string columnName)
@@ -237,7 +237,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "FullOuterJoin", joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoin, joinColumnName, columnName });
             return this;
         }
 
@@ -249,7 +249,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "InnerJoinAs", alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoinAs, alias, joinColumnName, columnName });
             return this;
         }
         public DBQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -260,7 +260,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "LeftOuterJoinAs", alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.LeftOuterJoinAs, alias, joinColumnName, columnName });
             return this;
         }
         public DBQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -271,7 +271,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "RightOuterJoinAs", alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.RightOuterJoinAs, alias, joinColumnName, columnName });
             return this;
         }
         public DBQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -282,18 +282,16 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "FullOuterJoinAs", alias, joinColumnName, columnName });
+            Structure.Add(new object[] { DBQueryTypeEnum.FullOuterJoinAs, alias, joinColumnName, columnName });
             return this;
         }
 
         public DBQuery InnerJoin<T2>()
         {
             IsView = true;
-            Structure.Add(new object[] { "InnerJoin_type", typeof(T2) });
+            Structure.Add(new object[] { DBQueryTypeEnum.InnerJoin_type, typeof(T2) });
             return this;
         }
-
-
 
         public DBQuery Where(string column, object value)
         {
@@ -318,14 +316,14 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(equalOperator)) throw DBInternal.ArgumentNullException(nameof(equalOperator));
 
-            Structure.Add(new object[] { "Where", columnName, equalOperator, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.Where, columnName, equalOperator, value });
             return this;
         }
         public DBQuery WhereBetween(string columnName, object value1, object value2)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
 
-            Structure.Add(new object[] { "WhereBetween", columnName, value1, value2 });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereBetween, columnName, value1, value2 });
             return this;
         }
         public DBQuery WhereUpper(string columnName, string value)
@@ -333,7 +331,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { "WhereUpper", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereUpper, columnName, value });
             return this;
         }
         public DBQuery WhereContaining(string columnName, string value)
@@ -341,7 +339,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { "WhereContaining", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereContaining, columnName, value });
             return this;
         }
         public DBQuery WhereContainingUpper(string columnName, string value)
@@ -349,7 +347,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { "WhereContainingUpper", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereContainingUpper, columnName, value });
             return this;
         }
         public DBQuery WhereLike(string columnName, string value)
@@ -357,7 +355,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { "WhereLike", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereLike, columnName, value });
             return this;
         }
         public DBQuery WhereLikeUpper(string columnName, string value)
@@ -365,7 +363,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            Structure.Add(new object[] { "WhereLikeUpper", columnName, value });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereLikeUpper, columnName, value });
             return this;
         }
         public DBQuery WhereIn(string columnName, DBQuery query)
@@ -373,7 +371,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            Structure.Add(new object[] { "WhereIn_command", columnName, query });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereIn_command, columnName, query });
             return this;
         }
         public DBQuery WhereIn(string columnName, params object[] values)
@@ -381,28 +379,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (values == null || values.Length == 0) throw DBInternal.ArgumentNullException(nameof(values));
 
-            Structure.Add(new object[] { "WhereIn_values", columnName, values });
-            return this;
-        }
-
-        public DBQuery Or()
-        {
-            Structure.Add(new object[] { "Or" });
-            return this;
-        }
-        public DBQuery Not()
-        {
-            Structure.Add(new object[] { "Not" });
-            return this;
-        }
-        public DBQuery BlockOpen()
-        {
-            Structure.Add(new object[] { "(" });
-            return this;
-        }
-        public DBQuery BlockClose()
-        {
-            Structure.Add(new object[] { ")" });
+            Structure.Add(new object[] { DBQueryTypeEnum.WhereIn_values, columnName, values });
             return this;
         }
 
@@ -411,7 +388,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "OrderBy", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderBy, columns });
             return this;
         }
         public DBQuery OrderByDesc(params string[] columns)
@@ -419,7 +396,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "OrderByDesc", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderByDesc, columns });
             return this;
         }
         public DBQuery OrderByUpper(params string[] columns)
@@ -427,7 +404,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "OrderByUpper", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderByUpper, columns });
             return this;
         }
         public DBQuery OrderByUpperDesc(params string[] columns)
@@ -435,7 +412,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            Structure.Add(new object[] { "OrderByUpperDesc", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.OrderByUpperDesc, columns });
             return this;
         }
 
@@ -445,7 +422,7 @@ namespace MyLibrary.DataBase
             if (QueryCommandType != DBQueryCommandTypeEnum.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            Structure.Add(new object[] { "GroupBy", columns });
+            Structure.Add(new object[] { DBQueryTypeEnum.GroupBy, columns });
             return this;
         }
 
@@ -455,32 +432,32 @@ namespace MyLibrary.DataBase
         public DBQuery Select(Expression<Func<object>> expression)
         {
             IsView = true;
-            Structure.Add(new object[] { "Select_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
             return this;
         }
         public DBQuery Select<T>(Expression<Func<T, object>> expression) where T : DBOrmTableBase
         {
             IsView = true;
-            Structure.Add(new object[] { "Select_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
             return this;
         }
         public DBQuery Select<T>(Expression<Func<T, object[]>> expression) where T : DBOrmTableBase
         {
             IsView = true;
-            Structure.Add(new object[] { "Select_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Select_expression, expression.Body });
             return this;
         }
 
         public DBQuery Where<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
         {
-            Structure.Add(new object[] { "Where_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
             return this;
         }
         public DBQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            Structure.Add(new object[] { "Where_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
             return this;
         }
         public DBQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
@@ -488,7 +465,7 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            Structure.Add(new object[] { "Where_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
             return this;
         }
         public DBQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
@@ -497,7 +474,7 @@ namespace MyLibrary.DataBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
         {
-            Structure.Add(new object[] { "Where_expression", expression.Body });
+            Structure.Add(new object[] { DBQueryTypeEnum.Where_expression, expression.Body });
             return this;
         }
 
@@ -556,7 +533,7 @@ namespace MyLibrary.DataBase
 
         //!!!
         //JOIN
-
+        // Order By Desc()
 
 
     }

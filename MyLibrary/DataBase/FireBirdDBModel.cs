@@ -50,19 +50,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectCommand(sql, query, cQuery);
 
-                block = FindBlock(query, "Distinct");
+                block = FindBlock(query, DBQueryTypeEnum.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = FindBlock(query, "Skip");
+                block = FindBlock(query, DBQueryTypeEnum.Skip);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[1]));
                 }
 
-                block = FindBlock(query, "First");
+                block = FindBlock(query, DBQueryTypeEnum.First);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[1]));
@@ -88,7 +88,7 @@ namespace MyLibrary.DataBase
 
                 Add(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
 
-                blockList = FindBlockList(query, "Set");
+                blockList = FindBlockList(query, DBQueryTypeEnum.Set);
                 if (blockList.Count == 0)
                 {
                     throw DBInternal.InadequateUpdateCommandException();
@@ -116,7 +116,7 @@ namespace MyLibrary.DataBase
 
                 Add(sql, ')');
 
-                blockList = FindBlockList(query, "Matching");
+                blockList = FindBlockList(query, DBQueryTypeEnum.Matching);
                 if (blockList.Count > 0)
                 {
                     Add(sql, " MATCHING(");
@@ -155,7 +155,7 @@ namespace MyLibrary.DataBase
 
             #region RETURNING ...
 
-            blockList = FindBlockList(query, "Returning");
+            blockList = FindBlockList(query, DBQueryTypeEnum.Returning);
             if (blockList.Count > 0)
             {
                 Add(sql, " RETURNING ");

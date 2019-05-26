@@ -170,9 +170,9 @@ namespace MyLibrary.DataBase
                 var index = 0;
                 foreach (var block in blockList)
                 {
-                    switch ((string)block[0])
+                    switch ((DBQueryTypeEnum)block[0])
                     {
-                        case "Select":
+                        case DBQueryTypeEnum.Select:
                             #region
                             var args = (string[])block[1];
                             if (args.Length == 0)
@@ -209,7 +209,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectAs":
+                        case DBQueryTypeEnum.SelectAs:
                             #region
                             if (index > 0)
                             {
@@ -219,7 +219,7 @@ namespace MyLibrary.DataBase
                             index++;
                             break;
                         #endregion
-                        case "SelectSum":
+                        case DBQueryTypeEnum.SelectSum:
                             #region
                             args = (string[])block[1];
                             for (int j = 0; j < args.Length; j++)
@@ -233,7 +233,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectSumAs":
+                        case DBQueryTypeEnum.SelectSumAs:
                             #region
                             args = (string[])block[1];
                             for (int i = 0; i < args.Length; i += 2)
@@ -247,7 +247,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectMax":
+                        case DBQueryTypeEnum.SelectMax:
                             #region
                             args = (string[])block[1];
                             for (int j = 0; j < args.Length; j++)
@@ -261,7 +261,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectMaxAs":
+                        case DBQueryTypeEnum.SelectMaxAs:
                             #region
                             args = (string[])block[1];
                             for (int j = 0; j < args.Length; j += 2)
@@ -275,7 +275,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectMin":
+                        case DBQueryTypeEnum.SelectMin:
                             #region
                             args = (string[])block[1];
                             for (int j = 0; j < args.Length; j++)
@@ -289,7 +289,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectMinAs":
+                        case DBQueryTypeEnum.SelectMinAs:
                             #region
                             args = (string[])block[1];
                             for (int j = 0; j < args.Length; j += 2)
@@ -303,7 +303,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "SelectCount":
+                        case DBQueryTypeEnum.SelectCount:
                             #region
                             args = (string[])block[1];
                             if (args.Length == 0)
@@ -329,9 +329,11 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "Select_expression":
+                        case DBQueryTypeEnum.Select_expression:
+                            #region
                             Add(sql, ParseSelectExpression((Expression)block[1], cQuery).Sql);
                             break;
+                            #endregion
                     }
                 }
                 Add(sql, " FROM ", GetName(query.Table.Name));
@@ -341,7 +343,7 @@ namespace MyLibrary.DataBase
         {
             Add(sql, "INSERT INTO ", GetName(query.Table.Name));
 
-            var blockList = FindBlockList(query, "Set");
+            var blockList = FindBlockList(query, DBQueryTypeEnum.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.InadequateInsertCommandException();
@@ -371,7 +373,7 @@ namespace MyLibrary.DataBase
         {
             Add(sql, "UPDATE ", GetName(query.Table.Name), " SET ");
 
-            var blockList = FindBlockList(query, "Set");
+            var blockList = FindBlockList(query, DBQueryTypeEnum.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.InadequateUpdateCommandException();
@@ -394,48 +396,49 @@ namespace MyLibrary.DataBase
         {
             foreach (var item in query.Structure)
             {
-                switch ((string)item[0])
+                switch ((DBQueryTypeEnum)item[0])
                 {
-                    case "InnerJoin":
+                    case DBQueryTypeEnum.InnerJoin:
                         Add(sql, " INNER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                         break;
 
-                    case "LeftOuterJoin":
+                    case DBQueryTypeEnum.LeftOuterJoin:
                         Add(sql, " LEFT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                         break;
 
-                    case "RightOuterJoin":
+                    case DBQueryTypeEnum.RightOuterJoin:
                         Add(sql, " RIGHT OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                         break;
 
-                    case "FullOuterJoin":
+                    case DBQueryTypeEnum.FullOuterJoin:
                         Add(sql, " FULL OUTER JOIN ", GetName(item[1]), " ON ", GetFullName(item[1]), '=', GetFullName(item[2]));
                         break;
 
-                    case "InnerJoinAs":
+                    case DBQueryTypeEnum.InnerJoinAs:
                         Add(sql, " INNER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                         break;
 
-                    case "LeftOuterJoinAs":
+                    case DBQueryTypeEnum.LeftOuterJoinAs:
                         Add(sql, " LEFT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                         break;
 
-                    case "RightOuterJoinAs":
+                    case DBQueryTypeEnum.RightOuterJoinAs:
                         Add(sql, " RIGHT OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                         break;
 
-                    case "FullOuterJoinAs":
+                    case DBQueryTypeEnum.FullOuterJoinAs:
                         Add(sql, " FULL OUTER JOIN ", GetName(item[2]), " AS ", GetName(item[1]), " ON ", GetName(item[1]), ".", GetColumnName(item[2]), '=', GetFullName(item[3]));
                         break;
 
-                    case "InnerJoin_type":
+                    case DBQueryTypeEnum.InnerJoin_type:
+                        //!!!
                         break;
                 }
             }
         }
         protected void PrepareSqlCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
         {
-            var block = FindBlock(query, "Sql");
+            var block = FindBlock(query, DBQueryTypeEnum.Sql);
             Add(sql, block[1]);
             var index = 0;
             foreach (var param in (object[])block[2])
@@ -449,67 +452,32 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareWhereCommand(StringBuilder sql, DBQuery query, DBCompiledQuery cQuery)
         {
-            var blockList = FindBlockList(query, x => x.Contains("Where") || x == "Or" || x == "Not" || x == "(" || x == ")");
+            var blockList = FindBlockList(query, x => x.StartsWith("Where"));
+
             if (blockList.Count > 0)
             {
-                Add(sql, " WHERE");
+                Add(sql, " WHERE ");
 
-                bool needPastePredicate = false;
-                string prevBlockName = null;
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
-                    var blockName = (string)block[0];
                     if (i > 0)
                     {
-                        prevBlockName = (string)blockList[i - 1][0];
+                        Add(sql, " AND ");
                     }
 
-                    #region AND,OR,NOT,(,)
-
-                    if (needPastePredicate)
+                    switch ((DBQueryTypeEnum)block[0])
                     {
-                        needPastePredicate = false;
-                        if (blockName == "Or")
-                        {
-                            Add(sql, " OR");
-                            continue;
-                        }
-                        else if (blockName != ")")
-                        {
-                            Add(sql, " AND");
-                        }
-                    }
-                    if (blockName == "(")
-                    {
-                        Add(sql, " (");
-                        continue;
-                    }
-                    else if (blockName == ")")
-                    {
-                        Add(sql, " )");
-                        continue;
-                    }
-                    else if (blockName == "Not")
-                    {
-                        // пропуск, поскольку эта команда является частью следующей команды
-                        continue;
-                    }
-
-                    #endregion
-
-                    switch (blockName)
-                    {
-                        case "Where_expression":
+                        case DBQueryTypeEnum.Where_expression:
                             #region
-                            Add(sql, ' ', ParseExpression((Expression)block[1], null, false, cQuery).Sql);
+                            Add(sql, ParseExpression((Expression)block[1], null, false, cQuery).Sql);
                             break;
                         #endregion
-                        case "Where":
+                        case DBQueryTypeEnum.Where:
                             #region
                             block[3] = block[3] ?? DBNull.Value;
 
-                            Add(sql, ' ', GetFullName(block[1]));
+                            Add(sql, GetFullName(block[1]));
 
                             if ((block[3] is DBNull) && ((string)block[2]) == "=")
                             {
@@ -525,84 +493,50 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "WhereBetween":
+                        case DBQueryTypeEnum.WhereBetween:
                             #region
-                            Add(sql, ' ', GetFullName(block[1]));
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " BETWEEN ", AddParameter(block[2], cQuery), " AND ", AddParameter(block[3], cQuery));
+                            Add(sql, GetFullName(block[1]), "BETWEEN ", AddParameter(block[2], cQuery), " AND ", AddParameter(block[3], cQuery));
                             break;
                         #endregion
-                        case "WhereUpper":
+                        case DBQueryTypeEnum.WhereUpper:
                             #region
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " UPPER(", GetFullName(block[1]), ")=", AddParameter(block[2], cQuery));
+                            Add(sql, "UPPER(", GetFullName(block[1]), ")=", AddParameter(block[2], cQuery));
                             break;
                         #endregion
-                        case "WhereContaining":
+                        case DBQueryTypeEnum.WhereContaining:
                             #region
-                            Add(sql, ' ', GetFullName(block[1]));
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " CONTAINING ", AddParameter(block[2], cQuery));
+                            Add(sql, GetFullName(block[1]), " CONTAINING ", AddParameter(block[2], cQuery));
                             break;
                         #endregion
-                        case "WhereContainingUpper":
+                        case DBQueryTypeEnum.WhereContainingUpper:
                             #region
-                            Add(sql, " UPPER(", GetFullName(block[1]));
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, ") CONTAINING ", AddParameter(block[2], cQuery));
+                            Add(sql, " UPPER(", GetFullName(block[1]), ") CONTAINING ", AddParameter(block[2], cQuery));
                             break;
                         #endregion
-                        case "WhereLike":
+                        case DBQueryTypeEnum.WhereLike:
                             #region
-                            Add(sql, ' ', GetFullName(block[1]));
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " LIKE \'", block[2], '\'');
+                            Add(sql,  GetFullName(block[1]), " LIKE \'", block[2], '\'');
                             break;
                         #endregion
-                        case "WhereLikeUpper":
+                        case DBQueryTypeEnum.WhereLikeUpper:
                             #region
-                            Add(sql, " UPPER(", GetFullName(block[1]), ')');
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " LIKE '", block[2], '\'');
+                            Add(sql, " UPPER(", GetFullName(block[1]), ") LIKE '", block[2], '\'');
                             break;
                         #endregion
-                        case "WhereIn_command":
+                        case DBQueryTypeEnum.WhereIn_command:
                             #region
-                            Add(sql, ' ', GetFullName(block[1]), " IN (");
+                            Add(sql, GetFullName(block[1]), " IN (");
 
-                            var innerQuery = CompileQuery((DBQuery)block[2], cQuery.Parameters.Count);
+                            var innerQuery = CompileQuery((DBQuery)block[2], cQuery.Parameters.Count); //!!! кол-во параметров
                             Add(sql, innerQuery.CommandText);
                             cQuery.Parameters.AddRange(innerQuery.Parameters);
 
                             Add(sql, ')');
                             break;
                         #endregion
-                        case "WhereIn_values":
+                        case DBQueryTypeEnum.WhereIn_values:
                             #region
-                            Add(sql, ' ', GetFullName(block[1]));
-                            if (prevBlockName == "Not")
-                            {
-                                Add(sql, " NOT");
-                            }
-                            Add(sql, " IN (");
+                            Add(sql, GetFullName(block[1]), " IN (");
                             #region Добавление списка значений
 
                             var values = (object[])block[2];
@@ -629,13 +563,12 @@ namespace MyLibrary.DataBase
                             break;
                             #endregion
                     }
-                    needPastePredicate = true;
                 }
             }
         }
         protected void PrepareGroupByCommand(StringBuilder sql, DBQuery query)
         {
-            var blockList = FindBlockList(query, "GroupBy");
+            var blockList = FindBlockList(query, DBQueryTypeEnum.GroupBy);
             if (blockList.Count > 0)
             {
                 Add(sql, " GROUP BY ");
@@ -667,9 +600,9 @@ namespace MyLibrary.DataBase
                 {
                     var block = blockList[i];
                     var args = (string[])block[1];
-                    switch ((string)block[0])
+                    switch ((DBQueryTypeEnum)block[0])
                     {
-                        case "OrderBy":
+                        case DBQueryTypeEnum.OrderBy:
                             #region
                             for (int j = 0; j < args.Length; j++)
                             {
@@ -682,7 +615,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "OrderByDesc":
+                        case DBQueryTypeEnum.OrderByDesc:
                             #region
                             for (int j = 0; j < args.Length; j++)
                             {
@@ -695,7 +628,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "OrderByUpper":
+                        case DBQueryTypeEnum.OrderByUpper:
                             #region
                             for (int j = 0; j < args.Length; j++)
                             {
@@ -708,7 +641,7 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case "OrderByUpperDesc":
+                        case DBQueryTypeEnum.OrderByUpperDesc:
                             #region
                             for (int j = 0; j < args.Length; j++)
                             {
@@ -727,22 +660,26 @@ namespace MyLibrary.DataBase
         }
         //!!! реализовать Union команду
 
+        protected List<object[]> FindBlockList(DBQuery query, Predicate<DBQueryTypeEnum> predicate)
+        {
+            return query.Structure.FindAll(block => predicate((DBQueryTypeEnum)block[0]));
+        }
+        protected List<object[]> FindBlockList(DBQuery query, DBQueryTypeEnum type)
+        {
+            return FindBlockList(query, x => x == type);
+        }
         protected List<object[]> FindBlockList(DBQuery query, Predicate<string> predicate)
         {
-            return query.Structure.FindAll(block => predicate((string)block[0]));
+            return query.Structure.FindAll(block => predicate(block[0].ToString()));
         }
-        protected List<object[]> FindBlockList(DBQuery query, string name)
-        {
-            return FindBlockList(query, x => x == name);
-        }
-        protected object[] FindBlock(DBQuery query, Predicate<string> predicate)
+        protected object[] FindBlock(DBQuery query, Predicate<DBQueryTypeEnum> type)
         {
             return query.Structure.Find(block =>
-                predicate((string)block[0]));
+                type((DBQueryTypeEnum)block[0]));
         }
-        protected object[] FindBlock(DBQuery query, string name)
+        protected object[] FindBlock(DBQuery query, DBQueryTypeEnum type)
         {
-            return FindBlock(query, x => x == name);
+            return FindBlock(query, x => x == type);
         }
         protected string AddParameter(object value, DBCompiledQuery cQuery)
         {
