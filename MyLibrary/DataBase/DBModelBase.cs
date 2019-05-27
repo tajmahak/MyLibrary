@@ -1153,93 +1153,6 @@ namespace MyLibrary.DataBase
 
             switch (expression.Method.Name)
             {
-                #region Функции для работы со строками
-
-                case nameof(DBFunction.CharLength):
-                    Add(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")"); break;
-
-
-                case nameof(DBFunction.Hash):
-                    Add(result.Sql, "HASH(", GetArgument(0), ")"); break;
-
-
-                case nameof(DBFunction.Left):
-                    Add(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")"); break;
-
-
-                case nameof(DBFunction.Lower):
-                    Add(result.Sql, "LOWER(", GetArgument(0), ")"); break;
-
-
-                case nameof(DBFunction.LPad):
-                    Add(result.Sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
-                    if (argumentsCount > 2)
-                    {
-                        var arg = GetArgument(2);
-                        if (!Format.IsEmpty(arg))
-                        {
-                            Add(result.Sql, ",", arg);
-                        }
-                    }
-                    Add(result.Sql, ")"); break;
-
-
-                case nameof(DBFunction.Overlay):
-                    Add(result.Sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
-                    if (argumentsCount > 3)
-                    {
-                        var arg = GetArgument(3);
-                        if (!Format.IsEmpty(arg))
-                        {
-                            Add(result.Sql, " FOR ", arg);
-                        }
-                    }
-                    Add(result.Sql, ")"); break;
-
-
-                case nameof(DBFunction.Replace):
-                    Add(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")"); break;
-
-
-                case nameof(DBFunction.Reverse):
-                    Add(result.Sql, "REVERSE(", GetArgument(0), ")"); break;
-
-
-                case nameof(DBFunction.Right):
-                    Add(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")"); break;
-
-
-                case nameof(DBFunction.RPad):
-                    Add(result.Sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
-                    if (argumentsCount > 2)
-                    {
-                        var arg = GetArgument(2);
-                        if (!Format.IsEmpty(arg))
-                        {
-                            Add(result.Sql, ",", arg);
-                        }
-                    }
-                    Add(result.Sql, ")"); break;
-
-
-                case nameof(DBFunction.SubString):
-                    Add(result.Sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
-                    if (argumentsCount > 2)
-                    {
-                        var arg = GetArgument(2);
-                        if (!Format.IsEmpty(arg))
-                        {
-                            Add(result.Sql, " FOR ", arg);
-                        }
-                    }
-                    Add(result.Sql, ")"); break;
-
-
-                case nameof(DBFunction.Upper):
-                    Add(result.Sql, "UPPER(", GetArgument(0), ")"); break;
-
-                #endregion
-
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
@@ -1343,6 +1256,93 @@ namespace MyLibrary.DataBase
                         option = ParseAggregateOption(expression.Arguments[1]);
                     }
                     Add(result.Sql, "SUM(", option, GetArgument(0), ")"); break;
+
+                #endregion
+
+                #region Функции для работы со строками
+
+                case nameof(DBFunction.CharLength):
+                    Add(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")"); break;
+
+
+                case nameof(DBFunction.Hash):
+                    Add(result.Sql, "HASH(", GetArgument(0), ")"); break;
+
+
+                case nameof(DBFunction.Left):
+                    Add(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")"); break;
+
+
+                case nameof(DBFunction.Lower):
+                    Add(result.Sql, "LOWER(", GetArgument(0), ")"); break;
+
+
+                case nameof(DBFunction.LPad):
+                    Add(result.Sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
+                    if (argumentsCount > 2)
+                    {
+                        var arg = GetArgument(2);
+                        if (!Format.IsEmpty(arg))
+                        {
+                            Add(result.Sql, ",", arg);
+                        }
+                    }
+                    Add(result.Sql, ")"); break;
+
+
+                case nameof(DBFunction.Overlay):
+                    Add(result.Sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
+                    if (argumentsCount > 3)
+                    {
+                        var arg = GetArgument(3);
+                        if (!Format.IsEmpty(arg))
+                        {
+                            Add(result.Sql, " FOR ", arg);
+                        }
+                    }
+                    Add(result.Sql, ")"); break;
+
+
+                case nameof(DBFunction.Replace):
+                    Add(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")"); break;
+
+
+                case nameof(DBFunction.Reverse):
+                    Add(result.Sql, "REVERSE(", GetArgument(0), ")"); break;
+
+
+                case nameof(DBFunction.Right):
+                    Add(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")"); break;
+
+
+                case nameof(DBFunction.RPad):
+                    Add(result.Sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
+                    if (argumentsCount > 2)
+                    {
+                        var arg = GetArgument(2);
+                        if (!Format.IsEmpty(arg))
+                        {
+                            Add(result.Sql, ",", arg);
+                        }
+                    }
+                    Add(result.Sql, ")"); break;
+
+
+                case nameof(DBFunction.SubString):
+                    Add(result.Sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
+                    if (argumentsCount > 2)
+                    {
+                        var arg = GetArgument(2);
+                        if (!Format.IsEmpty(arg))
+                        {
+                            Add(result.Sql, " FOR ", arg);
+                        }
+                    }
+                    Add(result.Sql, ")"); break;
+
+
+                case nameof(DBFunction.Upper):
+                    Add(result.Sql, "UPPER(", GetArgument(0), ")"); break;
 
                 #endregion
 

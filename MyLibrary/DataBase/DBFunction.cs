@@ -70,6 +70,11 @@
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает числовой тип данных.Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
         public static object Avg(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает среднее значение для группы. Значения NULL пропускаются.
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <returns></returns>
         public static object Avg(object expr) => throw DBInternal.DBFunctionException();
 
         /// <summary>
