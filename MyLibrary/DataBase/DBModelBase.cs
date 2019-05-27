@@ -45,11 +45,14 @@ namespace MyLibrary.DataBase
         }
         public void Initialize(Type[] ormTableTypes)
         {
-            foreach (var tableType in ormTableTypes)
+            Tables = new DBTable[ormTableTypes.Length];
+            for (int i = 0; i < Tables.Length; i++)
             {
+                var tableType = ormTableTypes[i];
                 var tableName = DBInternal.GetTableNameFromAttribute(tableType);
                 var table = new DBTable(this, tableName);
 
+                List<DBColumn> columns = new List<DBColumn>();
                 foreach (var columnProperty in tableType.GetProperties())
                 {
                     var attrList = columnProperty.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
@@ -70,7 +73,10 @@ namespace MyLibrary.DataBase
                         columnType = Nullable.GetUnderlyingType(columnType);
                     }
                     column.DataType = columnType;
+                    columns.Add(column);
                 }
+                table.AddColumns(columns.ToArray());
+                Tables[i] = table;
             }
             InitializeDictionaries();
             Initialized = true;
