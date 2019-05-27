@@ -1349,29 +1349,45 @@ namespace MyLibrary.DataBase
                 #region Предикаты существования
 
                 case nameof(DBFunction.Exists):
-                    Add(result.Sql, "EXISTS", ParseExpression(expression.Arguments[0], expression, false, cQuery).Sql);
+                    Add(result.Sql, notBlock, "EXISTS", GetArgument(0));
                     break;
 
                 case nameof(DBFunction.In):
                     var value = GetValueArgument(1);
                     if (value is DBQueryBase subQuery)
                     {
-                        Add(result.Sql, GetArgument(0), " IN", AddSubQuery(subQuery, cQuery));
+                        Add(result.Sql, GetArgument(0), ' ', notBlock, "IN", AddSubQuery(subQuery, cQuery));
                     }
                     else if (value is object[])
                     {
-
+                        //!!!
                     }
                     break;
 
                 case nameof(DBFunction.Singular):
-                    Add(result.Sql, "SINGULAR", ParseExpression(expression.Arguments[0], expression, false, cQuery).Sql);
+                    Add(result.Sql, notBlock, "SINGULAR", GetArgument(0));
+                    break;
+
+                #endregion
+
+                #region Количественные предикаты подзапросов
+
+                case nameof(DBFunction.All):
+                    Add(result.Sql, notBlock, "ALL", GetArgument(0));
+                    break;
+
+                case nameof(DBFunction.Any):
+                    Add(result.Sql, notBlock, "ANY", GetArgument(0));
+                    break;
+
+                case nameof(DBFunction.Some):
+                    Add(result.Sql, notBlock, "SOME", GetArgument(0));
                     break;
 
                 #endregion
 
                 case nameof(DBFunction.As):
-                    Add(result.Sql, GetArgument(0), " AS ", OpenBlock, (expression.Arguments[1] as ConstantExpression).Value, CloseBlock);
+                    Add(result.Sql, GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
                     break;
 
                 case nameof(DBFunction.Desc):

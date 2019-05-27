@@ -2,162 +2,9 @@
 {
     public static class DBFunction
     {
-        /// <summary>
-        /// Если результат подзапроса будет содержать хотя бы одну запись, то предикат оценивается как истинный (TRUE), в противном случае предикат оценивается как ложный (FALSE).
-        /// </summary>
-        /// <param name="select_stmt"></param>
-        /// <returns></returns>
-        public static bool Exists(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Предикат проверяет, присутствует (или отсутствует, при использовании NOT IN) ли значение выражения слева в результате выполнения подзапроса справа. Результат подзапроса может содержать только один столбец.
-        /// </summary>
-        /// <param name="select_stmt"></param>
-        /// <returns></returns>
-        public static bool In(object value, DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Предикат проверяет, присутствует ли значение выражения слева в указанном справа наборе значений. Набор значений не может превышать 1500 элементов.
-        /// </summary>
-        /// <param name="value_list"></param>
-        /// <returns></returns>
-        public static bool In(object value, object[] value_list) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Предикат использует подзапрос в качестве аргумента и оценивает его как истинный, если подзапрос возвращает одну и только одну строку результата, в противном случае предикат оценивается как ложный. Результат подзапроса может содержать несколько столбцов, поскольку значения не проверяются. Данный предикат может принимать только два значения: истина (TRUE) и ложь (FALSE).
-        /// </summary>
-        /// <param name="select_stmt"></param>
-        /// <returns></returns>
-        public static bool Singular(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
-
-        //!!!
-        // Предикаты существования
-        // [NOT] EXISTS (<select_stmt>)
-        // <value> [NOT] IN (<select_stmt> | <value_list>)
-        // [NOT] SINGULAR (<select_stmt>)
-
-        //Количественные предикаты подзапросов
-        // <value> <op> ALL (<select_stmt>)
-        // <value> <op> {ANY | SOME} (<select_stmt>)
-
-        #region Функции для работы со строками
-
-        /// <summary>
-        /// Возвращает длину (в символах) строки, переданной в качестве аргумента.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <returns></returns>
-        public static int CharLength(string str) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает хэш-значение входной строки. Эта функция полностью поддерживает текстовые BLOB любой длины и с любым набором символов.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <returns></returns>
-        public static long Hash(string str) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает левую часть строки, количество возвращаемых символов определяется вторым параметром.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="num">Целое число. Определяет количество возвращаемых символов.</param>
-        /// <returns></returns>
-        public static string Left(string str, int num) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает входную строку в нижнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в нижний регистр; для OCTETS – вся входная строка возвращается без изменений.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <returns></returns>
-        public static string Lower(string str) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Дополняет слева входную строку пробелами или определённой пользователем строкой до заданной длины.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="endlen">Длина выходной строки.</param>
-        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом (' ').</param>
-        /// <returns></returns>
-        public static string LPad(string str, int endlen, string padstr = null) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Дополняет слева входную строку пробелами или определённой пользователем строкой до заданной длины.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="endlen">Длина выходной строки.</param>
-        /// <returns></returns>
-        public static string LPad(string str, int endlen) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Предназначена для замены части строки другой строкой.
-        /// По умолчанию число удаляемых из строки символов равняется длине заменяемой строки.Дополнительный четвёртый параметр позволяет пользователю задать своё число символов, которые будут удалены.
-        /// </summary>
-        /// <param name="string">Строка, в которой происходит замена.</param>
-        /// <param name="replacement">Строка, которой заменяется.</param>
-        /// <param name="pos">Позиция, с которой происходит замена.</param>
-        /// <param name="length">Количество символов, которые будут удалены из исходной строки.</param>
-        /// <returns></returns>
-        public static string Overlay(string @string, string replacement, int pos, int? length = null) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Предназначена для замены части строки другой строкой.
-        /// По умолчанию число удаляемых из строки символов равняется длине заменяемой строки.Дополнительный четвёртый параметр позволяет пользователю задать своё число символов, которые будут удалены.
-        /// </summary>
-        /// <param name="string">Строка, в которой происходит замена.</param>
-        /// <param name="replacement">Строка, которой заменяется.</param>
-        /// <param name="pos">Позиция, с которой происходит замена.</param>
-        /// <returns></returns>
-        public static string Overlay(string @string, string replacement, int pos) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Заменяет в строке все вхождения одной строки на другую строку.
-        /// </summary>
-        /// <param name="str">Строка, в которой делается замена.</param>
-        /// <param name="find">Строка, которая ищется.</param>
-        /// <param name="repl">Строка, на которую происходит замена.</param>
-        /// <returns></returns>
-        public static string Replace(string str, string find, string repl) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвратит строку перевёрнутую "задом наперёд".
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <returns></returns>
-        public static string Reverse(string str) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает конечную (правую) часть входной строки. Длина возвращаемой подстроки определяется вторым параметром.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="num">Целое число. Определяет количество возвращаемых символов.</param>
-        /// <returns></returns>
-        public static long Right(string str, int num) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Дополняет справа входную строку пробелами или определённой пользователем строкой до заданной длины.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="endlen">Длина выходной строки.</param>
-        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом(' ').</param>
-        /// <returns></returns>
-        public static string RPad(string str, int endlen, string padstr = null) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Дополняет справа входную строку пробелами или определённой пользователем строкой до заданной длины.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="endlen">Длина выходной строки.</param>
-        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом(' ').</param>
-        /// <returns></returns>
-        public static string RPad(string str, int endlen) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает подстроку строки <paramref name="str"/>, начиная с позиции <paramref name="startpos"/> (позиция начинается с 1) до конца строки или указанной длины. Без предложения FOR возвращаются все оставшиеся символы в строке. С предложением FOR возвращается <paramref name="length"/> символов или остаток строки, в зависимости от того что короче.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="startpos">Позиция, с которой начинается извлечение подстроки. Целочисленное выражение.</param>
-        /// <param name="length">Длина возвращаемой подстроки. Целочисленное выражение.</param>
-        /// <returns></returns>
-        public static string SubString(string str, int startpos, int? length = null) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает подстроку строки <paramref name="str"/>, начиная с позиции <paramref name="startpos"/> (позиция начинается с 1) до конца строки или указанной длины. Без предложения FOR возвращаются все оставшиеся символы в строке. С предложением FOR возвращается <paramref name="length"/> символов или остаток строки, в зависимости от того что короче.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <param name="startpos">Позиция, с которой начинается извлечение подстроки. Целочисленное выражение.</param>
-        /// <returns></returns>
-        public static string SubString(string str, int startpos) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Функция UPPER возвращает входную строку в верхнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в верхний регистр; для OCTETS — вся входная строка возвращается без изменений.
-        /// </summary>
-        /// <param name="str">Выражение строкового типа.</param>
-        /// <returns></returns>
-        public static string Upper(string str) => throw DBInternal.DBFunctionException();
-
-        #endregion
+        public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
+        public static object Desc(object expr) => throw DBInternal.DBFunctionException();
+        public static object Distinct(object expr) => throw DBInternal.DBFunctionException();
 
         #region Предикаты сравнения
 
@@ -309,16 +156,179 @@
 
         #endregion
 
-        #region Предикаты существования
+        #region Функции для работы со строками
 
-
-
+        /// <summary>
+        /// Возвращает длину (в символах) строки, переданной в качестве аргумента.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <returns></returns>
+        public static int CharLength(string str) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает хэш-значение входной строки. Эта функция полностью поддерживает текстовые BLOB любой длины и с любым набором символов.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <returns></returns>
+        public static long Hash(string str) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает левую часть строки, количество возвращаемых символов определяется вторым параметром.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="num">Целое число. Определяет количество возвращаемых символов.</param>
+        /// <returns></returns>
+        public static string Left(string str, int num) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает входную строку в нижнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в нижний регистр; для OCTETS – вся входная строка возвращается без изменений.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <returns></returns>
+        public static string Lower(string str) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Дополняет слева входную строку пробелами или определённой пользователем строкой до заданной длины.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="endlen">Длина выходной строки.</param>
+        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом (' ').</param>
+        /// <returns></returns>
+        public static string LPad(string str, int endlen, string padstr = null) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Дополняет слева входную строку пробелами или определённой пользователем строкой до заданной длины.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="endlen">Длина выходной строки.</param>
+        /// <returns></returns>
+        public static string LPad(string str, int endlen) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предназначена для замены части строки другой строкой.
+        /// По умолчанию число удаляемых из строки символов равняется длине заменяемой строки.Дополнительный четвёртый параметр позволяет пользователю задать своё число символов, которые будут удалены.
+        /// </summary>
+        /// <param name="string">Строка, в которой происходит замена.</param>
+        /// <param name="replacement">Строка, которой заменяется.</param>
+        /// <param name="pos">Позиция, с которой происходит замена.</param>
+        /// <param name="length">Количество символов, которые будут удалены из исходной строки.</param>
+        /// <returns></returns>
+        public static string Overlay(string @string, string replacement, int pos, int? length = null) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предназначена для замены части строки другой строкой.
+        /// По умолчанию число удаляемых из строки символов равняется длине заменяемой строки.Дополнительный четвёртый параметр позволяет пользователю задать своё число символов, которые будут удалены.
+        /// </summary>
+        /// <param name="string">Строка, в которой происходит замена.</param>
+        /// <param name="replacement">Строка, которой заменяется.</param>
+        /// <param name="pos">Позиция, с которой происходит замена.</param>
+        /// <returns></returns>
+        public static string Overlay(string @string, string replacement, int pos) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Заменяет в строке все вхождения одной строки на другую строку.
+        /// </summary>
+        /// <param name="str">Строка, в которой делается замена.</param>
+        /// <param name="find">Строка, которая ищется.</param>
+        /// <param name="repl">Строка, на которую происходит замена.</param>
+        /// <returns></returns>
+        public static string Replace(string str, string find, string repl) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвратит строку перевёрнутую "задом наперёд".
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <returns></returns>
+        public static string Reverse(string str) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает конечную (правую) часть входной строки. Длина возвращаемой подстроки определяется вторым параметром.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="num">Целое число. Определяет количество возвращаемых символов.</param>
+        /// <returns></returns>
+        public static long Right(string str, int num) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Дополняет справа входную строку пробелами или определённой пользователем строкой до заданной длины.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="endlen">Длина выходной строки.</param>
+        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом(' ').</param>
+        /// <returns></returns>
+        public static string RPad(string str, int endlen, string padstr = null) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Дополняет справа входную строку пробелами или определённой пользователем строкой до заданной длины.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="endlen">Длина выходной строки.</param>
+        /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом(' ').</param>
+        /// <returns></returns>
+        public static string RPad(string str, int endlen) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает подстроку строки <paramref name="str"/>, начиная с позиции <paramref name="startpos"/> (позиция начинается с 1) до конца строки или указанной длины. Без предложения FOR возвращаются все оставшиеся символы в строке. С предложением FOR возвращается <paramref name="length"/> символов или остаток строки, в зависимости от того что короче.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="startpos">Позиция, с которой начинается извлечение подстроки. Целочисленное выражение.</param>
+        /// <param name="length">Длина возвращаемой подстроки. Целочисленное выражение.</param>
+        /// <returns></returns>
+        public static string SubString(string str, int startpos, int? length = null) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает подстроку строки <paramref name="str"/>, начиная с позиции <paramref name="startpos"/> (позиция начинается с 1) до конца строки или указанной длины. Без предложения FOR возвращаются все оставшиеся символы в строке. С предложением FOR возвращается <paramref name="length"/> символов или остаток строки, в зависимости от того что короче.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <param name="startpos">Позиция, с которой начинается извлечение подстроки. Целочисленное выражение.</param>
+        /// <returns></returns>
+        public static string SubString(string str, int startpos) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Функция UPPER возвращает входную строку в верхнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в верхний регистр; для OCTETS — вся входная строка возвращается без изменений.
+        /// </summary>
+        /// <param name="str">Выражение строкового типа.</param>
+        /// <returns></returns>
+        public static string Upper(string str) => throw DBInternal.DBFunctionException();
 
         #endregion
 
-        public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
-        public static object Desc(object expr) => throw DBInternal.DBFunctionException();
-        public static object Distinct(object expr) => throw DBInternal.DBFunctionException();
+        #region Предикаты существования
+
+        /// <summary>
+        /// Если результат подзапроса будет содержать хотя бы одну запись, то предикат оценивается как истинный (TRUE), в противном случае предикат оценивается как ложный (FALSE).
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool Exists(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предикат проверяет, присутствует (или отсутствует, при использовании NOT IN) ли значение выражения слева в результате выполнения подзапроса справа. Результат подзапроса может содержать только один столбец.
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool In(object value, DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предикат проверяет, присутствует ли значение выражения слева в указанном справа наборе значений. Набор значений не может превышать 1500 элементов.
+        /// </summary>
+        /// <param name="value_list"></param>
+        /// <returns></returns>
+        public static bool In(object value, object[] value_list) => throw DBInternal.DBFunctionException();//!!!
+        /// <summary>
+        /// Предикат использует подзапрос в качестве аргумента и оценивает его как истинный, если подзапрос возвращает одну и только одну строку результата, в противном случае предикат оценивается как ложный. Результат подзапроса может содержать несколько столбцов, поскольку значения не проверяются. Данный предикат может принимать только два значения: истина (TRUE) и ложь (FALSE).
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool Singular(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+
+        #endregion
+
+        #region Количественные предикаты подзапросов
+
+        /// <summary>
+        /// При использовании квантора ALL, предикат является истинным, если каждое значение выбранное подзапросом удовлетворяет условию в предикате внешнего запроса. Если подзапрос не возвращает ни одной строки, то предикат автоматически считается верным.
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static decimal All(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// При использовании квантора ANY или SOME, предикат является истинным, если любое из значений выбранное подзапросом удовлетворяет условию в предикате внешнего запроса. Если подзапрос не возвращает ни одной строки, то предикат автоматически считается ложным.
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static decimal Any(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// При использовании квантора ANY или SOME, предикат является истинным, если любое из значений выбранное подзапросом удовлетворяет условию в предикате внешнего запроса. Если подзапрос не возвращает ни одной строки, то предикат автоматически считается ложным.
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static decimal Some(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+
+        #endregion
 
         public enum OptionEnum
         {
@@ -332,5 +342,4 @@
             Distinct,
         }
     }
-
 }
