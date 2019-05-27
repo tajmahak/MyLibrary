@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
 {
     public class SQLiteDBModel : DBModelBase
     {
-        public SQLiteDBModel() : base()
+        public SQLiteDBModel()
         {
             OpenBlock = '[';
             CloseBlock = ']';

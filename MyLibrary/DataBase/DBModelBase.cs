@@ -13,10 +13,10 @@ namespace MyLibrary.DataBase
     {
         public DBTable[] Tables { get; private set; }
         public bool Initialized { get; private set; }
+
         public char OpenBlock { get; protected set; }
         public char CloseBlock { get; protected set; }
         public char ParameterPrefix { get; protected set; }
-
         protected event EventHandler<InitializeFromDbConnectionEventArgs> InitializeFromDbConnection;
         protected event EventHandler<InitializeDefaultInsertCommandEventArgs> InitializeDefaultInsertCommand;
 
@@ -734,13 +734,6 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-
-
-
-
-
-
-
         //!!! реализовать Union команду
 
         protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, Predicate<DBQueryStructureTypeEnum> predicate)
@@ -1281,6 +1274,7 @@ namespace MyLibrary.DataBase
         public DbConnection DbConnection { get; internal set; }
         public DBTable[] Tables { get; set; }
     }
+
     public class InitializeDefaultInsertCommandEventArgs : EventArgs
     {
         public DBTable Table { get; internal set; }
