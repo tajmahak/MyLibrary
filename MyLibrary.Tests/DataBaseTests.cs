@@ -75,7 +75,4 @@ namespace MyLibrary.Tests
 
         public TestTable2(DBRow row) : base(row) { }
     }
-
-
-
 }
