@@ -5,12 +5,17 @@ namespace MyLibrary.DataBase.Orm
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmColumnAttribute : Attribute
     {
-        public DBOrmColumnAttribute(string columnName, string foreignKey = null)
+        public DBOrmColumnAttribute(string columnName, bool AllowDbNull = true, bool PrimaryKey = false, string ForeignKey = null)
         {
             ColumnName = columnName;
-            ForeignKey = foreignKey;
+            this.AllowDbNull = AllowDbNull;
+            this.PrimaryKey = PrimaryKey;
+            this.ForeignKey = ForeignKey;
         }
-        public string ColumnName { get; private set; }
-        public string ForeignKey { get; private set; }
+
+        public string ColumnName { get; set; }
+        public bool AllowDbNull { get; set; }
+        public bool PrimaryKey { get; set; }
+        public string ForeignKey { get; set; }
     }
 }

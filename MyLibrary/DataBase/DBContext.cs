@@ -627,7 +627,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.DefaultInsertCommandsDict[row.Table];
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Insert);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Length; i++)
@@ -648,7 +648,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.DefaultUpdateCommandsDict[row.Table];
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Update);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Length; i++)
@@ -670,7 +670,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.DefaultDeleteCommandsDict[row.Table];
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Delete);
                 Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyIndex]);
                 cmd.ExecuteNonQuery();
             }

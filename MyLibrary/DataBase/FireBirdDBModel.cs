@@ -9,18 +9,14 @@ namespace MyLibrary.DataBase
 {
     public class FireBirdDBModel : DBModelBase
     {
-        public FireBirdDBModel() : base()
+        public FireBirdDBModel()
         {
             OpenBlock = CloseBlock = '\"';
             ParameterPrefix = '@';
+            InitializeFromDbConnection += FireBirdDBModel_InitializeFromDbConnection1;
+            InitializeDefaultInsertCommand += FireBirdDBModel_InitializeDefaultInsertCommand;
         }
 
-        public override void Initialize(DbConnection connection)
-        {
-            InitializeDBModel((FbConnection)connection);
-            InitializeDefaultCommands();
-            Initialized = true;
-        }
         public override DbCommand CreateCommand(DbConnection connection)
         {
             return ((FbConnection)connection).CreateCommand();
@@ -172,9 +168,11 @@ namespace MyLibrary.DataBase
             return cQuery;
         }
 
-        private void InitializeDBModel(FbConnection connection)
+        private void FireBirdDBModel_InitializeFromDbConnection1(object sender, InitializeFromDbConnectionEventArgs e)
         {
             //!!! думаю можно упростить
+
+            var connection = (FbConnection)e.DbConnection;
 
             var tableNames = new List<string>();
             #region Получение названий таблиц
@@ -268,40 +266,11 @@ namespace MyLibrary.DataBase
                 #endregion
             }
 
-            #region Подготовка значений
-
-            Tables = tables;
-            for (int i = 0; i < tables.Length; i++)
-            {
-                var table = tables[i];
-                TablesDict.Add(table.Name, table);
-
-                for (int j = 0; j < table.Columns.Length; j++)
-                {
-                    var column = table.Columns[j];
-                    string longName = string.Concat(table.Name, '.', column.Name);
-                    ColumnsDict.Add(longName, column);
-                }
-            }
-
-            #endregion
+            e.Tables = tables;
         }
-        private void InitializeDefaultCommands()
+        private void FireBirdDBModel_InitializeDefaultInsertCommand(object sender, InitializeDefaultInsertCommandEventArgs e)
         {
-            for (int i = 0; i < Tables.Length; i++)
-            {
-                var table = Tables[i];
-
-                var selectCommand = GetSelectCommand(table);
-                var insertCommand = string.Concat(GetInsertCommand(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyIndex].Name));
-                var updateCommand = GetUpdateCommand(table);
-                var deleteCommand = GetDeleteCommand(table);
-
-                DefaultSelectCommandsDict.Add(table, selectCommand);
-                DefaultInsertCommandsDict.Add(table, insertCommand);
-                DefaultUpdateCommandsDict.Add(table, updateCommand);
-                DefaultDeleteCommandsDict.Add(table, deleteCommand);
-            }
+            e.DefaultInsertCommand = string.Concat(GetInsertCommand(e.Table), " RETURNING ", GetName(e.Table.Columns[e.Table.PrimaryKeyIndex].Name));
         }
     }
 }

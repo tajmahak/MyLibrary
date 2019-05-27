@@ -14,22 +14,22 @@ namespace MyLibrary.DataBase
             OpenBlock = '[';
             CloseBlock = ']';
             ParameterPrefix = '@';
+
+            InitializeFromDbConnection += SQLiteDBModel_InitializeFromDbConnection;
         }
 
-        public override void Initialize(DbConnection connection)
-        {
-            InitializeDBModel((SQLiteConnection)connection);
-            InitializeDefaultCommands();
-            Initialized = true;
-        }
         public override DbCommand CreateCommand(DbConnection connection)
         {
             return ((SQLiteConnection)connection).CreateCommand();
         }
         public override object ExecuteInsertCommand(DbCommand command)
         {
-            command.ExecuteNonQuery();
-            return ((SQLiteConnection)command.Connection).LastInsertRowId;
+            var connection = (SQLiteConnection)command.Connection;
+            lock (connection)
+            {
+                command.ExecuteNonQuery();
+                return connection.LastInsertRowId;
+            }
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {
@@ -73,8 +73,10 @@ namespace MyLibrary.DataBase
             return cQuery;
         }
 
-        private void InitializeDBModel(SQLiteConnection connection)
+        private void SQLiteDBModel_InitializeFromDbConnection(object sender, InitializeFromDbConnectionEventArgs e)
         {
+            var connection = (SQLiteConnection)e.DbConnection;
+
             var tableNames = new List<string>();
             #region Получение названий таблиц
 
@@ -161,40 +163,7 @@ namespace MyLibrary.DataBase
                 #endregion
             }
 
-            #region Подготовка значений
-
-            Tables = tables;
-            for (int i = 0; i < tables.Length; i++)
-            {
-                var table = tables[i];
-                TablesDict.Add(table.Name, table);
-
-                for (int j = 0; j < table.Columns.Length; j++)
-                {
-                    var column = table.Columns[j];
-                    string longName = string.Concat(table.Name, '.', column.Name);
-                    ColumnsDict.Add(longName, column);
-                }
-            }
-
-            #endregion
-        }
-        private void InitializeDefaultCommands()
-        {
-            for (int i = 0; i < Tables.Length; i++)
-            {
-                var table = Tables[i];
-
-                var selectCommand = GetSelectCommand(table);
-                var insertCommand = GetInsertCommand(table);
-                var updateCommand = GetUpdateCommand(table);
-                var deleteCommand = GetDeleteCommand(table);
-
-                DefaultSelectCommandsDict.Add(table, selectCommand);
-                DefaultInsertCommandsDict.Add(table, insertCommand);
-                DefaultUpdateCommandsDict.Add(table, updateCommand);
-                DefaultDeleteCommandsDict.Add(table, deleteCommand);
-            }
+            e.Tables = tables;
         }
     }
 }

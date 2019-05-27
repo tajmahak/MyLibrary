@@ -11,35 +11,89 @@ namespace MyLibrary.DataBase
 {
     public abstract class DBModelBase
     {
-        public DBModelBase()
-        {
-            DefaultSelectCommandsDict = new Dictionary<DBTable, string>();
-            DefaultInsertCommandsDict = new Dictionary<DBTable, string>();
-            DefaultUpdateCommandsDict = new Dictionary<DBTable, string>();
-            DefaultDeleteCommandsDict = new Dictionary<DBTable, string>();
-            TablesDict = new Dictionary<string, DBTable>();
-            ColumnsDict = new Dictionary<string, DBColumn>();
-        }
-
-        public DBTable[] Tables { get; protected set; }
-        public bool Initialized { get; protected set; }
+        public DBTable[] Tables { get; private set; }
+        public bool Initialized { get; private set; }
         public char OpenBlock { get; protected set; }
         public char CloseBlock { get; protected set; }
         public char ParameterPrefix { get; protected set; }
 
-        protected internal Dictionary<DBTable, string> DefaultSelectCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultInsertCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultUpdateCommandsDict { get; private set; }
-        protected internal Dictionary<DBTable, string> DefaultDeleteCommandsDict { get; private set; }
-        protected internal Dictionary<string, DBTable> TablesDict { get; private set; }
-        protected internal Dictionary<string, DBColumn> ColumnsDict { get; private set; }
+        protected event EventHandler<InitializeFromDbConnectionEventArgs> InitializeFromDbConnection;
+        protected event EventHandler<InitializeDefaultInsertCommandEventArgs> InitializeDefaultInsertCommand;
 
-        public abstract void Initialize(DbConnection connection);
         public abstract DbCommand CreateCommand(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
 
+        public void Initialize(DbConnection connection)
+        {
+            if (InitializeFromDbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(InitializeFromDbConnection));
+            }
+
+            var args = new InitializeFromDbConnectionEventArgs()
+            {
+                DbConnection = connection,
+            };
+            InitializeFromDbConnection(this, args);
+
+            Tables = args.Tables;
+
+            InitializeDictionaries();
+            Initialized = true;
+        }
+        public void Initialize(Type[] ormTableTypes)
+        {
+            foreach (var tableType in ormTableTypes)
+            {
+                var tableName = DBInternal.GetTableNameFromAttribute(tableType);
+                var table = new DBTable(this, tableName);
+
+                foreach (var columnProperty in tableType.GetProperties())
+                {
+                    var attrList = columnProperty.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
+                    if (attrList.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var attr = (DBOrmColumnAttribute)attrList[0];
+                    var column = new DBColumn(table);
+                    column.Name = attr.ColumnName;
+                    column.IsPrimary = attr.PrimaryKey;
+                    column.AllowDBNull = attr.AllowDbNull;
+
+                    var columnType = columnProperty.PropertyType;
+                    if (columnType.IsGenericType && columnType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        columnType = Nullable.GetUnderlyingType(columnType);
+                    }
+                    column.DataType = columnType;
+                }
+            }
+            InitializeDictionaries();
+            Initialized = true;
+        }
+        public string GetDefaultSqlQuery(DBTable table, DBQueryTypeEnum queryType)
+        {
+            switch (queryType)
+            {
+                case DBQueryTypeEnum.Select:
+                    return _selectCommandsDict[table];
+
+                case DBQueryTypeEnum.Insert:
+                    return _insertCommandsDict[table];
+
+                case DBQueryTypeEnum.Update:
+                    return _updateCommandsDict[table];
+
+                case DBQueryTypeEnum.Delete:
+                    return _deleteCommandsDict[table];
+
+            }
+            throw new NotImplementedException();
+        }
         public DbCommand CompileCommand(DbConnection connection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
@@ -58,7 +112,7 @@ namespace MyLibrary.DataBase
         }
         public DBTable GetTable(string tableName)
         {
-            if (!TablesDict.TryGetValue(tableName, out var table))
+            if (!_tablesDict.TryGetValue(tableName, out var table))
             {
                 throw DBInternal.UnknownTableException(tableName);
             }
@@ -67,7 +121,7 @@ namespace MyLibrary.DataBase
         }
         public DBColumn GetColumn(string columnName)
         {
-            if (!ColumnsDict.TryGetValue(columnName, out var column))
+            if (!_columnsDict.TryGetValue(columnName, out var column))
             {
                 throw DBInternal.UnknownColumnException(null, columnName);
             }
@@ -76,7 +130,7 @@ namespace MyLibrary.DataBase
         }
         public bool TryGetColumn(string columnName, out DBColumn column)
         {
-            return ColumnsDict.TryGetValue(columnName, out column);
+            return _columnsDict.TryGetValue(columnName, out column);
         }
 
         #region [protected] Вспомогательные сущности для получения SQL-команд
@@ -161,7 +215,7 @@ namespace MyLibrary.DataBase
             var blockList = FindBlockList(query, x => x.StartsWith("Select"));
             if (blockList.Count == 0)
             {
-                Add(sql, DefaultSelectCommandsDict[query.Table]);
+                Add(sql, _selectCommandsDict[query.Table]);
             }
             else
             {
@@ -713,7 +767,7 @@ namespace MyLibrary.DataBase
         {
             value = value ?? DBNull.Value;
 
-            if (value is string && ColumnsDict.ContainsKey((string)value))
+            if (value is string && _columnsDict.ContainsKey((string)value))
             {
                 return GetFullName((string)value);
             }
@@ -1178,11 +1232,58 @@ namespace MyLibrary.DataBase
             }
             throw new Exception();
         }
+        private void InitializeDictionaries()
+        {
+            foreach (var table in Tables)
+            {
+                _selectCommandsDict.Add(table, GetSelectCommand(table));
+                _updateCommandsDict.Add(table, GetUpdateCommand(table));
+                _deleteCommandsDict.Add(table, GetDeleteCommand(table));
+                if (InitializeDefaultInsertCommand == null)
+                {
+                    _insertCommandsDict.Add(table, GetInsertCommand(table));
+                }
+                else
+                {
+                    var args = new InitializeDefaultInsertCommandEventArgs()
+                    {
+                        Table = table,
+                    };
+                    InitializeDefaultInsertCommand(this, args);
+                    _insertCommandsDict.Add(table, args.DefaultInsertCommand);
+                }
+
+                _tablesDict.Add(table.Name, table);
+                foreach (var column in table.Columns)
+                {
+                    string longName = string.Concat(table.Name, '.', column.Name);
+                    _columnsDict.Add(longName, column);
+                }
+            }
+        }
+
+        private Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
+        private Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
+        private Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
+        private Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
+        private Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
+        private Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
 
         private class ParseExpressionResult
         {
             public StringBuilder Sql = new StringBuilder();
             public object Value;
         }
+    }
+
+    public class InitializeFromDbConnectionEventArgs : EventArgs
+    {
+        public DbConnection DbConnection { get; internal set; }
+        public DBTable[] Tables { get; set; }
+    }
+    public class InitializeDefaultInsertCommandEventArgs : EventArgs
+    {
+        public DBTable Table { get; internal set; }
+        public string DefaultInsertCommand { get; set; }
     }
 }

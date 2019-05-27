@@ -43,7 +43,7 @@ namespace MyLibrary.DataBase
             return Name;
         }
 
-        internal void AddColumns(DBColumn[] columns)
+        public void AddColumns(DBColumn[] columns)
         {
             Columns = columns;
             _columnIndexDict = new Dictionary<string, int>(columns.Length);
