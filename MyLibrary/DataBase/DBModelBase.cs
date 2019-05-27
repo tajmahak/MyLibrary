@@ -120,9 +120,7 @@ namespace MyLibrary.DataBase
 
                     var attr = (DBOrmColumnAttribute)attrList[0];
                     var column = new DBColumn(table);
-                    //!!! split
-                    column.Name = attr.ColumnName;
-                    column.IsPrimary = attr.PrimaryKey;
+                    column.Name = attr.ColumnName.Split('.')[1];
                     column.AllowDBNull = attr.AllowDbNull;
 
                     var columnType = columnProperty.PropertyType;
@@ -131,6 +129,13 @@ namespace MyLibrary.DataBase
                         columnType = Nullable.GetUnderlyingType(columnType);
                     }
                     column.DataType = columnType;
+
+                    if (attr.PrimaryKey)
+                    {
+                        column.IsPrimary = true;
+                        table.PrimaryKeyColumn = column;
+                    }
+
                     table.AddColumn(column);
                 }
                 Tables[i] = table;
