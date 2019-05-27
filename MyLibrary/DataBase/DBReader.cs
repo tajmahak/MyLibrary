@@ -8,7 +8,7 @@ namespace MyLibrary.DataBase
 {
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
-        internal DBReader(DbConnection connection, DBModelBase model, DBQuery query)
+        internal DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
         {
             _model = model;
             _command = model.CompileCommand(connection, query);
@@ -53,34 +53,25 @@ namespace MyLibrary.DataBase
         private DBTable GenerateTable()
         {
             var table = new DBTable(_model, null);
-            var columns = new DBColumn[_reader.FieldCount];
             using (var schema = _reader.GetSchemaTable())
             {
-                for (int i = 0; i < schema.Rows.Count; i++)
+                int index = 0;
+                foreach (DataRow schemaRow in schema.Rows)
                 {
-                    var schemaRow = schema.Rows[i];
-                    var schemaColumnName = (string)schemaRow["ColumnName"];
+                    var column = new DBColumn(table);
+                    column.Index = index++;
+                    column.Name = (string)schemaRow["ColumnName"];
+
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
-
-                    string columnName;
-                    if (string.IsNullOrEmpty(schemaBaseTableName))
+                    string columnName = string.IsNullOrEmpty(schemaBaseTableName) ? 
+                        column.Name : string.Concat(schemaBaseTableName, '.', column.Name);
+                    if (_model.TryGetColumn(columnName, out var modelColumn))
                     {
-                        columnName = schemaColumnName;
+                        column.Name = string.Concat(schemaBaseTableName, '.', column.Name);
                     }
-                    else
-                    {
-                        columnName = string.Concat(schemaBaseTableName, '.', schemaColumnName);
-                    }
-
-                    if (!_model.TryGetColumn(columnName, out var column))
-                    {
-                        column = new DBColumn(table);
-                        column.Name = schemaColumnName;
-                    }
-                    columns[i] = column;
+                    table.AddColumn(column);
                 }
             }
-            table.AddColumns(columns);
             return table;
         }
 

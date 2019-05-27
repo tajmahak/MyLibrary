@@ -126,7 +126,7 @@ namespace MyLibrary.DataBase
                         row = rowCollection[j];
                         if (row.State == DataRowState.Deleted)
                         {
-                            if (!(row[table.PrimaryKeyIndex] is Guid))
+                            if (!(row[table.PrimaryKeyColumn.Index] is Guid))
                             {
                                 ExecuteDeleteCommand(row);
                             }
@@ -155,7 +155,7 @@ namespace MyLibrary.DataBase
                     {
                         row = rowCollection[j];
                         var mainContainer = new InsertRowContainer(row, 0);
-                        for (int k = 0; k < table.Columns.Length; k++)
+                        for (int k = 0; k < table.Columns.Count; k++)
                         {
                             var value = row[k];
                             if (value is Guid)
@@ -206,7 +206,7 @@ namespace MyLibrary.DataBase
 
                     if (rowContainer.Value == 1)
                     {
-                        Guid tempID = (Guid)row[row.Table.PrimaryKeyIndex];
+                        Guid tempID = (Guid)row[row.Table.PrimaryKeyColumn.Index];
                         object dbID = ExecuteInsertCommand(row);
                         #region Замена временных Id на присвоенные
 
@@ -329,7 +329,7 @@ namespace MyLibrary.DataBase
 
             if (dbRow.State == DataRowState.Deleted)
             {
-                if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
+                if (dbRow[dbRow.Table.PrimaryKeyColumn.Index] is Guid)
                 {
                     return false;
                 }
@@ -361,7 +361,7 @@ namespace MyLibrary.DataBase
 
             dbRow.Delete();
 
-            if (dbRow[dbRow.Table.PrimaryKeyIndex] is Guid)
+            if (dbRow[dbRow.Table.PrimaryKeyColumn.Index] is Guid)
             {
                 lock (_rowCollectionDict)
                 {
@@ -444,9 +444,9 @@ namespace MyLibrary.DataBase
         #endregion
         #region Работа с данными
 
-        public T Get<T>(DBQuery query)
+        public T Get<T>(DBQueryBase query)
         {
-            query.First(1);
+            query.AddItem(DBQueryStructureTypeEnum.First, 1);
             foreach (var row in Select<T>(query))
             {
                 return row;
@@ -460,7 +460,7 @@ namespace MyLibrary.DataBase
             return Get<T>(cmd);
         }
 
-        public T GetOrNew<T>(DBQuery query)
+        public T GetOrNew<T>(DBQueryBase query)
         {
             var row = Get<T>(query);
 
@@ -478,7 +478,7 @@ namespace MyLibrary.DataBase
             var row = GetOrNew(cmd);
 
             // установка значений в строку согласно аргументов
-            if (row.Values[row.Table.PrimaryKeyIndex] is Guid)
+            if (row.Values[row.Table.PrimaryKeyColumn.Index] is Guid)
             {
                 for (int i = 0; i < columnNameValuePair.Length; i += 2)
                 {
@@ -491,7 +491,7 @@ namespace MyLibrary.DataBase
             return DBInternal.PackRow<T>(row);
         }
 
-        public DBReader<T> Select<T>(DBQuery query)
+        public DBReader<T> Select<T>(DBQueryBase query)
         {
             if (query.Type != DBQueryTypeEnum.Select)
             {
@@ -506,11 +506,11 @@ namespace MyLibrary.DataBase
             return Select<T>(cmd);
         }
 
-        public T GetValue<T>(DBQuery query)
+        public T GetValue<T>(DBQueryBase query)
         {
             if (query.Type == DBQueryTypeEnum.Select)
             {
-                query.First(1);
+                query.AddItem(DBQueryStructureTypeEnum.First, 1);
             }
 
             using (var command = Model.CompileCommand(Connection, query))
@@ -527,7 +527,7 @@ namespace MyLibrary.DataBase
             return GetValue<T>(cmd);
         }
 
-        public bool Exists(DBQuery query)
+        public bool Exists(DBQueryBase query)
         {
             var row = Get(query);
             return (row != null);
@@ -551,7 +551,7 @@ namespace MyLibrary.DataBase
             return New<DBRow>(tableName);
         }
 
-        public DBRow Get(DBQuery query)
+        public DBRow Get(DBQueryBase query)
         {
             return Get<DBRow>(query);
         }
@@ -560,7 +560,7 @@ namespace MyLibrary.DataBase
             return Get<DBRow>(tableName, columnNameValuePair);
         }
 
-        public DBRow GetOrNew(DBQuery query)
+        public DBRow GetOrNew(DBQueryBase query)
         {
             return GetOrNew<DBRow>(query);
         }
@@ -569,7 +569,7 @@ namespace MyLibrary.DataBase
             return GetOrNew<DBRow>(tableName, columnNameValuePair);
         }
 
-        public DBReader<DBRow> Select(DBQuery query)
+        public DBReader<DBRow> Select(DBQueryBase query)
         {
             return Select<DBRow>(query);
         }
@@ -630,7 +630,7 @@ namespace MyLibrary.DataBase
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Insert);
 
                 int index = 0;
-                for (int i = 0; i < row.Table.Columns.Length; i++)
+                for (int i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
@@ -651,7 +651,7 @@ namespace MyLibrary.DataBase
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Update);
 
                 int index = 0;
-                for (int i = 0; i < row.Table.Columns.Length; i++)
+                for (int i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
@@ -671,7 +671,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Delete);
-                Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyIndex]);
+                Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyColumn.Index]);
                 cmd.ExecuteNonQuery();
             }
         }

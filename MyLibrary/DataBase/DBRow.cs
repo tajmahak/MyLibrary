@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
         internal DBRow(DBTable table)
         {
             Table = table;
-            Values = new object[table.Columns.Length];
+            Values = new object[table.Columns.Count];
             State = DataRowState.Detached;
         }
 
@@ -41,13 +41,13 @@ namespace MyLibrary.DataBase
         {
             get
             {
-                var index = Table.GetIndex(columnName);
-                return this[index];
+                var column = Table.GetColumn(columnName);
+                return this[column.Index];
             }
             set
             {
-                var index = Table.GetIndex(columnName);
-                SetValue(index, value);
+                var column = Table.GetColumn(columnName);
+                SetValue(column.Index, value);
             }
         }
 
@@ -63,12 +63,12 @@ namespace MyLibrary.DataBase
         }
         public void SetNotNull(string columnName)
         {
-            var index = Table.GetIndex(columnName);
-            SetNotNull(index);
+            var column = Table.GetColumn(columnName);
+            SetNotNull(column.Index);
         }
         public void SetNotNull()
         {
-            for (int i = 0; i < Table.Columns.Length; i++)
+            for (int i = 0; i < Table.Columns.Count; i++)
             {
                 SetNotNull(i);
             }
@@ -80,8 +80,9 @@ namespace MyLibrary.DataBase
         }
         public T Get<T>(string columnName)
         {
-            var index = Table.GetIndex(columnName);
-            return Format.Convert<T>(Values[index]);
+            var column = Table.GetColumn(columnName);
+            var value = Values[column.Index];
+            return Format.Convert<T>(value);
         }
 
         public string GetString(int columnIndex)
@@ -102,8 +103,8 @@ namespace MyLibrary.DataBase
         }
         public string GetString(string columnName, bool allowNull)
         {
-            var index = Table.GetIndex(columnName);
-            return GetString(index, allowNull);
+            var column = Table.GetColumn(columnName);
+            return GetString(column.Index, allowNull);
         }
 
         public string GetString(int columnIndex, string format)
@@ -115,8 +116,8 @@ namespace MyLibrary.DataBase
         }
         public string GetString(string columnName, string format)
         {
-            var index = Table.GetIndex(columnName);
-            return GetString(index, format);
+            var column = Table.GetColumn(columnName);
+            return GetString(column.Index, format);
         }
 
         public bool IsNull(int index)
@@ -125,8 +126,8 @@ namespace MyLibrary.DataBase
         }
         public bool IsNull(string columnName)
         {
-            var index = Table.GetIndex(columnName);
-            return IsNull(index);
+            var column = Table.GetColumn(columnName);
+            return IsNull(column.Index);
         }
 
         #endregion
@@ -184,7 +185,7 @@ namespace MyLibrary.DataBase
             {
                 // проверка на максимальную длину текстовой строки
                 string stringValue = (string)value;
-                if (stringValue.Length > column.MaxTextLength)
+                if (stringValue.Length > column.Size)
                 {
                     throw DBInternal.StringOverflowException(column);
                 }

@@ -29,7 +29,7 @@ namespace MyLibrary.DataBase
         public DBTable Table { get; private set; }
         protected internal List<DBQueryStructureBlock> Structure { get; private set; }
 
-        protected void AddItem(DBQueryStructureTypeEnum type, params object[] args)
+        protected internal void AddItem(DBQueryStructureTypeEnum type, params object[] args)
         {
             Structure.Add(new DBQueryStructureBlock()
             {

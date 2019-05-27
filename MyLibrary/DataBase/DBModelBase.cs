@@ -2,6 +2,7 @@
 using MyLibrary.DataBase.Orm;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,28 +18,85 @@ namespace MyLibrary.DataBase
         public char OpenBlock { get; protected set; }
         public char CloseBlock { get; protected set; }
         public char ParameterPrefix { get; protected set; }
-        protected event EventHandler<InitializeFromDbConnectionEventArgs> InitializeFromDbConnection;
-        protected event EventHandler<InitializeDefaultInsertCommandEventArgs> InitializeDefaultInsertCommand;
 
         public abstract DbCommand CreateCommand(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
+        public abstract Dictionary<string, Type> GetDataTypes();
+        public virtual string GetDefaultInsertCommand(DBTable table)
+        {
+            return GetInsertCommand(table);
+        }
 
         public void Initialize(DbConnection connection)
         {
-            if (InitializeFromDbConnection == null)
+            var tables = new List<DBTable>();
+            var dataTypes = GetDataTypes();
+
+            using (var tableSchema = connection.GetSchema("Tables"))
             {
-                throw new ArgumentNullException(nameof(InitializeFromDbConnection));
+                foreach (DataRow tableRow in tableSchema.Rows)
+                {
+                    if ((short)tableRow["IS_SYSTEM_TABLE"] == 0)
+                    {
+                        var tableName = (string)tableRow["TABLE_NAME"];
+                        var table = new DBTable(this, tableName);
+                        tables.Add(table);
+                    }
+                }
             }
-
-            var args = new InitializeFromDbConnectionEventArgs()
+            using (var columnSchema = connection.GetSchema("Columns"))
             {
-                DbConnection = connection,
-            };
-            InitializeFromDbConnection(this, args);
+                foreach (DataRow columnRow in columnSchema.Rows)
+                {
+                    var tableName = (string)columnRow["TABLE_NAME"];
+                    var table = tables.Find(x => x.Name == tableName);
+                    if (table != null)
+                    {
+                        var column = new DBColumn(table);
+                        column.Index = (short)columnRow["ORDINAL_POSITION"];
+                        column.Name = (string)columnRow["COLUMN_NAME"];
+                        if (dataTypes.TryGetValue((string)columnRow["COLUMN_DATA_TYPE"], out var columnType))
+                        {
+                            column.DataType = columnType;
+                        }
+                        else
+                        {
+                            //!!!
+                            throw null;
+                        }
+                        column.AllowDBNull = (bool)columnRow["IS_NULLABLE"];
+                        var defaultValue = columnRow["COLUMN_DEFAULT"].ToString();
+                        if (defaultValue.Length > 0)
+                        {
+                            defaultValue = defaultValue.Remove(0, 8);
+                            column.DefaultValue = Convert.ChangeType(defaultValue, column.DataType);
+                        }
+                        column.Size = (int)columnRow["COLUMN_SIZE"];
+                        var description = columnRow["DESCRIPTION"];
+                        if (description != DBNull.Value)
+                        {
+                            column.Comment = (string)description;
+                        }
+                        table.AddColumn(column);
+                    }
+                }
+            }
+            using (var primaryKeySchema = connection.GetSchema("PrimaryKeys"))
+            {
+                foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
+                {
+                    var tableName = (string)primaryKeyRow["TABLE_NAME"];
+                    var table = tables.Find(x => x.Name == tableName);
 
-            Tables = args.Tables;
+                    var columnName = (string)primaryKeyRow["COLUMN_NAME"];
+                    var column = table.Columns.Find(x => x.Name == columnName);
+                    column.IsPrimary = true;
+                    table.PrimaryKeyColumn = column;
+                }
+            }
+            Tables = tables.ToArray();
 
             InitializeDictionaries();
             Initialized = true;
@@ -52,7 +110,6 @@ namespace MyLibrary.DataBase
                 var tableName = DBInternal.GetTableNameFromAttribute(tableType);
                 var table = new DBTable(this, tableName);
 
-                List<DBColumn> columns = new List<DBColumn>();
                 foreach (var columnProperty in tableType.GetProperties())
                 {
                     var attrList = columnProperty.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
@@ -63,6 +120,7 @@ namespace MyLibrary.DataBase
 
                     var attr = (DBOrmColumnAttribute)attrList[0];
                     var column = new DBColumn(table);
+                    //!!! split
                     column.Name = attr.ColumnName;
                     column.IsPrimary = attr.PrimaryKey;
                     column.AllowDBNull = attr.AllowDbNull;
@@ -73,9 +131,8 @@ namespace MyLibrary.DataBase
                         columnType = Nullable.GetUnderlyingType(columnType);
                     }
                     column.DataType = columnType;
-                    columns.Add(column);
+                    table.AddColumn(column);
                 }
-                table.AddColumns(columns.ToArray());
                 Tables[i] = table;
             }
             InitializeDictionaries();
@@ -1346,19 +1403,7 @@ namespace MyLibrary.DataBase
                 _selectCommandsDict.Add(table, GetSelectCommand(table));
                 _updateCommandsDict.Add(table, GetUpdateCommand(table));
                 _deleteCommandsDict.Add(table, GetDeleteCommand(table));
-                if (InitializeDefaultInsertCommand == null)
-                {
-                    _insertCommandsDict.Add(table, GetInsertCommand(table));
-                }
-                else
-                {
-                    var args = new InitializeDefaultInsertCommandEventArgs()
-                    {
-                        Table = table,
-                    };
-                    InitializeDefaultInsertCommand(this, args);
-                    _insertCommandsDict.Add(table, args.DefaultInsertCommand);
-                }
+                _insertCommandsDict.Add(table, GetDefaultInsertCommand(table));
 
                 _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)
@@ -1381,17 +1426,5 @@ namespace MyLibrary.DataBase
             public StringBuilder Sql = new StringBuilder();
             public object Value;
         }
-    }
-
-    public class InitializeFromDbConnectionEventArgs : EventArgs
-    {
-        public DbConnection DbConnection { get; internal set; }
-        public DBTable[] Tables { get; set; }
-    }
-
-    public class InitializeDefaultInsertCommandEventArgs : EventArgs
-    {
-        public DBTable Table { get; internal set; }
-        public string DefaultInsertCommand { get; set; }
     }
 }
