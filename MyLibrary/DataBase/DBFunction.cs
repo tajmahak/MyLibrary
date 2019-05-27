@@ -2,6 +2,31 @@
 {
     public static class DBFunction
     {
+        /// <summary>
+        /// Если результат подзапроса будет содержать хотя бы одну запись, то предикат оценивается как истинный (TRUE), в противном случае предикат оценивается как ложный (FALSE).
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool Exists(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предикат проверяет, присутствует (или отсутствует, при использовании NOT IN) ли значение выражения слева в результате выполнения подзапроса справа. Результат подзапроса может содержать только один столбец.
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool In(object value, DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предикат проверяет, присутствует ли значение выражения слева в указанном справа наборе значений. Набор значений не может превышать 1500 элементов.
+        /// </summary>
+        /// <param name="value_list"></param>
+        /// <returns></returns>
+        public static bool In(object value, object[] value_list) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Предикат использует подзапрос в качестве аргумента и оценивает его как истинный, если подзапрос возвращает одну и только одну строку результата, в противном случае предикат оценивается как ложный. Результат подзапроса может содержать несколько столбцов, поскольку значения не проверяются. Данный предикат может принимать только два значения: истина (TRUE) и ложь (FALSE).
+        /// </summary>
+        /// <param name="select_stmt"></param>
+        /// <returns></returns>
+        public static bool Singular(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
+
         //!!!
         // Предикаты существования
         // [NOT] EXISTS (<select_stmt>)
@@ -209,6 +234,12 @@
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
         /// </summary>
+        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF. Агрегатные функции в качестве выражения не допускаются.</param>
+        /// <returns></returns>
+        public static object Count(object expr) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает количество значений в группе, которые не являются NULL.
+        /// </summary>
         /// <returns></returns>
         public static object Count() => throw DBInternal.DBFunctionException();
 
@@ -278,8 +309,16 @@
 
         #endregion
 
+        #region Предикаты существования
+
+
+
+
+        #endregion
+
         public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
         public static object Desc(object expr) => throw DBInternal.DBFunctionException();
+        public static object Distinct(object expr) => throw DBInternal.DBFunctionException();
 
         public enum OptionEnum
         {

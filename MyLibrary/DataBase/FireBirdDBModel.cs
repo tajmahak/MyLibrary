@@ -63,6 +63,8 @@ namespace MyLibrary.DataBase
                 }
 
                 PrepareJoinCommand(sql, query);
+
+                PrepareUnionCommand(sql, query, cQuery);
             }
             else if (query.Type == DBQueryTypeEnum.Insert)
             {

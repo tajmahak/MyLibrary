@@ -47,6 +47,7 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectCommand(sql, query, cQuery);
                 PrepareJoinCommand(sql, query);
+                PrepareUnionCommand(sql, query, cQuery);
             }
             else if (query.Type == DBQueryTypeEnum.Insert)
             {

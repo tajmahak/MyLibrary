@@ -198,7 +198,7 @@ namespace MyLibrary.DataBase
             AddItem(DBQueryStructureTypeEnum.Skip, count);
             return This;
         }
-        public TQuery Union(DBQuery query, DBFunction.OptionEnum? operation = null)
+        public TQuery Union(DBQueryBase query, DBFunction.OptionEnum? operation = null)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
@@ -361,7 +361,7 @@ namespace MyLibrary.DataBase
             AddItem(DBQueryStructureTypeEnum.WhereLikeUpper, columnName, value);
             return This;
         }
-        public TQuery WhereIn(string columnName, DBQuery query)
+        public TQuery WhereIn(string columnName, DBQueryBase query)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
