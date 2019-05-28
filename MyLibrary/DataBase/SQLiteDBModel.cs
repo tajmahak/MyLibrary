@@ -15,7 +15,6 @@ namespace MyLibrary.DataBase
         {
             OpenBlock = '[';
             CloseBlock = ']';
-            ParameterPrefix = '@';
         }
 
         public override DBTable[] GetTableSchema(DbConnection connection)

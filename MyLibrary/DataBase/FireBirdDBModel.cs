@@ -14,7 +14,6 @@ namespace MyLibrary.DataBase
         public FireBirdDBModel()
         {
             OpenBlock = CloseBlock = '\"';
-            ParameterPrefix = '@';
         }
 
         public override DBTable[] GetTableSchema(DbConnection connection)

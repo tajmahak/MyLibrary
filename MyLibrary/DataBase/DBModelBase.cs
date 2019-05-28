@@ -19,7 +19,6 @@ namespace MyLibrary.DataBase
 
         public char OpenBlock { get; protected set; }
         public char CloseBlock { get; protected set; }
-        public char ParameterPrefix { get; protected set; }
 
         public abstract DBTable[] GetTableSchema(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
@@ -302,7 +301,7 @@ namespace MyLibrary.DataBase
                 }
                 else
                 {
-                    Add(sql, ParameterPrefix, 'p', paramIndex++);
+                    Add(sql, "@p", paramIndex++);
                 }
             }
             Add(sql, ')');
@@ -324,15 +323,15 @@ namespace MyLibrary.DataBase
                 {
                     Add(sql, ',');
                 }
-                Add(sql, GetName(column.Name), '=', ParameterPrefix, 'p', index++);
+                Add(sql, GetName(column.Name), "=@p", index++);
             }
-            Add(sql, " WHERE ", GetName(table.PrimaryKeyColumn.Name), '=', ParameterPrefix, "id");
+            Add(sql, " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
             return sql.ToString();
         }
         protected virtual string GetDeleteCommand(DBTable table)
         {
             var sql = new StringBuilder();
-            Add(sql, "DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), '=', ParameterPrefix, "id");
+            Add(sql, "DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
             return sql.ToString();
         }
 
@@ -927,7 +926,7 @@ namespace MyLibrary.DataBase
             var paramNumber = cQuery.NextParameterNumber++;
             var parameter = new DBParameter()
             {
-                Name = string.Concat(ParameterPrefix, 'p', paramNumber),
+                Name = string.Concat("@p", paramNumber),
                 Value = value,
             };
             cQuery.Parameters.Add(parameter);

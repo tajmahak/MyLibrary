@@ -641,7 +641,7 @@ namespace MyLibrary.DataBase
                         continue;
                     }
 
-                    Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
+                    Model.AddCommandParameter(cmd, string.Concat("@p", index), row[i]);
                     index++;
                 }
                 return Model.ExecuteInsertCommand(cmd);
@@ -659,10 +659,10 @@ namespace MyLibrary.DataBase
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
-                        Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[i]);
+                        Model.AddCommandParameter(cmd, "@id", row[i]);
                         continue;
                     }
-                    Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, 'p', index), row[i]);
+                    Model.AddCommandParameter(cmd, string.Concat("@p", index), row[i]);
                     index++;
                 }
 
@@ -675,7 +675,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Delete);
-                Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyColumn.Index]);
+                Model.AddCommandParameter(cmd, "@id", row[row.Table.PrimaryKeyColumn.Index]);
 
                 cmd.ExecuteNonQuery();
             }
