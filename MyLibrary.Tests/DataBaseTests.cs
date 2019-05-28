@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MyLibrary.DataBase;
-using MyLibrary.DataBase.Orm;
 using MyLibrary.Tests.Properties;
 using System;
 
