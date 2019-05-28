@@ -289,5 +289,49 @@
         public static decimal Some(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
 
         #endregion
+
+        #region Условные функции
+
+        /// <summary>
+        /// Функция принимает два или более аргумента возвращает значение первого NOT NULL аргумента.Если все аргументы имеют значение NULL, то и результат будет NULL.
+        /// </summary>
+        /// <param name="expr1">Выражения любого совместимого типа.</param>
+        /// <param name="expr2">Выражения любого совместимого типа.</param>
+        /// <param name="expr_list">Выражения любого совместимого типа.</param>
+        /// <returns></returns>
+        public static object Coalesce(object expr1, object expr2, params object[] expr_list) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Данная функция эквивалентна конструкции CASE, в которой заданное выражение сравнивается с другими выражениями до нахождения совпадения. Результатом является значение, указанное после выражения, с которым найдено совпадение. Если совпадений не найдено, то возвращается значение по умолчанию (если оно, конечно, задано – в противном случае возвращается NULL).
+        /// </summary>
+        /// <param name="testexpr">Выражения любого совместимого типа, которое сравнивается с выражениями expr1, expr2 ... exprN</param>
+        /// <param name="value_list">
+        /// expr1, result1, expr2, result2 ... exprN, resultN, defaultresult, где:
+        /// <para>expr: Выражения любого совместимого типа, с которыми сравнивают с выражением testexpr.</para>
+        /// <para>result: Возвращаемые выражения любого типа.</para>
+        /// <para>defaultresult: Выражения, возвращаемое если ни одно из условий не было выполнено.</para>
+        /// </param>
+        /// <returns></returns>
+        public static object Decode(object testexpr, params object[] value_list) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает максимальное значение из входного списка чисел, строк или параметров с типом DATE/TIME/TIMESTAMP.
+        /// </summary>
+        /// <param name="expr_list">Выражения любого совместимого типа.</param>
+        /// <returns></returns>
+        public static object MaxValue(object expr, params object[] expr_list) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Возвращает минимальное значение из входного списка чисел, строк или параметров с типом DATE/TIME/TIMESTAMP.
+        /// </summary>
+        /// <param name="expr_list">Выражения любого совместимого типа.</param>
+        /// <returns></returns>
+        public static object MinValue(object expr, params object[] expr_list) => throw DBInternal.DBFunctionException();
+        /// <summary>
+        /// Функция возвращает значение первого аргумента, если он неравен второму. В случае равенства аргументов возвращается NULL.
+        /// </summary>
+        /// <param name="expr1">Выражения любого совместимого типа.</param>
+        /// <param name="expr2">Выражения любого совместимого типа.</param>
+        /// <returns></returns>
+        public static object NullIf(object expr1, object expr2) => throw DBInternal.DBFunctionException();
+
+        #endregion
     }
 }

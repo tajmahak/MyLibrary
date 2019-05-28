@@ -9,6 +9,7 @@
         Skip,
         Distinct,
         UnionAll,
+        UnionDistinct,
 
         Select,
         SelectAs,
@@ -57,6 +58,5 @@
 
         GroupBy,
         GroupBy_expression,
-        UnionDistinct,
     }
 }

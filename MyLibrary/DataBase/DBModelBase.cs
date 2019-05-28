@@ -2,6 +2,7 @@
 using MyLibrary.DataBase.Orm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -1159,14 +1160,27 @@ namespace MyLibrary.DataBase
                 ParseExpression(expression.Arguments[f_index], expression, false, cQuery).Sql.ToString();
             Func<int, object> GetValueArgument = (f_index) =>
                ParseExpression(expression.Arguments[f_index], expression, true, cQuery).Value;
+            Func<int, ReadOnlyCollection<Expression>> GetArrayArgument = (f_index) =>
+                ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
 
             switch (expression.Method.Name)
             {
+                case nameof(DBFunction.As):
+                    Add(result.Sql, GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
+                    break;
+
+                case nameof(DBFunction.Desc):
+                    Add(result.Sql, GetArgument(0), " DESC");
+                    break;
+
+                case nameof(DBFunction.Distinct):
+                    Add(result.Sql, "DISTINCT ", GetArgument(0));
+                    break;
+
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
                     Add(result.Sql, GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2)); break;
-
 
                 case nameof(DBFunction.Like):
                     Add(result.Sql, GetArgument(0), " ", notBlock, "LIKE ", GetArgument(1));
@@ -1180,14 +1194,11 @@ namespace MyLibrary.DataBase
                     }
                     break;
 
-
                 case nameof(DBFunction.StartingWith):
                     Add(result.Sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1)); break;
 
-
                 case nameof(DBFunction.Containing):
                     Add(result.Sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1)); break;
-
 
                 case nameof(DBFunction.SimilarTo):
                     Add(result.Sql, GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
@@ -1209,7 +1220,6 @@ namespace MyLibrary.DataBase
                     Add(result.Sql, "AVG(", GetArgument(0), ")");
                     break;
 
-
                 case nameof(DBFunction.Count):
                     if (argumentsCount > 0)
                     {
@@ -1221,7 +1231,6 @@ namespace MyLibrary.DataBase
                     }
                     break;
 
-
                 case nameof(DBFunction.List):
                     Add(result.Sql, "LIST(", GetArgument(0));
                     if (argumentsCount > 1)
@@ -1231,16 +1240,13 @@ namespace MyLibrary.DataBase
                     Add(result.Sql, ")");
                     break;
 
-
                 case nameof(DBFunction.Max):
                     Add(result.Sql, "MAX(", GetArgument(0), ")");
                     break;
 
-
                 case nameof(DBFunction.Min):
                     Add(result.Sql, "MIN(", GetArgument(0), ")");
                     break;
-
 
                 case nameof(DBFunction.Sum):
                     Add(result.Sql, "SUM(", GetArgument(0), ")");
@@ -1253,18 +1259,14 @@ namespace MyLibrary.DataBase
                 case nameof(DBFunction.CharLength):
                     Add(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")"); break;
 
-
                 case nameof(DBFunction.Hash):
                     Add(result.Sql, "HASH(", GetArgument(0), ")"); break;
-
 
                 case nameof(DBFunction.Left):
                     Add(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")"); break;
 
-
                 case nameof(DBFunction.Lower):
                     Add(result.Sql, "LOWER(", GetArgument(0), ")"); break;
-
 
                 case nameof(DBFunction.LPad):
                     Add(result.Sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
@@ -1278,7 +1280,6 @@ namespace MyLibrary.DataBase
                     }
                     Add(result.Sql, ")"); break;
 
-
                 case nameof(DBFunction.Overlay):
                     Add(result.Sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
                     if (argumentsCount > 3)
@@ -1291,18 +1292,14 @@ namespace MyLibrary.DataBase
                     }
                     Add(result.Sql, ")"); break;
 
-
                 case nameof(DBFunction.Replace):
                     Add(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")"); break;
-
 
                 case nameof(DBFunction.Reverse):
                     Add(result.Sql, "REVERSE(", GetArgument(0), ")"); break;
 
-
                 case nameof(DBFunction.Right):
                     Add(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")"); break;
-
 
                 case nameof(DBFunction.RPad):
                     Add(result.Sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
@@ -1316,7 +1313,6 @@ namespace MyLibrary.DataBase
                     }
                     Add(result.Sql, ")"); break;
 
-
                 case nameof(DBFunction.SubString):
                     Add(result.Sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
                     if (argumentsCount > 2)
@@ -1328,7 +1324,6 @@ namespace MyLibrary.DataBase
                         }
                     }
                     Add(result.Sql, ")"); break;
-
 
                 case nameof(DBFunction.Upper):
                     Add(result.Sql, "UPPER(", GetArgument(0), ")"); break;
@@ -1375,17 +1370,57 @@ namespace MyLibrary.DataBase
 
                 #endregion
 
-                case nameof(DBFunction.As):
-                    Add(result.Sql, GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
+                #region Условные функции
+
+                case nameof(DBFunction.Coalesce):
+                    Add(result.Sql, "COALESCE(", GetArgument(0), ',', GetArgument(1));
+                    var array = GetArrayArgument(2);
+                    for (int i = 0; i < array.Count; i++)
+                    {
+                        Add(result.Sql, ',');
+                        Add(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                    }
+                    Add(result.Sql, ")");
                     break;
 
-                case nameof(DBFunction.Desc):
-                    Add(result.Sql, GetArgument(0), " DESC");
+                case nameof(DBFunction.Decode):
+                    Add(result.Sql, "DECODE(", GetArgument(0));
+                    array = GetArrayArgument(1);
+                    for (int i = 0; i < array.Count; i++)
+                    {
+                        Add(result.Sql, ',');
+                        Add(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                    }
+                    Add(result.Sql, ")");
                     break;
 
-                case nameof(DBFunction.Distinct):
-                    Add(result.Sql, "DISTINCT ", GetArgument(0));
+                case nameof(DBFunction.MaxValue):
+                    Add(result.Sql, "MAXVALUE(", GetArgument(0));
+                    array = GetArrayArgument(1);
+                    for (int i = 0; i < array.Count; i++)
+                    {
+                        Add(result.Sql, ',');
+                        Add(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                    }
+                    Add(result.Sql, ")");
                     break;
+
+                case nameof(DBFunction.MinValue):
+                    Add(result.Sql, "MINVALUE(", GetArgument(0));
+                    array = GetArrayArgument(1);
+                    for (int i = 0; i < array.Count; i++)
+                    {
+                        Add(result.Sql, ',');
+                        Add(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                    }
+                    Add(result.Sql, ")");
+                    break;
+
+                case nameof(DBFunction.NullIf):
+                    Add(result.Sql, "NULLIF(", GetArgument(0), ',', GetArgument(0), ')');
+                    break;
+
+                    #endregion
             }
 
             return result;
