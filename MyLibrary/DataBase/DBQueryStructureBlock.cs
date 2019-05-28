@@ -3,7 +3,7 @@
     /// <summary>
     /// Представляет структурный блок для запроса <see cref="DBQueryBase"/>.
     /// </summary>
-    public class DBQueryStructureBlock
+    public sealed class DBQueryStructureBlock
     {
         public DBQueryStructureType Type { get; set; }
         public object[] Args { get; set; }

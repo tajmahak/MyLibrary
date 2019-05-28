@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Модель БД "SQLite".
     /// </summary>
-    public class SQLiteDBModel : DBModelBase
+    public sealed class SQLiteDBModel : DBModelBase
     {
         public SQLiteDBModel()
         {

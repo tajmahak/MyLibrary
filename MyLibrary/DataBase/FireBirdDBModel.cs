@@ -9,7 +9,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Модель БД "FireBird".
     /// </summary>
-    public class FireBirdDBModel : DBModelBase
+    public sealed class FireBirdDBModel : DBModelBase
     {
         public FireBirdDBModel()
         {
