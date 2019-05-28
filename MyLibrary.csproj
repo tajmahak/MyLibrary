@@ -123,9 +123,9 @@
     <Compile Include="MyLibrary\DataBase\DBTable.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryTypeEnum.cs" />
     <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
-    <Compile Include="MyLibrary\DataBase\Orm\DBOrmColumnAttribute.cs" />
-    <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableAttribute.cs" />
-    <Compile Include="MyLibrary\DataBase\Orm\DBOrmTableBase.cs" />
+    <Compile Include="MyLibrary\DataBase\DBOrmColumnAttribute.cs" />
+    <Compile Include="MyLibrary\DataBase\DBOrmTableAttribute.cs" />
+    <Compile Include="MyLibrary\DataBase\DBOrmTableBase.cs" />
     <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
     <Compile Include="MyLibrary\Data\Format.cs" />
     <Compile Include="MyLibrary\Data\Formats\DBFReader.cs" />

@@ -1,4 +1,4 @@
-﻿namespace MyLibrary.DataBase.Orm
+﻿namespace MyLibrary.DataBase
 {
     public abstract class DBOrmTableBase
     {

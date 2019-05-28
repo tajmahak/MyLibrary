@@ -1,5 +1,4 @@
-﻿using MyLibrary.DataBase.Orm;
-using System;
+﻿using System;
 
 namespace MyLibrary.DataBase
 {

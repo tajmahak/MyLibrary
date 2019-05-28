@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyLibrary.DataBase.Orm
+namespace MyLibrary.DataBase
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmTableAttribute : Attribute

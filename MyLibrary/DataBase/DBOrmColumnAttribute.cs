@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyLibrary.DataBase.Orm
+namespace MyLibrary.DataBase
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmColumnAttribute : Attribute
