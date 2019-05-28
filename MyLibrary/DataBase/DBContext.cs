@@ -9,9 +9,14 @@ namespace MyLibrary.DataBase
 {
     public class DBContext : IDisposable
     {
+        /// <summary>
+        /// Представляет механизм для работы с БД.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="connection"></param>
         public DBContext(DBModelBase model, DbConnection connection)
         {
-            if (!model.Initialized)
+            if (!model.IsInitialized)
             {
                 model.Initialize(connection);
             }
@@ -76,7 +81,7 @@ namespace MyLibrary.DataBase
         /// <param name="query"></param>
         public void Execute(DBQueryBase query)
         {
-            if (query.Type == DBQueryTypeEnum.Select)
+            if (query.Type == DBQueryType.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -445,7 +450,7 @@ namespace MyLibrary.DataBase
 
         public T Get<T>(DBQueryBase query)
         {
-            query.AddItem(DBQueryStructureTypeEnum.First, 1);
+            query.AddItem(DBQueryStructureType.First, 1);
             foreach (var row in Select<T>(query))
             {
                 return row;
@@ -492,7 +497,7 @@ namespace MyLibrary.DataBase
 
         public DBReader<T> Select<T>(DBQueryBase query)
         {
-            if (query.Type != DBQueryTypeEnum.Select)
+            if (query.Type != DBQueryType.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -507,9 +512,9 @@ namespace MyLibrary.DataBase
 
         public T GetValue<T>(DBQueryBase query)
         {
-            if (query.Type == DBQueryTypeEnum.Select)
+            if (query.Type == DBQueryType.Select)
             {
-                query.AddItem(DBQueryStructureTypeEnum.First, 1);
+                query.AddItem(DBQueryStructureType.First, 1);
             }
 
             using (var command = Model.CompileCommand(Connection, query))
@@ -626,7 +631,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Insert);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Insert);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
@@ -647,7 +652,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Update);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Update);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
@@ -669,7 +674,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Delete);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Delete);
                 Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyColumn.Index]);
 
                 cmd.ExecuteNonQuery();

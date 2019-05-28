@@ -1,5 +1,8 @@
 ﻿namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Предоставляет статические функции для представления функций языка SQL в объектах <see cref="DBQueryBase"/>. Функции данного класса не предназначены для непосредственного использования из кода.
+    /// </summary>
     public static class DBFunction
     {
         public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();

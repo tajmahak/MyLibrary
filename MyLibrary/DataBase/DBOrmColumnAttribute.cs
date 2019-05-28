@@ -2,6 +2,9 @@
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Указывает, что класс представляет столбец для таблицы <see cref="DBOrmTableAttribute"/>.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmColumnAttribute : Attribute
     {

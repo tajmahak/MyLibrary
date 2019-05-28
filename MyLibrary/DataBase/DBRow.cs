@@ -4,6 +4,9 @@ using System.Data;
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Представляет схему строки для таблицы <see cref="DBTable"/>.
+    /// </summary>
     public sealed class DBRow
     {
         internal DBRow(DBTable table)

@@ -2,6 +2,9 @@
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Представляет схему столбца в таблице <see cref="DBTable"/>.
+    /// </summary>
     public sealed class DBColumn
     {
         public DBColumn(DBTable table)
@@ -16,7 +19,7 @@ namespace MyLibrary.DataBase
         public bool AllowDBNull { get; set; }
         public object DefaultValue { get; set; } = DBNull.Value;
         public int Size { get; set; }
-        public string Comment { get; set; }
+        public string Description { get; set; }
         public DBTable Table { get; private set; }
 
         public override string ToString()

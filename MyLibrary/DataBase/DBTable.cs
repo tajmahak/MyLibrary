@@ -2,6 +2,9 @@
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Представляет схему таблицы БД.
+    /// </summary>
     public sealed class DBTable
     {
         public DBTable(DBModelBase model, string name)

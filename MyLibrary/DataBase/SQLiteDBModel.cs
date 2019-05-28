@@ -6,6 +6,9 @@ using System.Data.SQLite;
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Модель БД "SQLite".
+    /// </summary>
     public class SQLiteDBModel : DBModelBase
     {
         public SQLiteDBModel()
@@ -82,7 +85,7 @@ namespace MyLibrary.DataBase
                         var description = columnRow["DESCRIPTION"];
                         if (description != DBNull.Value)
                         {
-                            column.Comment = (string)description;
+                            column.Description = (string)description;
                         }
                         if ((bool)columnRow["PRIMARY_KEY"])
                         {

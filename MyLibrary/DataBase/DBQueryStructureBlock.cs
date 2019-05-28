@@ -1,8 +1,11 @@
 ﻿namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Представляет структурный блок для запроса <see cref="DBQueryBase"/>.
+    /// </summary>
     public class DBQueryStructureBlock
     {
-        public DBQueryStructureTypeEnum Type { get; set; }
+        public DBQueryStructureType Type { get; set; }
         public object[] Args { get; set; }
 
         public object this[int index]

@@ -1,5 +1,8 @@
 ﻿namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Базовый класс для ORM-таблиц.
+    /// </summary>
     public abstract class DBOrmTableBase
     {
         public DBRow Row { get; set; }

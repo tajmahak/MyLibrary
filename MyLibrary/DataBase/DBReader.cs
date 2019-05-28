@@ -6,6 +6,10 @@ using System.Data.Common;
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Считывает поток строк последовательного доступа из источника данных.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
         internal DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)

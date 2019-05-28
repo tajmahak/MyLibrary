@@ -6,6 +6,9 @@ using System.Data.Common;
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Модель БД "FireBird".
+    /// </summary>
     public class FireBirdDBModel : DBModelBase
     {
         public FireBirdDBModel()
@@ -82,7 +85,7 @@ namespace MyLibrary.DataBase
                         var description = columnRow["DESCRIPTION"];
                         if (description != DBNull.Value)
                         {
-                            column.Comment = (string)description;
+                            column.Description = (string)description;
                         }
                     }
                 }

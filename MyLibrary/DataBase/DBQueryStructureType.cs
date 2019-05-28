@@ -1,6 +1,9 @@
 ﻿namespace MyLibrary.DataBase
 {
-    public enum DBQueryStructureTypeEnum
+    /// <summary>
+    /// Задаёт тип структурного блока <see cref="DBQueryStructureBlock"/> для запроса <see cref="DBQueryBase"/>.
+    /// </summary>
+    public enum DBQueryStructureType
     {
         Set,
         Matching,
