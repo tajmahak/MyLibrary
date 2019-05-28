@@ -48,7 +48,7 @@ namespace MyLibrary.DataBase
             return query;
         }
         /// <summary>
-        /// Создание нового запроса <see cref="DBQuery"/>
+        /// Создание нового запроса <see cref="DBQuery{T}"/>
         /// </summary>
         /// <typeparam name="T">Тип данных для таблицы</typeparam>
         /// <returns></returns>
@@ -542,7 +542,7 @@ namespace MyLibrary.DataBase
         #region Работа с данными типа <DBRow>
 
         /// <summary>
-        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
+        /// Создание новой строки и помещение её в текущий экземпляр <see cref="DBContext"/>
         /// </summary>
         /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
         /// <returns></returns>
@@ -672,6 +672,7 @@ namespace MyLibrary.DataBase
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryTypeEnum.Delete);
                 Model.AddCommandParameter(cmd, string.Concat(Model.ParameterPrefix, "id"), row[row.Table.PrimaryKeyColumn.Index]);
+
                 cmd.ExecuteNonQuery();
             }
         }

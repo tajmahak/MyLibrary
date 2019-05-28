@@ -20,85 +20,157 @@ namespace MyLibrary.DataBase
         public char CloseBlock { get; protected set; }
         public char ParameterPrefix { get; protected set; }
 
-        public abstract DbCommand CreateCommand(DbConnection connection);
+        public abstract DBTable[] GetTableSchema(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
         public abstract object ExecuteInsertCommand(DbCommand command);
-        public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
-        public abstract Dictionary<string, Type> GetDataTypes();
         public virtual string GetDefaultInsertCommand(DBTable table)
         {
             return GetInsertCommand(table);
         }
+        public virtual DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
+        {
+            var cQuery = new DBCompiledQuery()
+            {
+                NextParameterNumber = nextParameterNumber,
+            };
+
+            DBQueryStructureBlock block;
+            List<DBQueryStructureBlock> blockList;
+
+            var sql = new StringBuilder();
+            if (query.Type == DBQueryTypeEnum.Select)
+            {
+                PrepareSelectCommand(sql, query, cQuery);
+
+                block = FindBlock(query, DBQueryStructureTypeEnum.Distinct);
+                if (block != null)
+                {
+                    sql.Insert(6, " DISTINCT");
+                }
+
+                block = FindBlock(query, DBQueryStructureTypeEnum.Skip);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" SKIP ", block[0]));
+                }
+
+                block = FindBlock(query, DBQueryStructureTypeEnum.First);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" FIRST ", block[0]));
+                }
+
+                PrepareJoinCommand(sql, query);
+            }
+            else if (query.Type == DBQueryTypeEnum.Insert)
+            {
+                PrepareInsertCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryTypeEnum.Update)
+            {
+                PrepareUpdateCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryTypeEnum.Delete)
+            {
+                PrepareDeleteCommand(sql, query);
+            }
+            else if (query.Type == DBQueryTypeEnum.UpdateOrInsert)
+            {
+                #region UPDATE OR INSERT
+
+                Add(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
+
+                blockList = FindBlockList(query, DBQueryStructureTypeEnum.Set);
+                if (blockList.Count == 0)
+                {
+                    throw DBInternal.InadequateUpdateCommandException();
+                }
+
+                Add(sql, '(');
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    if (i > 0)
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, GetColumnName(block[0]));
+                }
+
+                Add(sql, ")VALUES(");
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    if (i > 0)
+                    {
+                        Add(sql, ',');
+                    }
+                    Add(sql, AddParameter(block[1], cQuery));
+                }
+
+                Add(sql, ')');
+
+                blockList = FindBlockList(query, DBQueryStructureTypeEnum.Matching);
+                if (blockList.Count > 0)
+                {
+                    Add(sql, " MATCHING(");
+                    for (int i = 0; i < blockList.Count; i++)
+                    {
+                        block = blockList[i];
+                        for (int j = 0; j < block.Length; j++)
+                        {
+                            if (j > 0)
+                            {
+                                Add(sql, ',');
+                            }
+                            Add(sql, GetColumnName(block[j]));
+                        }
+                    }
+                    Add(sql, ')');
+                }
+
+                #endregion
+            }
+
+            PrepareWhereCommand(sql, query, cQuery);
+
+            if (query.Type == DBQueryTypeEnum.Select)
+            {
+                PrepareGroupByCommand(sql, query);
+                PrepareOrderByCommand(sql, query);
+            }
+
+            #region RETURNING ...
+
+            blockList = FindBlockList(query, DBQueryStructureTypeEnum.Returning);
+            if (blockList.Count > 0)
+            {
+                Add(sql, " RETURNING ");
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    for (int j = 0; j < block.Length; j++)
+                    {
+                        if (i > 0)
+                        {
+                            Add(sql, ',');
+                        }
+                        Add(sql, GetColumnName(block[j]));
+                    }
+                }
+            }
+
+            #endregion
+
+            PrepareUnionCommand(sql, query, cQuery);
+
+            cQuery.CommandText = sql.ToString();
+            return cQuery;
+        }
 
         public void Initialize(DbConnection connection)
         {
-            var tables = new List<DBTable>();
-            var dataTypes = GetDataTypes();
-
-            using (var tableSchema = connection.GetSchema("Tables"))
-            {
-                foreach (DataRow tableRow in tableSchema.Rows)
-                {
-                    if ((short)tableRow["IS_SYSTEM_TABLE"] == 0)
-                    {
-                        var tableName = (string)tableRow["TABLE_NAME"];
-                        var table = new DBTable(this, tableName);
-                        tables.Add(table);
-                    }
-                }
-            }
-            using (var columnSchema = connection.GetSchema("Columns"))
-            {
-                foreach (DataRow columnRow in columnSchema.Rows)
-                {
-                    var tableName = (string)columnRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
-                    if (table != null)
-                    {
-                        var column = new DBColumn(table);
-                        column.Index = (short)columnRow["ORDINAL_POSITION"];
-                        column.Name = (string)columnRow["COLUMN_NAME"];
-                        if (dataTypes.TryGetValue((string)columnRow["COLUMN_DATA_TYPE"], out var columnType))
-                        {
-                            column.DataType = columnType;
-                        }
-                        else
-                        {
-                            //!!!
-                            throw null;
-                        }
-                        column.AllowDBNull = (bool)columnRow["IS_NULLABLE"];
-                        var defaultValue = columnRow["COLUMN_DEFAULT"].ToString();
-                        if (defaultValue.Length > 0)
-                        {
-                            defaultValue = defaultValue.Remove(0, 8);
-                            column.DefaultValue = Convert.ChangeType(defaultValue, column.DataType);
-                        }
-                        column.Size = (int)columnRow["COLUMN_SIZE"];
-                        var description = columnRow["DESCRIPTION"];
-                        if (description != DBNull.Value)
-                        {
-                            column.Comment = (string)description;
-                        }
-                        table.AddColumn(column);
-                    }
-                }
-            }
-            using (var primaryKeySchema = connection.GetSchema("PrimaryKeys"))
-            {
-                foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
-                {
-                    var tableName = (string)primaryKeyRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
-
-                    var columnName = (string)primaryKeyRow["COLUMN_NAME"];
-                    var column = table.Columns.Find(x => x.Name == columnName);
-                    column.IsPrimary = true;
-                    table.PrimaryKeyColumn = column;
-                }
-            }
-            Tables = tables.ToArray();
-
+            Tables = GetTableSchema(connection);
             InitializeDictionaries();
             Initialized = true;
         }
@@ -166,7 +238,7 @@ namespace MyLibrary.DataBase
         public DbCommand CompileCommand(DbConnection connection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
-            var command = CreateCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = compiledQuery.CommandText;
             foreach (var parameter in compiledQuery.Parameters)
             {

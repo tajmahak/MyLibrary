@@ -14,7 +14,7 @@ namespace MyLibrary.DataBase
         public Type DataType { get; set; }
         public bool IsPrimary { get; set; }
         public bool AllowDBNull { get; set; }
-        public object DefaultValue { get; set; }
+        public object DefaultValue { get; set; } = DBNull.Value;
         public int Size { get; set; }
         public string Comment { get; set; }
         public DBTable Table { get; private set; }
