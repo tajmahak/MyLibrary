@@ -799,10 +799,19 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareUnionCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = FindBlockList(query, DBQueryStructureTypeEnum.Union);
-            foreach (var block in blockList)
+            var blockList = FindBlockList(query, DBQueryStructureTypeEnum.UnionAll);
+            foreach (var block in query.Structure)
             {
-                Add(sql, " UNION ", AddSubQuery((DBQueryBase)block[0], cQuery));
+                switch (block.Type)
+                {
+                    case DBQueryStructureTypeEnum.UnionAll:
+                        Add(sql, " UNION ALL ", AddSubQuery((DBQueryBase)block[0], cQuery));
+                        break;
+
+                    case DBQueryStructureTypeEnum.UnionDistinct:
+                        Add(sql, " UNION DISTINCT ", AddSubQuery((DBQueryBase)block[0], cQuery));
+                        break;
+                }
             }
         }
 
@@ -1173,15 +1182,15 @@ namespace MyLibrary.DataBase
 
 
                 case nameof(DBFunction.StartingWith):
-                    Add(result.Sql, GetArgument(0), " ", notBlock, "STARTING WITH ", GetArgument(1)); break;
+                    Add(result.Sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1)); break;
 
 
                 case nameof(DBFunction.Containing):
-                    Add(result.Sql, GetArgument(0), " ", notBlock, "CONTAINING ", GetArgument(1)); break;
+                    Add(result.Sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1)); break;
 
 
                 case nameof(DBFunction.SimilarTo):
-                    Add(result.Sql, GetArgument(0), " ", notBlock, "SIMILAR TO ", GetArgument(1));
+                    Add(result.Sql, GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
@@ -1197,12 +1206,8 @@ namespace MyLibrary.DataBase
                 #region Агрегатные функции
 
                 case nameof(DBFunction.Avg):
-                    string option = string.Empty;
-                    if (argumentsCount > 1)
-                    {
-                        option = ParseAggregateOption(expression.Arguments[1]);
-                    }
-                    Add(result.Sql, "AVG(", option, GetArgument(0), ")"); break;
+                    Add(result.Sql, "AVG(", GetArgument(0), ")");
+                    break;
 
 
                 case nameof(DBFunction.Count):
@@ -1218,44 +1223,28 @@ namespace MyLibrary.DataBase
 
 
                 case nameof(DBFunction.List):
-                    option = string.Empty;
-                    if (argumentsCount > 2)
-                    {
-                        option = ParseAggregateOption(expression.Arguments[2]);
-                    }
-                    Add(result.Sql, "LIST(", option, GetArgument(0));
+                    Add(result.Sql, "LIST(", GetArgument(0));
                     if (argumentsCount > 1)
                     {
                         Add(result.Sql, ",", GetArgument(1));
                     }
-                    Add(result.Sql, ")"); break;
+                    Add(result.Sql, ")");
+                    break;
 
 
                 case nameof(DBFunction.Max):
-                    option = string.Empty;
-                    if (argumentsCount > 1)
-                    {
-                        option = ParseAggregateOption(expression.Arguments[1]);
-                    }
-                    Add(result.Sql, "MAX(", option, GetArgument(0), ")"); break;
+                    Add(result.Sql, "MAX(", GetArgument(0), ")");
+                    break;
 
 
                 case nameof(DBFunction.Min):
-                    option = string.Empty;
-                    if (argumentsCount > 1)
-                    {
-                        option = ParseAggregateOption(expression.Arguments[1]);
-                    }
-                    Add(result.Sql, "MIN(", option, GetArgument(0), ")"); break;
+                    Add(result.Sql, "MIN(", GetArgument(0), ")");
+                    break;
 
 
                 case nameof(DBFunction.Sum):
-                    option = string.Empty;
-                    if (argumentsCount > 1)
-                    {
-                        option = ParseAggregateOption(expression.Arguments[1]);
-                    }
-                    Add(result.Sql, "SUM(", option, GetArgument(0), ")"); break;
+                    Add(result.Sql, "SUM(", GetArgument(0), ")");
+                    break;
 
                 #endregion
 
@@ -1400,22 +1389,6 @@ namespace MyLibrary.DataBase
             }
 
             return result;
-        }
-        private string ParseAggregateOption(Expression expression)
-        {
-            var constantExpression = (ConstantExpression)expression;
-            return ParseAggregateOption((DBFunction.OptionEnum)constantExpression.Value);
-        }
-        private string ParseAggregateOption(DBFunction.OptionEnum option)
-        {
-            switch (option)
-            {
-                case DBFunction.OptionEnum.All:
-                    return "ALL "; // чтобы в случае отсутствия функции не было лишних пробелов
-                case DBFunction.OptionEnum.Distinct:
-                    return "DISTINCT ";
-            }
-            throw new Exception();
         }
         private void InitializeDictionaries()
         {

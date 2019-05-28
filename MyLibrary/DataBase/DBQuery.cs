@@ -198,11 +198,18 @@ namespace MyLibrary.DataBase
             AddItem(DBQueryStructureTypeEnum.Skip, count);
             return This;
         }
-        public TQuery Union(DBQueryBase query, DBFunction.OptionEnum? operation = null)
+        public TQuery Union(DBQueryBase query)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            AddItem(DBQueryStructureTypeEnum.Union, query, operation);
+            AddItem(DBQueryStructureTypeEnum.UnionAll, query);
+            return This;
+        }
+        public TQuery UnionDistinct(DBQueryBase query)
+        {
+            if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
+
+            AddItem(DBQueryStructureTypeEnum.UnionDistinct, query);
             return This;
         }
 

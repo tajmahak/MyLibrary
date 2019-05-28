@@ -8,7 +8,7 @@
         First,
         Skip,
         Distinct,
-        Union,
+        UnionAll,
 
         Select,
         SelectAs,
@@ -57,5 +57,6 @@
 
         GroupBy,
         GroupBy_expression,
+        UnionDistinct,
     }
 }

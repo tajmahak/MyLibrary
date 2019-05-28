@@ -5,6 +5,7 @@
         public static object As(object expr, string alias) => throw DBInternal.DBFunctionException();
         public static object Desc(object expr) => throw DBInternal.DBFunctionException();
         public static object Distinct(object expr) => throw DBInternal.DBFunctionException();
+        public static object All(object expr) => throw DBInternal.DBFunctionException();
 
         #region Предикаты сравнения
 
@@ -22,14 +23,14 @@
         /// <param name="pattern">Шаблон поиска.</param>
         /// <param name="escape_character">Символ экранирования.</param>
         /// <returns></returns>
-        public static bool Like(string match_value, string pattern, char? escape_character = null) => throw DBInternal.DBFunctionException();
+        public static bool Like(string match_value, string pattern, char escape_character) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Сравнивает выражение символьного типа с шаблоном, определённым во втором выражении. Сравнение с шаблоном является чувствительным к регистру (за исключением случаев, когда само поле определено с сортировкой (COLLATION) нечувствительной к регистру).
         /// </summary>
         /// <param name="match_value">Выражение символьного типа.</param>
         /// <param name="pattern">Шаблон поиска.</param>
         /// <returns></returns>
-        public static bool Like(string match_value, string pattern) => Like(match_value, pattern, null);
+        public static bool Like(string match_value, string pattern) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Ищет строку или тип, подобный строке, которая начинается с символов в его аргументе. Поиск <see cref="StartingWith"/> чувствителен к регистру.
         /// </summary>
@@ -51,7 +52,7 @@
         /// <param name="pattern">Регулярное выражение SQL.</param>
         /// <param name="escape_character">Символ экранирования.</param>
         /// <returns></returns>
-        public static bool SimilarTo(string match_value, string pattern, char? escape_character = null) => throw DBInternal.DBFunctionException();
+        public static bool SimilarTo(string match_value, string pattern, char escape_character) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Проверяет соответствие строки с шаблоном регулярного выражения SQL. В отличие от некоторых других языков для успешного выполнения шаблон должен соответствовать всей строке — соответствие подстроки не достаточно. Если один из операндов имеет значение NULL, то и результат будет NULL. В противном случае результат является TRUE или FALSE.
         /// </summary>
@@ -67,22 +68,9 @@
         /// <summary>
         /// Возвращает среднее значение для группы. Значения NULL пропускаются.
         /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает числовой тип данных.Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <returns></returns>
-        public static object Avg(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
-        /// <summary>
-        /// Возвращает среднее значение для группы. Значения NULL пропускаются.
-        /// </summary>
         /// <param name="expr"></param>
         /// <returns></returns>
         public static object Avg(object expr) => throw DBInternal.DBFunctionException();
-
-        /// <summary>
-        /// Возвращает количество значений в группе, которые не являются NULL.
-        /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF. Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <returns></returns>
-        public static object Count(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
         /// </summary>
@@ -94,64 +82,31 @@
         /// </summary>
         /// <returns></returns>
         public static object Count() => throw DBInternal.DBFunctionException();
-
-        /// <summary>
-        /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
-        /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
-        /// <param name="option"></param>
-        /// <returns></returns>
-        public static object List(object expr, char? separator = null, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
         /// <returns></returns>
-        public static object List(object expr, char? separator = null) => throw DBInternal.DBFunctionException();
+        public static object List(object expr, char separator) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
         public static object List(object expr) => throw DBInternal.DBFunctionException();
-
-        /// <summary>
-        /// Возвращает максимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется последним в сортировке при применении COLLATE.
-        /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <param name="option"></param>
-        /// <returns></returns>
-        public static object Max(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает максимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется последним в сортировке при применении COLLATE.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
         public static object Max(object expr) => throw DBInternal.DBFunctionException();
-
-        /// <summary>
-        /// Возвращает минимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется первым в сортировке при применении COLLATE.
-        /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <param name="option"></param>
-        /// <returns></returns>
-        public static object Min(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает минимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется первым в сортировке при применении COLLATE.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
         public static object Min(object expr) => throw DBInternal.DBFunctionException();
-
-        /// <summary>
-        /// Функция SUM возвращает сумму элементов выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL.
-        /// </summary>
-        /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
-        /// <param name="option"></param>
-        /// <returns></returns>
-        public static object Sum(object expr, OptionEnum option = OptionEnum.All) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Функция SUM возвращает сумму элементов выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL.
         /// </summary>
@@ -334,17 +289,5 @@
         public static decimal Some(DBQueryBase select_stmt) => throw DBInternal.DBFunctionException();
 
         #endregion
-
-        public enum OptionEnum
-        {
-            /// <summary>
-            /// Обрабатываются все значения из выборки, не содержащие NULL.
-            /// </summary>
-            All,
-            /// <summary>
-            /// Из выборки устраняются дубликаты, после осуществляется подсчёт.
-            /// </summary>
-            Distinct,
-        }
     }
 }
