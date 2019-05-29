@@ -171,7 +171,7 @@ namespace MyLibrary.DataBase
                 blockList = FindBlockList(query, DBQueryStructureType.Set);
                 if (blockList.Count == 0)
                 {
-                    throw DBInternal.InadequateUpdateCommandException();
+                    throw DBInternal.WrongUpdateCommandException();
                 }
 
                 AddText(sql, '(');

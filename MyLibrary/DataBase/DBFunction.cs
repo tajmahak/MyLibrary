@@ -260,7 +260,7 @@
         /// </summary>
         /// <param name="value_list"></param>
         /// <returns></returns>
-        public static bool In(object value, object[] value_list) => throw DBInternal.DBFunctionException();//!!!
+        public static bool In(object value, object[] value_list) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Предикат использует подзапрос в качестве аргумента и оценивает его как истинный, если подзапрос возвращает одну и только одну строку результата, в противном случае предикат оценивается как ложный. Результат подзапроса может содержать несколько столбцов, поскольку значения не проверяются. Данный предикат может принимать только два значения: истина (TRUE) и ложь (FALSE).
         /// </summary>

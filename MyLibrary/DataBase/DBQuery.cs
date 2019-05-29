@@ -633,10 +633,7 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        private TQuery This
-        {
-            get => (TQuery)((object)this);
-        }
+        private TQuery This => (TQuery)((object)this);
     }
 
     /// <summary>

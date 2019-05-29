@@ -129,6 +129,10 @@ namespace MyLibrary.DataBase
 
             return column;
         }
+        public bool TryGetTable(string tableName, out DBTable table)
+        {
+            return _tablesDict.TryGetValue(tableName, out table);
+        }
         public bool TryGetColumn(string columnName, out DBColumn column)
         {
             return _columnsDict.TryGetValue(columnName, out column);
@@ -246,7 +250,7 @@ namespace MyLibrary.DataBase
                                 }
                             }
                             break;
-                        #endregion
+                            #endregion
                         case DBQueryStructureType.SelectAs:
                             #region
                             if (index > 0)
@@ -256,7 +260,7 @@ namespace MyLibrary.DataBase
                             AddText(sql, GetFullName(block[1]), " AS ", GetName(block[0]));
                             index++;
                             break;
-                        #endregion
+                            #endregion
                         case DBQueryStructureType.SelectSum:
                             #region
                             for (int j = 0; j < block.Length; j++)
@@ -269,7 +273,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                        #endregion
+                            #endregion
                         case DBQueryStructureType.SelectSumAs:
                             #region
                             for (int i = 0; i < block.Length; i += 2)
@@ -282,7 +286,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                        #endregion
+                            #endregion
                         case DBQueryStructureType.SelectMax:
                             #region
                             for (int j = 0; j < block.Length; j++)
@@ -295,7 +299,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                        #endregion
+                            #endregion
                         case DBQueryStructureType.SelectMaxAs:
                             #region
                             for (int j = 0; j < block.Length; j += 2)
@@ -409,7 +413,7 @@ namespace MyLibrary.DataBase
             var blockList = FindBlockList(query, DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
-                throw DBInternal.InadequateUpdateCommandException();
+                throw DBInternal.WrongUpdateCommandException();
             }
 
             for (int i = 0; i < blockList.Count; i++)
@@ -541,7 +545,7 @@ namespace MyLibrary.DataBase
                     {
                         case DBQueryStructureType.Where_expression:
                             #region
-                            AddText(sql, ParseExpression((Expression)block[0], null, false, cQuery).Sql);
+                            AddText(sql, ParseExpression(false, (Expression)block[0], null, cQuery).Sql);
                             break;
                         #endregion
                         case DBQueryStructureType.Where:
@@ -777,19 +781,11 @@ namespace MyLibrary.DataBase
 
             return parameter.Name;
         }
-        protected string AddSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery, bool useBlocks = true)
+        protected string AddSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery)
         {
             var subCQuery = CompileQuery(subQuery, cQuery.Parameters.Count);
             cQuery.Parameters.AddRange(subCQuery.Parameters);
-
-            if (useBlocks)
-            {
-                return string.Concat('(', subCQuery.CommandText, ')');
-            }
-            else
-            {
-                return subCQuery.CommandText;
-            }
+            return string.Concat('(', subCQuery.CommandText, ')');
         }
         protected void AddText(StringBuilder str, params object[] values)
         {
@@ -817,7 +813,20 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        private ParseExpressionResult ParseExpression(Expression expression, Expression parentExpression, bool parseValue, DBCompiledQuery cQuery)
+
+        private StringBuilder GetSqlFromExpression(Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        {
+            return null;
+        }
+        private object GetValueFromExpression(Expression expression, Expression parentExpression)
+        {
+            return null;
+        }
+
+
+
+
+        private ParseExpressionResult ParseExpression(bool parseValue, Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
             var result = new ParseExpressionResult();
 
@@ -825,9 +834,9 @@ namespace MyLibrary.DataBase
             {
                 #region
 
-                AddText(result.Sql, '(', ParseExpression(binaryExpression.Left, expression, false, cQuery).Sql);
+                AddText(result.Sql, '(', ParseExpression(false, binaryExpression.Left, expression, cQuery).Sql);
 
-                var rightBlock = ParseExpression(binaryExpression.Right, expression, false, cQuery).Sql;
+                var rightBlock = ParseExpression(false, binaryExpression.Right, expression, cQuery).Sql;
                 if (rightBlock.Length > 0)
                 {
                     string @operator;
@@ -863,13 +872,14 @@ namespace MyLibrary.DataBase
                 }
                 else
                 {
-                    // IS [NOT] NULL
-                    AddText(result.Sql, " IS");
                     if (binaryExpression.NodeType == ExpressionType.NotEqual)
                     {
-                        AddText(result.Sql, " NOT");
+                        AddText(result.Sql, " IS NOT NULL");
                     }
-                    AddText(result.Sql, " NULL");
+                    else
+                    {
+                        AddText(result.Sql, " IS NULL");
+                    }
                 }
 
                 AddText(result.Sql, ')');
@@ -893,7 +903,7 @@ namespace MyLibrary.DataBase
                     object value;
                     if (memberExpression.Expression != null)
                     {
-                        var innerInfo = ParseExpression(memberExpression.Expression, expression, true, cQuery);
+                        var innerInfo = ParseExpression(true, memberExpression.Expression, expression, cQuery);
                         value = propertyInfo.GetValue(innerInfo.Value, null);
                     }
                     else
@@ -968,11 +978,11 @@ namespace MyLibrary.DataBase
 
                 if (parseValue)
                 {
-                    return ParseExpression(unaryExpression.Operand, expression, true, cQuery);
+                    return ParseExpression(true, unaryExpression.Operand, expression, cQuery);
                 }
                 else
                 {
-                    AddText(result.Sql, ParseExpression(unaryExpression.Operand, expression, false, cQuery).Sql);
+                    AddText(result.Sql, ParseExpression(false, unaryExpression.Operand, expression, cQuery).Sql);
                 }
 
                 #endregion
@@ -1001,20 +1011,21 @@ namespace MyLibrary.DataBase
                 var method = methodCallExpression.Method;
                 if (method.DeclaringType == typeof(DBFunction))
                 {
-                    AddText(result.Sql, ParseFunctionExpression(methodCallExpression, parentExpression, cQuery).Sql);
+                    AddText(result.Sql, ParseExpressionFunction(methodCallExpression, parentExpression, cQuery).Sql);
                 }
                 else
                 {
                     object obj = methodCallExpression.Object;
                     if (obj != null)
                     {
-                        obj = ParseExpression(methodCallExpression.Object, expression, true, cQuery).Value;
+                        // Извлечение объекта из дерева выражений
+                        obj = ParseExpression(true, methodCallExpression.Object, expression, cQuery).Value;
                     }
 
                     var arguments = new object[methodCallExpression.Arguments.Count];
                     for (int i = 0; i < arguments.Length; i++)
                     {
-                        arguments[i] = ParseExpression(methodCallExpression.Arguments[i], expression, true, cQuery).Value;
+                        arguments[i] = ParseExpression(true, methodCallExpression.Arguments[i], expression, cQuery).Value;
                     }
 
                     var value = methodCallExpression.Method.Invoke(obj, arguments);
@@ -1039,7 +1050,7 @@ namespace MyLibrary.DataBase
                     var array = (Array)Activator.CreateInstance(newArrayExpression.Type, newArrayExpression.Expressions.Count);
                     for (int i = 0; i < array.Length; i++)
                     {
-                        var value = ParseExpression(newArrayExpression.Expressions[i], expression, true, cQuery).Value;
+                        var value = ParseExpression(true, newArrayExpression.Expressions[i], expression, cQuery).Value;
                         array.SetValue(value, i);
                     }
                     result.Value = array;
@@ -1068,17 +1079,17 @@ namespace MyLibrary.DataBase
                     {
                         AddText(result.Sql, ',');
                     }
-                    AddText(result.Sql, ParseExpression(exprArg, expression, false, cQuery).Sql);
+                    AddText(result.Sql, ParseExpression(false, exprArg, expression, cQuery).Sql);
                 }
             }
             else
             {
-                AddText(result.Sql, ParseExpression(expression, null, false, cQuery).Sql);
+                AddText(result.Sql, ParseExpression(false, expression, null, cQuery).Sql);
             }
 
             return result;
         }
-        private ParseExpressionResult ParseFunctionExpression(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        private ParseExpressionResult ParseExpressionFunction(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
             var result = new ParseExpressionResult();
 
@@ -1089,10 +1100,10 @@ namespace MyLibrary.DataBase
 
             // для сокращения объёма кода
             Func<int, string> GetArgument = (f_index) =>
-                ParseExpression(expression.Arguments[f_index], expression, false, cQuery).Sql.ToString();
+                ParseExpression(false, expression.Arguments[f_index], expression, cQuery).Sql.ToString();
             Func<int, object> GetValueArgument = (f_index) =>
-               ParseExpression(expression.Arguments[f_index], expression, true, cQuery).Value;
-            Func<int, ReadOnlyCollection<Expression>> GetArrayArgument = (f_index) =>
+                ParseExpression(true, expression.Arguments[f_index], expression, cQuery).Value;
+            Func<int, ReadOnlyCollection<Expression>> GetParamsArgument = (f_index) =>
                 ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
 
             switch (expression.Method.Name)
@@ -1112,7 +1123,8 @@ namespace MyLibrary.DataBase
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
-                    AddText(result.Sql, GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2)); break;
+                    AddText(result.Sql, GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2));
+                    break;
 
                 case nameof(DBFunction.Like):
                     AddText(result.Sql, GetArgument(0), " ", notBlock, "LIKE ", GetArgument(1));
@@ -1127,10 +1139,12 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.StartingWith):
-                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1)); break;
+                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1));
+                    break;
 
                 case nameof(DBFunction.Containing):
-                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1)); break;
+                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1));
+                    break;
 
                 case nameof(DBFunction.SimilarTo):
                     AddText(result.Sql, GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
@@ -1189,16 +1203,20 @@ namespace MyLibrary.DataBase
                 #region Функции для работы со строками
 
                 case nameof(DBFunction.CharLength):
-                    AddText(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")"); break;
+                    AddText(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")");
+                    break;
 
                 case nameof(DBFunction.Hash):
-                    AddText(result.Sql, "HASH(", GetArgument(0), ")"); break;
+                    AddText(result.Sql, "HASH(", GetArgument(0), ")");
+                    break;
 
                 case nameof(DBFunction.Left):
-                    AddText(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")"); break;
+                    AddText(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")");
+                    break;
 
                 case nameof(DBFunction.Lower):
-                    AddText(result.Sql, "LOWER(", GetArgument(0), ")"); break;
+                    AddText(result.Sql, "LOWER(", GetArgument(0), ")");
+                    break;
 
                 case nameof(DBFunction.LPad):
                     AddText(result.Sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
@@ -1210,7 +1228,8 @@ namespace MyLibrary.DataBase
                             AddText(result.Sql, ",", arg);
                         }
                     }
-                    AddText(result.Sql, ")"); break;
+                    AddText(result.Sql, ")");
+                    break;
 
                 case nameof(DBFunction.Overlay):
                     AddText(result.Sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
@@ -1222,16 +1241,20 @@ namespace MyLibrary.DataBase
                             AddText(result.Sql, " FOR ", arg);
                         }
                     }
-                    AddText(result.Sql, ")"); break;
+                    AddText(result.Sql, ")");
+                    break;
 
                 case nameof(DBFunction.Replace):
-                    AddText(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")"); break;
+                    AddText(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")");
+                    break;
 
                 case nameof(DBFunction.Reverse):
-                    AddText(result.Sql, "REVERSE(", GetArgument(0), ")"); break;
+                    AddText(result.Sql, "REVERSE(", GetArgument(0), ")");
+                    break;
 
                 case nameof(DBFunction.Right):
-                    AddText(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")"); break;
+                    AddText(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")");
+                    break;
 
                 case nameof(DBFunction.RPad):
                     AddText(result.Sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
@@ -1243,7 +1266,8 @@ namespace MyLibrary.DataBase
                             AddText(result.Sql, ",", arg);
                         }
                     }
-                    AddText(result.Sql, ")"); break;
+                    AddText(result.Sql, ")");
+                    break;
 
                 case nameof(DBFunction.SubString):
                     AddText(result.Sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
@@ -1255,10 +1279,12 @@ namespace MyLibrary.DataBase
                             AddText(result.Sql, " FOR ", arg);
                         }
                     }
-                    AddText(result.Sql, ")"); break;
+                    AddText(result.Sql, ")");
+                    break;
 
                 case nameof(DBFunction.Upper):
-                    AddText(result.Sql, "UPPER(", GetArgument(0), ")"); break;
+                    AddText(result.Sql, "UPPER(", GetArgument(0), ")");
+                    break;
 
                 #endregion
 
@@ -1274,9 +1300,18 @@ namespace MyLibrary.DataBase
                     {
                         AddText(result.Sql, GetArgument(0), ' ', notBlock, "IN", AddSubQuery(subQuery, cQuery));
                     }
-                    else if (value is object[])
+                    else if (value is object[] arrayValue)
                     {
-                        //!!!
+                        AddText(result.Sql, GetArgument(0), ' ', notBlock, "IN(");
+                        for (int i = 0; i < arrayValue.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                AddText(result.Sql, ',');
+                            }
+                            AddText(result.Sql, AddParameter(arrayValue[i], cQuery));
+                        }
+                        AddText(result.Sql, ")");
                     }
                     break;
 
@@ -1306,44 +1341,44 @@ namespace MyLibrary.DataBase
 
                 case nameof(DBFunction.Coalesce):
                     AddText(result.Sql, "COALESCE(", GetArgument(0), ',', GetArgument(1));
-                    var array = GetArrayArgument(2);
+                    var array = GetParamsArgument(2);
                     for (int i = 0; i < array.Count; i++)
                     {
                         AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
                     }
                     AddText(result.Sql, ")");
                     break;
 
                 case nameof(DBFunction.Decode):
                     AddText(result.Sql, "DECODE(", GetArgument(0));
-                    array = GetArrayArgument(1);
+                    array = GetParamsArgument(1);
                     for (int i = 0; i < array.Count; i++)
                     {
                         AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
                     }
                     AddText(result.Sql, ")");
                     break;
 
                 case nameof(DBFunction.MaxValue):
                     AddText(result.Sql, "MAXVALUE(", GetArgument(0));
-                    array = GetArrayArgument(1);
+                    array = GetParamsArgument(1);
                     for (int i = 0; i < array.Count; i++)
                     {
                         AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
                     }
                     AddText(result.Sql, ")");
                     break;
 
                 case nameof(DBFunction.MinValue):
                     AddText(result.Sql, "MINVALUE(", GetArgument(0));
-                    array = GetArrayArgument(1);
+                    array = GetParamsArgument(1);
                     for (int i = 0; i < array.Count; i++)
                     {
                         AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(array[i], expression, false, cQuery).Sql);
+                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
                     }
                     AddText(result.Sql, ")");
                     break;
@@ -1369,8 +1404,8 @@ namespace MyLibrary.DataBase
                 _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)
                 {
-                    string longName = string.Concat(table.Name, '.', column.Name);
-                    _columnsDict.Add(longName, column);
+                    string fullName = string.Concat(table.Name, '.', column.Name);
+                    _columnsDict.Add(fullName, column);
                 }
             }
         }

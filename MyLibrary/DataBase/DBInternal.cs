@@ -145,7 +145,7 @@ namespace MyLibrary.DataBase
         {
             return new Exception("Insert-команда не содержит ни одного 'Set'");
         }
-        public static Exception InadequateUpdateCommandException()
+        public static Exception WrongUpdateCommandException()
         {
             return new Exception("Update-команда не содержит ни одного 'Set'");
         }
