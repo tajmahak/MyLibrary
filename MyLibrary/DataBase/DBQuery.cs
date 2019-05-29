@@ -31,13 +31,33 @@ namespace MyLibrary.DataBase
         public DBTable Table { get; private set; }
         protected internal List<DBQueryStructureBlock> Structure { get; private set; }
 
-        protected internal void AddItem(DBQueryStructureType type, params object[] args)
+        protected internal void AddBlock(DBQueryStructureType type, params object[] args)
         {
             Structure.Add(new DBQueryStructureBlock()
             {
                 Type = type,
                 Args = args,
             });
+        }
+        protected internal List<DBQueryStructureBlock> FindBlocks(Predicate<DBQueryStructureType> predicate)
+        {
+            return Structure.FindAll(x => predicate(x.Type));
+        }
+        protected internal List<DBQueryStructureBlock> FindBlocks(DBQueryStructureType type)
+        {
+            return FindBlocks(x => x == type);
+        }
+        protected internal List<DBQueryStructureBlock> FindBlocks(Predicate<string> predicate)
+        {
+            return Structure.FindAll(x => predicate(x.Type.ToString()));
+        }
+        protected internal DBQueryStructureBlock FindBlock(Predicate<DBQueryStructureType> type)
+        {
+            return Structure.Find(x => type(x.Type));
+        }
+        protected internal DBQueryStructureBlock FindBlock(DBQueryStructureType type)
+        {
+            return FindBlock(x => x == type);
         }
     }
 
@@ -79,21 +99,21 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Insert && Type != DBQueryType.Update && Type != DBQueryType.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.Set, columnName, value);
+            AddBlock(DBQueryStructureType.Set, columnName, value);
             return This;
         }
         public TQuery Matching(params string[] columns)
         {
             if (Type != DBQueryType.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.Matching, columns);
+            AddBlock(DBQueryStructureType.Matching, columns);
             return This;
         }
         public TQuery Returning(params string[] columns)
         {
             if (Type == DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.Returning, columns);
+            AddBlock(DBQueryStructureType.Returning, columns);
             return This;
         }
 
@@ -102,7 +122,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.Select, columns);
+            AddBlock(DBQueryStructureType.Select, columns);
             return This;
         }
         public TQuery SelectAs(string alias, string columnName)
@@ -112,7 +132,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectAs, alias, columnName);
+            AddBlock(DBQueryStructureType.SelectAs, alias, columnName);
             return This;
         }
         public TQuery SelectSum(params string[] columns)
@@ -121,7 +141,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectSum, columns);
+            AddBlock(DBQueryStructureType.SelectSum, columns);
             return This;
         }
         public TQuery SelectSumAs(params string[] columns)
@@ -130,7 +150,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectSumAs, columns);
+            AddBlock(DBQueryStructureType.SelectSumAs, columns);
             return This;
         }
         public TQuery SelectMax(params string[] columns)
@@ -139,7 +159,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectMax, columns);
+            AddBlock(DBQueryStructureType.SelectMax, columns);
             return This;
         }
         public TQuery SelectMaxAs(params string[] columns)
@@ -148,7 +168,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectMaxAs, columns);
+            AddBlock(DBQueryStructureType.SelectMaxAs, columns);
             return This;
         }
         public TQuery SelectMin(params string[] columns)
@@ -157,7 +177,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectMin, columns);
+            AddBlock(DBQueryStructureType.SelectMin, columns);
             return This;
         }
         public TQuery SelectMinAs(params string[] columns)
@@ -166,7 +186,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectMinAs, columns);
+            AddBlock(DBQueryStructureType.SelectMinAs, columns);
             return This;
         }
         public TQuery SelectCount(params string[] columns)
@@ -174,7 +194,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.SelectCount, columns);
+            AddBlock(DBQueryStructureType.SelectCount, columns);
             return This;
         }
 
@@ -182,14 +202,14 @@ namespace MyLibrary.DataBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.Distinct);
+            AddBlock(DBQueryStructureType.Distinct);
             return This;
         }
         public TQuery First(int count)
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.First, count);
+            AddBlock(DBQueryStructureType.First, count);
             return This;
         }
         public TQuery First()
@@ -201,21 +221,21 @@ namespace MyLibrary.DataBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.Skip, count);
+            AddBlock(DBQueryStructureType.Skip, count);
             return This;
         }
         public TQuery Union(DBQueryBase query)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            AddItem(DBQueryStructureType.UnionAll, query);
+            AddBlock(DBQueryStructureType.UnionAll, query);
             return This;
         }
         public TQuery UnionDistinct(DBQueryBase query)
         {
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            AddItem(DBQueryStructureType.UnionDistinct, query);
+            AddBlock(DBQueryStructureType.UnionDistinct, query);
             return This;
         }
 
@@ -225,7 +245,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
             return This;
         }
         public TQuery LeftOuterJoin(string joinColumnName, string columnName)
@@ -234,7 +254,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.LeftOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.LeftOuterJoin, joinColumnName, columnName);
             return This;
         }
         public TQuery RightOuterJoin(string joinColumnName, string columnName)
@@ -243,7 +263,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.RightOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.RightOuterJoin, joinColumnName, columnName);
             return This;
         }
         public TQuery FullOuterJoin(string joinColumnName, string columnName)
@@ -252,7 +272,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.FullOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.FullOuterJoin, joinColumnName, columnName);
             return This;
         }
 
@@ -264,7 +284,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
             return This;
         }
         public TQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -275,7 +295,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.LeftOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.LeftOuterJoinAs, alias, joinColumnName, columnName);
             return This;
         }
         public TQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -286,7 +306,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.RightOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.RightOuterJoinAs, alias, joinColumnName, columnName);
             return This;
         }
         public TQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
@@ -297,7 +317,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.FullOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.FullOuterJoinAs, alias, joinColumnName, columnName);
             return This;
         }
 
@@ -324,14 +344,14 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(equalOperator)) throw DBInternal.ArgumentNullException(nameof(equalOperator));
 
-            AddItem(DBQueryStructureType.Where, columnName, equalOperator, value);
+            AddBlock(DBQueryStructureType.Where, columnName, equalOperator, value);
             return This;
         }
         public TQuery WhereBetween(string columnName, object value1, object value2)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
 
-            AddItem(DBQueryStructureType.WhereBetween, columnName, value1, value2);
+            AddBlock(DBQueryStructureType.WhereBetween, columnName, value1, value2);
             return This;
         }
         public TQuery WhereUpper(string columnName, string value)
@@ -339,7 +359,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            AddItem(DBQueryStructureType.WhereUpper, columnName, value);
+            AddBlock(DBQueryStructureType.WhereUpper, columnName, value);
             return This;
         }
         public TQuery WhereContaining(string columnName, string value)
@@ -347,7 +367,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            AddItem(DBQueryStructureType.WhereContaining, columnName, value);
+            AddBlock(DBQueryStructureType.WhereContaining, columnName, value);
             return This;
         }
         public TQuery WhereContainingUpper(string columnName, string value)
@@ -355,7 +375,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            AddItem(DBQueryStructureType.WhereContainingUpper, columnName, value);
+            AddBlock(DBQueryStructureType.WhereContainingUpper, columnName, value);
             return This;
         }
         public TQuery WhereLike(string columnName, string value)
@@ -363,7 +383,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            AddItem(DBQueryStructureType.WhereLike, columnName, value);
+            AddBlock(DBQueryStructureType.WhereLike, columnName, value);
             return This;
         }
         public TQuery WhereLikeUpper(string columnName, string value)
@@ -371,7 +391,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (string.IsNullOrEmpty(value)) throw DBInternal.ArgumentNullException(nameof(value));
 
-            AddItem(DBQueryStructureType.WhereLikeUpper, columnName, value);
+            AddBlock(DBQueryStructureType.WhereLikeUpper, columnName, value);
             return This;
         }
         public TQuery WhereIn(string columnName, DBQueryBase query)
@@ -379,7 +399,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (query == null) throw DBInternal.ArgumentNullException(nameof(query));
 
-            AddItem(DBQueryStructureType.WhereIn_command, columnName, query);
+            AddBlock(DBQueryStructureType.WhereIn_command, columnName, query);
             return This;
         }
         public TQuery WhereIn(string columnName, params object[] values)
@@ -387,7 +407,7 @@ namespace MyLibrary.DataBase
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (values == null || values.Length == 0) throw DBInternal.ArgumentNullException(nameof(values));
 
-            AddItem(DBQueryStructureType.WhereIn_values, columnName, values);
+            AddBlock(DBQueryStructureType.WhereIn_values, columnName, values);
             return This;
         }
 
@@ -396,7 +416,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.OrderBy, columns);
+            AddBlock(DBQueryStructureType.OrderBy, columns);
             return This;
         }
         public TQuery OrderByDesc(params string[] columns)
@@ -404,7 +424,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.OrderByDesc, columns);
+            AddBlock(DBQueryStructureType.OrderByDesc, columns);
             return This;
         }
         public TQuery OrderByUpper(params string[] columns)
@@ -412,7 +432,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.OrderByUpper, columns);
+            AddBlock(DBQueryStructureType.OrderByUpper, columns);
             return This;
         }
         public TQuery OrderByUpperDesc(params string[] columns)
@@ -420,7 +440,7 @@ namespace MyLibrary.DataBase
             if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddItem(DBQueryStructureType.OrderByUpperDesc, columns);
+            AddBlock(DBQueryStructureType.OrderByUpperDesc, columns);
             return This;
         }
 
@@ -430,7 +450,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.GroupBy, columns);
+            AddBlock(DBQueryStructureType.GroupBy, columns);
             return This;
         }
 
@@ -440,21 +460,21 @@ namespace MyLibrary.DataBase
         public TQuery Select(Expression<Func<object>> expression)
         {
             IsView = true;
-            AddItem(DBQueryStructureType.Select_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
             return This;
         }
         public TQuery Select<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
             IsView = true;
-            AddItem(DBQueryStructureType.Select_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
             return This;
         }
         public TQuery Select<T>(Expression<Func<T, object[]>> expression)
             where T : DBOrmTableBase
         {
             IsView = true;
-            AddItem(DBQueryStructureType.Select_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
             return This;
         }
 
@@ -465,7 +485,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
             return This;
         }
         public TQuery LeftOuterJoin<T, T2>()
@@ -475,7 +495,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.LeftOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.LeftOuterJoin_type, typeof(T), typeof(T2));
             return This;
         }
         public TQuery RightOuterJoin<T, T2>()
@@ -485,7 +505,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.RightOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.RightOuterJoin_type, typeof(T), typeof(T2));
             return This;
         }
         public TQuery FullOuterJoin<T, T2>()
@@ -495,7 +515,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.FullOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.FullOuterJoin_type, typeof(T), typeof(T2));
             return This;
         }
 
@@ -507,7 +527,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
         public TQuery LeftOuterJoinAs<T, T2>(string alias)
@@ -518,7 +538,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.LeftOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.LeftOuterJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
         public TQuery RightOuterJoinAs<T, T2>(string alias)
@@ -529,7 +549,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.RightOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.RightOuterJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
         public TQuery FullOuterJoinAs<T, T2>(string alias)
@@ -540,21 +560,21 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddItem(DBQueryStructureType.FullOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.FullOuterJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
 
         public TQuery Where<T>(Expression<Func<T, bool>> expression)
             where T : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.Where_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
             return This;
         }
         public TQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.Where_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
             return This;
         }
         public TQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
@@ -562,7 +582,7 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.Where_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
             return This;
         }
         public TQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
@@ -571,27 +591,27 @@ namespace MyLibrary.DataBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.Where_expression, expression.Body);
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
             return This;
         }
 
         public TQuery OrderBy<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.OrderBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
         public TQuery OrderBy<T>(Expression<Func<T, object[]>> expression)
             where T : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.OrderBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
         public TQuery OrderBy<T, T2>(Expression<Func<T, T2, object[]>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.OrderBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
         public TQuery OrderBy<T, T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
@@ -599,27 +619,27 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.OrderBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
 
         public TQuery GroupBy<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.GroupBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
         public TQuery GroupBy<T>(Expression<Func<T, object[]>> expression)
             where T : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.GroupBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
         public TQuery GroupBy<T, T2>(Expression<Func<T, T2, object[]>> expression)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.GroupBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
         public TQuery GroupBy<T, T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
@@ -627,7 +647,7 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            AddItem(DBQueryStructureType.GroupBy_expression, expression.Body);
+            AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
 

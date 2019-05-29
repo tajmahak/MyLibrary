@@ -126,19 +126,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectCommand(sql, query, cQuery);
 
-                block = FindBlock(query, DBQueryStructureType.Distinct);
+                block = query.FindBlock(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = FindBlock(query, DBQueryStructureType.Skip);
+                block = query.FindBlock(DBQueryStructureType.Skip);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
-                block = FindBlock(query, DBQueryStructureType.First);
+                block = query.FindBlock(DBQueryStructureType.First);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[0]));

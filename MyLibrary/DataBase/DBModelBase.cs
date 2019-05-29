@@ -1,4 +1,5 @@
-﻿using MyLibrary.Data;
+﻿using MyLibrary.Collections;
+using MyLibrary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,7 +15,7 @@ namespace MyLibrary.DataBase
     /// </summary>
     public abstract class DBModelBase
     {
-        public DBTable[] Tables { get; private set; }
+        public ReadOnlyArray<DBTable> Tables { get; private set; }
         public bool IsInitialized { get; private set; }
 
         public string OpenBlock { get; protected set; } = string.Empty;
@@ -37,7 +38,7 @@ namespace MyLibrary.DataBase
         public void Initialize(Type[] ormTableTypes)
         {
             Tables = new DBTable[ormTableTypes.Length];
-            for (int i = 0; i < Tables.Length; i++)
+            for (int i = 0; i < Tables.Count; i++)
             {
                 var tableType = ormTableTypes[i];
                 var tableName = DBInternal.GetTableNameFromAttribute(tableType);
@@ -140,68 +141,9 @@ namespace MyLibrary.DataBase
 
         #region [protected] Вспомогательные сущности для получения SQL-команд
 
-        protected virtual string GetInsertCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            AddText(sql, "INSERT INTO ", GetName(table.Name), " VALUES(");
-
-            int index = 0;
-            int paramIndex = 0;
-            foreach (var column in table.Columns)
-            {
-                if (index++ > 0)
-                {
-                    AddText(sql, ',');
-                }
-                if (column.IsPrimary)
-                {
-                    AddText(sql, "NULL");
-                }
-                else
-                {
-                    AddText(sql, "@p", paramIndex++);
-                }
-            }
-            AddText(sql, ')');
-            return sql.ToString();
-        }
-        protected string GetSelectCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            AddText(sql, "SELECT ", GetName(table.Name), ".* FROM ", GetName(table.Name));
-            return sql.ToString();
-        }
-        protected string GetUpdateCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-
-            AddText(sql, "UPDATE ", GetName(table.Name), " SET ");
-            int index = 0;
-            foreach (var column in table.Columns)
-            {
-                if (column.IsPrimary)
-                {
-                    continue;
-                }
-                if (index != 0)
-                {
-                    AddText(sql, ',');
-                }
-                AddText(sql, GetName(column.Name), "=@p", index++);
-            }
-            AddText(sql, " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-        protected string GetDeleteCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            AddText(sql, "DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-
         protected void PrepareSelectCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = FindBlockList(query, x => x.StartsWith("Select"));
+            var blockList = query.FindBlocks(x => x.StartsWith("Select"));
             if (blockList.Count == 0)
             {
                 AddText(sql, _selectCommandsDict[query.Table]);
@@ -250,7 +192,7 @@ namespace MyLibrary.DataBase
                                 }
                             }
                             break;
-                            #endregion
+                        #endregion
                         case DBQueryStructureType.SelectAs:
                             #region
                             if (index > 0)
@@ -260,7 +202,7 @@ namespace MyLibrary.DataBase
                             AddText(sql, GetFullName(block[1]), " AS ", GetName(block[0]));
                             index++;
                             break;
-                            #endregion
+                        #endregion
                         case DBQueryStructureType.SelectSum:
                             #region
                             for (int j = 0; j < block.Length; j++)
@@ -273,7 +215,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                            #endregion
+                        #endregion
                         case DBQueryStructureType.SelectSumAs:
                             #region
                             for (int i = 0; i < block.Length; i += 2)
@@ -286,7 +228,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                            #endregion
+                        #endregion
                         case DBQueryStructureType.SelectMax:
                             #region
                             for (int j = 0; j < block.Length; j++)
@@ -299,7 +241,7 @@ namespace MyLibrary.DataBase
                                 index++;
                             }
                             break;
-                            #endregion
+                        #endregion
                         case DBQueryStructureType.SelectMaxAs:
                             #region
                             for (int j = 0; j < block.Length; j += 2)
@@ -366,7 +308,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.Select_expression:
                             #region
-                            AddText(sql, ParseExpressionList((Expression)block[0], cQuery).Sql);
+                            AddText(sql, GetListFromExpression(block[0], cQuery));
                             break;
                             #endregion
                     }
@@ -378,7 +320,7 @@ namespace MyLibrary.DataBase
         {
             AddText(sql, "INSERT INTO ", GetName(query.Table.Name));
 
-            var blockList = FindBlockList(query, DBQueryStructureType.Set);
+            var blockList = query.FindBlocks(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.InadequateInsertCommandException();
@@ -402,7 +344,7 @@ namespace MyLibrary.DataBase
                 {
                     AddText(sql, ',');
                 }
-                AddText(sql, AddParameter(block[1], cQuery));
+                AddText(sql, GetParameter(block[1], cQuery));
             }
             AddText(sql, ')');
         }
@@ -410,7 +352,7 @@ namespace MyLibrary.DataBase
         {
             AddText(sql, "UPDATE ", GetName(query.Table.Name), " SET ");
 
-            var blockList = FindBlockList(query, DBQueryStructureType.Set);
+            var blockList = query.FindBlocks(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.WrongUpdateCommandException();
@@ -423,7 +365,7 @@ namespace MyLibrary.DataBase
                 {
                     AddText(sql, ',');
                 }
-                AddText(sql, GetFullName(block[0]), '=', AddParameter(block[1], cQuery));
+                AddText(sql, GetFullName(block[0]), '=', GetParameter(block[1], cQuery));
             }
         }
         protected void PrepareDeleteCommand(StringBuilder sql, DBQueryBase query)
@@ -527,7 +469,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareWhereCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = FindBlockList(query, x => x.StartsWith("Where"));
+            var blockList = query.FindBlocks(x => x.StartsWith("Where"));
 
             if (blockList.Count > 0)
             {
@@ -545,7 +487,7 @@ namespace MyLibrary.DataBase
                     {
                         case DBQueryStructureType.Where_expression:
                             #region
-                            AddText(sql, ParseExpression(false, (Expression)block[0], null, cQuery).Sql);
+                            AddText(sql, GetSqlFromExpression(block[0], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.Where:
@@ -564,28 +506,28 @@ namespace MyLibrary.DataBase
                             }
                             else
                             {
-                                AddText(sql, block[1], AddParameter(block[2], cQuery));
+                                AddText(sql, block[1], GetParameter(block[2], cQuery));
                             }
                             break;
                         #endregion
                         case DBQueryStructureType.WhereBetween:
                             #region
-                            AddText(sql, GetFullName(block[0]), "BETWEEN ", AddParameter(block[1], cQuery), " AND ", AddParameter(block[2], cQuery));
+                            AddText(sql, GetFullName(block[0]), "BETWEEN ", GetParameter(block[1], cQuery), " AND ", GetParameter(block[2], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereUpper:
                             #region
-                            AddText(sql, "UPPER(", GetFullName(block[0]), ")=", AddParameter(block[1], cQuery));
+                            AddText(sql, "UPPER(", GetFullName(block[0]), ")=", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereContaining:
                             #region
-                            AddText(sql, GetFullName(block[0]), " CONTAINING ", AddParameter(block[1], cQuery));
+                            AddText(sql, GetFullName(block[0]), " CONTAINING ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereContainingUpper:
                             #region
-                            AddText(sql, " UPPER(", GetFullName(block[0]), ") CONTAINING ", AddParameter(block[1], cQuery));
+                            AddText(sql, " UPPER(", GetFullName(block[0]), ") CONTAINING ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereLike:
@@ -601,7 +543,7 @@ namespace MyLibrary.DataBase
                         case DBQueryStructureType.WhereIn_command:
                             #region
                             AddText(sql, GetFullName(block[0]), " IN ");
-                            AddText(sql, AddSubQuery((DBQueryBase)block[1], cQuery));
+                            AddText(sql, GetSubQuery((DBQueryBase)block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereIn_values:
@@ -638,7 +580,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareGroupByCommand(StringBuilder sql, DBQueryBase query)
         {
-            var blockList = FindBlockList(query, x => x.StartsWith("GroupBy"));
+            var blockList = query.FindBlocks(x => x.StartsWith("GroupBy"));
             if (blockList.Count > 0)
             {
                 AddText(sql, " GROUP BY ");
@@ -664,7 +606,7 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryStructureType.GroupBy_expression:
-                            AddText(sql, ParseExpressionList((Expression)block[0], null).Sql);
+                            AddText(sql, GetListFromExpression(block[0], null));
                             break;
                     }
                 }
@@ -672,7 +614,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareOrderByCommand(StringBuilder sql, DBQueryBase query)
         {
-            var blockList = FindBlockList(query, x => x.StartsWith("OrderBy"));
+            var blockList = query.FindBlocks(x => x.StartsWith("OrderBy"));
             if (blockList.Count > 0)
             {
                 AddText(sql, " ORDER BY ");
@@ -712,7 +654,7 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryStructureType.OrderBy_expression:
-                            AddText(sql, ParseExpressionList((Expression)block[0], null).Sql);
+                            AddText(sql, GetListFromExpression(block[0], null));
                             break;
                     }
                 }
@@ -720,43 +662,97 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareUnionCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = FindBlockList(query, DBQueryStructureType.UnionAll);
+            var blockList = query.FindBlocks(DBQueryStructureType.UnionAll);
             foreach (var block in query.Structure)
             {
                 switch (block.Type)
                 {
                     case DBQueryStructureType.UnionAll:
-                        AddText(sql, " UNION ALL ", AddSubQuery((DBQueryBase)block[0], cQuery));
+                        AddText(sql, " UNION ALL ", GetSubQuery((DBQueryBase)block[0], cQuery));
                         break;
 
                     case DBQueryStructureType.UnionDistinct:
-                        AddText(sql, " UNION DISTINCT ", AddSubQuery((DBQueryBase)block[0], cQuery));
+                        AddText(sql, " UNION DISTINCT ", GetSubQuery((DBQueryBase)block[0], cQuery));
                         break;
                 }
             }
         }
 
-        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, Predicate<DBQueryStructureType> predicate)
+        protected virtual string GetInsertCommandText(DBTable table)
         {
-            return query.Structure.FindAll(x => predicate(x.Type));
+            var sql = new StringBuilder();
+            AddText(sql, "INSERT INTO ", GetName(table.Name), " VALUES(");
+
+            int index = 0;
+            int paramIndex = 0;
+            foreach (var column in table.Columns)
+            {
+                if (index++ > 0)
+                {
+                    AddText(sql, ',');
+                }
+                if (column.IsPrimary)
+                {
+                    AddText(sql, "NULL");
+                }
+                else
+                {
+                    AddText(sql, "@p", paramIndex++);
+                }
+            }
+            AddText(sql, ')');
+            return sql.ToString();
         }
-        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, DBQueryStructureType type)
+        protected string GetSelectCommandText(DBTable table)
         {
-            return FindBlockList(query, x => x == type);
+            var sql = new StringBuilder();
+            AddText(sql, "SELECT ", GetName(table.Name), ".* FROM ", GetName(table.Name));
+            return sql.ToString();
         }
-        protected List<DBQueryStructureBlock> FindBlockList(DBQueryBase query, Predicate<string> predicate)
+        protected string GetUpdateCommandText(DBTable table)
         {
-            return query.Structure.FindAll(x => predicate(x.Type.ToString()));
+            var sql = new StringBuilder();
+
+            AddText(sql, "UPDATE ", GetName(table.Name), " SET ");
+            int index = 0;
+            foreach (var column in table.Columns)
+            {
+                if (column.IsPrimary)
+                {
+                    continue;
+                }
+                if (index != 0)
+                {
+                    AddText(sql, ',');
+                }
+                AddText(sql, GetName(column.Name), "=@p", index++);
+            }
+            AddText(sql, " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
         }
-        protected DBQueryStructureBlock FindBlock(DBQueryBase query, Predicate<DBQueryStructureType> type)
+        protected string GetDeleteCommandText(DBTable table)
         {
-            return query.Structure.Find(x => type(x.Type));
+            var sql = new StringBuilder();
+            AddText(sql, "DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
         }
-        protected DBQueryStructureBlock FindBlock(DBQueryBase query, DBQueryStructureType type)
+
+        protected string GetFullName(object value)
         {
-            return FindBlock(query, x => x == type);
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
         }
-        protected string AddParameter(object value, DBCompiledQuery cQuery)
+        protected string GetName(object value)
+        {
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[0], CloseBlock);
+        }
+        protected string GetColumnName(object value)
+        {
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[1], CloseBlock);
+        }
+        protected string GetParameter(object value, DBCompiledQuery cQuery)
         {
             value = value ?? DBNull.Value;
 
@@ -777,16 +773,48 @@ namespace MyLibrary.DataBase
                 Name = string.Concat("@p", paramNumber),
                 Value = value,
             };
-            cQuery.Parameters.Add(parameter);
+            cQuery.Parameters.List.Add(parameter);
 
             return parameter.Name;
         }
-        protected string AddSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery)
+        protected string GetSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery)
         {
             var subCQuery = CompileQuery(subQuery, cQuery.Parameters.Count);
-            cQuery.Parameters.AddRange(subCQuery.Parameters);
+            cQuery.Parameters.List.AddRange(subCQuery.Parameters);
             return string.Concat('(', subCQuery.CommandText, ')');
         }
+        protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)
+        {
+            var value = ParseExpression(false, (Expression)expression, (Expression)parentExpression, cQuery);
+            return value.ToString();
+        }
+        protected object GetValueFromExpression(object expression, object parentExpression = null)
+        {
+            var value = ParseExpression(true, (Expression)expression, (Expression)parentExpression, null);
+            return value;
+        }
+        protected string GetListFromExpression(object expression, DBCompiledQuery cQuery)
+        {
+            var sql = new StringBuilder();
+            if (expression is NewArrayExpression newArrayExpression)
+            {
+                foreach (var exprArg in newArrayExpression.Expressions)
+                {
+                    if (sql.Length > 0)
+                    {
+                        AddText(sql, ',');
+                    }
+                    AddText(sql, GetSqlFromExpression(exprArg, cQuery, expression));
+                }
+            }
+            else
+            {
+                AddText(sql, GetSqlFromExpression(expression, cQuery));
+            }
+
+            return sql.ToString();
+        }
+
         protected void AddText(StringBuilder str, params object[] values)
         {
             foreach (var value in values)
@@ -795,48 +823,19 @@ namespace MyLibrary.DataBase
             }
         }
 
-        protected string GetFullName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
-        }
-        protected string GetName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[0], CloseBlock);
-        }
-        protected string GetColumnName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[1], CloseBlock);
-        }
-
         #endregion
 
-
-        private StringBuilder GetSqlFromExpression(Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        private object ParseExpression(bool parseValue, Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
-            return null;
-        }
-        private object GetValueFromExpression(Expression expression, Expression parentExpression)
-        {
-            return null;
-        }
-
-
-
-
-        private ParseExpressionResult ParseExpression(bool parseValue, Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
-        {
-            var result = new ParseExpressionResult();
+            var sql = new StringBuilder();
 
             if (expression is BinaryExpression binaryExpression)
             {
                 #region
 
-                AddText(result.Sql, '(', ParseExpression(false, binaryExpression.Left, expression, cQuery).Sql);
+                AddText(sql, '(', GetSqlFromExpression(binaryExpression.Left, cQuery, expression));
 
-                var rightBlock = ParseExpression(false, binaryExpression.Right, expression, cQuery).Sql;
+                var rightBlock = GetSqlFromExpression(binaryExpression.Right, cQuery, expression);
                 if (rightBlock.Length > 0)
                 {
                     string @operator;
@@ -868,21 +867,21 @@ namespace MyLibrary.DataBase
 
                     #endregion
 
-                    AddText(result.Sql, @operator, rightBlock);
+                    AddText(sql, @operator, rightBlock);
                 }
                 else
                 {
                     if (binaryExpression.NodeType == ExpressionType.NotEqual)
                     {
-                        AddText(result.Sql, " IS NOT NULL");
+                        AddText(sql, " IS NOT NULL");
                     }
                     else
                     {
-                        AddText(result.Sql, " IS NULL");
+                        AddText(sql, " IS NULL");
                     }
                 }
 
-                AddText(result.Sql, ')');
+                AddText(sql, ')');
 
                 #endregion
             }
@@ -894,7 +893,7 @@ namespace MyLibrary.DataBase
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    AddText(result.Sql, GetFullName(attr.ColumnName));
+                    AddText(sql, GetFullName(attr.ColumnName));
                 }
                 else if (memberExpression.Member is PropertyInfo)
                 {
@@ -903,8 +902,8 @@ namespace MyLibrary.DataBase
                     object value;
                     if (memberExpression.Expression != null)
                     {
-                        var innerInfo = ParseExpression(true, memberExpression.Expression, expression, cQuery);
-                        value = propertyInfo.GetValue(innerInfo.Value, null);
+                        value = GetValueFromExpression(memberExpression.Expression, expression);
+                        value = propertyInfo.GetValue(value, null);
                     }
                     else
                     {
@@ -913,12 +912,11 @@ namespace MyLibrary.DataBase
 
                     if (parseValue)
                     {
-                        result.Value = value;
-                        return result;
+                        return value;
                     }
                     else
                     {
-                        AddText(result.Sql, AddParameter(value, cQuery));
+                        AddText(sql, GetParameter(value, cQuery));
                     }
                 }
                 else if (memberExpression.Member is FieldInfo)
@@ -929,18 +927,17 @@ namespace MyLibrary.DataBase
 
                     if (parseValue)
                     {
-                        result.Value = value;
-                        return result;
+                        return value;
                     }
                     else
                     {
                         if (value is DBQueryBase subQuery)
                         {
-                            AddText(result.Sql, AddSubQuery(subQuery, cQuery));
+                            AddText(sql, GetSubQuery(subQuery, cQuery));
                         }
                         else
                         {
-                            AddText(result.Sql, AddParameter(value, cQuery));
+                            AddText(sql, GetParameter(value, cQuery));
                         }
                     }
                 }
@@ -958,16 +955,14 @@ namespace MyLibrary.DataBase
                 var value = constantExpression.Value;
                 if (parseValue)
                 {
-                    result.Value = value;
-                    return result;
+                    return value;
                 }
                 else
                 {
                     if (value != null)
                     {
-                        AddText(result.Sql, AddParameter(value, cQuery));
+                        AddText(sql, GetParameter(value, cQuery));
                     }
-                    return result;
                 }
 
                 #endregion
@@ -978,11 +973,11 @@ namespace MyLibrary.DataBase
 
                 if (parseValue)
                 {
-                    return ParseExpression(true, unaryExpression.Operand, expression, cQuery);
+                    return GetValueFromExpression(unaryExpression.Operand, expression);
                 }
                 else
                 {
-                    AddText(result.Sql, ParseExpression(false, unaryExpression.Operand, expression, cQuery).Sql);
+                    AddText(sql, GetSqlFromExpression(unaryExpression.Operand, cQuery, expression));
                 }
 
                 #endregion
@@ -995,7 +990,7 @@ namespace MyLibrary.DataBase
                 if (custAttr.Length > 0)
                 {
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    AddText(result.Sql, GetFullName(attr.ColumnName));
+                    AddText(sql, GetFullName(attr.ColumnName));
                 }
                 else
                 {
@@ -1011,33 +1006,30 @@ namespace MyLibrary.DataBase
                 var method = methodCallExpression.Method;
                 if (method.DeclaringType == typeof(DBFunction))
                 {
-                    AddText(result.Sql, ParseExpressionFunction(methodCallExpression, parentExpression, cQuery).Sql);
+                    AddText(sql, ParseExpressionFunction(methodCallExpression, parentExpression, cQuery));
                 }
                 else
                 {
                     object obj = methodCallExpression.Object;
                     if (obj != null)
                     {
-                        // Извлечение объекта из дерева выражений
-                        obj = ParseExpression(true, methodCallExpression.Object, expression, cQuery).Value;
+                        obj = GetValueFromExpression(methodCallExpression.Object, expression);
                     }
 
                     var arguments = new object[methodCallExpression.Arguments.Count];
                     for (int i = 0; i < arguments.Length; i++)
                     {
-                        arguments[i] = ParseExpression(true, methodCallExpression.Arguments[i], expression, cQuery).Value;
+                        arguments[i] = GetValueFromExpression(methodCallExpression.Arguments[i], expression);
                     }
 
                     var value = methodCallExpression.Method.Invoke(obj, arguments);
-
                     if (parseValue)
                     {
-                        result.Value = value;
-                        return result;
+                        return value;
                     }
                     else
                     {
-                        AddText(result.Sql, AddParameter(value, cQuery));
+                        AddText(sql, GetParameter(value, cQuery));
                     }
                 }
 
@@ -1050,10 +1042,10 @@ namespace MyLibrary.DataBase
                     var array = (Array)Activator.CreateInstance(newArrayExpression.Type, newArrayExpression.Expressions.Count);
                     for (int i = 0; i < array.Length; i++)
                     {
-                        var value = ParseExpression(true, newArrayExpression.Expressions[i], expression, cQuery).Value;
+                        var value = GetValueFromExpression(newArrayExpression.Expressions[i], expression);
                         array.SetValue(value, i);
                     }
-                    result.Value = array;
+                    return array;
                 }
                 else
                 {
@@ -1065,33 +1057,11 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            return result;
+            return sql.ToString();
         }
-        private ParseExpressionResult ParseExpressionList(Expression expression, DBCompiledQuery cQuery)
+        private string ParseExpressionFunction(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
         {
-            var result = new ParseExpressionResult();
-
-            if (expression is NewArrayExpression newArrayExpression)
-            {
-                foreach (var exprArg in newArrayExpression.Expressions)
-                {
-                    if (result.Sql.Length > 0)
-                    {
-                        AddText(result.Sql, ',');
-                    }
-                    AddText(result.Sql, ParseExpression(false, exprArg, expression, cQuery).Sql);
-                }
-            }
-            else
-            {
-                AddText(result.Sql, ParseExpression(false, expression, null, cQuery).Sql);
-            }
-
-            return result;
-        }
-        private ParseExpressionResult ParseExpressionFunction(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
-        {
-            var result = new ParseExpressionResult();
+            var sql = new StringBuilder();
 
             string notBlock = (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Not) ?
                "NOT " : string.Empty;
@@ -1100,60 +1070,60 @@ namespace MyLibrary.DataBase
 
             // для сокращения объёма кода
             Func<int, string> GetArgument = (f_index) =>
-                ParseExpression(false, expression.Arguments[f_index], expression, cQuery).Sql.ToString();
+                  GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
             Func<int, object> GetValueArgument = (f_index) =>
-                ParseExpression(true, expression.Arguments[f_index], expression, cQuery).Value;
+                  GetValueFromExpression(expression.Arguments[f_index], expression);
             Func<int, ReadOnlyCollection<Expression>> GetParamsArgument = (f_index) =>
                 ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
 
             switch (expression.Method.Name)
             {
                 case nameof(DBFunction.As):
-                    AddText(result.Sql, GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
+                    AddText(sql, GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
                     break;
 
                 case nameof(DBFunction.Desc):
-                    AddText(result.Sql, GetArgument(0), " DESC");
+                    AddText(sql, GetArgument(0), " DESC");
                     break;
 
                 case nameof(DBFunction.Distinct):
-                    AddText(result.Sql, "DISTINCT ", GetArgument(0));
+                    AddText(sql, "DISTINCT ", GetArgument(0));
                     break;
 
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
-                    AddText(result.Sql, GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2));
+                    AddText(sql, GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2));
                     break;
 
                 case nameof(DBFunction.Like):
-                    AddText(result.Sql, GetArgument(0), " ", notBlock, "LIKE ", GetArgument(1));
+                    AddText(sql, GetArgument(0), " ", notBlock, "LIKE ", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, " ESCAPE ", arg);
+                            AddText(sql, " ESCAPE ", arg);
                         }
                     }
                     break;
 
                 case nameof(DBFunction.StartingWith):
-                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1));
+                    AddText(sql, GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1));
                     break;
 
                 case nameof(DBFunction.Containing):
-                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1));
+                    AddText(sql, GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1));
                     break;
 
                 case nameof(DBFunction.SimilarTo):
-                    AddText(result.Sql, GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
+                    AddText(sql, GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, " ESCAPE ", arg);
+                            AddText(sql, " ESCAPE ", arg);
                         }
                     }
                     break;
@@ -1163,39 +1133,39 @@ namespace MyLibrary.DataBase
                 #region Агрегатные функции
 
                 case nameof(DBFunction.Avg):
-                    AddText(result.Sql, "AVG(", GetArgument(0), ")");
+                    AddText(sql, "AVG(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Count):
                     if (argumentsCount > 0)
                     {
-                        AddText(result.Sql, "COUNT(", GetArgument(0), ")");
+                        AddText(sql, "COUNT(", GetArgument(0), ")");
                     }
                     else
                     {
-                        AddText(result.Sql, "COUNT(*)");
+                        AddText(sql, "COUNT(*)");
                     }
                     break;
 
                 case nameof(DBFunction.List):
-                    AddText(result.Sql, "LIST(", GetArgument(0));
+                    AddText(sql, "LIST(", GetArgument(0));
                     if (argumentsCount > 1)
                     {
-                        AddText(result.Sql, ",", GetArgument(1));
+                        AddText(sql, ",", GetArgument(1));
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.Max):
-                    AddText(result.Sql, "MAX(", GetArgument(0), ")");
+                    AddText(sql, "MAX(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Min):
-                    AddText(result.Sql, "MIN(", GetArgument(0), ")");
+                    AddText(sql, "MIN(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Sum):
-                    AddText(result.Sql, "SUM(", GetArgument(0), ")");
+                    AddText(sql, "SUM(", GetArgument(0), ")");
                     break;
 
                 #endregion
@@ -1203,87 +1173,87 @@ namespace MyLibrary.DataBase
                 #region Функции для работы со строками
 
                 case nameof(DBFunction.CharLength):
-                    AddText(result.Sql, "CHAR_LENGTH(", GetArgument(0), ")");
+                    AddText(sql, "CHAR_LENGTH(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Hash):
-                    AddText(result.Sql, "HASH(", GetArgument(0), ")");
+                    AddText(sql, "HASH(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Left):
-                    AddText(result.Sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")");
+                    AddText(sql, "LEFT(", GetArgument(0), ",", GetArgument(1), ")");
                     break;
 
                 case nameof(DBFunction.Lower):
-                    AddText(result.Sql, "LOWER(", GetArgument(0), ")");
+                    AddText(sql, "LOWER(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.LPad):
-                    AddText(result.Sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
+                    AddText(sql, "LPAD(", GetArgument(0), ",", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, ",", arg);
+                            AddText(sql, ",", arg);
                         }
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.Overlay):
-                    AddText(result.Sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
+                    AddText(sql, "OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
                     if (argumentsCount > 3)
                     {
                         var arg = GetArgument(3);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, " FOR ", arg);
+                            AddText(sql, " FOR ", arg);
                         }
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.Replace):
-                    AddText(result.Sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")");
+                    AddText(sql, "REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")");
                     break;
 
                 case nameof(DBFunction.Reverse):
-                    AddText(result.Sql, "REVERSE(", GetArgument(0), ")");
+                    AddText(sql, "REVERSE(", GetArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Right):
-                    AddText(result.Sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")");
+                    AddText(sql, "RIGHT(", GetArgument(0), ",", GetArgument(1), ")");
                     break;
 
                 case nameof(DBFunction.RPad):
-                    AddText(result.Sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
+                    AddText(sql, "RPAD(", GetArgument(0), ",", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, ",", arg);
+                            AddText(sql, ",", arg);
                         }
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.SubString):
-                    AddText(result.Sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
+                    AddText(sql, "SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
-                            AddText(result.Sql, " FOR ", arg);
+                            AddText(sql, " FOR ", arg);
                         }
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.Upper):
-                    AddText(result.Sql, "UPPER(", GetArgument(0), ")");
+                    AddText(sql, "UPPER(", GetArgument(0), ")");
                     break;
 
                 #endregion
@@ -1291,32 +1261,32 @@ namespace MyLibrary.DataBase
                 #region Предикаты существования
 
                 case nameof(DBFunction.Exists):
-                    AddText(result.Sql, notBlock, "EXISTS", GetArgument(0));
+                    AddText(sql, notBlock, "EXISTS", GetArgument(0));
                     break;
 
                 case nameof(DBFunction.In):
                     var value = GetValueArgument(1);
                     if (value is DBQueryBase subQuery)
                     {
-                        AddText(result.Sql, GetArgument(0), ' ', notBlock, "IN", AddSubQuery(subQuery, cQuery));
+                        AddText(sql, GetArgument(0), ' ', notBlock, "IN", GetSubQuery(subQuery, cQuery));
                     }
-                    else if (value is object[] arrayValue)
+                    else if (value is object[] array)
                     {
-                        AddText(result.Sql, GetArgument(0), ' ', notBlock, "IN(");
-                        for (int i = 0; i < arrayValue.Length; i++)
+                        AddText(sql, GetArgument(0), ' ', notBlock, "IN(");
+                        for (int i = 0; i < array.Length; i++)
                         {
                             if (i > 0)
                             {
-                                AddText(result.Sql, ',');
+                                AddText(sql, ',');
                             }
-                            AddText(result.Sql, AddParameter(arrayValue[i], cQuery));
+                            AddText(sql, GetParameter(array[i], cQuery));
                         }
-                        AddText(result.Sql, ")");
+                        AddText(sql, ")");
                     }
                     break;
 
                 case nameof(DBFunction.Singular):
-                    AddText(result.Sql, notBlock, "SINGULAR", GetArgument(0));
+                    AddText(sql, notBlock, "SINGULAR", GetArgument(0));
                     break;
 
                 #endregion
@@ -1324,15 +1294,15 @@ namespace MyLibrary.DataBase
                 #region Количественные предикаты подзапросов
 
                 case nameof(DBFunction.All):
-                    AddText(result.Sql, notBlock, "ALL", GetArgument(0));
+                    AddText(sql, notBlock, "ALL", GetArgument(0));
                     break;
 
                 case nameof(DBFunction.Any):
-                    AddText(result.Sql, notBlock, "ANY", GetArgument(0));
+                    AddText(sql, notBlock, "ANY", GetArgument(0));
                     break;
 
                 case nameof(DBFunction.Some):
-                    AddText(result.Sql, notBlock, "SOME", GetArgument(0));
+                    AddText(sql, notBlock, "SOME", GetArgument(0));
                     break;
 
                 #endregion
@@ -1340,57 +1310,57 @@ namespace MyLibrary.DataBase
                 #region Условные функции
 
                 case nameof(DBFunction.Coalesce):
-                    AddText(result.Sql, "COALESCE(", GetArgument(0), ',', GetArgument(1));
-                    var array = GetParamsArgument(2);
-                    for (int i = 0; i < array.Count; i++)
+                    AddText(sql, "COALESCE(", GetArgument(0), ',', GetArgument(1));
+                    var expressionArray = GetParamsArgument(2);
+                    for (int i = 0; i < expressionArray.Count; i++)
                     {
-                        AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
+                        AddText(sql, ',');
+                        AddText(sql, GetSqlFromExpression(expressionArray[i], cQuery, expression));
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.Decode):
-                    AddText(result.Sql, "DECODE(", GetArgument(0));
-                    array = GetParamsArgument(1);
-                    for (int i = 0; i < array.Count; i++)
+                    AddText(sql, "DECODE(", GetArgument(0));
+                    expressionArray = GetParamsArgument(1);
+                    for (int i = 0; i < expressionArray.Count; i++)
                     {
-                        AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
+                        AddText(sql, ',');
+                        AddText(sql, GetSqlFromExpression(expressionArray[i], cQuery, expression));
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.MaxValue):
-                    AddText(result.Sql, "MAXVALUE(", GetArgument(0));
-                    array = GetParamsArgument(1);
-                    for (int i = 0; i < array.Count; i++)
+                    AddText(sql, "MAXVALUE(", GetArgument(0));
+                    expressionArray = GetParamsArgument(1);
+                    for (int i = 0; i < expressionArray.Count; i++)
                     {
-                        AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
+                        AddText(sql, ',');
+                        AddText(sql, GetSqlFromExpression(expressionArray[i], cQuery, expression));
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.MinValue):
-                    AddText(result.Sql, "MINVALUE(", GetArgument(0));
-                    array = GetParamsArgument(1);
-                    for (int i = 0; i < array.Count; i++)
+                    AddText(sql, "MINVALUE(", GetArgument(0));
+                    expressionArray = GetParamsArgument(1);
+                    for (int i = 0; i < expressionArray.Count; i++)
                     {
-                        AddText(result.Sql, ',');
-                        AddText(result.Sql, ParseExpression(false, array[i], expression, cQuery).Sql);
+                        AddText(sql, ',');
+                        AddText(sql, GetSqlFromExpression(expressionArray[i], cQuery, expression));
                     }
-                    AddText(result.Sql, ")");
+                    AddText(sql, ")");
                     break;
 
                 case nameof(DBFunction.NullIf):
-                    AddText(result.Sql, "NULLIF(", GetArgument(0), ',', GetArgument(0), ')');
+                    AddText(sql, "NULLIF(", GetArgument(0), ',', GetArgument(0), ')');
                     break;
 
                     #endregion
             }
 
-            return result;
+            return sql.ToString();
         }
         private void InitializeDictionaries()
         {
@@ -1416,11 +1386,5 @@ namespace MyLibrary.DataBase
         private Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
         private Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
         private Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
-
-        private class ParseExpressionResult
-        {
-            public StringBuilder Sql = new StringBuilder();
-            public object Value;
-        }
     }
 }

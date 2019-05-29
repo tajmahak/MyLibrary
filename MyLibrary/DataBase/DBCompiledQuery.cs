@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MyLibrary.Collections;
 
 namespace MyLibrary.DataBase
 {
@@ -8,7 +8,7 @@ namespace MyLibrary.DataBase
     public sealed class DBCompiledQuery
     {
         public string CommandText { get; set; }
-        public List<DBParameter> Parameters { get; set; } = new List<DBParameter>();
+        public ReadOnlyList<DBParameter> Parameters { get; set; } = new ReadOnlyList<DBParameter>();
         public int NextParameterNumber { get; set; }
     }
 }

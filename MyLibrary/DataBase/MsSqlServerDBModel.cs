@@ -165,19 +165,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectCommand(sql, query, cQuery);
 
-                block = FindBlock(query, DBQueryStructureType.Distinct);
+                block = query.FindBlock(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = FindBlock(query, DBQueryStructureType.Skip);
+                block = query.FindBlock(DBQueryStructureType.Skip);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
-                block = FindBlock(query, DBQueryStructureType.First);
+                block = query.FindBlock(DBQueryStructureType.First);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" TOP ", block[0]));
@@ -203,7 +203,7 @@ namespace MyLibrary.DataBase
 
                 AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
 
-                blockList = FindBlockList(query, DBQueryStructureType.Set);
+                blockList = query.FindBlocks(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
                 {
                     throw DBInternal.WrongUpdateCommandException();
@@ -228,12 +228,12 @@ namespace MyLibrary.DataBase
                     {
                         AddText(sql, ',');
                     }
-                    AddText(sql, AddParameter(block[1], cQuery));
+                    AddText(sql, GetParameter(block[1], cQuery));
                 }
 
                 AddText(sql, ')');
 
-                blockList = FindBlockList(query, DBQueryStructureType.Matching);
+                blockList = query.FindBlocks(DBQueryStructureType.Matching);
                 if (blockList.Count > 0)
                 {
                     AddText(sql, " MATCHING(");

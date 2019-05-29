@@ -25,9 +25,9 @@ namespace MyLibrary.DataBase
             Connection = connection;
             AutoCommit = true;
 
-            _rowCollectionList = new List<DBRow>[model.Tables.Length];
-            _rowCollectionDict = new Dictionary<DBTable, List<DBRow>>(model.Tables.Length);
-            for (int i = 0; i < model.Tables.Length; i++)
+            _rowCollectionList = new List<DBRow>[model.Tables.Count];
+            _rowCollectionDict = new Dictionary<DBTable, List<DBRow>>(model.Tables.Count);
+            for (int i = 0; i < model.Tables.Count; i++)
             {
                 var table = model.Tables[i];
                 var rowCollection = new List<DBRow>();
@@ -450,7 +450,7 @@ namespace MyLibrary.DataBase
 
         public T Get<T>(DBQueryBase query)
         {
-            query.AddItem(DBQueryStructureType.First, 1);
+            query.AddBlock(DBQueryStructureType.First, 1);
             foreach (var row in Select<T>(query))
             {
                 return row;
@@ -514,7 +514,7 @@ namespace MyLibrary.DataBase
         {
             if (query.Type == DBQueryType.Select)
             {
-                query.AddItem(DBQueryStructureType.First, 1);
+                query.AddBlock(DBQueryStructureType.First, 1);
             }
 
             using (var command = Model.CompileCommand(Connection, query))
