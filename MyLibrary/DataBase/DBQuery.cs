@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyLibrary.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -29,11 +30,11 @@ namespace MyLibrary.DataBase
         public DBQueryType Type { get; protected set; }
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
-        protected internal List<DBQueryStructureBlock> Structure { get; private set; }
+        protected internal ReadOnlyList<DBQueryStructureBlock> Structure { get; private set; }
 
         protected internal void AddBlock(DBQueryStructureType type, params object[] args)
         {
-            Structure.Add(new DBQueryStructureBlock()
+            Structure.List.Add(new DBQueryStructureBlock()
             {
                 Type = type,
                 Args = args,

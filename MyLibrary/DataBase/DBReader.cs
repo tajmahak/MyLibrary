@@ -12,7 +12,7 @@ namespace MyLibrary.DataBase
     /// <typeparam name="T"></typeparam>
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
-        internal DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
+        public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
         {
             _model = model;
             _command = model.CompileCommand(connection, query);
@@ -30,7 +30,7 @@ namespace MyLibrary.DataBase
             if (_reader.Read())
             {
                 var row = new DBRow(_table);
-                _reader.GetValues(row.Values);
+                _reader.GetValues(row.Values.Array);
                 row.State = DataRowState.Unchanged;
                 Current = DBInternal.PackRow<T>(row);
                 return true;
@@ -67,7 +67,7 @@ namespace MyLibrary.DataBase
                     column.Name = (string)schemaRow["ColumnName"];
 
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
-                    string columnName = string.IsNullOrEmpty(schemaBaseTableName) ? 
+                    string columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
                         column.Name : string.Concat(schemaBaseTableName, '.', column.Name);
                     if (_model.TryGetColumn(columnName, out var modelColumn))
                     {

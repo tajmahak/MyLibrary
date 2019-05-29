@@ -1,4 +1,5 @@
-﻿using MyLibrary.Data;
+﻿using MyLibrary.Collections;
+using MyLibrary.Data;
 using System;
 using System.Data;
 
@@ -25,7 +26,7 @@ namespace MyLibrary.DataBase
             }
         }
         internal DataRowState State;
-        internal object[] Values;
+        internal ReadOnlyArray<object> Values;
 
         #region Работа с данными
 
@@ -142,7 +143,7 @@ namespace MyLibrary.DataBase
 
         internal void InitializeValues()
         {
-            for (int i = 0; i < Values.Length; i++)
+            for (int i = 0; i < Values.Count; i++)
             {
                 var column = Table.Columns[i];
                 Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;

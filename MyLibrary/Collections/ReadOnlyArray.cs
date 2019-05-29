@@ -36,10 +36,7 @@ namespace MyLibrary.Collections
         void ICollection<T>.Clear() => throw new InvalidOperationException();
         bool ICollection<T>.Remove(T item) => throw new InvalidOperationException();
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerator<T> GetEnumerator() => new ReadOnlyArrayEnumerator(Array.GetEnumerator());
         IEnumerator IEnumerable.GetEnumerator() => Array.GetEnumerator();
 
         public override bool Equals(object obj) => Array.Equals(obj);
@@ -47,5 +44,22 @@ namespace MyLibrary.Collections
         public override string ToString() => Array.ToString();
 
         internal T[] Array { get; set; }
+
+
+        private class ReadOnlyArrayEnumerator : IEnumerator<T>
+        {
+            private IEnumerator _enumerator;
+            public ReadOnlyArrayEnumerator(IEnumerator enumerator)
+            {
+                _enumerator = enumerator;
+            }
+
+            public bool MoveNext() => _enumerator.MoveNext();
+            public void Reset() => _enumerator.Reset();
+            public T Current => (T)_enumerator.Current;
+            object IEnumerator.Current => _enumerator.Current;
+
+            public void Dispose() { }
+        }
     }
 }

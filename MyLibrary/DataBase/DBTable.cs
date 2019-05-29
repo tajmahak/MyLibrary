@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MyLibrary.Collections;
+using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
@@ -15,7 +16,7 @@ namespace MyLibrary.DataBase
         }
 
         public string Name { get; private set; }
-        public List<DBColumn> Columns { get; private set; }
+        public ReadOnlyList<DBColumn> Columns { get; private set; }
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
 
@@ -39,7 +40,7 @@ namespace MyLibrary.DataBase
                 columnName = string.Concat(column.Table.Name, '.', column.Name);
             }
 
-            Columns.Add(column);
+            Columns.List.Add(column);
             if (!_columnsDict.ContainsKey(columnName))
             {
                 _columnsDict.Add(columnName, column);
