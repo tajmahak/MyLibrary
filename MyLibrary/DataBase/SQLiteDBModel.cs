@@ -13,8 +13,8 @@ namespace MyLibrary.DataBase
     {
         public SQLiteDBModel()
         {
-            OpenBlock = '[';
-            CloseBlock = ']';
+            OpenBlock = "[";
+            CloseBlock = "]";
         }
 
         public override DBTable[] GetTableSchema(DbConnection connection)
@@ -58,7 +58,7 @@ namespace MyLibrary.DataBase
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
-                        table.Columns.Add(column);
+                        table.AddColumn(column);
                     }
                 }
             }

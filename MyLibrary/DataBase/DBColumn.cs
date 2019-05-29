@@ -18,7 +18,7 @@ namespace MyLibrary.DataBase
         public bool IsPrimary { get; set; }
         public bool AllowDBNull { get; set; }
         public object DefaultValue { get; set; } = DBNull.Value;
-        public int Size { get; set; }
+        public int Size { get; set; } = -1;
         public string Description { get; set; }
         public DBTable Table { get; private set; }
 

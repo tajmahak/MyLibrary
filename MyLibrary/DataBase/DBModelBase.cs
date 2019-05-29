@@ -17,15 +17,14 @@ namespace MyLibrary.DataBase
         public DBTable[] Tables { get; private set; }
         public bool IsInitialized { get; private set; }
 
-        public char OpenBlock { get; protected set; }
-        public char CloseBlock { get; protected set; }
+        public string OpenBlock { get; protected set; } = string.Empty;
+        public string CloseBlock { get; protected set; } = string.Empty;
 
         public abstract DBTable[] GetTableSchema(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
-        public abstract object ExecuteInsertCommand(DbCommand command);
-        public virtual string GetDefaultInsertCommand(DBTable table)
+        public virtual object ExecuteInsertCommand(DbCommand command)
         {
-            return GetInsertCommand(table);
+            return command.ExecuteScalar();
         }
         public virtual DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
         {
@@ -276,13 +275,7 @@ namespace MyLibrary.DataBase
 
         #region [protected] Вспомогательные сущности для получения SQL-команд
 
-        protected virtual string GetSelectCommand(DBTable table)
-        {
-            var sql = new StringBuilder();
-            Add(sql, "SELECT ", GetName(table.Name), ".* FROM ", GetName(table.Name));
-            return sql.ToString();
-        }
-        protected virtual string GetInsertCommand(DBTable table)
+        protected virtual string GetInsertCommandText(DBTable table)
         {
             var sql = new StringBuilder();
             Add(sql, "INSERT INTO ", GetName(table.Name), " VALUES(");
@@ -307,7 +300,13 @@ namespace MyLibrary.DataBase
             Add(sql, ')');
             return sql.ToString();
         }
-        protected virtual string GetUpdateCommand(DBTable table)
+        protected string GetSelectCommandText(DBTable table)
+        {
+            var sql = new StringBuilder();
+            Add(sql, "SELECT ", GetName(table.Name), ".* FROM ", GetName(table.Name));
+            return sql.ToString();
+        }
+        protected string GetUpdateCommandText(DBTable table)
         {
             var sql = new StringBuilder();
 
@@ -328,27 +327,11 @@ namespace MyLibrary.DataBase
             Add(sql, " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
             return sql.ToString();
         }
-        protected virtual string GetDeleteCommand(DBTable table)
+        protected string GetDeleteCommandText(DBTable table)
         {
             var sql = new StringBuilder();
             Add(sql, "DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
             return sql.ToString();
-        }
-
-        protected string GetFullName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
-        }
-        protected string GetName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[0], CloseBlock);
-        }
-        protected string GetColumnName(object value)
-        {
-            string[] split = ((string)value).Split('.');
-            return string.Concat(OpenBlock, split[1], CloseBlock);
         }
 
         protected void PrepareSelectCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
@@ -839,7 +822,7 @@ namespace MyLibrary.DataBase
                         case DBQueryStructureType.OrderByUpper:
                         case DBQueryStructureType.OrderByUpperDesc:
                             #region
-                            var args = (string[])block[0];
+                            var args = (string[])block.Args;
                             for (int j = 0; j < args.Length; j++)
                             {
                                 if (index > 0)
@@ -953,6 +936,22 @@ namespace MyLibrary.DataBase
             {
                 str.Append(value);
             }
+        }
+
+        protected string GetFullName(object value)
+        {
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
+        }
+        protected string GetName(object value)
+        {
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[0], CloseBlock);
+        }
+        protected string GetColumnName(object value)
+        {
+            string[] split = ((string)value).Split('.');
+            return string.Concat(OpenBlock, split[1], CloseBlock);
         }
 
         #endregion
@@ -1501,10 +1500,10 @@ namespace MyLibrary.DataBase
         {
             foreach (var table in Tables)
             {
-                _selectCommandsDict.Add(table, GetSelectCommand(table));
-                _updateCommandsDict.Add(table, GetUpdateCommand(table));
-                _deleteCommandsDict.Add(table, GetDeleteCommand(table));
-                _insertCommandsDict.Add(table, GetDefaultInsertCommand(table));
+                _selectCommandsDict.Add(table, GetSelectCommandText(table));
+                _updateCommandsDict.Add(table, GetUpdateCommandText(table));
+                _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
+                _insertCommandsDict.Add(table, GetInsertCommandText(table));
 
                 _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)

@@ -13,7 +13,7 @@ namespace MyLibrary.DataBase
     {
         public FireBirdDBModel()
         {
-            OpenBlock = CloseBlock = '\"';
+            OpenBlock = CloseBlock = "\"";
         }
 
         public override DBTable[] GetTableSchema(DbConnection connection)
@@ -57,7 +57,7 @@ namespace MyLibrary.DataBase
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
-                        table.Columns.Add(column);
+                        table.AddColumn(column);
                     }
                 }
             }
@@ -106,17 +106,13 @@ namespace MyLibrary.DataBase
 
             return tables.ToArray();
         }
-        public override string GetDefaultInsertCommand(DBTable table)
+        protected override string GetInsertCommandText(DBTable table)
         {
-            return string.Concat(GetInsertCommand(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyColumn.Index].Name));
+            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyColumn.Index].Name));
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {
             ((FbCommand)command).Parameters.AddWithValue(name, value);
-        }
-        public override object ExecuteInsertCommand(DbCommand command)
-        {
-            return command.ExecuteScalar();
         }
     }
 }
