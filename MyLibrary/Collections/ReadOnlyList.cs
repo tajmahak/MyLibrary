@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MyLibrary.Data
+namespace MyLibrary.Collections
 {
     public class ReadOnlyList<T> : ICollection<T>, IEnumerable<T>, IEnumerable
     {
@@ -10,10 +10,16 @@ namespace MyLibrary.Data
         {
             List = new List<T>();
         }
-        public ReadOnlyList(IList<T> list)
+        public ReadOnlyList(List<T> list)
         {
             List = list;
         }
+        public static implicit operator ReadOnlyList<T>(List<T> list)
+        {
+            return new ReadOnlyList<T>(list);
+        }
+
+        public T this[int index] { get => List[index]; }
 
         public int Count => List.Count;
         public bool IsReadOnly => true;
@@ -31,27 +37,6 @@ namespace MyLibrary.Data
         public override int GetHashCode() => List.GetHashCode();
         public override string ToString() => List.ToString();
 
-        internal IList<T> List { get; private set; }
-    }
-
-    public class ReadOnlyList : ICollection, IEnumerable
-    {
-        public ReadOnlyList(IList list)
-        {
-            _list = list;
-        }
-
-        public int Count => _list.Count;
-        public object SyncRoot => _list.SyncRoot;
-        public bool IsSynchronized => _list.IsSynchronized;
-        public void CopyTo(Array array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
-
-        public IEnumerator GetEnumerator() => _list.GetEnumerator();
-
-        public override bool Equals(object obj) => _list.Equals(obj);
-        public override int GetHashCode() => _list.GetHashCode();
-        public override string ToString() => _list.ToString();
-
-        private IList _list;
+        internal List<T> List { get; set; }
     }
 }
