@@ -7,14 +7,14 @@ namespace MyLibrary.Collections
 {
     public class ReadOnlyArray<T> : ICollection<T>, IEnumerable
     {
-        public ReadOnlyArray(int length)
-        {
-            Array
-            Array = new T[length];
-        }
         public ReadOnlyArray(T[] array)
         {
             Array = array;
+        }
+        internal ReadOnlyArray(int length)
+        {
+            Array
+            Array = new T[length];
         }
         public static implicit operator ReadOnlyArray<T>(T[] array)
         {

@@ -6,13 +6,13 @@ namespace MyLibrary.Collections
 {
     public class ReadOnlyList<T> : ICollection<T>, IEnumerable<T>, IEnumerable
     {
-        public ReadOnlyList()
-        {
-            List = new List<T>();
-        }
         public ReadOnlyList(List<T> list)
         {
             List = list;
+        }
+        internal ReadOnlyList()
+        {
+            List = new List<T>();
         }
         public static implicit operator ReadOnlyList<T>(List<T> list)
         {
