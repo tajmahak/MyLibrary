@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+using System.Text;
 
 namespace MyLibrary.DataBase
 {
@@ -109,6 +110,67 @@ namespace MyLibrary.DataBase
                 command.ExecuteNonQuery();
                 return connection.LastInsertRowId;
             }
+        }
+        public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
+        {
+            var cQuery = new DBCompiledQuery()
+            {
+                NextParameterNumber = nextParameterNumber,
+            };
+
+            DBQueryStructureBlock block;
+            List<DBQueryStructureBlock> blockList;
+
+            var sql = new StringBuilder();
+            if (query.Type == DBQueryType.Select)
+            {
+                PrepareSelectCommand(sql, query, cQuery);
+
+                block = FindBlock(query, DBQueryStructureType.Distinct);
+                if (block != null)
+                {
+                    sql.Insert(6, " DISTINCT");
+                }
+
+                block = FindBlock(query, DBQueryStructureType.Skip);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" SKIP ", block[0]));
+                }
+
+                block = FindBlock(query, DBQueryStructureType.First);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" FIRST ", block[0]));
+                }
+
+                PrepareJoinCommand(sql, query);
+            }
+            else if (query.Type == DBQueryType.Insert)
+            {
+                PrepareInsertCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryType.Update)
+            {
+                PrepareUpdateCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryType.Delete)
+            {
+                PrepareDeleteCommand(sql, query);
+            }
+
+            PrepareWhereCommand(sql, query, cQuery);
+
+            if (query.Type == DBQueryType.Select)
+            {
+                PrepareGroupByCommand(sql, query);
+                PrepareOrderByCommand(sql, query);
+            }
+
+            PrepareUnionCommand(sql, query, cQuery);
+
+            cQuery.CommandText = sql.ToString();
+            return cQuery;
         }
     }
 }

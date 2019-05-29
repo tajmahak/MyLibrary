@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 
 namespace MyLibrary.DataBase
 {
@@ -113,6 +114,146 @@ namespace MyLibrary.DataBase
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {
             ((FbCommand)command).Parameters.AddWithValue(name, value);
+        }
+        public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
+        {
+            var cQuery = new DBCompiledQuery()
+            {
+                NextParameterNumber = nextParameterNumber,
+            };
+
+            DBQueryStructureBlock block;
+            List<DBQueryStructureBlock> blockList;
+
+            var sql = new StringBuilder();
+            if (query.Type == DBQueryType.Select)
+            {
+                PrepareSelectCommand(sql, query, cQuery);
+
+                block = FindBlock(query, DBQueryStructureType.Distinct);
+                if (block != null)
+                {
+                    sql.Insert(6, " DISTINCT");
+                }
+
+                block = FindBlock(query, DBQueryStructureType.Skip);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" SKIP ", block[0]));
+                }
+
+                block = FindBlock(query, DBQueryStructureType.First);
+                if (block != null)
+                {
+                    sql.Insert(6, string.Concat(" FIRST ", block[0]));
+                }
+
+                PrepareJoinCommand(sql, query);
+            }
+            else if (query.Type == DBQueryType.Insert)
+            {
+                PrepareInsertCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryType.Update)
+            {
+                PrepareUpdateCommand(sql, query, cQuery);
+            }
+            else if (query.Type == DBQueryType.Delete)
+            {
+                PrepareDeleteCommand(sql, query);
+            }
+            else if (query.Type == DBQueryType.UpdateOrInsert)
+            {
+                #region UPDATE OR INSERT
+
+                AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
+
+                blockList = FindBlockList(query, DBQueryStructureType.Set);
+                if (blockList.Count == 0)
+                {
+                    throw DBInternal.InadequateUpdateCommandException();
+                }
+
+                AddText(sql, '(');
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    if (i > 0)
+                    {
+                        AddText(sql, ',');
+                    }
+                    AddText(sql, GetColumnName(block[0]));
+                }
+
+                AddText(sql, ")VALUES(");
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    if (i > 0)
+                    {
+                        AddText(sql, ',');
+                    }
+                    AddText(sql, AddParameter(block[1], cQuery));
+                }
+
+                AddText(sql, ')');
+
+                blockList = FindBlockList(query, DBQueryStructureType.Matching);
+                if (blockList.Count > 0)
+                {
+                    AddText(sql, " MATCHING(");
+                    for (int i = 0; i < blockList.Count; i++)
+                    {
+                        block = blockList[i];
+                        for (int j = 0; j < block.Length; j++)
+                        {
+                            if (j > 0)
+                            {
+                                AddText(sql, ',');
+                            }
+                            AddText(sql, GetColumnName(block[j]));
+                        }
+                    }
+                    AddText(sql, ')');
+                }
+
+                #endregion
+            }
+
+            PrepareWhereCommand(sql, query, cQuery);
+
+            if (query.Type == DBQueryType.Select)
+            {
+                PrepareGroupByCommand(sql, query);
+                PrepareOrderByCommand(sql, query);
+            }
+
+            #region RETURNING ...
+
+            blockList = FindBlockList(query, DBQueryStructureType.Returning);
+            if (blockList.Count > 0)
+            {
+                AddText(sql, " RETURNING ");
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    block = blockList[i];
+                    for (int j = 0; j < block.Length; j++)
+                    {
+                        if (j > 0)
+                        {
+                            AddText(sql, ',');
+                        }
+                        AddText(sql, GetColumnName(block[j]));
+                    }
+                }
+            }
+
+            #endregion
+
+            PrepareUnionCommand(sql, query, cQuery);
+
+            cQuery.CommandText = sql.ToString();
+            return cQuery;
         }
     }
 }

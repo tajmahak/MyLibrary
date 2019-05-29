@@ -22,39 +22,39 @@ namespace MyLibrary.DataBase
         {
             var sql = new StringBuilder();
 
-            Add(sql, "INSERT INTO ", GetName(table.Name), "(");
+            AddText(sql, "INSERT INTO ", GetName(table.Name), "(");
 
             int index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    Add(sql, ',');
+                    AddText(sql, ',');
                 }
                 if (!column.IsPrimary)
                 {
-                    Add(sql, GetName(column.Name));
+                    AddText(sql, GetName(column.Name));
                     index++;
                 }
             }
 
-            Add(sql, ") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
+            AddText(sql, ") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
 
             index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    Add(sql, ',');
+                    AddText(sql, ',');
                 }
                 if (!column.IsPrimary)
                 {
-                    Add(sql, "@p", index);
+                    AddText(sql, "@p", index);
                     index++;
                 }
             }
 
-            Add(sql, ")");
+            AddText(sql, ")");
 
             return sql.ToString();
         }
@@ -201,7 +201,7 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE OR INSERT
 
-                Add(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
+                AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
 
                 blockList = FindBlockList(query, DBQueryStructureType.Set);
                 if (blockList.Count == 0)
@@ -209,34 +209,34 @@ namespace MyLibrary.DataBase
                     throw DBInternal.InadequateUpdateCommandException();
                 }
 
-                Add(sql, '(');
+                AddText(sql, '(');
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     block = blockList[i];
                     if (i > 0)
                     {
-                        Add(sql, ',');
+                        AddText(sql, ',');
                     }
-                    Add(sql, GetColumnName(block[0]));
+                    AddText(sql, GetColumnName(block[0]));
                 }
 
-                Add(sql, ")VALUES(");
+                AddText(sql, ")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     block = blockList[i];
                     if (i > 0)
                     {
-                        Add(sql, ',');
+                        AddText(sql, ',');
                     }
-                    Add(sql, AddParameter(block[1], cQuery));
+                    AddText(sql, AddParameter(block[1], cQuery));
                 }
 
-                Add(sql, ')');
+                AddText(sql, ')');
 
                 blockList = FindBlockList(query, DBQueryStructureType.Matching);
                 if (blockList.Count > 0)
                 {
-                    Add(sql, " MATCHING(");
+                    AddText(sql, " MATCHING(");
                     for (int i = 0; i < blockList.Count; i++)
                     {
                         block = blockList[i];
@@ -244,12 +244,12 @@ namespace MyLibrary.DataBase
                         {
                             if (j > 0)
                             {
-                                Add(sql, ',');
+                                AddText(sql, ',');
                             }
-                            Add(sql, GetColumnName(block[j]));
+                            AddText(sql, GetColumnName(block[j]));
                         }
                     }
-                    Add(sql, ')');
+                    AddText(sql, ')');
                 }
 
                 #endregion
@@ -262,28 +262,6 @@ namespace MyLibrary.DataBase
                 PrepareGroupByCommand(sql, query);
                 PrepareOrderByCommand(sql, query);
             }
-
-            #region RETURNING ...
-
-            blockList = FindBlockList(query, DBQueryStructureType.Returning);
-            if (blockList.Count > 0)
-            {
-                Add(sql, " RETURNING ");
-                for (int i = 0; i < blockList.Count; i++)
-                {
-                    block = blockList[i];
-                    for (int j = 0; j < block.Length; j++)
-                    {
-                        if (i > 0)
-                        {
-                            Add(sql, ',');
-                        }
-                        Add(sql, GetColumnName(block[j]));
-                    }
-                }
-            }
-
-            #endregion
 
             PrepareUnionCommand(sql, query, cQuery);
 

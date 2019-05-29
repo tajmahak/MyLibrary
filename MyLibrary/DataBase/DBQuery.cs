@@ -41,6 +41,10 @@ namespace MyLibrary.DataBase
         }
     }
 
+    /// <summary>
+    /// Базовый класс с набором функций, представляющих запросы к базе данных.
+    /// </summary>
+    /// <typeparam name="TQuery"></typeparam>
     public abstract class DBQueryBase<TQuery> : DBQueryBase
     {
         public DBQueryBase(DBTable table) : base(table)
@@ -635,6 +639,10 @@ namespace MyLibrary.DataBase
         }
     }
 
+    /// <summary>
+    /// Представляет структирированный запрос базы данных.
+    /// </summary>
+    /// <typeparam name="TQuery"></typeparam>
     public class DBQuery : DBQueryBase<DBQuery>
     {
         public DBQuery(DBTable table) : base(table)
@@ -642,6 +650,9 @@ namespace MyLibrary.DataBase
         }
     }
 
+    /// <summary>
+    /// Представляет типизированный запрос базы данных для таблиц <see cref="DBOrmTableBase"/>.
+    /// </summary>
     public class DBQuery<T> : DBQueryBase<DBQuery<T>> where T : DBOrmTableBase
     {
         public DBQuery(DBTable table) : base(table)
