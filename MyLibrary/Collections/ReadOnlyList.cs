@@ -19,7 +19,11 @@ namespace MyLibrary.Collections
             return new ReadOnlyList<T>(list);
         }
 
-        public T this[int index] { get => List[index]; }
+        public T this[int index]
+        {
+            get => List[index];
+            internal set => List[index] = value;
+        }
 
         public int Count => List.Count;
         public bool IsReadOnly => true;

@@ -21,7 +21,11 @@ namespace MyLibrary.Collections
             return new ReadOnlyArray<T>(array);
         }
 
-        public T this[int index] { get => Array[index]; }
+        public T this[int index]
+        {
+            get => Array[index];
+            internal set => Array[index] = value;
+        }
 
         public int Count => Array.Length;
         public bool IsReadOnly => true;
