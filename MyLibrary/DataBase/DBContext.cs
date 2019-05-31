@@ -16,29 +16,18 @@ namespace MyLibrary.DataBase
         /// <param name="connection"></param>
         public DBContext(DBModelBase model, DbConnection connection)
         {
-            if (!model.IsInitialized)
-            {
-                model.Initialize(connection);
-            }
-
             Model = model;
             Connection = connection;
-            AutoCommit = true;
 
-            _rowCollectionList = new List<DBRow>[model.Tables.Count];
-            _rowCollectionDict = new Dictionary<DBTable, List<DBRow>>(model.Tables.Count);
-            for (int i = 0; i < model.Tables.Count; i++)
+            if (!Model.IsInitialized)
             {
-                var table = model.Tables[i];
-                var rowCollection = new List<DBRow>();
-                _rowCollectionList[i] = rowCollection;
-                _rowCollectionDict.Add(table, rowCollection);
+                Model.Initialize(Connection);
             }
         }
 
         public DBModelBase Model { get; private set; }
         public DbConnection Connection { get; set; }
-        public bool AutoCommit { get; set; }
+        public bool AutoCommit { get; set; } = true;
 
         /// <summary>
         /// Создание нового запроса <see cref="DBQuery"/>.
@@ -116,18 +105,19 @@ namespace MyLibrary.DataBase
             {
                 #region DELETE
 
-                for (int i = 0; i < _rowCollectionList.Length; i++)
+                foreach (var tableRowsItem in _tableRows)
                 {
-                    var rowCollection = _rowCollectionList[i];
-                    if (rowCollection.Count == 0)
+                    var table = tableRowsItem.Key;
+                    var rowList = tableRowsItem.Value;
+
+                    if (rowList.Count == 0)
                     {
                         continue;
                     }
 
-                    var table = rowCollection[0].Table;
-                    for (int j = 0; j < rowCollection.Count; j++)
+                    for (int i = 0; i < rowList.Count; i++)
                     {
-                        row = rowCollection[j];
+                        row = rowList[i];
                         if (row.State == DataRowState.Deleted)
                         {
                             if (!(row[table.PrimaryKeyColumn.OrderIndex] is Guid))
@@ -136,7 +126,7 @@ namespace MyLibrary.DataBase
                             }
                         }
                     }
-                    rowCollection.RemoveAll(x => x.State == DataRowState.Deleted);
+                    rowList.RemoveAll(x => x.State == DataRowState.Deleted);
                 }
 
                 #endregion
@@ -146,28 +136,29 @@ namespace MyLibrary.DataBase
                 var tempIDs = new Dictionary<Guid, List<InsertRowContainer>>();
                 #region Формирование списков
 
-                for (int i = 0; i < _rowCollectionList.Length; i++)
+                foreach (var tableRowsItem in _tableRows)
                 {
-                    var rowCollection = _rowCollectionList[i];
-                    if (rowCollection.Count == 0)
+                    var table = tableRowsItem.Key;
+                    var rowList = tableRowsItem.Value;
+
+                    if (rowList.Count == 0)
                     {
                         continue;
                     }
 
-                    var table = rowCollection[0].Table;
-                    for (int j = 0; j < rowCollection.Count; j++)
+                    for (int i = 0; i < rowList.Count; i++)
                     {
-                        row = rowCollection[j];
+                        row = rowList[i];
                         var mainContainer = new InsertRowContainer(row, 0);
-                        for (int k = 0; k < table.Columns.Count; k++)
+                        for (int j = 0; j < table.Columns.Count; j++)
                         {
-                            var value = row[k];
+                            var value = row[j];
                             if (value is Guid)
                             {
                                 mainContainer.Value++;
 
                                 var tempID = (Guid)value;
-                                var idContainer = new InsertRowContainer(row, k);
+                                var idContainer = new InsertRowContainer(row, j);
                                 if (row.State == DataRowState.Added)
                                 {
                                     idContainer.ParentContainer = mainContainer;
@@ -247,19 +238,19 @@ namespace MyLibrary.DataBase
                 #endregion
                 #region UPDATE
 
-                for (int i = 0; i < _rowCollectionList.Length; i++)
+                foreach (var tableRowsItem in _tableRows)
                 {
-                    var rowCollection = _rowCollectionList[i];
-                    if (rowCollection.Count == 0)
+                    var table = tableRowsItem.Key;
+                    var rowList = tableRowsItem.Value;
+
+                    if (rowList.Count == 0)
                     {
                         continue;
                     }
 
-                    var table = rowCollection[0].Table;
-
-                    for (int j = 0; j < rowCollection.Count; j++)
+                    for (int i = 0; i < rowList.Count; i++)
                     {
-                        row = rowCollection[j];
+                        row = rowList[i];
                         if (row.State == DataRowState.Modified)
                         {
                             ExecuteUpdateCommand(row);
@@ -287,8 +278,8 @@ namespace MyLibrary.DataBase
         /// </summary>
         public void Dispose()
         {
-            Clear();
             CommitTransaction();
+            Clear();
         }
 
         #region Работа с коллекцией
@@ -297,28 +288,14 @@ namespace MyLibrary.DataBase
         /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
         /// </summary>
         /// <typeparam name="T">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
-        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
         /// <returns></returns>
-        public T New<T>(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var row = new DBRow(table);
-            row.InitializeValues();
-            Add(row);
-            return DBInternal.PackRow<T>(row);
-        }
-        /// <summary>
-        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
-        /// </summary>
-        /// <typeparam name="T">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
-        /// <returns></returns>
-        public T New<T>()
+        public T New<T>() where T : DBOrmTableBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
             return New<T>(tableName);
         }
 
-        public bool Add<T>(T row)
+        public int Add<T>(T row)
         {
             if (row is IEnumerable)
             {
@@ -335,17 +312,19 @@ namespace MyLibrary.DataBase
             {
                 if (dbRow[dbRow.Table.PrimaryKeyColumn.OrderIndex] is Guid)
                 {
-                    return false;
+                    return 0;
                 }
             }
 
-            var rowCollection = _rowCollectionDict[dbRow.Table];
-            if (!rowCollection.Contains(dbRow))
+            if (!_tableRows.TryGetValue(dbRow.Table, out var rowList))
             {
-                lock (_rowCollectionDict)
-                {
-                    rowCollection.Add(dbRow);
-                }
+                rowList = new List<DBRow>();
+                _tableRows.Add(dbRow.Table, rowList);
+            }
+
+            if (!rowList.Contains(dbRow))
+            {
+                rowList.Add(dbRow);
             }
 
             if (dbRow.State == DataRowState.Detached)
@@ -353,50 +332,30 @@ namespace MyLibrary.DataBase
                 dbRow.State = DataRowState.Added;
             }
 
-            return true;
-        }
-        public void Delete<T>(T row)
-        {
-            var dbRow = DBInternal.UnpackRow(row);
-            if (dbRow.Table.Name == null)
-            {
-                throw DBInternal.ProcessRowException();
-            }
-
-            dbRow.Delete();
-
-            if (dbRow[dbRow.Table.PrimaryKeyColumn.OrderIndex] is Guid)
-            {
-                lock (_rowCollectionDict)
-                {
-                    _rowCollectionDict[dbRow.Table].Remove(dbRow);
-                }
-            }
+            return 1;
         }
 
         public void Clear()
         {
-            for (int i = 0; i < _rowCollectionList.Length; i++)
+            foreach (var rowList in _tableRows.Values)
             {
-                var rowCollection = _rowCollectionList[i];
-                rowCollection.ForEach(row =>
+                rowList.ForEach(row =>
                 {
                     if (row.State == DataRowState.Added)
                     {
                         row.State = DataRowState.Detached;
                     }
                 });
-
-                lock (_rowCollectionDict)
-                {
-                    rowCollection.Clear();
-                }
+                rowList.Clear();
             }
         }
         public void Clear(string tableName)
         {
             var table = Model.GetTable(tableName);
-            _rowCollectionDict[table].Clear();
+            if (_tableRows.TryGetValue(table, out var rowList))
+            {
+                rowList.Clear();
+            }
         }
         public void Clear<T>(T row)
         {
@@ -417,25 +376,13 @@ namespace MyLibrary.DataBase
                 dbRow.State = DataRowState.Detached;
             }
 
-            lock (_rowCollectionDict)
+            if (_tableRows.TryGetValue(dbRow.Table, out var rowList))
             {
-                _rowCollectionDict[dbRow.Table].Remove(dbRow);
+                rowList.Remove(dbRow);
             }
         }
 
-        public List<T> GetSetRows<T>(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var rowList = _rowCollectionDict[table];
-
-            var list = new List<T>(rowList.Count);
-            foreach (var row in rowList)
-            {
-                list.Add(DBInternal.PackRow<T>(row));
-            }
-            return list;
-        }
-        public List<T> GetSetRows<T>()
+        public List<T> GetSetRows<T>() where T : DBOrmTableBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
             return GetSetRows<T>(tableName);
@@ -446,6 +393,7 @@ namespace MyLibrary.DataBase
         }
 
         #endregion
+
         #region Работа с данными
 
         public T Get<T>(DBQueryBase query)
@@ -481,7 +429,7 @@ namespace MyLibrary.DataBase
             var cmd = CreateSelectCommand(tableName, columnNameValuePair);
             var row = GetOrNew(cmd);
 
-            // установка значений в строку согласно аргументов
+            // установка значений в строку согласно аргументам
             if (row.Values[row.Table.PrimaryKeyColumn.OrderIndex] is Guid)
             {
                 for (int i = 0; i < columnNameValuePair.Length; i += 2)
@@ -512,7 +460,7 @@ namespace MyLibrary.DataBase
 
         public T GetValue<T>(DBQueryBase query)
         {
-            if (query.Type == DBQueryType.Select)
+            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
                 query.AddBlock(DBQueryStructureType.First, 1);
             }
@@ -543,6 +491,7 @@ namespace MyLibrary.DataBase
         }
 
         #endregion
+
         #region Работа с данными типа <DBRow>
 
         /// <summary>
@@ -584,23 +533,39 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        #region Закрытые элементы
-
-        private DbTransaction _transaction;
-        private List<DBRow>[] _rowCollectionList;
-        private Dictionary<DBTable, List<DBRow>> _rowCollectionDict;
-
-        private bool AddCollection(IEnumerable collection)
+        private T New<T>(string tableName)
         {
-            bool added = true;
+            var table = Model.GetTable(tableName);
+            var row = table.CreateRow();
+            Add(row);
+            return DBInternal.PackRow<T>(row);
+        }
+        private List<T> GetSetRows<T>(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+
+            if (_tableRows.TryGetValue(table, out var rowList))
+            {
+                var list = new List<T>(rowList.Count);
+                foreach (var row in rowList)
+                {
+                    list.Add(DBInternal.PackRow<T>(row));
+                }
+                return list;
+            }
+            else
+            {
+                return new List<T>(0);
+            }
+        }
+        private int AddCollection(IEnumerable collection)
+        {
+            int count = 0;
             foreach (var row in collection)
             {
-                if (!Add(row))
-                {
-                    added = false;
-                }
+                count += Add(row);
             }
-            return added;
+            return count;
         }
         private void ClearCollection(IEnumerable collection)
         {
@@ -698,6 +663,9 @@ namespace MyLibrary.DataBase
             return cmd;
         }
 
+        private DbTransaction _transaction;
+        private Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
+
         private class InsertRowContainer
         {
             public DBRow Row;
@@ -714,7 +682,5 @@ namespace MyLibrary.DataBase
                 return string.Format("{0} - {1}", Value, Row);
             }
         }
-
-        #endregion
     }
 }

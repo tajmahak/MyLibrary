@@ -1,4 +1,5 @@
 ﻿using MyLibrary.Collections;
+using System;
 using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
@@ -20,6 +21,16 @@ namespace MyLibrary.DataBase
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
 
+        public DBRow CreateRow()
+        {
+            var row = new DBRow(this);
+            for (int i = 0; i < row.Values.Length; i++)
+            {
+                var column = Columns[i];
+                row.Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;
+            }
+            return row;
+        }
         public DBColumn GetColumn(string columnName)
         {
             if (!_columnsDict.TryGetValue(columnName, out var column))

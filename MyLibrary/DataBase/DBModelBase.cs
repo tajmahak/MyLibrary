@@ -118,29 +118,37 @@ namespace MyLibrary.DataBase
         }
         public DBTable GetTable(string tableName)
         {
-            if (!_tablesDict.TryGetValue(tableName, out var table))
+            var table = TryGetTable(tableName);
+            if (table == null)
             {
                 throw DBInternal.UnknownTableException(tableName);
             }
-
             return table;
         }
         public DBColumn GetColumn(string columnName)
         {
-            if (!_columnsDict.TryGetValue(columnName, out var column))
+            var column = TryGetColumn(columnName);
+            if (column == null)
             {
                 throw DBInternal.UnknownColumnException(null, columnName);
             }
-
             return column;
         }
-        public bool TryGetTable(string tableName, out DBTable table)
+        public DBTable TryGetTable(string tableName)
         {
-            return _tablesDict.TryGetValue(tableName, out table);
+            if (_tablesDict.TryGetValue(tableName, out var table))
+            {
+                return table;
+            }
+            return null;
         }
-        public bool TryGetColumn(string columnName, out DBColumn column)
+        public DBColumn TryGetColumn(string columnName)
         {
-            return _columnsDict.TryGetValue(columnName, out column);
+            if (_columnsDict.TryGetValue(columnName, out var column))
+            {
+                return column;
+            }
+            return null;
         }
 
         #region [protected] Вспомогательные сущности для получения SQL-команд

@@ -1,5 +1,4 @@
-﻿using MyLibrary.Collections;
-using MyLibrary.Data;
+﻿using MyLibrary.Data;
 using System;
 using System.Data;
 
@@ -18,15 +17,8 @@ namespace MyLibrary.DataBase
         }
 
         public DBTable Table { get; private set; }
-        public bool IsNew
-        {
-            get
-            {
-                return (State == DataRowState.Added);
-            }
-        }
-        internal DataRowState State;
-        internal ReadOnlyArray<object> Values;
+        public DataRowState State { get; internal set; }
+        internal object[] Values;
 
         #region Работа с данными
 
@@ -141,14 +133,6 @@ namespace MyLibrary.DataBase
             State = DataRowState.Deleted;
         }
 
-        internal void InitializeValues()
-        {
-            for (int i = 0; i < Values.Count; i++)
-            {
-                var column = Table.Columns[i];
-                Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;
-            }
-        }
         private void SetValue(int index, object value)
         {
             var column = Table.Columns[index];

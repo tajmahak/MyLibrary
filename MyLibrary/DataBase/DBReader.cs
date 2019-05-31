@@ -30,7 +30,7 @@ namespace MyLibrary.DataBase
             if (_reader.Read())
             {
                 var row = new DBRow(_table);
-                _reader.GetValues(row.Values.Array);
+                _reader.GetValues(row.Values);
                 row.State = DataRowState.Unchanged;
                 Current = DBInternal.PackRow<T>(row);
                 return true;
@@ -69,7 +69,7 @@ namespace MyLibrary.DataBase
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
                     string columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
                         column.Name : string.Concat(schemaBaseTableName, '.', column.Name);
-                    if (_model.TryGetColumn(columnName, out var modelColumn))
+                    if (_model.TryGetColumn(columnName) != null)
                     {
                         column.Name = string.Concat(schemaBaseTableName, '.', column.Name);
                     }
