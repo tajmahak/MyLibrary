@@ -240,44 +240,44 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery InnerJoin(string joinColumnName, string columnName)
+        public TQuery Join(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.Join, joinColumnName, columnName);
             return This;
         }
-        public TQuery LeftOuterJoin(string joinColumnName, string columnName)
+        public TQuery LeftJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.LeftOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.LeftJoin, joinColumnName, columnName);
             return This;
         }
-        public TQuery RightOuterJoin(string joinColumnName, string columnName)
+        public TQuery RightJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.RightOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.RightJoin, joinColumnName, columnName);
             return This;
         }
-        public TQuery FullOuterJoin(string joinColumnName, string columnName)
+        public TQuery FullJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.FullOuterJoin, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.FullJoin, joinColumnName, columnName);
             return This;
         }
 
-        public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery JoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -285,10 +285,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.JoinAs, alias, joinColumnName, columnName);
             return This;
         }
-        public TQuery LeftOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery LeftJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -296,10 +296,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.LeftOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.LeftJoinAs, alias, joinColumnName, columnName);
             return This;
         }
-        public TQuery RightOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery RightJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -307,10 +307,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.RightOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.RightJoinAs, alias, joinColumnName, columnName);
             return This;
         }
-        public TQuery FullOuterJoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery FullJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -318,7 +318,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.FullOuterJoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.FullJoinAs, alias, joinColumnName, columnName);
             return This;
         }
 
@@ -479,48 +479,48 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery InnerJoin<T, T2>()
+        public TQuery Join<T, T2>()
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.Join_type, typeof(T), typeof(T2));
             return This;
         }
-        public TQuery LeftOuterJoin<T, T2>()
+        public TQuery LeftJoin<T, T2>()
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.LeftOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.LeftJoin_type, typeof(T), typeof(T2));
             return This;
         }
-        public TQuery RightOuterJoin<T, T2>()
+        public TQuery RightJoin<T, T2>()
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.RightOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.RightJoin_type, typeof(T), typeof(T2));
             return This;
         }
-        public TQuery FullOuterJoin<T, T2>()
+        public TQuery FullJoin<T, T2>()
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.FullOuterJoin_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.FullJoin_type, typeof(T), typeof(T2));
             return This;
         }
 
-        public TQuery InnerJoinAs<T, T2>(string alias)
+        public TQuery JoinAs<T, T2>(string alias)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
@@ -528,10 +528,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.JoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
-        public TQuery LeftOuterJoinAs<T, T2>(string alias)
+        public TQuery LeftJoinAs<T, T2>(string alias)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
@@ -539,10 +539,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.LeftOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.LeftJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
-        public TQuery RightOuterJoinAs<T, T2>(string alias)
+        public TQuery RightJoinAs<T, T2>(string alias)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
@@ -550,10 +550,10 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.RightOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.RightJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
-        public TQuery FullOuterJoinAs<T, T2>(string alias)
+        public TQuery FullJoinAs<T, T2>(string alias)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
@@ -561,7 +561,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.FullOuterJoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.FullJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
 
@@ -719,45 +719,45 @@ namespace MyLibrary.DataBase
             return this;
         }
 
-        public DBQuery<T> InnerJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<T> Join<T2>() where T2 : DBOrmTableBase
         {
-            InnerJoin<T, T2>();
+            Join<T, T2>();
             return this;
         }
-        public DBQuery<T> LeftOuterJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<T> LeftJoin<T2>() where T2 : DBOrmTableBase
         {
-            LeftOuterJoin<T, T2>();
+            LeftJoin<T, T2>();
             return this;
         }
-        public DBQuery<T> RightOuterJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<T> RightJoin<T2>() where T2 : DBOrmTableBase
         {
-            RightOuterJoin<T, T2>();
+            RightJoin<T, T2>();
             return this;
         }
-        public DBQuery<T> FullOuterJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<T> FullJoin<T2>() where T2 : DBOrmTableBase
         {
-            FullOuterJoin<T, T2>();
+            FullJoin<T, T2>();
             return this;
         }
 
-        public DBQuery<T> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        public DBQuery<T> JoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            InnerJoinAs<T, T2>(alias);
+            JoinAs<T, T2>(alias);
             return this;
         }
-        public DBQuery<T> LeftOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        public DBQuery<T> LeftJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            LeftOuterJoinAs<T, T2>(alias);
+            LeftJoinAs<T, T2>(alias);
             return this;
         }
-        public DBQuery<T> RightOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        public DBQuery<T> RightJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            RightOuterJoinAs<T, T2>(alias);
+            RightJoinAs<T, T2>(alias);
             return this;
         }
-        public DBQuery<T> FullOuterJoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        public DBQuery<T> FullJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            FullOuterJoinAs<T, T2>(alias);
+            FullJoinAs<T, T2>(alias);
             return this;
         }
 

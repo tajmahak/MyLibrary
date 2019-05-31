@@ -330,7 +330,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareInsertCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            AddText(sql, "INSERT INTO ", GetName(query.Table.Name));
+            AddText(sql, "INSERT INTO ", GetName(query.Table.Name), '(');
 
             var blockList = query.FindBlocks(DBQueryStructureType.Set);
             if (blockList.Count == 0)
@@ -338,7 +338,6 @@ namespace MyLibrary.DataBase
                 throw DBInternal.WrongInsertCommandException();
             }
 
-            AddText(sql, '(');
             for (int i = 0; i < blockList.Count; i++)
             {
                 var block = blockList[i];
@@ -390,48 +389,47 @@ namespace MyLibrary.DataBase
             {
                 switch (block.Type)
                 {
-                    case DBQueryStructureType.InnerJoin:
-                        AddText(sql, " INNER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                    case DBQueryStructureType.Join:
+                        AddText(sql, " JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
-                    case DBQueryStructureType.LeftOuterJoin:
-                        AddText(sql, " LEFT OUTER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                    case DBQueryStructureType.LeftJoin:
+                        AddText(sql, " LEFT JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
-                    case DBQueryStructureType.RightOuterJoin:
-                        AddText(sql, " RIGHT OUTER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                    case DBQueryStructureType.RightJoin:
+                        AddText(sql, " RIGHT JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
-                    case DBQueryStructureType.FullOuterJoin:
-                        AddText(sql, " FULL OUTER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
-                        break;
-
-
-                    case DBQueryStructureType.InnerJoinAs:
-                        AddText(sql, " INNER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
-                        break;
-
-                    case DBQueryStructureType.LeftOuterJoinAs:
-                        AddText(sql, " LEFT OUTER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
-                        break;
-
-                    case DBQueryStructureType.RightOuterJoinAs:
-                        AddText(sql, " RIGHT OUTER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
-                        break;
-
-                    case DBQueryStructureType.FullOuterJoinAs:
-                        AddText(sql, " FULL OUTER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                    case DBQueryStructureType.FullJoin:
+                        AddText(sql, " FULL JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
 
-                    case DBQueryStructureType.InnerJoin_type:
-                    case DBQueryStructureType.LeftOuterJoin_type:
-                    case DBQueryStructureType.RightOuterJoin_type:
-                    case DBQueryStructureType.FullOuterJoin_type:
-                    case DBQueryStructureType.InnerJoinAs_type:
-                    case DBQueryStructureType.LeftOuterJoinAs_type:
-                    case DBQueryStructureType.RightOuterJoinAs_type:
-                    case DBQueryStructureType.FullOuterJoinAs_type:
+                    case DBQueryStructureType.JoinAs:
+                        AddText(sql, " JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        break;
+
+                    case DBQueryStructureType.LeftJoinAs:
+                        AddText(sql, " LEFT JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        break;
+
+                    case DBQueryStructureType.RightJoinAs:
+                        AddText(sql, " RIGHT JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        break;
+
+                    case DBQueryStructureType.FullJoinAs:
+                        AddText(sql, " FULL JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        break;
+
+                    case DBQueryStructureType.Join_type:
+                    case DBQueryStructureType.LeftJoin_type:
+                    case DBQueryStructureType.RightJoin_type:
+                    case DBQueryStructureType.FullJoin_type:
+                    case DBQueryStructureType.JoinAs_type:
+                    case DBQueryStructureType.LeftJoinAs_type:
+                    case DBQueryStructureType.RightJoinAs_type:
+                    case DBQueryStructureType.FullJoinAs_type:
                         #region
                         var foreignKey = DBInternal.GetForeignKey((Type)block[0], (Type)block[1]);
                         if (foreignKey == null)
@@ -441,37 +439,37 @@ namespace MyLibrary.DataBase
                         var split = foreignKey[1].Split('.');
                         switch (block.Type)
                         {
-                            case DBQueryStructureType.InnerJoin_type:
-                                AddText(sql, " INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.Join_type:
+                                AddText(sql, " JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.LeftOuterJoin_type:
-                                AddText(sql, " LEFT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.LeftJoin_type:
+                                AddText(sql, " LEFT JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.RightOuterJoin_type:
-                                AddText(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.RightJoin_type:
+                                AddText(sql, " RIGHT JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.FullOuterJoin_type:
-                                AddText(sql, " FULL OUTER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.FullJoin_type:
+                                AddText(sql, " FULL JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
 
-                            case DBQueryStructureType.InnerJoinAs_type:
-                                AddText(sql, " INNER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.JoinAs_type:
+                                AddText(sql, " JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.LeftOuterJoinAs_type:
-                                AddText(sql, " LEFT OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.LeftJoinAs_type:
+                                AddText(sql, " LEFT JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.RightOuterJoinAs_type:
-                                AddText(sql, " RIGHT OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.RightJoinAs_type:
+                                AddText(sql, " RIGHT JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.FullOuterJoinAs_type:
-                                AddText(sql, " FULL OUTER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.FullJoinAs_type:
+                                AddText(sql, " FULL JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
                         }
                         break;

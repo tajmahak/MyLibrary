@@ -110,14 +110,9 @@ namespace MyLibrary.DataBase
                     var table = tableRowsItem.Key;
                     var rowList = tableRowsItem.Value;
 
-                    if (rowList.Count == 0)
+                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
-                        continue;
-                    }
-
-                    for (int i = 0; i < rowList.Count; i++)
-                    {
-                        row = rowList[i];
+                        row = rowList[rowIndex];
                         if (row.State == DataRowState.Deleted)
                         {
                             if (!(row[table.PrimaryKeyColumn.OrderIndex] is Guid))
@@ -133,9 +128,10 @@ namespace MyLibrary.DataBase
                 #region INSERT
 
                 // список всех Insert-строк
-                var rowContainerList = new List<InsertContainer>();
+                var rowContainerList = new List<InsertRowContainer>();
                 // список всех временных ID, с привязкой к Insert-строкам
-                var idContainerList = new Dictionary<Guid, List<InsertContainer>>();
+                var idContainerList = new Dictionary<Guid, List<TempIdContainer>>();
+
                 #region Формирование списков
 
                 foreach (var item in _tableRows)
@@ -146,21 +142,25 @@ namespace MyLibrary.DataBase
                     for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
                         row = rowList[rowIndex];
-                        var rowContainer = new InsertContainer(row);
+
+                        InsertRowContainer rowContainer = null;
+                        if (row.State == DataRowState.Added)
+                        {
+                            rowContainer = new InsertRowContainer(row);
+                            rowContainerList.Add(rowContainer);
+                        }
 
                         for (int columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
                         {
                             var value = row[columnIndex];
                             if (value is Guid tempID)
                             {
-                                rowContainer.TempIdCount++;
+                                var idContainer = new TempIdContainer(row, columnIndex);
 
-                                var idContainer = new InsertContainer(row);
-                                idContainer.ColumnIndex = columnIndex;
-
-                                if (row.State == DataRowState.Added)
+                                if (rowContainer != null)
                                 {
                                     idContainer.ParentContainer = rowContainer;
+                                    rowContainer.TempIdCount++;
                                 }
 
                                 if (idContainerList.ContainsKey(tempID))
@@ -169,17 +169,12 @@ namespace MyLibrary.DataBase
                                 }
                                 else
                                 {
-                                    idContainerList.Add(tempID, new List<InsertContainer>
+                                    idContainerList.Add(tempID, new List<TempIdContainer>
                                     {
                                         idContainer
                                     });
                                 }
                             }
-                        }
-
-                        if (row.State == DataRowState.Added)
-                        {
-                            rowContainerList.Add(rowContainer);
                         }
                     }
                 }
@@ -192,11 +187,6 @@ namespace MyLibrary.DataBase
                 {
                     var rowContainer = rowContainerList[i];
                     row = rowContainer.Row;
-
-                    if (row.State != DataRowState.Added)
-                    {
-                        continue;
-                    }
 
                     if (rowContainer.TempIdCount == 1)
                     {
@@ -228,12 +218,12 @@ namespace MyLibrary.DataBase
                             throw DBInternal.DbSaveWrongRelationsException();
                         }
 
+                        rowContainerList.FindAll(x => x.TempIdCount > 0);
                         rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
                         i = -1;
                         saveError = true;
                     }
                 }
-                rowContainerList.Clear();
                 idContainerList.Clear();
 
                 #endregion
@@ -244,14 +234,9 @@ namespace MyLibrary.DataBase
                     var table = tableRowsItem.Key;
                     var rowList = tableRowsItem.Value;
 
-                    if (rowList.Count == 0)
+                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
-                        continue;
-                    }
-
-                    for (int i = 0; i < rowList.Count; i++)
-                    {
-                        row = rowList[i];
+                        row = rowList[rowIndex];
                         if (row.State == DataRowState.Modified)
                         {
                             ExecuteUpdateCommand(row);
@@ -667,16 +652,26 @@ namespace MyLibrary.DataBase
         private DbTransaction _transaction;
         private Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
 
-        private class InsertContainer
+        private class InsertRowContainer
         {
             public DBRow Row;
             public int TempIdCount;
-            public int ColumnIndex;
-            public InsertContainer ParentContainer;
 
-            public InsertContainer(DBRow row)
+            public InsertRowContainer(DBRow row)
             {
                 Row = row;
+            }
+        }
+        private class TempIdContainer
+        {
+            public DBRow Row;
+            public int ColumnIndex;
+            public InsertRowContainer ParentContainer;
+
+            public TempIdContainer(DBRow row, int columnIndex)
+            {
+                Row = row;
+                ColumnIndex = columnIndex;
             }
         }
     }

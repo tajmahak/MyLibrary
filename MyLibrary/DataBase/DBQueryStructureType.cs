@@ -1,5 +1,8 @@
 ﻿namespace MyLibrary.DataBase
 {
+    //!!! Natural Join, Cross Join
+
+
     /// <summary>
     /// Задаёт тип структурного блока <see cref="DBQueryStructureBlock"/> для запроса <see cref="DBQueryBase"/>.
     /// </summary>
@@ -25,22 +28,22 @@
         SelectCount,
         Select_expression,
 
-        InnerJoin,
-        LeftOuterJoin,
-        RightOuterJoin,
-        FullOuterJoin,
-        FullOuterJoinAs,
-        RightOuterJoinAs,
-        LeftOuterJoinAs,
-        InnerJoinAs,
-        InnerJoin_type,
-        LeftOuterJoin_type,
-        RightOuterJoin_type,
-        FullOuterJoin_type,
-        InnerJoinAs_type,
-        LeftOuterJoinAs_type,
-        RightOuterJoinAs_type,
-        FullOuterJoinAs_type,
+        Join,
+        LeftJoin,
+        RightJoin,
+        FullJoin,
+        FullJoinAs,
+        RightJoinAs,
+        LeftJoinAs,
+        JoinAs,
+        Join_type,
+        LeftJoin_type,
+        RightJoin_type,
+        FullJoin_type,
+        JoinAs_type,
+        LeftJoinAs_type,
+        RightJoinAs_type,
+        FullJoinAs_type,
 
         Where,
         WhereBetween,
