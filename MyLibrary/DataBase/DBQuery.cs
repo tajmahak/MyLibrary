@@ -599,12 +599,16 @@ namespace MyLibrary.DataBase
         public TQuery OrderBy<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
         public TQuery OrderBy<T>(Expression<Func<T, object[]>> expression)
             where T : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
@@ -612,6 +616,8 @@ namespace MyLibrary.DataBase
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
@@ -620,6 +626,8 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
             return This;
         }
@@ -627,12 +635,16 @@ namespace MyLibrary.DataBase
         public TQuery GroupBy<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
         public TQuery GroupBy<T>(Expression<Func<T, object[]>> expression)
             where T : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
@@ -640,6 +652,8 @@ namespace MyLibrary.DataBase
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
@@ -648,6 +662,8 @@ namespace MyLibrary.DataBase
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
             AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
