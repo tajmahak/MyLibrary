@@ -132,66 +132,65 @@ namespace MyLibrary.DataBase
                 #endregion
                 #region INSERT
 
-                var insertRows = new List<InsertRowContainer>();
-                var tempIDs = new Dictionary<Guid, List<InsertRowContainer>>();
+                // список всех Insert-строк
+                var rowContainerList = new List<InsertContainer>();
+                // список всех временных ID, с привязкой к Insert-строкам
+                var idContainerList = new Dictionary<Guid, List<InsertContainer>>();
                 #region Формирование списков
 
-                foreach (var tableRowsItem in _tableRows)
+                foreach (var item in _tableRows)
                 {
-                    var table = tableRowsItem.Key;
-                    var rowList = tableRowsItem.Value;
+                    var table = item.Key;
+                    var rowList = item.Value;
 
-                    if (rowList.Count == 0)
+                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
-                        continue;
-                    }
+                        row = rowList[rowIndex];
+                        var rowContainer = new InsertContainer(row);
 
-                    for (int i = 0; i < rowList.Count; i++)
-                    {
-                        row = rowList[i];
-                        var mainContainer = new InsertRowContainer(row, 0);
-                        for (int j = 0; j < table.Columns.Count; j++)
+                        for (int columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
                         {
-                            var value = row[j];
-                            if (value is Guid)
+                            var value = row[columnIndex];
+                            if (value is Guid tempID)
                             {
-                                mainContainer.Value++;
+                                rowContainer.TempIdCount++;
 
-                                var tempID = (Guid)value;
-                                var idContainer = new InsertRowContainer(row, j);
+                                var idContainer = new InsertContainer(row);
+                                idContainer.ColumnIndex = columnIndex;
+
                                 if (row.State == DataRowState.Added)
                                 {
-                                    idContainer.ParentContainer = mainContainer;
+                                    idContainer.ParentContainer = rowContainer;
                                 }
 
-                                if (!tempIDs.ContainsKey(tempID))
+                                if (idContainerList.ContainsKey(tempID))
                                 {
-                                    var list = new List<InsertRowContainer>
-                                    {
-                                        idContainer
-                                    };
-                                    tempIDs.Add(tempID, list);
+                                    idContainerList[tempID].Add(idContainer);
                                 }
                                 else
                                 {
-                                    tempIDs[tempID].Add(idContainer);
+                                    idContainerList.Add(tempID, new List<InsertContainer>
+                                    {
+                                        idContainer
+                                    });
                                 }
                             }
                         }
+
                         if (row.State == DataRowState.Added)
                         {
-                            insertRows.Add(mainContainer);
+                            rowContainerList.Add(rowContainer);
                         }
                     }
                 }
-                insertRows.Sort((x, y) => x.Value.CompareTo(y.Value));
+                rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
 
                 #endregion
 
                 bool saveError = false;
-                for (int i = 0; i < insertRows.Count; i++)
+                for (int i = 0; i < rowContainerList.Count; i++)
                 {
-                    var rowContainer = insertRows[i];
+                    var rowContainer = rowContainerList[i];
                     row = rowContainer.Row;
 
                     if (row.State != DataRowState.Added)
@@ -199,20 +198,22 @@ namespace MyLibrary.DataBase
                         continue;
                     }
 
-                    if (rowContainer.Value == 1)
+                    if (rowContainer.TempIdCount == 1)
                     {
-                        Guid tempID = (Guid)row[row.Table.PrimaryKeyColumn.OrderIndex];
-                        object dbID = ExecuteInsertCommand(row);
+                        var tempID = (Guid)row[row.Table.PrimaryKeyColumn.OrderIndex];
+                        var newID = ExecuteInsertCommand(row);
+
                         #region Замена временных Id на присвоенные
 
-                        var list = tempIDs[tempID];
-                        for (int j = 0; j < list.Count; j++)
+                        var idContainer = idContainerList[tempID];
+                        for (int j = 0; j < idContainer.Count; j++)
                         {
-                            var idContainer = list[j];
-                            idContainer.Row[idContainer.Value] = dbID;
-                            if (idContainer.ParentContainer != null)
+                            var list = idContainer[j];
+                            list.Row[list.ColumnIndex] = newID;
+
+                            if (list.ParentContainer != null)
                             {
-                                idContainer.ParentContainer.Value--;
+                                list.ParentContainer.TempIdCount--;
                             }
                         }
 
@@ -227,13 +228,13 @@ namespace MyLibrary.DataBase
                             throw DBInternal.DbSaveWrongRelationsException();
                         }
 
-                        insertRows.Sort((x, y) => x.Value.CompareTo(y.Value));
+                        rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
                         i = -1;
                         saveError = true;
                     }
                 }
-                insertRows.Clear();
-                tempIDs.Clear();
+                rowContainerList.Clear();
+                idContainerList.Clear();
 
                 #endregion
                 #region UPDATE
@@ -666,20 +667,16 @@ namespace MyLibrary.DataBase
         private DbTransaction _transaction;
         private Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
 
-        private class InsertRowContainer
+        private class InsertContainer
         {
             public DBRow Row;
-            public int Value;
-            public InsertRowContainer ParentContainer;
+            public int TempIdCount;
+            public int ColumnIndex;
+            public InsertContainer ParentContainer;
 
-            public InsertRowContainer(DBRow row, int value)
+            public InsertContainer(DBRow row)
             {
                 Row = row;
-                Value = value;
-            }
-            public override string ToString()
-            {
-                return string.Format("{0} - {1}", Value, Row);
             }
         }
     }

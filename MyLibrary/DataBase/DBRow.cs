@@ -20,15 +20,16 @@ namespace MyLibrary.DataBase
         public DataRowState State { get; internal set; }
         internal object[] Values;
 
-        public object this[int index]
+        public object this[int columnIndex]
         {
             get
             {
-                return Values[index];
+                return Values[columnIndex];
             }
             set
             {
-                SetValue(index, value);
+                var column = Table[columnIndex];
+                SetValue(column, value);
             }
         }
         public object this[string columnName]
@@ -41,13 +42,13 @@ namespace MyLibrary.DataBase
             set
             {
                 var column = Table[columnName];
-                SetValue(column.OrderIndex, value);
+                SetValue(column, value);
             }
         }
 
-        public void SetNotNull(int index)
+        public void SetNotNull(int columnIndex)
         {
-            var column = Table.Columns[index];
+            var column = Table.Columns[columnIndex];
             SetNotNull(column);
         }
         public void SetNotNull(string columnName)
@@ -63,9 +64,10 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public T Get<T>(int index)
+        public T Get<T>(int columnIndex)
         {
-            return Format.Convert<T>(Values[index]);
+            var value = Values[columnIndex];
+            return Format.Convert<T>(value);
         }
         public T Get<T>(string columnName)
         {
@@ -74,23 +76,14 @@ namespace MyLibrary.DataBase
             return Format.Convert<T>(value);
         }
 
-        public string GetString(int columnIndex)
-        {
-            return GetString(columnIndex, false);
-        }
-        public string GetString(string columnName)
-        {
-            return GetString(columnName, false);
-        }
-
-        public string GetString(int columnIndex, bool allowNull)
+        public string GetString(int columnIndex, bool allowNull = false)
         {
             var value = Get<string>(columnIndex);
             if (!allowNull && value == null)
                 return string.Empty;
             return value;
         }
-        public string GetString(string columnName, bool allowNull)
+        public string GetString(string columnName, bool allowNull = false)
         {
             var column = Table[columnName];
             return GetString(column.OrderIndex, allowNull);
@@ -100,7 +93,9 @@ namespace MyLibrary.DataBase
         {
             var value = this[columnIndex];
             if (!(value is IFormattable))
+            {
                 throw DBInternal.StringFormatException();
+            }
             return ((IFormattable)value).ToString(format, null);
         }
         public string GetString(string columnName, string format)
@@ -109,9 +104,9 @@ namespace MyLibrary.DataBase
             return GetString(column.OrderIndex, format);
         }
 
-        public bool IsNull(int index)
+        public bool IsNull(int columnIndex)
         {
-            return (Values[index] is DBNull);
+            return (Values[columnIndex] is DBNull);
         }
         public bool IsNull(string columnName)
         {
@@ -124,10 +119,8 @@ namespace MyLibrary.DataBase
             State = DataRowState.Deleted;
         }
 
-        private void SetValue(int index, object value)
+        private void SetValue(DBColumn column, object value)
         {
-            var column = Table[index];
-
             value = value ?? DBNull.Value;
 
             if (value is Guid)
@@ -146,8 +139,7 @@ namespace MyLibrary.DataBase
             }
             else
             {
-                var valueType = value.GetType();
-                if (valueType != column.DataType)
+                if (value.GetType() != column.DataType)
                 {
                     try
                     {
@@ -160,10 +152,9 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            if (value is string)
+            if (value is string stringValue)
             {
                 // проверка на максимальную длину текстовой строки
-                string stringValue = (string)value;
                 if (stringValue.Length > column.Size)
                 {
                     throw DBInternal.StringOverflowException(column);
@@ -174,11 +165,11 @@ namespace MyLibrary.DataBase
             {
                 #region Проверка значения на разницу с предыдущим значением
 
-                object prevValue = Values[index];
+                object prevValue = Values[column.OrderIndex];
                 bool isChanged = true;
                 if (value.GetType() == prevValue.GetType() && value is IComparable)
                 {
-                    isChanged = !object.Equals(value, prevValue);
+                    isChanged = !Equals(value, prevValue);
                 }
                 else if (value is byte[] && prevValue is byte[])
                 {
@@ -186,12 +177,14 @@ namespace MyLibrary.DataBase
                 }
 
                 if (isChanged)
+                {
                     State = DataRowState.Modified;
+                }
 
                 #endregion
             }
 
-            Values[index] = value;
+            Values[column.OrderIndex] = value;
         }
         private void SetNotNull(DBColumn column)
         {
@@ -201,7 +194,7 @@ namespace MyLibrary.DataBase
                 if (value is DBNull)
                 {
                     value = Format.GetNotNullValue(column.DataType);
-                    SetValue(column.OrderIndex, value);
+                    SetValue(column, value);
                 }
             }
         }
