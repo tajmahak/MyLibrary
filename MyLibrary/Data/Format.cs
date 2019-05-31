@@ -286,7 +286,7 @@ namespace MyLibrary.Data
             MemberInfo[] members;
             while (true)
             {
-                members = type.GetMember(memberName, BindingFlags.NonPublic | BindingFlags.Instance);
+                members = type.GetMember(memberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (members.Length == 0 && type.BaseType != null)
                 {
                     type = type.BaseType;
