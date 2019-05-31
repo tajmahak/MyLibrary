@@ -55,7 +55,7 @@ namespace MyLibrary.DataBase
                         var columnRow = tableRow.Columns[j];
                         var column = new DBColumn(table)
                         {
-                            Index = j,
+                            OrderIndex = j,
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
@@ -75,7 +75,7 @@ namespace MyLibrary.DataBase
                         var columnName = (string)columnRow["COLUMN_NAME"];
                         var column = table.Columns.Find(x => x.Name == columnName);
 
-                        column.AllowDBNull = (bool)columnRow["IS_NULLABLE"];
+                        column.NotNull = (bool)columnRow["IS_NULLABLE"] == false;
                         var defaultValue = columnRow["COLUMN_DEFAULT"].ToString();
                         if (defaultValue.Length > 0)
                         {

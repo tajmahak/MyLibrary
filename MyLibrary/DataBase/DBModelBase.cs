@@ -31,6 +31,10 @@ namespace MyLibrary.DataBase
 
         public void Initialize(DbConnection connection)
         {
+            if (IsInitialized)
+            {
+                throw DBInternal.ContextInitializeException();
+            }
             Tables = GetTableSchema(connection);
             InitializeDictionaries();
             IsInitialized = true;
@@ -55,7 +59,7 @@ namespace MyLibrary.DataBase
                     var attr = (DBOrmColumnAttribute)attrList[0];
                     var column = new DBColumn(table);
                     column.Name = attr.ColumnName.Split('.')[1];
-                    column.AllowDBNull = attr.AllowDbNull;
+                    column.NotNull = attr.NotNull;
 
                     var columnType = columnProperty.PropertyType;
                     if (columnType.IsGenericType && columnType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -323,7 +327,7 @@ namespace MyLibrary.DataBase
             var blockList = query.FindBlocks(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
-                throw DBInternal.InadequateInsertCommandException();
+                throw DBInternal.WrongInsertCommandException();
             }
 
             AddText(sql, '(');
@@ -773,14 +777,14 @@ namespace MyLibrary.DataBase
                 Name = string.Concat("@p", paramNumber),
                 Value = value,
             };
-            cQuery.Parameters.List.Add(parameter);
+            cQuery.Parameters.Add(parameter);
 
             return parameter.Name;
         }
         protected string GetSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery)
         {
             var subCQuery = CompileQuery(subQuery, cQuery.Parameters.Count);
-            cQuery.Parameters.List.AddRange(subCQuery.Parameters);
+            cQuery.Parameters.AddRange(subCQuery.Parameters);
             return string.Concat('(', subCQuery.CommandText, ')');
         }
         protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)

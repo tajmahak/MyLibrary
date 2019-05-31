@@ -54,7 +54,7 @@ namespace MyLibrary.DataBase
                         var columnRow = tableRow.Columns[j];
                         var column = new DBColumn(table)
                         {
-                            Index = j,
+                            OrderIndex = j,
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
@@ -74,7 +74,7 @@ namespace MyLibrary.DataBase
                         var columnName = (string)columnRow["COLUMN_NAME"];
                         var column = table.Columns.Find(x => x.Name == columnName);
 
-                        column.AllowDBNull = (bool)columnRow["IS_NULLABLE"];
+                        column.NotNull = (bool)columnRow["IS_NULLABLE"] == false;
                         var defaultValue = columnRow["COLUMN_DEFAULT"].ToString();
                         if (defaultValue.Length > 0)
                         {
@@ -109,7 +109,7 @@ namespace MyLibrary.DataBase
         }
         protected override string GetInsertCommandText(DBTable table)
         {
-            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyColumn.Index].Name));
+            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyColumn.OrderIndex].Name));
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {

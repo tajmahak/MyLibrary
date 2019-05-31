@@ -80,25 +80,25 @@ namespace MyLibrary.DataBase
         }
         public static Exception UnknownTableException(string tableName)
         {
-            return new Exception(string.Format("Неизвестная таблица \"{0}\"", tableName));
+            return new Exception(string.Format("Неизвестная таблица \"{0}\".", tableName));
         }
         public static Exception UnknownColumnException(DBTable table, string columnName)
         {
             string text;
             if (table != null)
             {
-                text = string.Format("Таблица \"{0}\" - неизвестный столбец \"{1}\"", table.Name, columnName);
+                text = string.Format("Таблица \"{0}\" - неизвестный столбец \"{1}\".", table.Name, columnName);
             }
             else
             {
-                text = string.Format("Неизвестный столбец \"{0}\"", table.Name);
+                text = string.Format("Неизвестный столбец \"{0}\".", table.Name);
             }
 
             return new Exception(text);
         }
         public static Exception DataConvertException(DBColumn column, object value, Exception innerException)
         {
-            return new Exception(string.Format("{0}: приведение из \"{1}\" в \"{2}\" невозможно",
+            return new Exception(string.Format("{0}: приведение из \"{1}\" в \"{2}\" невозможно.",
                 column.Name,
                 column.DataType.Name,
                 value.GetType().Name),
@@ -106,19 +106,19 @@ namespace MyLibrary.DataBase
         }
         public static Exception SqlExecuteException()
         {
-            return new Exception("SQL-команда не может быть выполнена в текущем контексте");
+            return new Exception("SQL-команда не может быть выполнена в текущем контексте.");
         }
         public static Exception ProcessRowException()
         {
-            return new Exception("Обработка строки невозможна");
+            return new Exception("Обработка строки невозможна.");
         }
         public static Exception StringFormatException()
         {
-            return new Exception("Невозможно привести значение к форматированной строке");
+            return new Exception("Невозможно привести значение к форматированной строке.");
         }
         public static Exception ProcessViewException()
         {
-            return new Exception("Обработка представления невозможна");
+            return new Exception("Обработка представления невозможна.");
         }
         public static Exception DbSaveException(DBRow row, Exception ex)
         {
@@ -127,47 +127,47 @@ namespace MyLibrary.DataBase
                 return ex;
             }
 
-            throw new Exception(string.Format("Ошибка сохранения БД. \"{0}\" - {1}", row.Table.Name, ex.Message), ex);
+            throw new Exception(string.Format("Ошибка сохранения БД. \"{0}\" - {1}.", row.Table.Name, ex.Message), ex);
         }
         public static Exception DbSaveWrongRelationsException()
         {
-            throw new Exception("Неверные связи между строками");
+            throw new Exception("Неверные связи между строками.");
         }
         public static Exception StringOverflowException(DBColumn column)
         {
-            return new Exception(string.Format("\"{0}\": длина строки превышает допустимую длину", column.Name));
+            return new Exception(string.Format("\"{0}\": длина строки превышает допустимую длину.", column.Name));
         }
         public static Exception GenerateSetIDException(DBColumn column)
         {
-            return new Exception("Невозможно изменить значение первичного ключа");
+            return new Exception("Невозможно изменить значение первичного ключа.");
         }
-        public static Exception InadequateInsertCommandException()
+        public static Exception WrongInsertCommandException()
         {
-            return new Exception("Insert-команда не содержит ни одного 'Set'");
+            return new Exception("Insert-команда не содержит ни одного 'Set'.");
         }
         public static Exception WrongUpdateCommandException()
         {
-            return new Exception("Update-команда не содержит ни одного 'Set'");
+            return new Exception("Update-команда не содержит ни одного 'Set'.");
         }
         public static Exception UnsupportedCommandContextException()
         {
-            throw new Exception("Недопустимая операция в текущем контексте команды");
+            throw new Exception("Недопустимая операция в текущем контексте команды.");
         }
         public static Exception NotFindRowException()
         {
-            throw new Exception("Не найдено ни одной строки");
+            throw new Exception("Не найдено ни одной строки.");
         }
         public static Exception RowDeleteException()
         {
-            return new Exception("Невозможно удалить строку, т.к. нет привязки к DBSet");
+            return new Exception("Невозможно удалить строку, т.к. нет привязки к DBSet.");
         }
         public static Exception ParameterValuePairException()
         {
-            return new Exception("Неверно заданы параметры запроса");
+            return new Exception("Неверно заданы параметры запроса.");
         }
         public static Exception OrmTableNotAttributeException(Type type)
         {
-            return new Exception(type.FullName + " - отсутствует атрибут имени таблицы");
+            return new Exception(type.FullName + " - отсутствует атрибут имени таблицы.");
         }
         public static Exception DBFunctionException()
         {
@@ -175,7 +175,11 @@ namespace MyLibrary.DataBase
         }
         public static Exception ForeignKeyException()
         {
-            return new Exception("Отсутствует внешний ключ");
+            return new Exception("Отсутствует внешний ключ.");
+        }
+        public static Exception ContextInitializeException()
+        {
+            return new Exception("Экземпляр " + nameof(DBContext) + " уже был инициализирован.");
         }
     }
 }

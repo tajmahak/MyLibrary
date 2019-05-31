@@ -28,7 +28,7 @@ namespace MyLibrary.DataBase
             }
             return column;
         }
-        internal void AddColumn(DBColumn column)
+        protected internal void AddColumn(DBColumn column)
         {
             string columnName;
             if (column.Table.Name == null)

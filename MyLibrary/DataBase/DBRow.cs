@@ -46,12 +46,12 @@ namespace MyLibrary.DataBase
             get
             {
                 var column = Table.GetColumn(columnName);
-                return this[column.Index];
+                return this[column.OrderIndex];
             }
             set
             {
                 var column = Table.GetColumn(columnName);
-                SetValue(column.Index, value);
+                SetValue(column.OrderIndex, value);
             }
         }
 
@@ -59,7 +59,7 @@ namespace MyLibrary.DataBase
         {
             var column = Table.Columns[index];
             var value = Values[index];
-            if ((value is DBNull) && !column.AllowDBNull)
+            if ((value is DBNull) && column.NotNull)
             {
                 value = Format.GetNotNullValue(column.DataType);
                 SetValue(index, value);
@@ -68,7 +68,7 @@ namespace MyLibrary.DataBase
         public void SetNotNull(string columnName)
         {
             var column = Table.GetColumn(columnName);
-            SetNotNull(column.Index);
+            SetNotNull(column.OrderIndex);
         }
         public void SetNotNull()
         {
@@ -85,7 +85,7 @@ namespace MyLibrary.DataBase
         public T Get<T>(string columnName)
         {
             var column = Table.GetColumn(columnName);
-            var value = Values[column.Index];
+            var value = Values[column.OrderIndex];
             return Format.Convert<T>(value);
         }
 
@@ -108,7 +108,7 @@ namespace MyLibrary.DataBase
         public string GetString(string columnName, bool allowNull)
         {
             var column = Table.GetColumn(columnName);
-            return GetString(column.Index, allowNull);
+            return GetString(column.OrderIndex, allowNull);
         }
 
         public string GetString(int columnIndex, string format)
@@ -121,7 +121,7 @@ namespace MyLibrary.DataBase
         public string GetString(string columnName, string format)
         {
             var column = Table.GetColumn(columnName);
-            return GetString(column.Index, format);
+            return GetString(column.OrderIndex, format);
         }
 
         public bool IsNull(int index)
@@ -131,7 +131,7 @@ namespace MyLibrary.DataBase
         public bool IsNull(string columnName)
         {
             var column = Table.GetColumn(columnName);
-            return IsNull(column.Index);
+            return IsNull(column.OrderIndex);
         }
 
         #endregion
@@ -164,7 +164,7 @@ namespace MyLibrary.DataBase
             }
             else if (value is DBNull)
             {
-                if (!column.AllowDBNull)
+                if (column.NotNull)
                 {
                     value = Format.GetNotNullValue(column.DataType);
                 }

@@ -12,11 +12,11 @@ namespace MyLibrary.DataBase
             Table = table;
         }
 
-        public int Index { get; set; }
+        public int OrderIndex { get; set; }
         public string Name { get; set; }
         public Type DataType { get; set; }
         public bool IsPrimary { get; set; }
-        public bool AllowDBNull { get; set; }
+        public bool NotNull { get; set; }
         public object DefaultValue { get; set; } = DBNull.Value;
         public int Size { get; set; } = -1;
         public string Description { get; set; }

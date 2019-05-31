@@ -63,7 +63,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow schemaRow in schema.Rows)
                 {
                     var column = new DBColumn(table);
-                    column.Index = index++;
+                    column.OrderIndex = index++;
                     column.Name = (string)schemaRow["ColumnName"];
 
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];

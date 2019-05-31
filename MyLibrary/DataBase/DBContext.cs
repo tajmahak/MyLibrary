@@ -41,9 +41,9 @@ namespace MyLibrary.DataBase
         public bool AutoCommit { get; set; }
 
         /// <summary>
-        /// Создание нового запроса <see cref="DBQuery"/>
+        /// Создание нового запроса <see cref="DBQuery"/>.
         /// </summary>
-        /// <param name="tableName">Имя таблицы базы данных, указанной в запросе</param>
+        /// <param name="tableName">Имя таблицы базы данных, указанной в запросе.</param>
         /// <returns></returns>
         public DBQuery Query(string tableName)
         {
@@ -52,9 +52,9 @@ namespace MyLibrary.DataBase
             return query;
         }
         /// <summary>
-        /// Создание нового запроса <see cref="DBQuery{T}"/>
+        /// Создание нового запроса <see cref="DBQuery{T}"/>.
         /// </summary>
-        /// <typeparam name="T">Тип данных для таблицы</typeparam>
+        /// <typeparam name="T">Тип данных для таблицы.</typeparam>
         /// <returns></returns>
         public DBQuery<T> Query<T>() where T : DBOrmTableBase
         {
@@ -64,7 +64,7 @@ namespace MyLibrary.DataBase
             return query;
         }
         /// <summary>
-        /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>)
+        /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>).
         /// </summary>
         public void CommitTransaction()
         {
@@ -76,7 +76,7 @@ namespace MyLibrary.DataBase
             }
         }
         /// <summary>
-        /// Выполнение запроса <see cref="DBQuery"/>
+        /// Выполнение запроса <see cref="DBQuery"/>.
         /// </summary>
         /// <param name="query"></param>
         public void Execute(DBQueryBase query)
@@ -130,7 +130,7 @@ namespace MyLibrary.DataBase
                         row = rowCollection[j];
                         if (row.State == DataRowState.Deleted)
                         {
-                            if (!(row[table.PrimaryKeyColumn.Index] is Guid))
+                            if (!(row[table.PrimaryKeyColumn.OrderIndex] is Guid))
                             {
                                 ExecuteDeleteCommand(row);
                             }
@@ -210,7 +210,7 @@ namespace MyLibrary.DataBase
 
                     if (rowContainer.Value == 1)
                     {
-                        Guid tempID = (Guid)row[row.Table.PrimaryKeyColumn.Index];
+                        Guid tempID = (Guid)row[row.Table.PrimaryKeyColumn.OrderIndex];
                         object dbID = ExecuteInsertCommand(row);
                         #region Замена временных Id на присвоенные
 
@@ -333,7 +333,7 @@ namespace MyLibrary.DataBase
 
             if (dbRow.State == DataRowState.Deleted)
             {
-                if (dbRow[dbRow.Table.PrimaryKeyColumn.Index] is Guid)
+                if (dbRow[dbRow.Table.PrimaryKeyColumn.OrderIndex] is Guid)
                 {
                     return false;
                 }
@@ -365,7 +365,7 @@ namespace MyLibrary.DataBase
 
             dbRow.Delete();
 
-            if (dbRow[dbRow.Table.PrimaryKeyColumn.Index] is Guid)
+            if (dbRow[dbRow.Table.PrimaryKeyColumn.OrderIndex] is Guid)
             {
                 lock (_rowCollectionDict)
                 {
@@ -482,7 +482,7 @@ namespace MyLibrary.DataBase
             var row = GetOrNew(cmd);
 
             // установка значений в строку согласно аргументов
-            if (row.Values[row.Table.PrimaryKeyColumn.Index] is Guid)
+            if (row.Values[row.Table.PrimaryKeyColumn.OrderIndex] is Guid)
             {
                 for (int i = 0; i < columnNameValuePair.Length; i += 2)
                 {
@@ -675,7 +675,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Delete);
-                Model.AddCommandParameter(cmd, "@id", row[row.Table.PrimaryKeyColumn.Index]);
+                Model.AddCommandParameter(cmd, "@id", row[row.Table.PrimaryKeyColumn.OrderIndex]);
 
                 cmd.ExecuteNonQuery();
             }
