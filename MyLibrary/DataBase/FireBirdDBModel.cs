@@ -226,6 +226,7 @@ namespace MyLibrary.DataBase
             {
                 PrepareGroupByCommand(sql, query);
                 PrepareOrderByCommand(sql, query);
+                PrepareHavingCommand(sql, query, cQuery);
             }
 
             #region RETURNING ...

@@ -389,8 +389,8 @@ namespace MyLibrary.DataBase
             {
                 switch (block.Type)
                 {
-                    case DBQueryStructureType.Join:
-                        AddText(sql, " JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                    case DBQueryStructureType.InnerJoin:
+                        AddText(sql, " INNER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
                     case DBQueryStructureType.LeftJoin:
@@ -406,8 +406,8 @@ namespace MyLibrary.DataBase
                         break;
 
 
-                    case DBQueryStructureType.JoinAs:
-                        AddText(sql, " JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                    case DBQueryStructureType.InnerJoinAs:
+                        AddText(sql, " INNER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryStructureType.LeftJoinAs:
@@ -422,11 +422,11 @@ namespace MyLibrary.DataBase
                         AddText(sql, " FULL JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
-                    case DBQueryStructureType.Join_type:
+                    case DBQueryStructureType.InnerJoin_type:
                     case DBQueryStructureType.LeftJoin_type:
                     case DBQueryStructureType.RightJoin_type:
                     case DBQueryStructureType.FullJoin_type:
-                    case DBQueryStructureType.JoinAs_type:
+                    case DBQueryStructureType.InnerJoinAs_type:
                     case DBQueryStructureType.LeftJoinAs_type:
                     case DBQueryStructureType.RightJoinAs_type:
                     case DBQueryStructureType.FullJoinAs_type:
@@ -439,8 +439,8 @@ namespace MyLibrary.DataBase
                         var split = foreignKey[1].Split('.');
                         switch (block.Type)
                         {
-                            case DBQueryStructureType.Join_type:
-                                AddText(sql, " JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.InnerJoin_type:
+                                AddText(sql, " INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
                             case DBQueryStructureType.LeftJoin_type:
@@ -456,8 +456,8 @@ namespace MyLibrary.DataBase
                                 break;
 
 
-                            case DBQueryStructureType.JoinAs_type:
-                                AddText(sql, " JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.InnerJoinAs_type:
+                                AddText(sql, " INNER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
                             case DBQueryStructureType.LeftJoinAs_type:
@@ -620,6 +620,14 @@ namespace MyLibrary.DataBase
                             break;
                     }
                 }
+            }
+        }
+        protected void PrepareHavingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        {
+            var block = query.FindBlock(x => x == DBQueryStructureType.Having_expression);
+            if (block != null)
+            {
+                AddText(sql, " HAVING ", GetSqlFromExpression(block[0], cQuery));
             }
         }
         protected void PrepareOrderByCommand(StringBuilder sql, DBQueryBase query)
@@ -859,6 +867,7 @@ namespace MyLibrary.DataBase
                         case ExpressionType.And:
                         case ExpressionType.AndAlso:
                             @operator = " AND "; break;
+
                         case ExpressionType.Equal:
                             @operator = "="; break;
                         case ExpressionType.NotEqual:
@@ -871,6 +880,18 @@ namespace MyLibrary.DataBase
                             @operator = ">"; break;
                         case ExpressionType.GreaterThanOrEqual:
                             @operator = ">="; break;
+
+                        case ExpressionType.Add:
+                        case ExpressionType.AddChecked:
+                            @operator = "+"; break;
+                        case ExpressionType.Subtract:
+                        case ExpressionType.SubtractChecked:
+                            @operator = "-"; break;
+                        case ExpressionType.Divide:
+                            @operator = "/"; break;
+                        case ExpressionType.Multiply:
+                        case ExpressionType.MultiplyChecked:
+                            @operator = "*"; break;
 
                         default: throw DBInternal.UnsupportedCommandContextException();
                     }
@@ -903,6 +924,10 @@ namespace MyLibrary.DataBase
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
+                    if (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Negate)
+                    {
+                        AddText(sql, '-');
+                    }
                     AddText(sql, GetFullName(attr.ColumnName));
                 }
                 else if (memberExpression.Member is PropertyInfo)

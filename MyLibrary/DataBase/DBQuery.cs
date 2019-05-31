@@ -240,13 +240,13 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery Join(string joinColumnName, string columnName)
+        public TQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.Join, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
             return This;
         }
         public TQuery LeftJoin(string joinColumnName, string columnName)
@@ -277,7 +277,7 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery JoinAs(string alias, string joinColumnName, string columnName)
+        public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -285,7 +285,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.JoinAs, alias, joinColumnName, columnName);
+            AddBlock(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
             return This;
         }
         public TQuery LeftJoinAs(string alias, string joinColumnName, string columnName)
@@ -479,14 +479,14 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery Join<T, T2>()
+        public TQuery InnerJoin<T, T2>()
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.Join_type, typeof(T), typeof(T2));
+            AddBlock(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
             return This;
         }
         public TQuery LeftJoin<T, T2>()
@@ -520,7 +520,7 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery JoinAs<T, T2>(string alias)
+        public TQuery InnerJoinAs<T, T2>(string alias)
             where T : DBOrmTableBase
             where T2 : DBOrmTableBase
         {
@@ -528,7 +528,7 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             IsView = true;
-            AddBlock(DBQueryStructureType.JoinAs_type, typeof(T), typeof(T2), alias);
+            AddBlock(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
             return This;
         }
         public TQuery LeftJoinAs<T, T2>(string alias)
@@ -652,6 +652,14 @@ namespace MyLibrary.DataBase
             return This;
         }
 
+        public TQuery Having<T>(Expression<Func<T, bool>> expression)
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.Having_expression, expression.Body);
+            return This;
+        }
+
         #endregion
 
         private TQuery This => (TQuery)((object)this);
@@ -719,9 +727,9 @@ namespace MyLibrary.DataBase
             return this;
         }
 
-        public DBQuery<T> Join<T2>() where T2 : DBOrmTableBase
+        public DBQuery<T> InnerJoin<T2>() where T2 : DBOrmTableBase
         {
-            Join<T, T2>();
+            InnerJoin<T, T2>();
             return this;
         }
         public DBQuery<T> LeftJoin<T2>() where T2 : DBOrmTableBase
@@ -740,9 +748,9 @@ namespace MyLibrary.DataBase
             return this;
         }
 
-        public DBQuery<T> JoinAs<T2>(string alias) where T2 : DBOrmTableBase
+        public DBQuery<T> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            JoinAs<T, T2>(alias);
+            InnerJoinAs<T, T2>(alias);
             return this;
         }
         public DBQuery<T> LeftJoinAs<T2>(string alias) where T2 : DBOrmTableBase
@@ -806,6 +814,12 @@ namespace MyLibrary.DataBase
             where T3 : DBOrmTableBase
         {
             GroupBy<T, T2, T3>(expression);
+            return this;
+        }
+
+        public DBQuery<T> Having(Expression<Func<T, bool>> expression)
+        {
+            Having<T>(expression);
             return this;
         }
     }

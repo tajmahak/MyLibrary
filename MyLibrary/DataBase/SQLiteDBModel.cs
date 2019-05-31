@@ -165,6 +165,7 @@ namespace MyLibrary.DataBase
             {
                 PrepareGroupByCommand(sql, query);
                 PrepareOrderByCommand(sql, query);
+                PrepareHavingCommand(sql, query, cQuery);
             }
 
             PrepareUnionCommand(sql, query, cQuery);

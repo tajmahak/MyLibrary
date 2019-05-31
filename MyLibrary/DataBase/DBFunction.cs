@@ -73,49 +73,49 @@
         /// </summary>
         /// <param name="expr"></param>
         /// <returns></returns>
-        public static object Avg(object expr) => throw DBInternal.DBFunctionException();
+        public static decimal Avg(object expr) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Count(object expr) => throw DBInternal.DBFunctionException();
+        public static int Count(object expr) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает количество значений в группе, которые не являются NULL.
         /// </summary>
         /// <returns></returns>
-        public static object Count() => throw DBInternal.DBFunctionException();
+        public static int Count() => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <param name="separator">Разделитель. Выражение строкового типа. По умолчанию разделителем является запятая.</param>
         /// <returns></returns>
-        public static object List(object expr, char separator) => throw DBInternal.DBFunctionException();
+        public static string List(object expr, char separator) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает строку, содержащую значения элементов выборки, которые не равны NULL. При пустой выборке функция возвратит NULL. 
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object List(object expr) => throw DBInternal.DBFunctionException();
+        public static string List(object expr) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает максимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется последним в сортировке при применении COLLATE.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Max(object expr) => throw DBInternal.DBFunctionException();
+        public static decimal Max(object expr) => throw DBInternal.DBFunctionException();
         /// <summary>
         /// Возвращает минимальный элемент выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL. Если аргумент функции строка, то функция вернёт значение, которое окажется первым в сортировке при применении COLLATE.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Min(object expr) => throw DBInternal.DBFunctionException();
+        public static decimal Min(object expr) => throw DBInternal.DBFunctionException();
         /// <summary>
-        /// Функция SUM возвращает сумму элементов выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL.
+        /// Возвращает сумму элементов выборки, которые не равны NULL. При пустой выборке, или при выборке из одних NULL функция возвратит NULL.
         /// </summary>
         /// <param name="expr">Выражение. Может содержать столбец таблицы, константу, переменную, выражение, неагрегатную функцию или UDF, которая возвращает строковый тип данных или BLOB. Поля типа дата / время и числовые преобразуются к строке. Агрегатные функции в качестве выражения не допускаются.</param>
         /// <returns></returns>
-        public static object Sum(object expr) => throw DBInternal.DBFunctionException();
+        public static decimal Sum(object expr) => throw DBInternal.DBFunctionException();
 
         #endregion
 
@@ -233,7 +233,7 @@
         /// <returns></returns>
         public static string SubString(string str, int startpos) => throw DBInternal.DBFunctionException();
         /// <summary>
-        /// Функция UPPER возвращает входную строку в верхнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в верхний регистр; для OCTETS — вся входная строка возвращается без изменений.
+        /// Возвращает входную строку в верхнем регистре. Точный результат зависит от набора символов входной строки. Например, для наборов символов NONE и ASCII только ASCII символы переводятся в верхний регистр; для OCTETS — вся входная строка возвращается без изменений.
         /// </summary>
         /// <param name="str">Выражение строкового типа.</param>
         /// <returns></returns>
