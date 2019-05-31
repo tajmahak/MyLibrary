@@ -71,8 +71,7 @@ namespace MyLibrary.DataBase
         public DBQueryBase(DBTable table) : base(table)
         {
         }
-
-        #region Строковые методы
+        private TQuery This => (TQuery)((object)this);
 
         public TQuery Insert()
         {
@@ -118,6 +117,26 @@ namespace MyLibrary.DataBase
             return This;
         }
 
+        public TQuery Select(Expression<Func<object>> expression)
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
+        public TQuery Select<T>(Expression<Func<T, object>> expression)
+            where T : DBOrmTableBase
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
+        public TQuery Select<T>(Expression<Func<T, object[]>> expression)
+            where T : DBOrmTableBase
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
         public TQuery Select(params string[] columns)
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
@@ -240,6 +259,46 @@ namespace MyLibrary.DataBase
             return This;
         }
 
+        public TQuery InnerJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery LeftJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.LeftJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery RightJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.RightJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
+        public TQuery FullJoin<T, T2>()
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.FullJoin_type, typeof(T), typeof(T2));
+            return This;
+        }
         public TQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName)) throw DBInternal.ArgumentNullException(nameof(joinColumnName));
@@ -277,6 +336,50 @@ namespace MyLibrary.DataBase
             return This;
         }
 
+        public TQuery InnerJoinAs<T, T2>(string alias)
+              where T : DBOrmTableBase
+              where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery LeftJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.LeftJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery RightJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.RightJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
+        public TQuery FullJoinAs<T, T2>(string alias)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.FullJoinAs_type, typeof(T), typeof(T2), alias);
+            return This;
+        }
         public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
@@ -322,6 +425,36 @@ namespace MyLibrary.DataBase
             return This;
         }
 
+        public TQuery Where<T>(Expression<Func<T, bool>> expression)
+            where T : DBOrmTableBase
+        {
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
+            return This;
+        }
+        public TQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
+            return This;
+        }
+        public TQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
+            return This;
+        }
+        public TQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+            where T4 : DBOrmTableBase
+        {
+            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
+            return This;
+        }
         public TQuery Where(string column, object value)
         {
             Where(column, "=", value);
@@ -412,190 +545,6 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery OrderBy(params string[] columns)
-        {
-            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            AddBlock(DBQueryStructureType.OrderBy, columns);
-            return This;
-        }
-        public TQuery OrderByDesc(params string[] columns)
-        {
-            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            AddBlock(DBQueryStructureType.OrderByDesc, columns);
-            return This;
-        }
-        public TQuery OrderByUpper(params string[] columns)
-        {
-            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            AddBlock(DBQueryStructureType.OrderByUpper, columns);
-            return This;
-        }
-        public TQuery OrderByUpperDesc(params string[] columns)
-        {
-            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            AddBlock(DBQueryStructureType.OrderByUpperDesc, columns);
-            return This;
-        }
-
-        public TQuery GroupBy(params string[] columns)
-        {
-            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.GroupBy, columns);
-            return This;
-        }
-
-        #endregion
-        #region Типизированные методы, дерево выражений
-
-        public TQuery Select(Expression<Func<object>> expression)
-        {
-            IsView = true;
-            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
-            return This;
-        }
-        public TQuery Select<T>(Expression<Func<T, object>> expression)
-            where T : DBOrmTableBase
-        {
-            IsView = true;
-            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
-            return This;
-        }
-        public TQuery Select<T>(Expression<Func<T, object[]>> expression)
-            where T : DBOrmTableBase
-        {
-            IsView = true;
-            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
-            return This;
-        }
-
-        public TQuery InnerJoin<T, T2>()
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.InnerJoin_type, typeof(T), typeof(T2));
-            return This;
-        }
-        public TQuery LeftJoin<T, T2>()
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.LeftJoin_type, typeof(T), typeof(T2));
-            return This;
-        }
-        public TQuery RightJoin<T, T2>()
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.RightJoin_type, typeof(T), typeof(T2));
-            return This;
-        }
-        public TQuery FullJoin<T, T2>()
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.FullJoin_type, typeof(T), typeof(T2));
-            return This;
-        }
-
-        public TQuery InnerJoinAs<T, T2>(string alias)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.InnerJoinAs_type, typeof(T), typeof(T2), alias);
-            return This;
-        }
-        public TQuery LeftJoinAs<T, T2>(string alias)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.LeftJoinAs_type, typeof(T), typeof(T2), alias);
-            return This;
-        }
-        public TQuery RightJoinAs<T, T2>(string alias)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.RightJoinAs_type, typeof(T), typeof(T2), alias);
-            return This;
-        }
-        public TQuery FullJoinAs<T, T2>(string alias)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            if (string.IsNullOrEmpty(alias)) throw DBInternal.ArgumentNullException(nameof(alias));
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            IsView = true;
-            AddBlock(DBQueryStructureType.FullJoinAs_type, typeof(T), typeof(T2), alias);
-            return This;
-        }
-
-        public TQuery Where<T>(Expression<Func<T, bool>> expression)
-            where T : DBOrmTableBase
-        {
-            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
-            return This;
-        }
-        public TQuery Where<T, T2>(Expression<Func<T, T2, bool>> expression)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-        {
-            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
-            return This;
-        }
-        public TQuery Where<T, T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-            where T3 : DBOrmTableBase
-        {
-            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
-            return This;
-        }
-        public TQuery Where<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
-            where T : DBOrmTableBase
-            where T2 : DBOrmTableBase
-            where T3 : DBOrmTableBase
-            where T4 : DBOrmTableBase
-        {
-            AddBlock(DBQueryStructureType.Where_expression, expression.Body);
-            return This;
-        }
-
         public TQuery OrderBy<T>(Expression<Func<T, object>> expression)
             where T : DBOrmTableBase
         {
@@ -629,6 +578,38 @@ namespace MyLibrary.DataBase
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
             AddBlock(DBQueryStructureType.OrderBy_expression, expression.Body);
+            return This;
+        }
+        public TQuery OrderBy(params string[] columns)
+        {
+            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.OrderBy, columns);
+            return This;
+        }
+        public TQuery OrderByDesc(params string[] columns)
+        {
+            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.OrderByDesc, columns);
+            return This;
+        }
+        public TQuery OrderByUpper(params string[] columns)
+        {
+            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.OrderByUpper, columns);
+            return This;
+        }
+        public TQuery OrderByUpperDesc(params string[] columns)
+        {
+            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.OrderByUpperDesc, columns);
             return This;
         }
 
@@ -667,6 +648,15 @@ namespace MyLibrary.DataBase
             AddBlock(DBQueryStructureType.GroupBy_expression, expression.Body);
             return This;
         }
+        public TQuery GroupBy(params string[] columns)
+        {
+            if (columns.Length == 0) throw DBInternal.ArgumentNullException(nameof(columns));
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            IsView = true;
+            AddBlock(DBQueryStructureType.GroupBy, columns);
+            return This;
+        }
 
         public TQuery Having<T>(Expression<Func<T, bool>> expression)
         {
@@ -675,10 +665,6 @@ namespace MyLibrary.DataBase
             AddBlock(DBQueryStructureType.Having_expression, expression.Body);
             return This;
         }
-
-        #endregion
-
-        private TQuery This => (TQuery)((object)this);
     }
 
     /// <summary>
@@ -700,143 +686,120 @@ namespace MyLibrary.DataBase
         public DBQuery(DBTable table) : base(table)
         {
         }
+
         public new DBQuery<T> Select(Expression<Func<object>> expression)
         {
-            base.Select(expression);
-            return this;
+            return base.Select(expression);
         }
         public DBQuery<T> Select(Expression<Func<T, object>> expression)
         {
-            base.Select(expression);
-            return this;
+            return base.Select(expression);
         }
         public DBQuery<T> Select(Expression<Func<T, object[]>> expression)
         {
-            base.Select(expression);
-            return this;
+            return base.Select(expression);
         }
 
         public DBQuery<T> Where(Expression<Func<T, bool>> expression)
         {
-            base.Where(expression);
-            return this;
+            return base.Where(expression);
         }
         public DBQuery<T> Where<T2>(Expression<Func<T, T2, bool>> expression)
             where T2 : DBOrmTableBase
         {
-            base.Where(expression);
-            return this;
+            return base.Where(expression);
         }
         public DBQuery<T> Where<T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            base.Where(expression);
-            return this;
+            return base.Where(expression);
         }
         public DBQuery<T> Where<T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
         {
-            base.Where(expression);
-            return this;
+            return base.Where(expression);
         }
 
         public DBQuery<T> InnerJoin<T2>() where T2 : DBOrmTableBase
         {
-            InnerJoin<T, T2>();
-            return this;
+            return InnerJoin<T, T2>();
         }
         public DBQuery<T> LeftJoin<T2>() where T2 : DBOrmTableBase
         {
-            LeftJoin<T, T2>();
-            return this;
+            return LeftJoin<T, T2>();
         }
         public DBQuery<T> RightJoin<T2>() where T2 : DBOrmTableBase
         {
-            RightJoin<T, T2>();
-            return this;
+            return RightJoin<T, T2>();
         }
         public DBQuery<T> FullJoin<T2>() where T2 : DBOrmTableBase
         {
-            FullJoin<T, T2>();
-            return this;
+            return FullJoin<T, T2>();
         }
 
         public DBQuery<T> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            InnerJoinAs<T, T2>(alias);
-            return this;
+            return InnerJoinAs<T, T2>(alias);
         }
         public DBQuery<T> LeftJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            LeftJoinAs<T, T2>(alias);
-            return this;
+            return LeftJoinAs<T, T2>(alias);
         }
         public DBQuery<T> RightJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            RightJoinAs<T, T2>(alias);
-            return this;
+            return RightJoinAs<T, T2>(alias);
         }
         public DBQuery<T> FullJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            FullJoinAs<T, T2>(alias);
-            return this;
+            return FullJoinAs<T, T2>(alias);
         }
 
         public DBQuery<T> OrderBy(Expression<Func<T, object>> expression)
         {
-            OrderBy<T>(expression);
-            return this;
+            return OrderBy<T>(expression);
         }
         public DBQuery<T> OrderBy(Expression<Func<T, object[]>> expression)
         {
-            OrderBy<T>(expression);
-            return this;
+            return OrderBy<T>(expression);
         }
         public DBQuery<T> OrderBy<T2>(Expression<Func<T, T2, object[]>> expression)
             where T2 : DBOrmTableBase
         {
-            OrderBy<T, T2>(expression);
-            return this;
+            return OrderBy<T, T2>(expression);
         }
         public DBQuery<T> OrderBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            OrderBy<T, T2, T3>(expression);
-            return this;
+            return OrderBy<T, T2, T3>(expression);
         }
 
         public DBQuery<T> GroupBy(Expression<Func<T, object>> expression)
         {
-            GroupBy<T>(expression);
-            return this;
+            return GroupBy<T>(expression);
         }
         public DBQuery<T> GroupBy(Expression<Func<T, object[]>> expression)
         {
-            GroupBy<T>(expression);
-            return this;
+            return GroupBy<T>(expression);
         }
         public DBQuery<T> GroupBy<T2>(Expression<Func<T, T2, object[]>> expression)
             where T2 : DBOrmTableBase
         {
-            GroupBy<T, T2>(expression);
-            return this;
+            return GroupBy<T, T2>(expression);
         }
         public DBQuery<T> GroupBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            GroupBy<T, T2, T3>(expression);
-            return this;
+            return GroupBy<T, T2, T3>(expression);
         }
 
         public DBQuery<T> Having(Expression<Func<T, bool>> expression)
         {
-            Having<T>(expression);
-            return this;
+            return Having<T>(expression);
         }
     }
 }
