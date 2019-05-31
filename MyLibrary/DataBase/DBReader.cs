@@ -56,7 +56,7 @@ namespace MyLibrary.DataBase
 
         private DBTable GenerateTable()
         {
-            var table = new DBTable(_model, null);
+            var table = new DBTable(_model);
             using (var schema = _reader.GetSchemaTable())
             {
                 int index = 0;

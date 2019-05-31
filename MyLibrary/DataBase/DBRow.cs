@@ -20,8 +20,6 @@ namespace MyLibrary.DataBase
         public DataRowState State { get; internal set; }
         internal object[] Values;
 
-        #region Работа с данными
-
         public object this[int index]
         {
             get
@@ -37,12 +35,12 @@ namespace MyLibrary.DataBase
         {
             get
             {
-                var column = Table.GetColumn(columnName);
+                var column = Table[columnName];
                 return this[column.OrderIndex];
             }
             set
             {
-                var column = Table.GetColumn(columnName);
+                var column = Table[columnName];
                 SetValue(column.OrderIndex, value);
             }
         }
@@ -50,16 +48,11 @@ namespace MyLibrary.DataBase
         public void SetNotNull(int index)
         {
             var column = Table.Columns[index];
-            var value = Values[index];
-            if ((value is DBNull) && column.NotNull)
-            {
-                value = Format.GetNotNullValue(column.DataType);
-                SetValue(index, value);
-            }
+            SetNotNull(column);
         }
         public void SetNotNull(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table[columnName];
             SetNotNull(column.OrderIndex);
         }
         public void SetNotNull()
@@ -76,7 +69,7 @@ namespace MyLibrary.DataBase
         }
         public T Get<T>(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table[columnName];
             var value = Values[column.OrderIndex];
             return Format.Convert<T>(value);
         }
@@ -99,7 +92,7 @@ namespace MyLibrary.DataBase
         }
         public string GetString(string columnName, bool allowNull)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table[columnName];
             return GetString(column.OrderIndex, allowNull);
         }
 
@@ -112,7 +105,7 @@ namespace MyLibrary.DataBase
         }
         public string GetString(string columnName, string format)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table[columnName];
             return GetString(column.OrderIndex, format);
         }
 
@@ -122,11 +115,9 @@ namespace MyLibrary.DataBase
         }
         public bool IsNull(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table[columnName];
             return IsNull(column.OrderIndex);
         }
-
-        #endregion
 
         public void Delete()
         {
@@ -135,7 +126,7 @@ namespace MyLibrary.DataBase
 
         private void SetValue(int index, object value)
         {
-            var column = Table.Columns[index];
+            var column = Table[index];
 
             value = value ?? DBNull.Value;
 
@@ -201,6 +192,18 @@ namespace MyLibrary.DataBase
             }
 
             Values[index] = value;
+        }
+        private void SetNotNull(DBColumn column)
+        {
+            if (column.NotNull)
+            {
+                var value = Values[column.OrderIndex];
+                if (value is DBNull)
+                {
+                    value = Format.GetNotNullValue(column.DataType);
+                    SetValue(column.OrderIndex, value);
+                }
+            }
         }
     }
 }

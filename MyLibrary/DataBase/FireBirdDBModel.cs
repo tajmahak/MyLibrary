@@ -27,8 +27,8 @@ namespace MyLibrary.DataBase
                 {
                     if ((short)tableRow["IS_SYSTEM_TABLE"] == 0)
                     {
-                        var tableName = (string)tableRow["TABLE_NAME"];
-                        var table = new DBTable(this, tableName);
+                        var table = new DBTable(this);
+                        table.Name = (string)tableRow["TABLE_NAME"];
                         tables.Add(table);
                     }
                 }
@@ -109,7 +109,7 @@ namespace MyLibrary.DataBase
         }
         protected override string GetInsertCommandText(DBTable table)
         {
-            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.Columns[table.PrimaryKeyColumn.OrderIndex].Name));
+            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.PrimaryKeyColumn.Name));
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {

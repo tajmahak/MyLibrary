@@ -9,17 +9,35 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBTable
     {
-        public DBTable(DBModelBase model, string name)
+        public DBTable(DBModelBase model)
         {
             Columns = new List<DBColumn>();
             Model = model;
-            Name = name;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; set; }
         public ReadOnlyList<DBColumn> Columns { get; private set; }
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
+
+        public DBColumn this[int index]
+        {
+            get
+            {
+                return Columns[index];
+            }
+        }
+        public DBColumn this[string columnName]
+        {
+            get
+            {
+                if (!_columnsDict.TryGetValue(columnName, out var column))
+                {
+                    throw DBInternal.UnknownColumnException(this, columnName);
+                }
+                return column;
+            }
+        }
 
         public DBRow CreateRow()
         {
@@ -31,15 +49,7 @@ namespace MyLibrary.DataBase
             }
             return row;
         }
-        public DBColumn GetColumn(string columnName)
-        {
-            if (!_columnsDict.TryGetValue(columnName, out var column))
-            {
-                throw DBInternal.UnknownColumnException(this, columnName);
-            }
-            return column;
-        }
-        protected internal void AddColumn(DBColumn column)
+        public void AddColumn(DBColumn column)
         {
             string columnName;
             if (column.Table.Name == null)

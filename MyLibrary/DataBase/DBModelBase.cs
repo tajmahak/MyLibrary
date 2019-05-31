@@ -45,8 +45,8 @@ namespace MyLibrary.DataBase
             for (int i = 0; i < Tables.Count; i++)
             {
                 var tableType = ormTableTypes[i];
-                var tableName = DBInternal.GetTableNameFromAttribute(tableType);
-                var table = new DBTable(this, tableName);
+                var table = new DBTable(this);
+                table.Name = DBInternal.GetTableNameFromAttribute(tableType);
 
                 foreach (var columnProperty in tableType.GetProperties())
                 {

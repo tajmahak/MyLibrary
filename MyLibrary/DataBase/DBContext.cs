@@ -601,7 +601,7 @@ namespace MyLibrary.DataBase
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
                 {
-                    if (row.Table.Columns[i].IsPrimary)
+                    if (row.Table[i].IsPrimary)
                     {
                         continue;
                     }
@@ -622,7 +622,7 @@ namespace MyLibrary.DataBase
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
                 {
-                    if (row.Table.Columns[i].IsPrimary)
+                    if (row.Table[i].IsPrimary)
                     {
                         Model.AddCommandParameter(cmd, "@id", row[i]);
                         continue;

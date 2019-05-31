@@ -28,8 +28,8 @@ namespace MyLibrary.DataBase
                 {
                     if ((string)tableRow["TABLE_TYPE"] != "SYSTEM_TABLE")
                     {
-                        var tableName = (string)tableRow["TABLE_NAME"];
-                        var table = new DBTable(this, tableName);
+                        var table = new DBTable(this);
+                        table.Name = (string)tableRow["TABLE_NAME"];
                         tables.Add(table);
                     }
                 }

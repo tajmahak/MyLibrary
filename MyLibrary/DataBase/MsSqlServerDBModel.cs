@@ -70,8 +70,8 @@ namespace MyLibrary.DataBase
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
-                    var tableName = (string)tableRow["TABLE_NAME"];
-                    var table = new DBTable(this, tableName);
+                    var table = new DBTable(this);
+                    table.Name = (string)tableRow["TABLE_NAME"];
                     tables.Add(table);
                 }
             }
