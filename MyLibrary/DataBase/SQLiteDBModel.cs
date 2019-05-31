@@ -132,13 +132,13 @@ namespace MyLibrary.DataBase
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = query.FindBlock(DBQueryStructureType.Skip);
+                block = query.FindBlock(DBQueryStructureType.Offset);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
-                block = query.FindBlock(DBQueryStructureType.First);
+                block = query.FindBlock(DBQueryStructureType.Limit);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[0]));

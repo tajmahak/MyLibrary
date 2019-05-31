@@ -384,7 +384,7 @@ namespace MyLibrary.DataBase
 
         public T Get<T>(DBQueryBase query)
         {
-            query.AddBlock(DBQueryStructureType.First, 1);
+            query.AddBlock(DBQueryStructureType.Limit, 1);
             foreach (var row in Select<T>(query))
             {
                 return row;
@@ -448,7 +448,7 @@ namespace MyLibrary.DataBase
         {
             if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
-                query.AddBlock(DBQueryStructureType.First, 1);
+                query.AddBlock(DBQueryStructureType.Limit, 1);
             }
 
             using (var command = Model.CompileCommand(Connection, query))

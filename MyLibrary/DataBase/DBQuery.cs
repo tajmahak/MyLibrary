@@ -206,23 +206,23 @@ namespace MyLibrary.DataBase
             AddBlock(DBQueryStructureType.Distinct);
             return This;
         }
-        public TQuery First(int count)
-        {
-            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
-
-            AddBlock(DBQueryStructureType.First, count);
-            return This;
-        }
         public TQuery First()
         {
-            First(1);
+            Limit(1);
             return This;
         }
-        public TQuery Skip(int count)
+        public TQuery Limit(int count)
         {
             if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
 
-            AddBlock(DBQueryStructureType.Skip, count);
+            AddBlock(DBQueryStructureType.Limit, count);
+            return This;
+        }
+        public TQuery Offset(int count)
+        {
+            if (Type != DBQueryType.Select) throw DBInternal.UnsupportedCommandContextException();
+
+            AddBlock(DBQueryStructureType.Offset, count);
             return This;
         }
         public TQuery Union(DBQueryBase query)
