@@ -15,7 +15,7 @@ namespace MyLibrary.DataBase
         public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
         {
             _model = model;
-            _command = model.CompileCommand(connection, query);
+            _command = model.CreateCommand(connection, query);
             _reader = _command.ExecuteReader();
             _table = (!query.IsView) ? query.Table : GenerateTable();
         }

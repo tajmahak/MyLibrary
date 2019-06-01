@@ -100,7 +100,7 @@ namespace MyLibrary.DataBase
             }
             throw new NotImplementedException();
         }
-        public DbCommand CompileCommand(DbConnection connection, DBQueryBase query)
+        public DbCommand CreateCommand(DbConnection connection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
             var command = connection.CreateCommand();
@@ -588,48 +588,6 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareGroupByCommand(StringBuilder sql, DBQueryBase query)
-        {
-            var blockList = query.FindBlocks(x => x.StartsWith("GroupBy"));
-            if (blockList.Count > 0)
-            {
-                AddText(sql, " GROUP BY ");
-                var index = 0;
-                for (int i = 0; i < blockList.Count; i++)
-                {
-                    var block = blockList[i];
-                    switch (block.Type)
-                    {
-                        case DBQueryStructureType.GroupBy:
-                            #region
-                            var args = (string[])block.Args;
-                            for (int j = 0; j < args.Length; j++)
-                            {
-                                if (index > 0)
-                                {
-                                    AddText(sql, ',');
-                                }
-                                AddText(sql, GetFullName(args[j]));
-                                index++;
-                            }
-                            break;
-                        #endregion
-
-                        case DBQueryStructureType.GroupBy_expression:
-                            AddText(sql, GetListFromExpression(block[0], null));
-                            break;
-                    }
-                }
-            }
-        }
-        protected void PrepareHavingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
-        {
-            var block = query.FindBlock(x => x == DBQueryStructureType.Having_expression);
-            if (block != null)
-            {
-                AddText(sql, " HAVING ", GetSqlFromExpression(block[0], cQuery));
-            }
-        }
         protected void PrepareOrderByCommand(StringBuilder sql, DBQueryBase query)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("OrderBy"));
@@ -676,6 +634,48 @@ namespace MyLibrary.DataBase
                             break;
                     }
                 }
+            }
+        }
+        protected void PrepareGroupByCommand(StringBuilder sql, DBQueryBase query)
+        {
+            var blockList = query.FindBlocks(x => x.StartsWith("GroupBy"));
+            if (blockList.Count > 0)
+            {
+                AddText(sql, " GROUP BY ");
+                var index = 0;
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    var block = blockList[i];
+                    switch (block.Type)
+                    {
+                        case DBQueryStructureType.GroupBy:
+                            #region
+                            var args = (string[])block.Args;
+                            for (int j = 0; j < args.Length; j++)
+                            {
+                                if (index > 0)
+                                {
+                                    AddText(sql, ',');
+                                }
+                                AddText(sql, GetFullName(args[j]));
+                                index++;
+                            }
+                            break;
+                        #endregion
+
+                        case DBQueryStructureType.GroupBy_expression:
+                            AddText(sql, GetListFromExpression(block[0], null));
+                            break;
+                    }
+                }
+            }
+        }
+        protected void PrepareHavingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        {
+            var block = query.FindBlock(x => x == DBQueryStructureType.Having_expression);
+            if (block != null)
+            {
+                AddText(sql, " HAVING ", GetSqlFromExpression(block[0], cQuery));
             }
         }
         protected void PrepareUnionCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)

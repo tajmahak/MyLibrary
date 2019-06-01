@@ -80,7 +80,9 @@ namespace MyLibrary.DataBase
         {
             var value = Get<string>(columnIndex);
             if (!allowNull && value == null)
+            {
                 return string.Empty;
+            }
             return value;
         }
         public string GetString(string columnName, bool allowNull = false)

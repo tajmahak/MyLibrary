@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
 
 namespace MyLibrary.DataBase
 {
@@ -77,7 +78,7 @@ namespace MyLibrary.DataBase
             try
             {
                 OpenTransaction();
-                using (var command = Model.CompileCommand(Connection, query))
+                using (var command = Model.CreateCommand(Connection, query))
                 {
                     command.Transaction = _transaction;
                     command.ExecuteNonQuery();
@@ -268,7 +269,7 @@ namespace MyLibrary.DataBase
             Clear();
         }
 
-        #region Работа с коллекцией
+        #region Работа с данными
 
         /// <summary>
         /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
@@ -279,6 +280,140 @@ namespace MyLibrary.DataBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
             return New<T>(tableName);
+        }
+        /// <summary>
+        /// Создание новой строки и помещение её в текущий экземпляр <see cref="DBContext"/>
+        /// </summary>
+        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
+        /// <returns></returns>
+        public DBRow New(string tableName)
+        {
+            return New<DBRow>(tableName);
+        }
+
+        public T Get<T>(DBQueryBase query)
+        {
+            query.AddBlock(DBQueryStructureType.Limit, 1);
+            foreach (var row in Select<T>(query))
+            {
+                return row;
+            }
+
+            return default(T);
+        }
+        public T Get<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
+        {
+            var query = Query<T>();
+            query.First();
+            query.Where(expression);
+            return Get<T>(query);
+        }
+        public T Get<T>(string tableName, params object[] columnNameValuePair)
+        {
+            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
+            return Get<T>(cmd);
+        }
+        public DBRow Get(DBQueryBase query)
+        {
+            return Get<DBRow>(query);
+        }
+        public DBRow Get(string tableName, params object[] columnNameValuePair)
+        {
+            return Get<DBRow>(tableName, columnNameValuePair);
+        }
+
+        public T GetOrNew<T>(DBQueryBase query)
+        {
+            var row = Get<T>(query);
+
+            if (row != null)
+            {
+                Add(row);
+                return row;
+            }
+
+            return New<T>(query.Table.Name);
+        }
+        public T GetOrNew<T>(string tableName, params object[] columnNameValuePair)
+        {
+            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
+            var row = GetOrNew(cmd);
+
+            // установка значений в строку согласно аргументам
+            if (row.Values[row.Table.PrimaryKeyColumn.OrderIndex] is Guid)
+            {
+                for (int i = 0; i < columnNameValuePair.Length; i += 2)
+                {
+                    string columnName = (string)columnNameValuePair[i];
+                    object value = columnNameValuePair[i + 1];
+                    row[columnName] = value;
+                }
+            }
+
+            return DBInternal.PackRow<T>(row);
+        }
+        public DBRow GetOrNew(DBQueryBase query)
+        {
+            return GetOrNew<DBRow>(query);
+        }
+        public DBRow GetOrNew(string tableName, params object[] columnNameValuePair)
+        {
+            return GetOrNew<DBRow>(tableName, columnNameValuePair);
+        }
+
+        public DBReader<T> Select<T>(DBQueryBase query)
+        {
+            if (query.Type != DBQueryType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+
+            return new DBReader<T>(Connection, Model, query);
+        }
+        public DBReader<T> Select<T>(string tableName, params object[] columnNameValuePair)
+        {
+            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
+            return Select<T>(cmd);
+        }
+        public DBReader<DBRow> Select(DBQueryBase query)
+        {
+            return Select<DBRow>(query);
+        }
+        public DBReader<DBRow> Select(string tableName, params object[] columnNameValuePair)
+        {
+            return Select<DBRow>(tableName, columnNameValuePair);
+        }
+
+        public T GetValue<T>(DBQueryBase query)
+        {
+            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
+            {
+                query.AddBlock(DBQueryStructureType.Limit, 1);
+            }
+
+            using (var command = Model.CreateCommand(Connection, query))
+            {
+                var value = command.ExecuteScalar();
+                return Format.Convert<T>(value);
+            }
+        }
+        public T GetValue<T>(string columnName, params object[] columnNameValuePair)
+        {
+            var tableName = columnName.Split('.')[0];
+            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
+            cmd.Select(columnName);
+            return GetValue<T>(cmd);
+        }
+
+        public bool Exists(DBQueryBase query)
+        {
+            var row = Get(query);
+            return (row != null);
+        }
+        public bool Exists(string tableName, params object[] columnNameValuePair)
+        {
+            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
+            return Exists(cmd);
         }
 
         public int Add<T>(T row)
@@ -376,145 +511,6 @@ namespace MyLibrary.DataBase
         public List<DBRow> GetSetRows(string tableName)
         {
             return GetSetRows<DBRow>(tableName);
-        }
-
-        #endregion
-
-        #region Работа с данными
-
-        public T Get<T>(DBQueryBase query)
-        {
-            query.AddBlock(DBQueryStructureType.Limit, 1);
-            foreach (var row in Select<T>(query))
-            {
-                return row;
-            }
-
-            return default(T);
-        }
-        public T Get<T>(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Get<T>(cmd);
-        }
-
-        public T GetOrNew<T>(DBQueryBase query)
-        {
-            var row = Get<T>(query);
-
-            if (row != null)
-            {
-                Add(row);
-                return row;
-            }
-
-            return New<T>(query.Table.Name);
-        }
-        public T GetOrNew<T>(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            var row = GetOrNew(cmd);
-
-            // установка значений в строку согласно аргументам
-            if (row.Values[row.Table.PrimaryKeyColumn.OrderIndex] is Guid)
-            {
-                for (int i = 0; i < columnNameValuePair.Length; i += 2)
-                {
-                    string columnName = (string)columnNameValuePair[i];
-                    object value = columnNameValuePair[i + 1];
-                    row[columnName] = value;
-                }
-            }
-
-            return DBInternal.PackRow<T>(row);
-        }
-
-        public DBReader<T> Select<T>(DBQueryBase query)
-        {
-            if (query.Type != DBQueryType.Select)
-            {
-                throw DBInternal.SqlExecuteException();
-            }
-
-            return new DBReader<T>(Connection, Model, query);
-        }
-        public DBReader<T> Select<T>(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Select<T>(cmd);
-        }
-
-        public T GetValue<T>(DBQueryBase query)
-        {
-            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
-            {
-                query.AddBlock(DBQueryStructureType.Limit, 1);
-            }
-
-            using (var command = Model.CompileCommand(Connection, query))
-            {
-                var value = command.ExecuteScalar();
-                return Format.Convert<T>(value);
-            }
-        }
-        public T GetValue<T>(string columnName, params object[] columnNameValuePair)
-        {
-            var tableName = columnName.Split('.')[0];
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            cmd.Select(columnName);
-            return GetValue<T>(cmd);
-        }
-
-        public bool Exists(DBQueryBase query)
-        {
-            var row = Get(query);
-            return (row != null);
-        }
-        public bool Exists(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Exists(cmd);
-        }
-
-        #endregion
-
-        #region Работа с данными типа <DBRow>
-
-        /// <summary>
-        /// Создание новой строки и помещение её в текущий экземпляр <see cref="DBContext"/>
-        /// </summary>
-        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
-        /// <returns></returns>
-        public DBRow New(string tableName)
-        {
-            return New<DBRow>(tableName);
-        }
-
-        public DBRow Get(DBQueryBase query)
-        {
-            return Get<DBRow>(query);
-        }
-        public DBRow Get(string tableName, params object[] columnNameValuePair)
-        {
-            return Get<DBRow>(tableName, columnNameValuePair);
-        }
-
-        public DBRow GetOrNew(DBQueryBase query)
-        {
-            return GetOrNew<DBRow>(query);
-        }
-        public DBRow GetOrNew(string tableName, params object[] columnNameValuePair)
-        {
-            return GetOrNew<DBRow>(tableName, columnNameValuePair);
-        }
-
-        public DBReader<DBRow> Select(DBQueryBase query)
-        {
-            return Select<DBRow>(query);
-        }
-        public DBReader<DBRow> Select(string tableName, params object[] columnNameValuePair)
-        {
-            return Select<DBRow>(tableName, columnNameValuePair);
         }
 
         #endregion
@@ -631,7 +627,6 @@ namespace MyLibrary.DataBase
                 cmd.ExecuteNonQuery();
             }
         }
-
         private DBQuery CreateSelectCommand(string tableName, params object[] columnNameValuePair)
         {
             if (columnNameValuePair.Length % 2 != 0)
