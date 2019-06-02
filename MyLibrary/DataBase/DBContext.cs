@@ -274,12 +274,12 @@ namespace MyLibrary.DataBase
         /// <summary>
         /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
         /// </summary>
-        /// <typeparam name="T">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
+        /// <typeparam name="TTable">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
         /// <returns></returns>
-        public T New<T>() where T : DBOrmTableBase
+        public TTable New<TTable>() where TTable : DBOrmTableBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
-            return New<T>(tableName);
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            return New<TTable>(tableName);
         }
         /// <summary>
         /// Создание новой строки и помещение её в текущий экземпляр <see cref="DBContext"/>
@@ -301,17 +301,17 @@ namespace MyLibrary.DataBase
 
             return default(T);
         }
-        public T Get<T>(Expression<Func<T, bool>> expression) where T : DBOrmTableBase
-        {
-            var query = Query<T>();
-            query.First();
-            query.Where(expression);
-            return Get<T>(query);
-        }
         public T Get<T>(string tableName, params object[] columnNameValuePair)
         {
             var cmd = CreateSelectCommand(tableName, columnNameValuePair);
             return Get<T>(cmd);
+        }
+        public TTable Get<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        {
+            var query = Query<TTable>();
+            query.First();
+            query.Where(whereExpression);
+            return Get<TTable>(query);
         }
         public DBRow Get(DBQueryBase query)
         {
@@ -352,6 +352,13 @@ namespace MyLibrary.DataBase
 
             return DBInternal.PackRow<T>(row);
         }
+        public TTable GetOrNew<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        {
+            var query = Query<TTable>();
+            query.First();
+            query.Where(whereExpression);
+            return GetOrNew<TTable>(query);
+        }
         public DBRow GetOrNew(DBQueryBase query)
         {
             return GetOrNew<DBRow>(query);
@@ -375,6 +382,13 @@ namespace MyLibrary.DataBase
             var cmd = CreateSelectCommand(tableName, columnNameValuePair);
             return Select<T>(cmd);
         }
+        public DBReader<TTable> Select<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        {
+            var query = Query<TTable>();
+            query.First();
+            query.Where(whereExpression);
+            return Select<TTable>(query);
+        }
         public DBReader<DBRow> Select(DBQueryBase query)
         {
             return Select<DBRow>(query);
@@ -384,7 +398,7 @@ namespace MyLibrary.DataBase
             return Select<DBRow>(tableName, columnNameValuePair);
         }
 
-        public T GetValue<T>(DBQueryBase query)
+        public TType GetValue<TType>(DBQueryBase query)
         {
             if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
@@ -394,15 +408,22 @@ namespace MyLibrary.DataBase
             using (var command = Model.CreateCommand(Connection, query))
             {
                 var value = command.ExecuteScalar();
-                return Format.Convert<T>(value);
+                return Format.Convert<TType>(value);
             }
         }
-        public T GetValue<T>(string columnName, params object[] columnNameValuePair)
+        public TType GetValue<TType, TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        {
+            var query = Query<TTable>();
+            query.First();
+            query.Where(whereExpression);
+            return GetValue<TType>(query);
+        }
+        public TType GetValue<TType>(string columnName, params object[] columnNameValuePair)
         {
             var tableName = columnName.Split('.')[0];
             var cmd = CreateSelectCommand(tableName, columnNameValuePair);
             cmd.Select(columnName);
-            return GetValue<T>(cmd);
+            return GetValue<TType>(cmd);
         }
 
         public bool Exists(DBQueryBase query)
