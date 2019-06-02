@@ -8,13 +8,11 @@ using System.Linq.Expressions;
 
 namespace MyLibrary.DataBase
 {
+    /// <summary>
+    /// Представляет механизм для работы с БД.
+    /// </summary>
     public class DBContext : IDisposable
     {
-        /// <summary>
-        /// Представляет механизм для работы с БД.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="connection"></param>
         public DBContext(DBModelBase model, DbConnection connection)
         {
             Model = model;
@@ -30,22 +28,12 @@ namespace MyLibrary.DataBase
         public DbConnection Connection { get; set; }
         public bool AutoCommit { get; set; } = true;
 
-        /// <summary>
-        /// Создание нового запроса <see cref="DBQuery"/>.
-        /// </summary>
-        /// <param name="tableName">Имя таблицы базы данных, указанной в запросе.</param>
-        /// <returns></returns>
         public DBQuery Query(string tableName)
         {
             var table = Model.GetTable(tableName);
             var query = new DBQuery(table);
             return query;
         }
-        /// <summary>
-        /// Создание нового запроса <see cref="DBQuery{T}"/>.
-        /// </summary>
-        /// <typeparam name="TTable">Тип данных для таблицы.</typeparam>
-        /// <returns></returns>
         public DBQuery<TTable> Query<TTable>() where TTable : DBOrmTableBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
@@ -53,9 +41,6 @@ namespace MyLibrary.DataBase
             var query = new DBQuery<TTable>(table);
             return query;
         }
-        /// <summary>
-        /// Фиксирование транзакции (используется при использовании <see cref="AutoCommit"/>).
-        /// </summary>
         public void CommitTransaction()
         {
             if (_transaction != null)
@@ -65,10 +50,15 @@ namespace MyLibrary.DataBase
                 _transaction = null;
             }
         }
-        /// <summary>
-        /// Выполнение запроса <see cref="DBQuery"/>.
-        /// </summary>
-        /// <param name="query"></param>
+        public void RollbackTransaction()
+        {
+            if (_transaction != null)
+            {
+                _transaction.Rollback();
+                _transaction.Dispose();
+                _transaction = null;
+            }
+        }
         public void Execute(DBQueryBase query)
         {
             if (query.Type == DBQueryType.Select)
@@ -94,9 +84,6 @@ namespace MyLibrary.DataBase
                 throw;
             }
         }
-        /// <summary>
-        /// Сохраняет все изменения, внесенные в <see cref="DBContext"/> после его загрузки или после последнего вызова метода <see cref="Save"/>.
-        /// </summary>
         public void Save()
         {
             OpenTransaction();
@@ -260,9 +247,6 @@ namespace MyLibrary.DataBase
                 throw DBInternal.DbSaveException(row, ex);
             }
         }
-        /// <summary>
-        /// Освобождает все ресурсы, используемые объектом.
-        /// </summary>
         public void Dispose()
         {
             CommitTransaction();
@@ -621,15 +605,6 @@ namespace MyLibrary.DataBase
             if (_transaction == null)
             {
                 _transaction = Connection.BeginTransaction();
-            }
-        }
-        private void RollbackTransaction()
-        {
-            if (_transaction != null)
-            {
-                _transaction.Rollback();
-                _transaction.Dispose();
-                _transaction = null;
             }
         }
         private object ExecuteInsertCommand(DBRow row)
