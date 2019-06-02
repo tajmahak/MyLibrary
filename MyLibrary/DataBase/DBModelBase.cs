@@ -153,7 +153,7 @@ namespace MyLibrary.DataBase
 
         #region [protected] Вспомогательные сущности для получения SQL-команд
 
-        protected void PrepareSelectCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareSelectBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("Select"));
             if (blockList.Count == 0)
@@ -328,7 +328,7 @@ namespace MyLibrary.DataBase
                 AddText(sql, " FROM ", GetName(query.Table.Name));
             }
         }
-        protected void PrepareInsertCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareInsertBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             AddText(sql, "INSERT INTO ", GetName(query.Table.Name), '(');
 
@@ -359,7 +359,7 @@ namespace MyLibrary.DataBase
             }
             AddText(sql, ')');
         }
-        protected void PrepareUpdateCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareUpdateBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             AddText(sql, "UPDATE ", GetName(query.Table.Name), " SET ");
 
@@ -379,11 +379,11 @@ namespace MyLibrary.DataBase
                 AddText(sql, GetFullName(block[0]), '=', GetParameter(block[1], cQuery));
             }
         }
-        protected void PrepareDeleteCommand(StringBuilder sql, DBQueryBase query)
+        protected void PrepareDeleteBlock(StringBuilder sql, DBQueryBase query)
         {
             AddText(sql, "DELETE FROM ", GetName(query.Table.Name));
         }
-        protected void PrepareJoinCommand(StringBuilder sql, DBQueryBase query)
+        protected void PrepareJoinBlock(StringBuilder sql, DBQueryBase query)
         {
             foreach (var block in query.Structure)
             {
@@ -477,7 +477,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareWhereCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareWhereBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("Where"));
 
@@ -588,7 +588,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareOrderByCommand(StringBuilder sql, DBQueryBase query)
+        protected void PrepareOrderByBlock(StringBuilder sql, DBQueryBase query)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("OrderBy"));
             if (blockList.Count > 0)
@@ -636,7 +636,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareGroupByCommand(StringBuilder sql, DBQueryBase query)
+        protected void PrepareGroupByBlock(StringBuilder sql, DBQueryBase query)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("GroupBy"));
             if (blockList.Count > 0)
@@ -670,7 +670,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        protected void PrepareHavingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareHavingBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var block = query.FindBlock(x => x == DBQueryStructureType.Having_expression);
             if (block != null)
@@ -678,7 +678,7 @@ namespace MyLibrary.DataBase
                 AddText(sql, " HAVING ", GetSqlFromExpression(block[0], cQuery));
             }
         }
-        protected void PrepareUnionCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        protected void PrepareUnionBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = query.FindBlocks(DBQueryStructureType.UnionAll);
             foreach (var block in query.Structure)

@@ -167,7 +167,7 @@ namespace MyLibrary.DataBase
         }
         public static Exception OrmTableNotAttributeException(Type type)
         {
-            return new Exception(type.FullName + " - отсутствует атрибут имени таблицы.");
+            return new Exception(type.FullName + " - отсутствует атрибут таблицы.");
         }
         public static Exception DBFunctionException()
         {

@@ -157,15 +157,12 @@ namespace MyLibrary.DataBase
                 NextParameterNumber = nextParameterNumber,
             };
 
-            DBQueryStructureBlock block;
-            List<DBQueryStructureBlock> blockList;
-
             var sql = new StringBuilder();
             if (query.Type == DBQueryType.Select)
             {
-                PrepareSelectCommand(sql, query, cQuery);
+                PrepareSelectBlock(sql, query, cQuery);
 
-                block = query.FindBlock(DBQueryStructureType.Distinct);
+                var block = query.FindBlock(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
@@ -183,88 +180,28 @@ namespace MyLibrary.DataBase
                     sql.Insert(6, string.Concat(" TOP ", block[0]));
                 }
 
-                PrepareJoinCommand(sql, query);
+                PrepareJoinBlock(sql, query);
+                PrepareWhereBlock(sql, query, cQuery);
+                PrepareGroupByBlock(sql, query);
+                PrepareOrderByBlock(sql, query);
+                PrepareHavingBlock(sql, query, cQuery);
+                PrepareUnionBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Insert)
             {
-                PrepareInsertCommand(sql, query, cQuery);
+                PrepareInsertBlock(sql, query, cQuery);
+                PrepareWhereBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Update)
             {
-                PrepareUpdateCommand(sql, query, cQuery);
+                PrepareUpdateBlock(sql, query, cQuery);
+                PrepareWhereBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Delete)
             {
-                PrepareDeleteCommand(sql, query);
+                PrepareDeleteBlock(sql, query);
+                PrepareWhereBlock(sql, query, cQuery);
             }
-            else if (query.Type == DBQueryType.UpdateOrInsert)
-            {
-                #region UPDATE OR INSERT
-
-                AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
-
-                blockList = query.FindBlocks(DBQueryStructureType.Set);
-                if (blockList.Count == 0)
-                {
-                    throw DBInternal.WrongUpdateCommandException();
-                }
-
-                AddText(sql, '(');
-                for (int i = 0; i < blockList.Count; i++)
-                {
-                    block = blockList[i];
-                    if (i > 0)
-                    {
-                        AddText(sql, ',');
-                    }
-                    AddText(sql, GetColumnName(block[0]));
-                }
-
-                AddText(sql, ")VALUES(");
-                for (int i = 0; i < blockList.Count; i++)
-                {
-                    block = blockList[i];
-                    if (i > 0)
-                    {
-                        AddText(sql, ',');
-                    }
-                    AddText(sql, GetParameter(block[1], cQuery));
-                }
-
-                AddText(sql, ')');
-
-                blockList = query.FindBlocks(DBQueryStructureType.Matching);
-                if (blockList.Count > 0)
-                {
-                    AddText(sql, " MATCHING(");
-                    for (int i = 0; i < blockList.Count; i++)
-                    {
-                        block = blockList[i];
-                        for (int j = 0; j < block.Length; j++)
-                        {
-                            if (j > 0)
-                            {
-                                AddText(sql, ',');
-                            }
-                            AddText(sql, GetColumnName(block[j]));
-                        }
-                    }
-                    AddText(sql, ')');
-                }
-
-                #endregion
-            }
-
-            PrepareWhereCommand(sql, query, cQuery);
-
-            if (query.Type == DBQueryType.Select)
-            {
-                PrepareGroupByCommand(sql, query);
-                PrepareOrderByCommand(sql, query);
-                PrepareHavingCommand(sql, query, cQuery);
-            }
-
-            PrepareUnionCommand(sql, query, cQuery);
 
             cQuery.CommandText = sql.ToString();
             return cQuery;

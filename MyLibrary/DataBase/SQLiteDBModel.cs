@@ -118,15 +118,12 @@ namespace MyLibrary.DataBase
                 NextParameterNumber = nextParameterNumber,
             };
 
-            DBQueryStructureBlock block;
-            List<DBQueryStructureBlock> blockList;
-
             var sql = new StringBuilder();
             if (query.Type == DBQueryType.Select)
             {
-                PrepareSelectCommand(sql, query, cQuery);
+                PrepareSelectBlock(sql, query, cQuery);
 
-                block = query.FindBlock(DBQueryStructureType.Distinct);
+                var block = query.FindBlock(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
@@ -144,31 +141,28 @@ namespace MyLibrary.DataBase
                     sql.Insert(6, string.Concat(" FIRST ", block[0]));
                 }
 
-                PrepareJoinCommand(sql, query);
+                PrepareJoinBlock(sql, query);
+                PrepareWhereBlock(sql, query, cQuery);
+                PrepareGroupByBlock(sql, query);
+                PrepareOrderByBlock(sql, query);
+                PrepareHavingBlock(sql, query, cQuery);
+                PrepareUnionBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Insert)
             {
-                PrepareInsertCommand(sql, query, cQuery);
+                PrepareInsertBlock(sql, query, cQuery);
+                PrepareWhereBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Update)
             {
-                PrepareUpdateCommand(sql, query, cQuery);
+                PrepareUpdateBlock(sql, query, cQuery);
+                PrepareWhereBlock(sql, query, cQuery);
             }
             else if (query.Type == DBQueryType.Delete)
             {
-                PrepareDeleteCommand(sql, query);
+                PrepareDeleteBlock(sql, query);
+                PrepareWhereBlock(sql, query, cQuery);
             }
-
-            PrepareWhereCommand(sql, query, cQuery);
-
-            if (query.Type == DBQueryType.Select)
-            {
-                PrepareGroupByCommand(sql, query);
-                PrepareOrderByCommand(sql, query);
-                PrepareHavingCommand(sql, query, cQuery);
-            }
-
-            PrepareUnionCommand(sql, query, cQuery);
 
             cQuery.CommandText = sql.ToString();
             return cQuery;
