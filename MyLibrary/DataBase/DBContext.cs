@@ -535,7 +535,7 @@ namespace MyLibrary.DataBase
         private T GetInternal<T>(DBQueryBase query)
         {
             query.AddBlock(DBQueryStructureType.Limit, 1);
-            foreach (var row in Select<T>(query))
+            foreach (var row in SelectInternal<T>(query))
             {
                 return row;
             }
