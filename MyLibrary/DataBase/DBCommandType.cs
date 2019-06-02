@@ -1,9 +1,9 @@
 ﻿namespace MyLibrary.DataBase
 {
     /// <summary>
-    /// Задаёт тип SQL-запроса.
+    /// Задаёт тип SQL-команды.
     /// </summary>
-    public enum DBQueryType
+    public enum DBCommandType
     {
         Select,
         Insert,

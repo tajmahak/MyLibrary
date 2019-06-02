@@ -123,7 +123,7 @@ namespace MyLibrary.DataBase
             };
             var sql = new StringBuilder();
 
-            if (query.Type == DBQueryType.Select)
+            if (query.CommandType == DBCommandType.Select)
             {
                 PrepareSelectBlock(sql, query, cQuery);
 
@@ -152,23 +152,23 @@ namespace MyLibrary.DataBase
                 PrepareHavingBlock(sql, query, cQuery);
                 PrepareUnionBlock(sql, query, cQuery);
             }
-            else if (query.Type == DBQueryType.Insert)
+            else if (query.CommandType == DBCommandType.Insert)
             {
                 PrepareInsertBlock(sql, query, cQuery);
                 PrepareWhereBlock(sql, query, cQuery);
                 PrepareReturningBlock(sql, query);
             }
-            else if (query.Type == DBQueryType.Update)
+            else if (query.CommandType == DBCommandType.Update)
             {
                 PrepareUpdateBlock(sql, query, cQuery);
                 PrepareWhereBlock(sql, query, cQuery);
             }
-            else if (query.Type == DBQueryType.Delete)
+            else if (query.CommandType == DBCommandType.Delete)
             {
                 PrepareDeleteBlock(sql, query);
                 PrepareWhereBlock(sql, query, cQuery);
             }
-            else if (query.Type == DBQueryType.UpdateOrInsert)
+            else if (query.CommandType == DBCommandType.UpdateOrInsert)
             {
                 PrepareUpdateOrInsertCommand(sql, query, cQuery);
                 PrepareMatchingCommand(sql, query);

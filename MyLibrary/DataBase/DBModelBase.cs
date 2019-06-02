@@ -81,22 +81,21 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             IsInitialized = true;
         }
-        public string GetDefaultSqlQuery(DBTable table, DBQueryType queryType)
+        public string GetDefaultSqlQuery(DBTable table, DBCommandType commandType)
         {
-            switch (queryType)
+            switch (commandType)
             {
-                case DBQueryType.Select:
+                case DBCommandType.Select:
                     return _selectCommandsDict[table];
 
-                case DBQueryType.Insert:
+                case DBCommandType.Insert:
                     return _insertCommandsDict[table];
 
-                case DBQueryType.Update:
+                case DBCommandType.Update:
                     return _updateCommandsDict[table];
 
-                case DBQueryType.Delete:
+                case DBCommandType.Delete:
                     return _deleteCommandsDict[table];
-
             }
             throw new NotImplementedException();
         }
@@ -1105,9 +1104,9 @@ namespace MyLibrary.DataBase
 
             // для сокращения объёма кода
             Func<int, string> GetArgument = (f_index) =>
-                  GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
+                GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
             Func<int, object> GetValueArgument = (f_index) =>
-                  GetValueFromExpression(expression.Arguments[f_index], expression);
+                GetValueFromExpression(expression.Arguments[f_index], expression);
             Func<int, ReadOnlyCollection<Expression>> GetParamsArgument = (f_index) =>
                 ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
 

@@ -61,7 +61,7 @@ namespace MyLibrary.DataBase
         }
         public void Execute(DBQueryBase query)
         {
-            if (query.Type == DBQueryType.Select)
+            if (query.CommandType == DBCommandType.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -539,7 +539,7 @@ namespace MyLibrary.DataBase
         }
         private DBReader<T> SelectInternal<T>(DBQueryBase query)
         {
-            if (query.Type != DBQueryType.Select)
+            if (query.CommandType != DBCommandType.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
@@ -548,7 +548,7 @@ namespace MyLibrary.DataBase
         }
         private TType GetValueInternal<TType>(DBQueryBase query)
         {
-            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
+            if (query.CommandType == DBCommandType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
                 query.AddBlock(DBQueryStructureType.Limit, 1);
             }
@@ -612,7 +612,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Insert);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBCommandType.Insert);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
@@ -633,7 +633,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Update);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBCommandType.Update);
 
                 int index = 0;
                 for (int i = 0; i < row.Table.Columns.Count; i++)
@@ -655,7 +655,7 @@ namespace MyLibrary.DataBase
             using (var cmd = Connection.CreateCommand())
             {
                 cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBQueryType.Delete);
+                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, DBCommandType.Delete);
                 Model.AddCommandParameter(cmd, "@id", row[row.Table.PrimaryKeyColumn.OrderIndex]);
 
                 cmd.ExecuteNonQuery();
