@@ -44,13 +44,13 @@ namespace MyLibrary.DataBase
         /// <summary>
         /// Создание нового запроса <see cref="DBQuery{T}"/>.
         /// </summary>
-        /// <typeparam name="T">Тип данных для таблицы.</typeparam>
+        /// <typeparam name="TTable">Тип данных для таблицы.</typeparam>
         /// <returns></returns>
-        public DBQuery<T> Query<T>() where T : DBOrmTableBase
+        public DBQuery<TTable> Query<TTable>() where TTable : DBOrmTableBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
             var table = Model.GetTable(tableName);
-            var query = new DBQuery<T>(table);
+            var query = new DBQuery<TTable>(table);
             return query;
         }
         /// <summary>
@@ -271,177 +271,166 @@ namespace MyLibrary.DataBase
 
         #region Работа с данными
 
-        /// <summary>
-        /// Создание новой строки и помещение её в данный экземпляр <see cref="DBContext"/>
-        /// </summary>
-        /// <typeparam name="TTable">Тип строки формата <see cref="DBRow"/> или <see cref="Orm.DBOrmTableBase"/></typeparam>
-        /// <returns></returns>
         public TTable New<TTable>() where TTable : DBOrmTableBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
-            return New<TTable>(tableName);
+            return NewInternal<TTable>(tableName);
         }
-        /// <summary>
-        /// Создание новой строки и помещение её в текущий экземпляр <see cref="DBContext"/>
-        /// </summary>
-        /// <param name="tableName">Имя таблицы базы данных, для которой будет создана строка</param>
-        /// <returns></returns>
         public DBRow New(string tableName)
         {
-            return New<DBRow>(tableName);
+            return NewInternal<DBRow>(tableName);
         }
 
-        public T Get<T>(DBQueryBase query)
+        public TTable Get<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
         {
-            query.AddBlock(DBQueryStructureType.Limit, 1);
-            foreach (var row in Select<T>(query))
-            {
-                return row;
-            }
-
-            return default(T);
-        }
-        public T Get<T>(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Get<T>(cmd);
+            return GetInternal<TTable>(query);
         }
         public TTable Get<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
             var query = Query<TTable>();
-            query.First();
             query.Where(whereExpression);
-            return Get<TTable>(query);
+            return GetInternal<TTable>(query);
+        }
+        public TTable Get<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return GetInternal<TTable>(query);
         }
         public DBRow Get(DBQueryBase query)
         {
-            return Get<DBRow>(query);
+            return GetInternal<DBRow>(query);
         }
-        public DBRow Get(string tableName, params object[] columnNameValuePair)
+        public DBRow Get(string tableName, params object[] columnConditionPair)
         {
-            return Get<DBRow>(tableName, columnNameValuePair);
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return GetInternal<DBRow>(query);
         }
 
-        public T GetOrNew<T>(DBQueryBase query)
+        public TTable GetOrNew<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
         {
-            var row = Get<T>(query);
-
-            if (row != null)
-            {
-                Add(row);
-                return row;
-            }
-
-            return New<T>(query.Table.Name);
-        }
-        public T GetOrNew<T>(string tableName, params object[] columnNameValuePair)
-        {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            var row = GetOrNew(cmd);
-
-            // установка значений в строку согласно аргументам
-            if (row.Values[row.Table.PrimaryKeyColumn.OrderIndex] is Guid)
-            {
-                for (int i = 0; i < columnNameValuePair.Length; i += 2)
-                {
-                    string columnName = (string)columnNameValuePair[i];
-                    object value = columnNameValuePair[i + 1];
-                    row[columnName] = value;
-                }
-            }
-
-            return DBInternal.PackRow<T>(row);
+            return GetOrNewInternal<TTable>(query);
         }
         public TTable GetOrNew<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
             var query = Query<TTable>();
-            query.First();
             query.Where(whereExpression);
-            return GetOrNew<TTable>(query);
+            return GetOrNewInternal<TTable>(query);
+        }
+        public TTable GetOrNew<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            var item = GetOrNewInternal<TTable>(query);
+
+            if (item.Row.State == DataRowState.Added)
+            {
+                // установка значений в строку согласно аргументам
+                for (int i = 0; i < columnConditionPair.Length; i += 2)
+                {
+                    string columnName = (string)columnConditionPair[i];
+                    object value = columnConditionPair[i + 1];
+                    item.Row[columnName] = value;
+                }
+            }
+
+            return item;
         }
         public DBRow GetOrNew(DBQueryBase query)
         {
-            return GetOrNew<DBRow>(query);
+            return GetOrNewInternal<DBRow>(query);
         }
-        public DBRow GetOrNew(string tableName, params object[] columnNameValuePair)
+        public DBRow GetOrNew(string tableName, params object[] columnConditionPair)
         {
-            return GetOrNew<DBRow>(tableName, columnNameValuePair);
-        }
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            var row = GetOrNewInternal<DBRow>(query);
 
-        public DBReader<T> Select<T>(DBQueryBase query)
-        {
-            if (query.Type != DBQueryType.Select)
+            if (row.State == DataRowState.Added)
             {
-                throw DBInternal.SqlExecuteException();
+                // установка значений в строку согласно аргументам
+                for (int i = 0; i < columnConditionPair.Length; i += 2)
+                {
+                    string columnName = (string)columnConditionPair[i];
+                    object value = columnConditionPair[i + 1];
+                    row[columnName] = value;
+                }
             }
 
-            return new DBReader<T>(Connection, Model, query);
+            return row;
         }
-        public DBReader<T> Select<T>(string tableName, params object[] columnNameValuePair)
+
+        public DBReader<TTable> Select<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
         {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Select<T>(cmd);
+            return SelectInternal<TTable>(query);
         }
         public DBReader<TTable> Select<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
             var query = Query<TTable>();
-            query.First();
             query.Where(whereExpression);
-            return Select<TTable>(query);
+            return SelectInternal<TTable>(query);
+        }
+        public DBReader<TTable> Select<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return SelectInternal<TTable>(query);
         }
         public DBReader<DBRow> Select(DBQueryBase query)
         {
-            return Select<DBRow>(query);
+            return SelectInternal<DBRow>(query);
         }
-        public DBReader<DBRow> Select(string tableName, params object[] columnNameValuePair)
+        public DBReader<DBRow> Select(string tableName, params object[] columnConditionPair)
         {
-            return Select<DBRow>(tableName, columnNameValuePair);
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return SelectInternal<DBRow>(query);
         }
 
         public TType GetValue<TType>(DBQueryBase query)
         {
-            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
-            {
-                query.AddBlock(DBQueryStructureType.Limit, 1);
-            }
-
-            using (var command = Model.CreateCommand(Connection, query))
-            {
-                var value = command.ExecuteScalar();
-                return Format.Convert<TType>(value);
-            }
+            return GetValueInternal<TType>(query);
         }
-        public TType GetValue<TType, TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public TType GetValue<TType, TTable>(string columnName, Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
             var query = Query<TTable>();
-            query.First();
+            query.Select(columnName);
             query.Where(whereExpression);
-            return GetValue<TType>(query);
+            return GetValueInternal<TType>(query);
         }
-        public TType GetValue<TType>(string columnName, params object[] columnNameValuePair)
+        public TType GetValue<TType>(string columnName, params object[] columnConditionPair)
         {
             var tableName = columnName.Split('.')[0];
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            cmd.Select(columnName);
-            return GetValue<TType>(cmd);
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            query.Select(columnName);
+            return GetValueInternal<TType>(query);
         }
 
         public bool Exists(DBQueryBase query)
         {
-            var row = Get(query);
-            return (row != null);
+            return ExistsInternal(query);
         }
-        public bool Exists(string tableName, params object[] columnNameValuePair)
+        public bool Exists<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
-            var cmd = CreateSelectCommand(tableName, columnNameValuePair);
-            return Exists(cmd);
+            var query = Query<TTable>();
+            query.Where(whereExpression);
+            return ExistsInternal(query);
+        }
+        public bool Exists<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return ExistsInternal(query);
+        }
+        public bool Exists(string tableName, params object[] columnConditionPair)
+        {
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return ExistsInternal(query);
         }
 
         public int Add<T>(T row)
         {
             if (row is IEnumerable)
             {
-                return AddCollection((IEnumerable)row);
+                return AddCollectionInternal((IEnumerable)row);
             }
 
             var dbRow = DBInternal.UnpackRow(row);
@@ -503,7 +492,7 @@ namespace MyLibrary.DataBase
         {
             if (row is IEnumerable)
             {
-                ClearCollection((IEnumerable)row);
+                ClearCollectionInternal((IEnumerable)row);
                 return;
             }
 
@@ -524,26 +513,75 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public List<T> GetSetRows<T>() where T : DBOrmTableBase
+        public List<TTable> GetSetRows<TTable>() where TTable : DBOrmTableBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(T));
-            return GetSetRows<T>(tableName);
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            return GetSetRowsInternal<TTable>(tableName);
         }
         public List<DBRow> GetSetRows(string tableName)
         {
-            return GetSetRows<DBRow>(tableName);
+            return GetSetRowsInternal<DBRow>(tableName);
         }
 
         #endregion
 
-        private T New<T>(string tableName)
+        private T NewInternal<T>(string tableName)
         {
             var table = Model.GetTable(tableName);
             var row = table.CreateRow();
             Add(row);
             return DBInternal.PackRow<T>(row);
         }
-        private List<T> GetSetRows<T>(string tableName)
+        private T GetInternal<T>(DBQueryBase query)
+        {
+            query.AddBlock(DBQueryStructureType.Limit, 1);
+            foreach (var row in Select<T>(query))
+            {
+                return row;
+            }
+            return default(T);
+        }
+        private T GetOrNewInternal<T>(DBQueryBase query)
+        {
+            var row = GetInternal<T>(query);
+
+            if (row != null)
+            {
+                Add(row);
+                return row;
+            }
+
+            return NewInternal<T>(query.Table.Name);
+        }
+        private DBReader<T> SelectInternal<T>(DBQueryBase query)
+        {
+            if (query.Type != DBQueryType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+
+            return new DBReader<T>(Connection, Model, query);
+        }
+        private TType GetValueInternal<TType>(DBQueryBase query)
+        {
+            if (query.Type == DBQueryType.Select) // могут быть команды с блоками RETURNING и т.п.
+            {
+                query.AddBlock(DBQueryStructureType.Limit, 1);
+            }
+
+            using (var command = Model.CreateCommand(Connection, query))
+            {
+                var value = command.ExecuteScalar();
+                return Format.Convert<TType>(value);
+            }
+        }
+        private bool ExistsInternal(DBQueryBase query)
+        {
+            var row = GetInternal<DBRow>(query);
+            return (row != null);
+        }
+
+        private List<T> GetSetRowsInternal<T>(string tableName)
         {
             var table = Model.GetTable(tableName);
 
@@ -561,7 +599,7 @@ namespace MyLibrary.DataBase
                 return new List<T>(0);
             }
         }
-        private int AddCollection(IEnumerable collection)
+        private int AddCollectionInternal(IEnumerable collection)
         {
             int count = 0;
             foreach (var row in collection)
@@ -570,7 +608,7 @@ namespace MyLibrary.DataBase
             }
             return count;
         }
-        private void ClearCollection(IEnumerable collection)
+        private void ClearCollectionInternal(IEnumerable collection)
         {
             foreach (var row in collection)
             {
@@ -648,18 +686,18 @@ namespace MyLibrary.DataBase
                 cmd.ExecuteNonQuery();
             }
         }
-        private DBQuery CreateSelectCommand(string tableName, params object[] columnNameValuePair)
+        private DBQuery CreateSelectQuery(string tableName, params object[] columnConditionPair)
         {
-            if (columnNameValuePair.Length % 2 != 0)
+            if (columnConditionPair.Length % 2 != 0)
             {
                 throw DBInternal.ParameterValuePairException();
             }
 
             var cmd = Query(tableName);
-            for (int i = 0; i < columnNameValuePair.Length; i += 2)
+            for (int i = 0; i < columnConditionPair.Length; i += 2)
             {
-                string columnName = (string)columnNameValuePair[i];
-                object value = columnNameValuePair[i + 1];
+                string columnName = (string)columnConditionPair[i];
+                object value = columnConditionPair[i + 1];
                 cmd.Where(columnName, value);
             }
             return cmd;
