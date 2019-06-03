@@ -1124,6 +1124,10 @@ namespace MyLibrary.DataBase
                     AddText(sql, "DISTINCT ", GetArgument(0));
                     break;
 
+                case nameof(DBFunction.Alias):
+                    AddText(sql, OpenBlock, GetValueArgument(0), CloseBlock);
+                    break;
+
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):

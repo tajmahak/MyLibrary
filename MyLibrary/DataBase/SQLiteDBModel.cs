@@ -144,9 +144,9 @@ namespace MyLibrary.DataBase
                 PrepareJoinBlock(sql, query);
                 PrepareWhereBlock(sql, query, cQuery);
                 PrepareGroupByBlock(sql, query);
-                PrepareOrderByBlock(sql, query);
                 PrepareHavingBlock(sql, query, cQuery);
                 PrepareUnionBlock(sql, query, cQuery);
+                PrepareOrderByBlock(sql, query);
             }
             else if (query.CommandType == DBCommandType.Insert)
             {

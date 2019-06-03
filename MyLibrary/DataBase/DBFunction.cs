@@ -9,6 +9,7 @@
         public static object Desc(object expr) => throw DBInternal.DBFunctionException();
         public static object Distinct(object expr) => throw DBInternal.DBFunctionException();
         public static object All(object expr) => throw DBInternal.DBFunctionException();
+        public static object Alias(string columnName) => throw DBInternal.DBFunctionException();
 
         #region Предикаты сравнения
 
