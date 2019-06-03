@@ -802,12 +802,12 @@ namespace MyLibrary.DataBase
         }
         protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)
         {
-            var value = ParseExpression(false, (Expression)expression, (Expression)parentExpression, cQuery);
+            var value = ParseExpression(false, (Expression)expression, cQuery, (Expression)parentExpression);
             return value.ToString();
         }
         protected object GetValueFromExpression(object expression, object parentExpression = null)
         {
-            var value = ParseExpression(true, (Expression)expression, (Expression)parentExpression, null);
+            var value = ParseExpression(true, (Expression)expression, null, (Expression)parentExpression);
             return value;
         }
         protected string GetListFromExpression(object expression, DBCompiledQuery cQuery)
@@ -842,7 +842,7 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        private object ParseExpression(bool parseValue, Expression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        private object ParseExpression(bool parseValue, Expression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             var sql = new StringBuilder();
 
@@ -1040,7 +1040,7 @@ namespace MyLibrary.DataBase
                 var method = methodCallExpression.Method;
                 if (method.DeclaringType == typeof(DBFunction))
                 {
-                    AddText(sql, ParseExpressionFunction(methodCallExpression, parentExpression, cQuery));
+                    AddText(sql, ParseExpressionFunction(methodCallExpression, cQuery, parentExpression));
                 }
                 else
                 {
@@ -1093,7 +1093,7 @@ namespace MyLibrary.DataBase
 
             return sql.ToString();
         }
-        private string ParseExpressionFunction(MethodCallExpression expression, Expression parentExpression, DBCompiledQuery cQuery)
+        private string ParseExpressionFunction(MethodCallExpression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             var sql = new StringBuilder();
 
