@@ -3,6 +3,7 @@ using MyLibrary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -81,20 +82,20 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             IsInitialized = true;
         }
-        public string GetDefaultSqlQuery(DBTable table, DBCommandType commandType)
+        public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
-            switch (commandType)
+            switch (statementType)
             {
-                case DBCommandType.Select:
+                case StatementType.Select:
                     return _selectCommandsDict[table];
 
-                case DBCommandType.Insert:
+                case StatementType.Insert:
                     return _insertCommandsDict[table];
 
-                case DBCommandType.Update:
+                case StatementType.Update:
                     return _updateCommandsDict[table];
 
-                case DBCommandType.Delete:
+                case StatementType.Delete:
                     return _deleteCommandsDict[table];
             }
             throw new NotImplementedException();

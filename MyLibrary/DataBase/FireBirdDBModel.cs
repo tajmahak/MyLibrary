@@ -123,7 +123,7 @@ namespace MyLibrary.DataBase
             };
             var sql = new StringBuilder();
 
-            if (query.CommandType == DBCommandType.Select)
+            if (query.StatementType == StatementType.Select)
             {
                 PrepareSelectBlock(sql, query, cQuery);
 
@@ -152,28 +152,29 @@ namespace MyLibrary.DataBase
                 PrepareUnionBlock(sql, query, cQuery);
                 PrepareOrderByBlock(sql, query);
             }
-            else if (query.CommandType == DBCommandType.Insert)
+            else if (query.StatementType == StatementType.Insert)
             {
                 PrepareInsertBlock(sql, query, cQuery);
                 PrepareWhereBlock(sql, query, cQuery);
                 PrepareReturningBlock(sql, query);
             }
-            else if (query.CommandType == DBCommandType.Update)
+            else if (query.StatementType == StatementType.Update)
             {
                 PrepareUpdateBlock(sql, query, cQuery);
                 PrepareWhereBlock(sql, query, cQuery);
             }
-            else if (query.CommandType == DBCommandType.Delete)
+            else if (query.StatementType == StatementType.Delete)
             {
                 PrepareDeleteBlock(sql, query);
                 PrepareWhereBlock(sql, query, cQuery);
             }
-            else if (query.CommandType == DBCommandType.UpdateOrInsert)
-            {
-                PrepareUpdateOrInsertCommand(sql, query, cQuery);
-                PrepareMatchingCommand(sql, query);
-                PrepareWhereBlock(sql, query, cQuery);
-            }
+            //!!!
+            //else if (query.StatementType == StatementType.UpdateOrInsert)
+            //{
+            //    PrepareUpdateOrInsertCommand(sql, query, cQuery);
+            //    PrepareMatchingCommand(sql, query);
+            //    PrepareWhereBlock(sql, query, cQuery);
+            //}
 
             cQuery.CommandText = sql.ToString();
             return cQuery;

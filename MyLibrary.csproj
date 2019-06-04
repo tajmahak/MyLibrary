@@ -125,7 +125,6 @@
     <Compile Include="MyLibrary\DataBase\DBReader.cs" />
     <Compile Include="MyLibrary\DataBase\DBRow.cs" />
     <Compile Include="MyLibrary\DataBase\DBTable.cs" />
-    <Compile Include="MyLibrary\DataBase\DBCommandType.cs" />
     <Compile Include="MyLibrary\DataBase\FireBirdDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\DBOrmTableAttribute.cs" />
