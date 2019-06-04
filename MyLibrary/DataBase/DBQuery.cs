@@ -137,6 +137,34 @@ namespace MyLibrary.DataBase
             AddBlock(DBQueryStructureType.Select_expression, expression.Body);
             return This;
         }
+        public TQuery Select<T, T2>(Expression<Func<T, T2, object[]>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
+        public TQuery Select<T, T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
+        public TQuery Select<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, object[]>> expression)
+            where T : DBOrmTableBase
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+            where T4 : DBOrmTableBase
+        {
+            IsView = true;
+            AddBlock(DBQueryStructureType.Select_expression, expression.Body);
+            return This;
+        }
+
         public TQuery Select(params string[] columns)
         {
             if (CommandType != DBCommandType.Select) throw DBInternal.UnsupportedCommandContextException();
@@ -696,6 +724,24 @@ namespace MyLibrary.DataBase
             return base.Select(expression);
         }
         public DBQuery<T> Select(Expression<Func<T, object[]>> expression)
+        {
+            return base.Select(expression);
+        }
+        public DBQuery<T> Select<T2>(Expression<Func<T, T2, object[]>> expression)
+            where T2 : DBOrmTableBase
+        {
+            return base.Select(expression);
+        }
+        public DBQuery<T> Select<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            return base.Select(expression);
+        }
+        public DBQuery<T> Select<T2, T3, T4>(Expression<Func<T, T2, T3, T4, object[]>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+            where T4 : DBOrmTableBase
         {
             return base.Select(expression);
         }
