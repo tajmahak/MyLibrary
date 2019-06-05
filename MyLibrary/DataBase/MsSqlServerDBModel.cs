@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -22,39 +23,39 @@ namespace MyLibrary.DataBase
         {
             var sql = new StringBuilder();
 
-            Concat(sql, "INSERT INTO ", GetName(table.Name), "(");
+            sql.Concat("INSERT INTO ", GetName(table.Name), "(");
 
             int index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    Concat(sql, ',');
+                    sql.Concat(',');
                 }
                 if (!column.IsPrimary)
                 {
-                    Concat(sql, GetName(column.Name));
+                    sql.Concat(GetName(column.Name));
                     index++;
                 }
             }
 
-            Concat(sql, ") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
+            sql.Concat(") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
 
             index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    Concat(sql, ',');
+                    sql.Concat(',');
                 }
                 if (!column.IsPrimary)
                 {
-                    Concat(sql, "@p", index);
+                    sql.Concat("@p", index);
                     index++;
                 }
             }
 
-            Concat(sql, ")");
+            sql.Concat(")");
 
             return sql.ToString();
         }

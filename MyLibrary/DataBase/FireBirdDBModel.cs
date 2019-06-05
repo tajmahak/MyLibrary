@@ -1,4 +1,5 @@
 ﻿using FirebirdSql.Data.FirebirdClient;
+using MyLibrary.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -184,7 +185,7 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE OR INSERT
 
-                Concat(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
+                sql.Concat("UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
 
                 var blockList = query.FindBlocks(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
@@ -197,32 +198,32 @@ namespace MyLibrary.DataBase
                     var block1 = blockList[i];
                     if (i > 0)
                     {
-                        Concat(sql, ',');
+                        sql.Concat(',');
                     }
-                    Concat(sql, GetColumnName(block1[0]));
+                    sql.Concat(GetColumnName(block1[0]));
                 }
 
-                Concat(sql, ")VALUES(");
+                sql.Concat(")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block1 = blockList[i];
                     if (i > 0)
                     {
-                        Concat(sql, ',');
+                        sql.Concat(',');
                     }
-                    Concat(sql, GetParameter(block1[1], cQuery));
+                    sql.Concat(GetParameter(block1[1], cQuery));
                 }
 
-                Concat(sql, ")MATCHING(");
+                sql.Concat(")MATCHING(");
                 for (int i = 0; i < block.Args.Length; i++)
                 {
                     if (i > 0)
                     {
-                        Concat(sql, ',');
+                        sql.Concat(',');
                     }
-                    Concat(sql, GetColumnName(block[i]));
+                    sql.Concat(GetColumnName(block[i]));
                 }
-                Concat(sql, ')');
+                sql.Concat(')');
 
                 PrepareWhereBlock(sql, query, cQuery);
 
@@ -238,7 +239,7 @@ namespace MyLibrary.DataBase
             var blockList = query.FindBlocks(DBQueryStructureType.Returning);
             if (blockList.Count > 0)
             {
-                Concat(sql, " RETURNING ");
+                sql.Concat(" RETURNING ");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
@@ -246,9 +247,9 @@ namespace MyLibrary.DataBase
                     {
                         if (j > 0)
                         {
-                            Concat(sql, ',');
+                            sql.Concat(',');
                         }
-                        Concat(sql, GetColumnName(block[j]));
+                        sql.Concat(GetColumnName(block[j]));
                     }
                 }
             }
