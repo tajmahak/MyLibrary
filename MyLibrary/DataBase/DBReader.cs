@@ -64,6 +64,7 @@ namespace MyLibrary.DataBase
                 {
                     var column = new DBColumn(table);
                     column.OrderIndex = index++;
+                    column.DataType = (Type)schemaRow["DataType"];
                     column.Name = (string)schemaRow["ColumnName"];
 
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
@@ -73,6 +74,7 @@ namespace MyLibrary.DataBase
                     {
                         column.Name = string.Concat(schemaBaseTableName, '.', column.Name);
                     }
+
                     table.AddColumn(column);
                 }
             }
