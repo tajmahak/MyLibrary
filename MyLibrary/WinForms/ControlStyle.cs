@@ -1,13 +1,14 @@
 ﻿using MyLibrary.WinForms.Controls;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MyLibrary.WinForms
 {
     public class ControlStyle
     {
-        public void AddControl(Control control, bool recursive = true)
+        public void AddStyleControl(Control control, bool recursive = true)
         {
             var controlType = GetControlType(control);
             _styleControls.Add(controlType, control);
@@ -16,7 +17,7 @@ namespace MyLibrary.WinForms
             {
                 foreach (Control childControl in control.Controls)
                 {
-                    AddControl(childControl, recursive);
+                    AddStyleControl(childControl, recursive);
                 }
             }
 
@@ -74,12 +75,12 @@ namespace MyLibrary.WinForms
                     myDataGridView.ColumnHeadersHeightSizeMode = style.ColumnHeadersHeightSizeMode;
                     myDataGridView.ColumnHeadersVisible = style.ColumnHeadersVisible;
                     myDataGridView.DefaultCellStyle = style.DefaultCellStyle;
-                    myDataGridView.EditMode = style.EditMode;
+                    //myDataGridView.EditMode = style.EditMode;
                     myDataGridView.EnableHeadersVisualStyles = style.EnableHeadersVisualStyles;
                     myDataGridView.Font = style.Font;
                     myDataGridView.GridColor = style.GridColor;
                     myDataGridView.MultiSelect = style.MultiSelect;
-                    myDataGridView.NextTabOnEnterButton = style.NextTabOnEnterButton;
+                    //myDataGridView.NextTabOnEnterButton = style.NextTabOnEnterButton;
                     myDataGridView.RowHeadersBorderStyle = style.RowHeadersBorderStyle;
                     myDataGridView.RowHeadersDefaultCellStyle = style.RowHeadersDefaultCellStyle;
                     myDataGridView.RowHeadersVisible = style.RowHeadersVisible;
@@ -88,7 +89,7 @@ namespace MyLibrary.WinForms
                     myDataGridView.RowsDefaultCellStyle = style.RowsDefaultCellStyle;
                     myDataGridView.RowTemplate = style.RowTemplate;
                     myDataGridView.ScrollBars = style.ScrollBars;
-                    myDataGridView.SelectionMode = style.SelectionMode;
+                    //myDataGridView.SelectionMode = style.SelectionMode;
                     myDataGridView.ShowCellErrors = style.ShowCellErrors;
                     myDataGridView.ShowCellToolTips = style.ShowCellToolTips;
                     myDataGridView.ShowEditingIcon = style.ShowEditingIcon;
@@ -105,7 +106,7 @@ namespace MyLibrary.WinForms
                     label.AutoEllipsis = style.AutoEllipsis;
                     label.BackColor = style.BackColor;
                     label.BorderStyle = style.BorderStyle;
-                    label.Font = style.Font;
+                    label.Font = new Font(style.Font, label.Font.Style);
                     label.ForeColor = style.ForeColor;
                 }
             }
