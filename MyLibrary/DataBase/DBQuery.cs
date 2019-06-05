@@ -84,18 +84,18 @@ namespace MyLibrary.DataBase
             StatementType = StatementType.Update;
             return This;
         }
-        public TQuery UpdateOrInsert()
-        {
-            //!!!
-            //StatementType = StatementType.UpdateOrInsert;
-            return This;
-        }
         public TQuery Delete()
         {
             StatementType = StatementType.Delete;
             return This;
         }
 
+        public TQuery UpdateOrInsert(params string[] matchingColumns)
+        {
+            StatementType = StatementType.Batch;
+            AddBlock(DBQueryStructureType.UpdateOrInsert, matchingColumns);
+            return This;
+        }
         public TQuery Set(string columnName, object value)
         {
             if (string.IsNullOrEmpty(columnName)) throw DBInternal.ArgumentNullException(nameof(columnName));
@@ -104,14 +104,6 @@ namespace MyLibrary.DataBase
             AddBlock(DBQueryStructureType.Set, columnName, value);
             return This;
         }
-        //!!!
-        //public TQuery Matching(params string[] columns)
-        //{
-        //    if (StatementType != StatementType.UpdateOrInsert) throw DBInternal.UnsupportedCommandContextException();
-
-        //    AddBlock(DBQueryStructureType.Matching, columns);
-        //    return This;
-        //}
         public TQuery Returning(params string[] columns)
         {
             if (StatementType == StatementType.Select) throw DBInternal.UnsupportedCommandContextException();

@@ -84,6 +84,11 @@ namespace MyLibrary.DataBase
         }
         public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
+            if (table.PrimaryKeyColumn == null && statementType != StatementType.Select)
+            {
+                throw DBInternal.GetDefaultSqlQueryException(table);
+            }
+
             switch (statementType)
             {
                 case StatementType.Select:
@@ -1406,9 +1411,12 @@ namespace MyLibrary.DataBase
             foreach (var table in Tables)
             {
                 _selectCommandsDict.Add(table, GetSelectCommandText(table));
-                _updateCommandsDict.Add(table, GetUpdateCommandText(table));
-                _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
-                _insertCommandsDict.Add(table, GetInsertCommandText(table));
+                if (table.PrimaryKeyColumn != null)
+                {
+                    _insertCommandsDict.Add(table, GetInsertCommandText(table));
+                    _updateCommandsDict.Add(table, GetUpdateCommandText(table));
+                    _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
+                }
 
                 _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)

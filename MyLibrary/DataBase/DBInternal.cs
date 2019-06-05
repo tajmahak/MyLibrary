@@ -181,5 +181,9 @@ namespace MyLibrary.DataBase
         {
             return new Exception("Экземпляр " + nameof(DBContext) + " уже был инициализирован.");
         }
+        public static Exception GetDefaultSqlQueryException(DBTable table)
+        {
+            return new Exception("Невозможно получить SQL-команду для таблицы '" + table.Name + "', т.к. в ней отсутствует первичный ключ.");
+        }
     }
 }

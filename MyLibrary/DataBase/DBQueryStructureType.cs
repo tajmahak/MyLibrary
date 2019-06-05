@@ -5,8 +5,9 @@
     /// </summary>
     public enum DBQueryStructureType
     {
+        UpdateOrInsert,
+
         Set,
-        Matching,
         Returning,
         Limit,
         Offset,

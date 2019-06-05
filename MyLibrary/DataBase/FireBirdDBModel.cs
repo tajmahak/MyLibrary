@@ -168,71 +168,69 @@ namespace MyLibrary.DataBase
                 PrepareDeleteBlock(sql, query);
                 PrepareWhereBlock(sql, query, cQuery);
             }
-            //!!!
-            //else if (query.StatementType == StatementType.UpdateOrInsert)
-            //{
-            //    PrepareUpdateOrInsertCommand(sql, query, cQuery);
-            //    PrepareMatchingCommand(sql, query);
-            //    PrepareWhereBlock(sql, query, cQuery);
-            //}
+            else
+            {
+                PrepareBatchingCommand(sql, query, cQuery);
+            }
 
             cQuery.CommandText = sql.ToString();
             return cQuery;
         }
 
-        private void PrepareUpdateOrInsertCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
+        private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name));
-
-            var blockList = query.FindBlocks(DBQueryStructureType.Set);
-            if (blockList.Count == 0)
+            var block = query.FindBlock(DBQueryStructureType.UpdateOrInsert);
+            if (block != null)
             {
-                throw DBInternal.WrongUpdateCommandException();
-            }
+                #region UPDATE OR INSERT
 
-            AddText(sql, '(');
-            for (int i = 0; i < blockList.Count; i++)
-            {
-                var block = blockList[i];
-                if (i > 0)
+                AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
+
+                var blockList = query.FindBlocks(DBQueryStructureType.Set);
+                if (blockList.Count == 0)
                 {
-                    AddText(sql, ',');
+                    throw DBInternal.WrongUpdateCommandException();
                 }
-                AddText(sql, GetColumnName(block[0]));
-            }
 
-            AddText(sql, ")VALUES(");
-            for (int i = 0; i < blockList.Count; i++)
-            {
-                var block = blockList[i];
-                if (i > 0)
-                {
-                    AddText(sql, ',');
-                }
-                AddText(sql, GetParameter(block[1], cQuery));
-            }
-
-            AddText(sql, ')');
-        }
-        private void PrepareMatchingCommand(StringBuilder sql, DBQueryBase query)
-        {
-            var blockList = query.FindBlocks(DBQueryStructureType.Matching);
-            if (blockList.Count > 0)
-            {
-                AddText(sql, " MATCHING(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
-                    var block = blockList[i];
-                    for (int j = 0; j < block.Length; j++)
+                    var block1 = blockList[i];
+                    if (i > 0)
                     {
-                        if (j > 0)
-                        {
-                            AddText(sql, ',');
-                        }
-                        AddText(sql, GetColumnName(block[j]));
+                        AddText(sql, ',');
                     }
+                    AddText(sql, GetColumnName(block1[0]));
+                }
+
+                AddText(sql, ")VALUES(");
+                for (int i = 0; i < blockList.Count; i++)
+                {
+                    var block1 = blockList[i];
+                    if (i > 0)
+                    {
+                        AddText(sql, ',');
+                    }
+                    AddText(sql, GetParameter(block1[1], cQuery));
+                }
+
+                AddText(sql, ")MATCHING(");
+                for (int i = 0; i < block.Args.Length; i++)
+                {
+                    if (i > 0)
+                    {
+                        AddText(sql, ',');
+                    }
+                    AddText(sql, GetColumnName(block[i]));
                 }
                 AddText(sql, ')');
+
+                PrepareWhereBlock(sql, query, cQuery);
+
+                #endregion
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
         private void PrepareReturningBlock(StringBuilder sql, DBQueryBase query)

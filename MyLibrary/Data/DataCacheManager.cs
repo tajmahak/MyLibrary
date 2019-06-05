@@ -78,13 +78,11 @@ namespace MyLibrary.Data
             var hash = CalculateMD5(key);
 
             var cmd = _context.Query(DataCacheTable._)
-                .UpdateOrInsert()
+                .UpdateOrInsert(DataCacheTable.Hash)
                 .Set(DataCacheTable.Hash, hash)
                 .Set(DataCacheTable.Data, data)
                 .Set(DataCacheTable.Time, DateTime.Now)
                 .Set(DataCacheTable.Type, type);
-            //!!!
-            //.Matching(DataCacheTable.Hash);
 
             lock (_context)
                 _context.Execute(cmd);
