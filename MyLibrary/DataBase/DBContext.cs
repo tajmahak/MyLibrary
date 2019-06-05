@@ -59,7 +59,7 @@ namespace MyLibrary.DataBase
                 _transaction = null;
             }
         }
-        public void Execute(DBQueryBase query)
+        public int Execute(DBQueryBase query)
         {
             if (query.StatementType == StatementType.Select)
             {
@@ -68,15 +68,17 @@ namespace MyLibrary.DataBase
             try
             {
                 OpenTransaction();
+                int affectedRows;
                 using (var command = Model.CreateCommand(Connection, query))
                 {
                     command.Transaction = _transaction;
-                    command.ExecuteNonQuery();
+                    affectedRows = command.ExecuteNonQuery();
                 }
                 if (AutoCommit)
                 {
                     CommitTransaction();
                 }
+                return affectedRows;
             }
             catch
             {
