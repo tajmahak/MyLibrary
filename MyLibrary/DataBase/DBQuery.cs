@@ -92,6 +92,8 @@ namespace MyLibrary.DataBase
 
         public TQuery UpdateOrInsert(params string[] matchingColumns)
         {
+            if (matchingColumns.Length == 0) throw DBInternal.ArgumentNullException(nameof(matchingColumns));
+
             StatementType = StatementType.Batch;
             AddBlock(DBQueryStructureType.UpdateOrInsert, matchingColumns);
             return This;
