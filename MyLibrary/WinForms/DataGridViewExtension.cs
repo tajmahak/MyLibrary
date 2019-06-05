@@ -8,6 +8,27 @@ namespace MyLibrary.WinForms
 {
     public static class DataGridViewExtension
     {
+        public static void Refresh(this DataGridView grid, Action updateListAction)
+        {
+            var selectedRowIndex = grid.GetSelectedRow()?.Index;
+            var firstRowIndex = grid.FirstDisplayedScrollingRowIndex;
+
+            updateListAction();
+
+            if (selectedRowIndex != null && selectedRowIndex > 0)
+            {
+                if (selectedRowIndex.Value >= grid.Rows.Count)
+                {
+                    selectedRowIndex = grid.Rows.Count - 1;
+                }
+                grid.SelectElement(selectedRowIndex.Value);
+            }
+            if (firstRowIndex != -1 && firstRowIndex < grid.Rows.Count)
+            {
+                grid.FirstDisplayedScrollingRowIndex = firstRowIndex;
+            }
+        }
+
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params int[] columnIndexes)
         {
             foreach (var colIndex in columnIndexes)
