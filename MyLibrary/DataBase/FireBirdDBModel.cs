@@ -184,7 +184,7 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE OR INSERT
 
-                AddText(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
+                Concat(sql, "UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
 
                 var blockList = query.FindBlocks(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
@@ -197,32 +197,32 @@ namespace MyLibrary.DataBase
                     var block1 = blockList[i];
                     if (i > 0)
                     {
-                        AddText(sql, ',');
+                        Concat(sql, ',');
                     }
-                    AddText(sql, GetColumnName(block1[0]));
+                    Concat(sql, GetColumnName(block1[0]));
                 }
 
-                AddText(sql, ")VALUES(");
+                Concat(sql, ")VALUES(");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block1 = blockList[i];
                     if (i > 0)
                     {
-                        AddText(sql, ',');
+                        Concat(sql, ',');
                     }
-                    AddText(sql, GetParameter(block1[1], cQuery));
+                    Concat(sql, GetParameter(block1[1], cQuery));
                 }
 
-                AddText(sql, ")MATCHING(");
+                Concat(sql, ")MATCHING(");
                 for (int i = 0; i < block.Args.Length; i++)
                 {
                     if (i > 0)
                     {
-                        AddText(sql, ',');
+                        Concat(sql, ',');
                     }
-                    AddText(sql, GetColumnName(block[i]));
+                    Concat(sql, GetColumnName(block[i]));
                 }
-                AddText(sql, ')');
+                Concat(sql, ')');
 
                 PrepareWhereBlock(sql, query, cQuery);
 
@@ -238,7 +238,7 @@ namespace MyLibrary.DataBase
             var blockList = query.FindBlocks(DBQueryStructureType.Returning);
             if (blockList.Count > 0)
             {
-                AddText(sql, " RETURNING ");
+                Concat(sql, " RETURNING ");
                 for (int i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
@@ -246,9 +246,9 @@ namespace MyLibrary.DataBase
                     {
                         if (j > 0)
                         {
-                            AddText(sql, ',');
+                            Concat(sql, ',');
                         }
-                        AddText(sql, GetColumnName(block[j]));
+                        Concat(sql, GetColumnName(block[j]));
                     }
                 }
             }

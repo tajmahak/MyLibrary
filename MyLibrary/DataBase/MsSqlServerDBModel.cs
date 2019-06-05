@@ -22,39 +22,39 @@ namespace MyLibrary.DataBase
         {
             var sql = new StringBuilder();
 
-            AddText(sql, "INSERT INTO ", GetName(table.Name), "(");
+            Concat(sql, "INSERT INTO ", GetName(table.Name), "(");
 
             int index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    AddText(sql, ',');
+                    Concat(sql, ',');
                 }
                 if (!column.IsPrimary)
                 {
-                    AddText(sql, GetName(column.Name));
+                    Concat(sql, GetName(column.Name));
                     index++;
                 }
             }
 
-            AddText(sql, ") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
+            Concat(sql, ") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
 
             index = 0;
             foreach (var column in table.Columns)
             {
                 if (index > 0)
                 {
-                    AddText(sql, ',');
+                    Concat(sql, ',');
                 }
                 if (!column.IsPrimary)
                 {
-                    AddText(sql, "@p", index);
+                    Concat(sql, "@p", index);
                     index++;
                 }
             }
 
-            AddText(sql, ")");
+            Concat(sql, ")");
 
             return sql.ToString();
         }
