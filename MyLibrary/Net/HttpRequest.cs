@@ -32,7 +32,9 @@ namespace MyLibrary.Net
         public void Dispose()
         {
             if (Response != null)
+            {
                 Response.Close();
+            }
         }
 
         public void AddHeader(string name, string value)
@@ -160,7 +162,7 @@ namespace MyLibrary.Net
             Response = null;
             try
             {
-                Request = (HttpWebRequest)HttpWebRequest.Create(RequestUri);
+                Request = (HttpWebRequest)WebRequest.Create(RequestUri);
 
                 #region Настройка Web-запроса
 
@@ -256,12 +258,6 @@ namespace MyLibrary.Net
 
     public class RequestParameterBuilder
     {
-        private StringBuilder _str;
-
-        public RequestParameterBuilder()
-        {
-            _str = new StringBuilder();
-        }
         public RequestParameterBuilder Add(string name, object value)
         {
             if (_str.Length > 0)
@@ -274,9 +270,12 @@ namespace MyLibrary.Net
 
             return this;
         }
+
         public override string ToString()
         {
             return _str.ToString();
         }
+
+        private StringBuilder _str = new StringBuilder();
     }
 }
