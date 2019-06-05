@@ -1,4 +1,5 @@
-﻿using MyLibrary.Interop;
+﻿using MyLibrary.Data;
+using MyLibrary.Interop;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -101,13 +102,7 @@ namespace MyLibrary.WinForms
         /// <param name="value"></param>
         public static void SetDoubleBuffer(Control control, bool value)
         {
-            if (_doubleBufferProperty == null)
-            {
-                _doubleBufferProperty = typeof(Control)
-                    .GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance);
-            }
-            _doubleBufferProperty.SetValue(control, value, null);
+            Format.SetValue(control, "DoubleBuffered", value);
         }
-        private static PropertyInfo _doubleBufferProperty;
     }
 }
