@@ -29,13 +29,23 @@ namespace MyLibrary.DataBase
         }
         public static string GetTableNameFromAttribute(Type type)
         {
-            var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
-            if (attrArray.Length == 0)
+            DBOrmTableAttribute attribute = null;
+            while (true)
             {
-                throw OrmTableNotAttributeException(type);
+                var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
+                if (attrArray.Length == 0)
+                {
+                    type = type.BaseType;
+                    if (type == null)
+                    {
+                        throw OrmTableNotAttributeException(type);
+                    }
+                    continue;
+                }
+                attribute = (DBOrmTableAttribute)attrArray[0];
+                break;
             }
-            var attr = (DBOrmTableAttribute)attrArray[0];
-            return attr.TableName;
+            return attribute.TableName;
         }
         public static string[] GetForeignKey(Type type1, Type type2)
         {

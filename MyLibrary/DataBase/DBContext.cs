@@ -271,6 +271,10 @@ namespace MyLibrary.DataBase
         {
             return GetInternal<TTable>(query);
         }
+        public TTable Get<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
+        {
+            return GetInternal<TTable>(query);
+        }
         public TTable Get<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
         {
             var query = Query<TTable>();
@@ -294,6 +298,10 @@ namespace MyLibrary.DataBase
         }
 
         public TTable GetOrNew<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
+        {
+            return GetOrNewInternal<TTable>(query);
+        }
+        public TTable GetOrNew<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
         {
             return GetOrNewInternal<TTable>(query);
         }
@@ -346,6 +354,10 @@ namespace MyLibrary.DataBase
         }
 
         public DBReader<TTable> Select<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
+        {
+            return SelectInternal<TTable>(query);
+        }
+        public DBReader<TTable> Select<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
         {
             return SelectInternal<TTable>(query);
         }
