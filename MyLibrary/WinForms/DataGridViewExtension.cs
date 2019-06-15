@@ -363,7 +363,11 @@ namespace MyLibrary.WinForms
         }
         public static bool CheckEmptyCellsFilter(this DataGridView grid, Predicate<DataGridViewRow> filter, params int[] columnIndexes)
         {
-            Predicate<int> overrideFilter = (x) => filter(grid.Rows[x]);
+            bool overrideFilter(int x)
+            {
+                return filter(grid.Rows[x]);
+            }
+
             return CheckEmptyCellsFilter(grid, overrideFilter, columnIndexes);
         }
         public static bool CheckEmptyCellsFilter(this DataGridView grid, Predicate<DataGridViewRow> filter, params string[] columnNames)

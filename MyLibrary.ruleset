@@ -481,8 +481,8 @@
     <Rule Id="IDE0015" Action="Info" />
     <Rule Id="IDE0016" Action="Info" />
     <Rule Id="IDE0016WithoutSuggestion" Action="Info" />
-    <Rule Id="IDE0017" Action="Info" />
-    <Rule Id="IDE0017WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0017" Action="None" />
+    <Rule Id="IDE0017WithoutSuggestion" Action="None" />
     <Rule Id="IDE0018" Action="Info" />
     <Rule Id="IDE0018WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0019" Action="Info" />
@@ -558,8 +558,8 @@
     <Rule Id="RE0001WithoutSuggestion" Action="Info" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.Features" RuleNamespace="Microsoft.CodeAnalysis.Features">
-    <Rule Id="IDE0010" Action="Info" />
-    <Rule Id="IDE0010WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0010" Action="None" />
+    <Rule Id="IDE0010WithoutSuggestion" Action="None" />
     <Rule Id="IDE0033" Action="Info" />
     <Rule Id="IDE0033WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0044" Action="Info" />

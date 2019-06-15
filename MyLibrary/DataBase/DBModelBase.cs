@@ -685,7 +685,6 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareUnionBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = query.FindBlocks(DBQueryStructureType.UnionAll);
             foreach (var block in query.Structure)
             {
                 switch (block.Type)
@@ -1101,12 +1100,18 @@ namespace MyLibrary.DataBase
             var argumentsCount = expression.Arguments.Count;
 
             // для сокращения объёма кода
-            Func<int, string> GetArgument = (f_index) =>
-                GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
-            Func<int, object> GetValueArgument = (f_index) =>
-                GetValueFromExpression(expression.Arguments[f_index], expression);
-            Func<int, ReadOnlyCollection<Expression>> GetParamsArgument = (f_index) =>
-                ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
+            string GetArgument(int f_index)
+            {
+                return GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
+            }
+            object GetValueArgument(int f_index)
+            {
+                return GetValueFromExpression(expression.Arguments[f_index], expression);
+            }
+            ReadOnlyCollection<Expression> GetParamsArgument(int f_index)
+            {
+                return ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
+            }
 
             switch (expression.Method.Name)
             {
