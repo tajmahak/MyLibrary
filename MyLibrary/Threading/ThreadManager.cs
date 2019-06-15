@@ -62,10 +62,7 @@ namespace MyLibrary.Threading
         /// <param name="action">Делегат выполняемой операции. Action(index), index - индекс выполняемой задачи</param>
         public void Start(Action<int> action)
         {
-            Start((manager, index) =>
-            {
-                action(index);
-            });
+            Start((manager, index) => action(index));
         }
         /// <summary>
         /// Запуск обработки

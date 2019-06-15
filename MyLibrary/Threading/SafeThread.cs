@@ -10,10 +10,7 @@ namespace MyLibrary.Threading
     {
         public SafeThread(Action<SafeThread> action)
         {
-            CurrentThread = new Thread(() =>
-            {
-                action(this);
-            });
+            CurrentThread = new Thread(() => action(this));
             CurrentThread.IsBackground = true;
         }
         public static SafeThread Start(Action<SafeThread> action)

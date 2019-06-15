@@ -29,7 +29,7 @@ namespace MyLibrary.DataBase
         }
         public static string GetTableNameFromAttribute(Type type)
         {
-            DBOrmTableAttribute attribute = null;
+            DBOrmTableAttribute attribute;
             while (true)
             {
                 var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);

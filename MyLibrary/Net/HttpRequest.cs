@@ -62,10 +62,7 @@ namespace MyLibrary.Net
         public string GetString()
         {
             string data = null;
-            GetWebData(() =>
-            {
-                data = GetStringFromResponse(Response);
-            });
+            GetWebData(() => data = GetStringFromResponse(Response));
             return data;
         }
         public void GetData(Stream outputStream)
