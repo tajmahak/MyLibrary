@@ -1,15 +1,15 @@
-﻿using System;
+﻿using MyLibrary.DataBase;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using MyLibrary.DataBase;
 
 namespace MyLibrary.Data
 {
     public class DataCacheManager : IDisposable
     {
-        private DBContext _context;
+        private readonly DBContext _context;
 
         public DataCacheManager(DBContext context)
         {
@@ -26,10 +26,14 @@ namespace MyLibrary.Data
 
             DBRow row;
             lock (_context)
+            {
                 row = _context.Get(cmd);
+            }
 
             if (row == null)
+            {
                 return null;
+            }
 
             return new CacheContent<byte[]>()
             {
@@ -42,7 +46,9 @@ namespace MyLibrary.Data
             var content = LoadData(key);
 
             if (content == null)
+            {
                 return null;
+            }
 
             return new CacheContent<string>()
             {
@@ -66,7 +72,9 @@ namespace MyLibrary.Data
                 .Where(DataCacheTable.Time, "<", limitDate);
 
             lock (_context)
+            {
                 _context.Execute(cmd);
+            }
         }
         public void Dispose()
         {
@@ -85,7 +93,9 @@ namespace MyLibrary.Data
                 .Set(DataCacheTable.Type, type);
 
             lock (_context)
+            {
                 _context.Execute(cmd);
+            }
         }
         private string CalculateMD5(string text)
         {
@@ -97,7 +107,7 @@ namespace MyLibrary.Data
             }
 
             var str = new StringBuilder(32);
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
                 str.Append(data[i].ToString("X2"));
             }

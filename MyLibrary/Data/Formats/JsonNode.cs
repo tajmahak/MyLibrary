@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace MyLibrary.Data.Formats
 {
@@ -24,44 +24,32 @@ namespace MyLibrary.Data.Formats
             get
             {
                 if (_childs != null)
+                {
                     return _childs;
+                }
+
                 return new JsonNodeCollection(0); // чтобы не было исключения при использовании foreach
             }
-            set
-            {
-                _childs = value;
-            }
+            set => _childs = value;
         }
-        public bool HasChilds
-        {
-            get
-            {
-                return (_childs != null && _childs.Count > 0);
-            }
-        }
+        public bool HasChilds => (_childs != null && _childs.Count > 0);
 
-        public JsonNode this[int index]
-        {
-            get
-            {
-                return Childs[index];
-            }
-        }
-        public JsonNode this[string name]
-        {
-            get
-            {
-                return Childs[name];
-            }
-        }
+        public JsonNode this[int index] => Childs[index];
+        public JsonNode this[string name] => Childs[name];
 
         public override string ToString()
         {
-            string str = Name;
+            var str = Name;
             if (Value != null)
+            {
                 str += (" = '" + Value + "'");
+            }
+
             if (HasChilds)
+            {
                 str += (" [" + Childs.Count + "]");
+            }
+
             return str.TrimStart();
         }
 
@@ -119,11 +107,13 @@ namespace MyLibrary.Data.Formats
         {
             get
             {
-                for (int i = 0; i < Count; i++)
+                for (var i = 0; i < Count; i++)
                 {
                     var node = this[i];
                     if (node.Name == name)
+                    {
                         return node;
+                    }
                 }
                 return null;
             }

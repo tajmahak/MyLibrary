@@ -23,10 +23,12 @@ namespace MyLibrary.Data.Formats
         public static HtmlNodeCollection Filter(this HtmlNodeCollection collection, Predicate<HtmlNode> pattern)
         {
             if (collection.Count == 0)
+            {
                 return collection;
+            }
 
             var newCollection = new HtmlNodeCollection(collection[0].ParentNode);
-            for (int i = 0; i < collection.Count; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
                 if (pattern(collection[i]))
                 {
@@ -49,7 +51,9 @@ namespace MyLibrary.Data.Formats
             foreach (var node in collection)
             {
                 if (pattern(node))
+                {
                     newCollection.Add(node);
+                }
 
                 if (node.ChildNodes.Count > 0)
                 {
@@ -70,7 +74,10 @@ namespace MyLibrary.Data.Formats
         public static bool HasAttribute(this HtmlNode node, string name, string value)
         {
             if (!node.Attributes.Contains(name))
+            {
                 return false;
+            }
+
             return node.Attributes[name].Value == value;
         }
         public static bool HasClass(this HtmlNode node, string value)

@@ -132,7 +132,7 @@ namespace MyLibrary.WinForms
             {
                 return (T)styleControl;
             }
-            return default(T);
+            return default;
         }
         private Type GetControlType(Control control)
         {
@@ -143,6 +143,6 @@ namespace MyLibrary.WinForms
             return control.GetType();
         }
 
-        private Dictionary<Type, Control> _styleControls = new Dictionary<Type, Control>();
+        private readonly Dictionary<Type, Control> _styleControls = new Dictionary<Type, Control>();
     }
 }

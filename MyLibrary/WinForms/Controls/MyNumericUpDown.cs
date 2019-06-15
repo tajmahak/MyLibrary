@@ -11,17 +11,11 @@ namespace MyLibrary.WinForms.Controls
         public bool NextTabOnEnterButton { get; set; }
 
         [Browsable(false)]
-        public decimal RoundValue
-        {
-            get
-            {
-                return Math.Round(Value, DecimalPlaces);
-            }
-        }
+        public decimal RoundValue => Math.Round(Value, DecimalPlaces);
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            decimal value = Value;
+            var value = Value;
             if (e.Delta > 0)
             {
                 if (value > decimal.MaxValue - Increment)

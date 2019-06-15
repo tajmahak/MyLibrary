@@ -49,26 +49,38 @@ namespace MyLibrary.Data
         public static int Compare<T>(T x, T y) where T : IComparable
         {
             if (IsNull(x) && IsNull(y))
+            {
                 return 0;
+            }
 
             if (IsNull(x))
+            {
                 return -1;
+            }
 
             if (IsNull(y))
+            {
                 return 1;
+            }
 
             return x.CompareTo(y);
         }
         public static int Compare(object x, object y)
         {
             if (IsNull(x) && IsNull(y))
+            {
                 return 0;
+            }
 
             if (IsNull(x))
+            {
                 return -1;
+            }
 
             if (IsNull(y))
+            {
                 return 1;
+            }
 
             var type1 = x.GetType();
             var type2 = y.GetType();
@@ -97,10 +109,14 @@ namespace MyLibrary.Data
         public static bool IsEquals<T>(T x, T y) where T : IEquatable<T>
         {
             if (x == null && y == null)
+            {
                 return true;
+            }
 
             if (x == null || y == null)
+            {
                 return false;
+            }
 
             var type = typeof(T);
             if (type.BaseType == typeof(Array))
@@ -112,10 +128,14 @@ namespace MyLibrary.Data
         public static bool IsEquals(object x, object y)
         {
             if (IsNull(x) && IsNull(y))
+            {
                 return true;
+            }
 
             if (IsNull(x) || IsNull(y))
+            {
                 return false;
+            }
 
             var type1 = x.GetType();
             var type2 = y.GetType();
@@ -159,10 +179,12 @@ namespace MyLibrary.Data
         public static bool ArrayEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
             if (blob1.Length != blob2.Length)
+            {
                 return false;
+            }
 
-            int length = blob1.Length;
-            for (int i = 0; i < length; ++i)
+            var length = blob1.Length;
+            for (var i = 0; i < length; ++i)
             {
                 if (!blob1[i].Equals(blob2[i]))
                 {
@@ -174,7 +196,7 @@ namespace MyLibrary.Data
 
         public static string GetNotEmptyString(object value)
         {
-            string sValue = Convert<string>(value);
+            var sValue = Convert<string>(value);
             if (IsNull(value))
             {
                 return string.Empty;
@@ -226,15 +248,17 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static decimal RoundDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
-            decimal digit = Convert<decimal>(value);
+            var digit = Convert<decimal>(value);
             return Math.Round(digit, decimals, mode);
         }
         public static decimal? RoundDigitValue(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
             if (IsEmpty(value))
+            {
                 return null;
+            }
 
-            decimal digit = Convert<decimal>(value);
+            var digit = Convert<decimal>(value);
             return Math.Round(digit, decimals, mode);
         }
         public static string FormatString<T>(T value, string format) where T : IFormattable
@@ -244,12 +268,16 @@ namespace MyLibrary.Data
         public static string FormatDigit(object value, int decimals = 0, bool allowNull = false)
         {
             if (allowNull && IsNull(value))
+            {
                 return null;
+            }
 
             if (IsNull(value))
+            {
                 value = decimal.Zero;
+            }
 
-            string text = System.Convert.ToDecimal(value).ToString("N" + decimals);
+            var text = System.Convert.ToDecimal(value).ToString("N" + decimals);
             if (text.Length > 0)
             {
                 if (text[0] == '-')
@@ -267,7 +295,7 @@ namespace MyLibrary.Data
         public static string FormatFileSize(long value)
         {
             string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
-            int order = 0;
+            var order = 0;
             var len = value;
             while (len >= 1024 && order < sizes.Length - 1)
             {
@@ -275,7 +303,7 @@ namespace MyLibrary.Data
                 len = len / 1024;
             }
 
-            decimal val = value / (decimal)Math.Pow(1024, order);
+            var val = value / (decimal)Math.Pow(1024, order);
             var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
             return text;
         }
@@ -296,7 +324,9 @@ namespace MyLibrary.Data
             }
 
             if (members.Length != 1)
+            {
                 throw new NotImplementedException();
+            }
 
             var member = members[0];
             if (member is FieldInfo)
@@ -336,9 +366,9 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static int LevenshteinDistance(string value1, string value2)
         {
-            int n = value1.Length;
-            int m = value2.Length;
-            int[,] d = new int[n + 1, m + 1];
+            var n = value1.Length;
+            var m = value2.Length;
+            var d = new int[n + 1, m + 1];
 
             // Step 1
             if (n == 0)
@@ -352,18 +382,24 @@ namespace MyLibrary.Data
             }
 
             // Step 2
-            for (int i = 0; i <= n; d[i, 0] = i++) ;
+            for (var i = 0; i <= n; d[i, 0] = i++)
+            {
+                ;
+            }
 
-            for (int j = 0; j <= m; d[0, j] = j++) ;
+            for (var j = 0; j <= m; d[0, j] = j++)
+            {
+                ;
+            }
 
             // Step 3
-            for (int i = 1; i <= n; i++)
+            for (var i = 1; i <= n; i++)
             {
                 //Step 4
-                for (int j = 1; j <= m; j++)
+                for (var j = 1; j <= m; j++)
                 {
                     // Step 5
-                    int cost = (value2[j - 1] == value1[i - 1]) ? 0 : 1;
+                    var cost = (value2[j - 1] == value1[i - 1]) ? 0 : 1;
 
                     // Step 6
                     d[i, j] = Math.Min(

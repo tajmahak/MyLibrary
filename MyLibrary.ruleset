@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Правила для MyLibrary" Description="Правила анализа кода для MyLibrary.csproj." ToolsVersion="15.0">
+<RuleSet Name="Правила для MyLibrary" Description="Правила анализа кода для MyLibrary.csproj." ToolsVersion="16.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1000" Action="Info" />
     <Rule Id="CA1001" Action="Info" />
@@ -401,10 +401,61 @@
     <Rule Id="CS8321" Action="Info" />
     <Rule Id="CS8359" Action="Info" />
     <Rule Id="CS8360" Action="Info" />
+    <Rule Id="CS8371" Action="Info" />
+    <Rule Id="CS8383" Action="Info" />
+    <Rule Id="CS8387" Action="Info" />
+    <Rule Id="CS8402" Action="Info" />
+    <Rule Id="CS8424" Action="Info" />
+    <Rule Id="CS8509" Action="Info" />
+    <Rule Id="CS8512" Action="Info" />
+    <Rule Id="CS8513" Action="Info" />
+    <Rule Id="CS8519" Action="Info" />
+    <Rule Id="CS8520" Action="Info" />
+    <Rule Id="CS8597" Action="Info" />
+    <Rule Id="CS8599" Action="Info" />
+    <Rule Id="CS8600" Action="Info" />
+    <Rule Id="CS8601" Action="Info" />
+    <Rule Id="CS8602" Action="Info" />
+    <Rule Id="CS8603" Action="Info" />
+    <Rule Id="CS8604" Action="Info" />
+    <Rule Id="CS8605" Action="Info" />
+    <Rule Id="CS8606" Action="Info" />
+    <Rule Id="CS8608" Action="Info" />
+    <Rule Id="CS8609" Action="Info" />
+    <Rule Id="CS8610" Action="Info" />
+    <Rule Id="CS8611" Action="Info" />
+    <Rule Id="CS8612" Action="Info" />
+    <Rule Id="CS8613" Action="Info" />
+    <Rule Id="CS8614" Action="Info" />
+    <Rule Id="CS8615" Action="Info" />
+    <Rule Id="CS8616" Action="Info" />
+    <Rule Id="CS8617" Action="Info" />
+    <Rule Id="CS8618" Action="Info" />
+    <Rule Id="CS8619" Action="Info" />
+    <Rule Id="CS8620" Action="Info" />
+    <Rule Id="CS8621" Action="Info" />
+    <Rule Id="CS8622" Action="Info" />
+    <Rule Id="CS8624" Action="Info" />
+    <Rule Id="CS8625" Action="Info" />
+    <Rule Id="CS8626" Action="Info" />
+    <Rule Id="CS8629" Action="Info" />
+    <Rule Id="CS8631" Action="Info" />
+    <Rule Id="CS8632" Action="Info" />
+    <Rule Id="CS8633" Action="Info" />
+    <Rule Id="CS8634" Action="Info" />
+    <Rule Id="CS8638" Action="Info" />
+    <Rule Id="CS8643" Action="Info" />
+    <Rule Id="CS8644" Action="Info" />
+    <Rule Id="CS8645" Action="Info" />
+    <Rule Id="CS8653" Action="Info" />
+    <Rule Id="CS8654" Action="Info" />
+    <Rule Id="CS8655" Action="Info" />
+    <Rule Id="CS8656" Action="Info" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.EditorFeatures" RuleNamespace="Microsoft.CodeAnalysis.CSharp.EditorFeatures">
     <Rule Id="IDE0032" Action="Info" />
     <Rule Id="IDE0032WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0065" Action="Info" />
     <Rule Id="UseAutoProperty" Action="Warning" />
     <Rule Id="UseAutoPropertyFadedToken" Action="Warning" />
   </Rules>
@@ -412,7 +463,9 @@
     <Rule Id="IDE0001" Action="Info" />
     <Rule Id="IDE0002" Action="Info" />
     <Rule Id="IDE0003" Action="Info" />
+    <Rule Id="IDE0003WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0004" Action="Info" />
+    <Rule Id="IDE0004WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0005" Action="Info" />
     <Rule Id="IDE0007" Action="Info" />
     <Rule Id="IDE0007WithoutSuggestion" Action="Info" />
@@ -451,9 +504,12 @@
     <Rule Id="IDE0030WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0031" Action="Info" />
     <Rule Id="IDE0031WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0032" Action="Info" />
+    <Rule Id="IDE0032WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0034" Action="Info" />
     <Rule Id="IDE0034WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0035" Action="Info" />
+    <Rule Id="IDE0035WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0036" Action="Info" />
     <Rule Id="IDE0036WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0037" Action="Info" />
@@ -466,15 +522,49 @@
     <Rule Id="IDE0041WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0042" Action="Info" />
     <Rule Id="IDE0042WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0043" Action="Info" />
+    <Rule Id="IDE0045" Action="Info" />
+    <Rule Id="IDE0045WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0046" Action="Info" />
+    <Rule Id="IDE0046WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0047" Action="Info" />
+    <Rule Id="IDE0048" Action="Info" />
+    <Rule Id="IDE0048WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0049" Action="Info" />
+    <Rule Id="IDE0049WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0050" Action="Info" />
+    <Rule Id="IDE0050WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0053" Action="Info" />
+    <Rule Id="IDE0053WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0054" Action="Info" />
+    <Rule Id="IDE0054WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0056" Action="Info" />
+    <Rule Id="IDE0056WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0057" Action="Info" />
+    <Rule Id="IDE0057WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0058" Action="None" />
+    <Rule Id="IDE0059" Action="Info" />
+    <Rule Id="IDE0060" Action="Info" />
+    <Rule Id="IDE0061" Action="Info" />
+    <Rule Id="IDE0062" Action="Info" />
+    <Rule Id="IDE0062WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0063" Action="Info" />
+    <Rule Id="IDE0063WithoutSuggestion" Action="Info" />
     <Rule Id="IDE1005" Action="Info" />
     <Rule Id="IDE1005WithoutSuggestion" Action="Info" />
     <Rule Id="IDE1006" Action="Info" />
     <Rule Id="IDE1006WithoutSuggestion" Action="Info" />
+    <Rule Id="RE0001" Action="Info" />
+    <Rule Id="RE0001WithoutSuggestion" Action="Info" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.Features" RuleNamespace="Microsoft.CodeAnalysis.Features">
     <Rule Id="IDE0010" Action="Info" />
     <Rule Id="IDE0010WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0033" Action="Info" />
     <Rule Id="IDE0033WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0044" Action="Info" />
+    <Rule Id="IDE0044WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0055" Action="Info" />
+    <Rule Id="IDE0055WithoutSuggestion" Action="Info" />
   </Rules>
 </RuleSet>

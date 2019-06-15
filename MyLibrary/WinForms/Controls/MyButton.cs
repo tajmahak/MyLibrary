@@ -16,79 +16,76 @@ namespace MyLibrary.WinForms.Controls
         [DefaultValue(0)]
         public int TextPaddingX
         {
-            get { return _textPaddingX; }
+            get => _textPaddingX;
             set { _textPaddingX = value; Refresh(); }
         }
         [DefaultValue(-1)]
         public int TextPaddingY
         {
-            get { return _textPaddingY; }
+            get => _textPaddingY;
             set { _textPaddingY = value; Refresh(); }
         }
         [DefaultValue(0)]
         public int ImagePaddingX
         {
-            get { return _imagePaddingX; }
+            get => _imagePaddingX;
             set { _imagePaddingX = value; Refresh(); }
         }
         [DefaultValue(0)]
         public int ImagePaddingY
         {
-            get { return _imagePaddingY; }
+            get => _imagePaddingY;
             set { _imagePaddingY = value; Refresh(); }
         }
 
         public Color EnterColor
         {
-            get { return _enterColor; }
+            get => _enterColor;
             set { _enterColor = value; Refresh(); }
         }
         public Color PressedColor
         {
-            get { return _pressedColor; }
+            get => _pressedColor;
             set { _pressedColor = value; Refresh(); }
         }
         public Color BorderColor
         {
-            get { return _borderColor; }
+            get => _borderColor;
             set { _borderColor = value; Refresh(); }
         }
         [DefaultValue(1)]
         public int BorderThickness
         {
-            get { return _borderThickness; }
+            get => _borderThickness;
             set { _borderThickness = value; Refresh(); }
         }
         [DefaultValue(true)]
         public bool DrawFocusedBorder
         {
-            get { return _useFocusedBorder; }
+            get => _useFocusedBorder;
             set { _useFocusedBorder = value; Refresh(); }
         }
 
         public Color DisabledBackgroundColor
         {
-            get { return _disabledBackgroundColor; }
+            get => _disabledBackgroundColor;
             set { _disabledBackgroundColor = value; Refresh(); }
         }
         public Color DisableBorderColor
         {
-            get { return _disableBorderColor; }
+            get => _disableBorderColor;
             set { _disableBorderColor = value; Refresh(); }
         }
         public Color DisableForeColor
         {
-            get { return _disableForeColor; }
+            get => _disableForeColor;
             set { _disableForeColor = value; Refresh(); }
         }
 
         [DefaultValue(false)]
         public bool FixPress
         {
-            get
-            {
-                return _fixPress;
-            }
+            get => _fixPress;
             set
             {
                 _fixPress = value;
@@ -205,7 +202,7 @@ namespace MyLibrary.WinForms.Controls
             #endregion
             #region Отрисовка текста
             {
-                TextFormatFlags flags = TextFormatFlags.EndEllipsis;
+                var flags = TextFormatFlags.EndEllipsis;
                 #region Выбор расположения
                 switch (TextAlign)
                 {
@@ -312,37 +309,34 @@ namespace MyLibrary.WinForms.Controls
         private ButtonMode _mode;
         private ButtonMode Mode
         {
-            get
-            { 
-                return _mode;
-            }
+            get => _mode;
             set
-            { 
+            {
                 _mode = value;
-                Refresh(); 
+                Refresh();
             }
         }
 
         private MouseButtons lastMouseButton;
 
         [Browsable(false)]
-        new public ImageLayout BackgroundImageLayout { get; set; }
+        public new ImageLayout BackgroundImageLayout { get; set; }
 
         private Image GetGrayImage(Image image)
         {
-            Bitmap bmp = new Bitmap(image);
-            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+            var bmp = new Bitmap(image);
+            var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            var bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
 
-            IntPtr ptr = bmpData.Scan0;
-            byte[] rgbValues = new byte[bmpData.Stride * bmp.Height];
-            int pixelSize = rgbValues.Length / (bmpData.Width * bmpData.Height);
+            var ptr = bmpData.Scan0;
+            var rgbValues = new byte[bmpData.Stride * bmp.Height];
+            var pixelSize = rgbValues.Length / (bmpData.Width * bmpData.Height);
 
             Marshal.Copy(ptr, rgbValues, 0, rgbValues.Length);
-            for (int index = 0; index < rgbValues.Length; index += pixelSize)
+            for (var index = 0; index < rgbValues.Length; index += pixelSize)
             {
-                int value = rgbValues[index] + rgbValues[index + 1] + rgbValues[index + 2];
-                byte color_value = (byte)(value / 3);
+                var value = rgbValues[index] + rgbValues[index + 1] + rgbValues[index + 2];
+                var color_value = (byte)(value / 3);
 
                 rgbValues[index] = color_value;
                 rgbValues[index + 1] = color_value;

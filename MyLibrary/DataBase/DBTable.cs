@@ -20,13 +20,7 @@ namespace MyLibrary.DataBase
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
 
-        public DBColumn this[int index]
-        {
-            get
-            {
-                return Columns[index];
-            }
-        }
+        public DBColumn this[int index] => Columns[index];
         public DBColumn this[string columnName]
         {
             get
@@ -42,7 +36,7 @@ namespace MyLibrary.DataBase
         public DBRow CreateRow()
         {
             var row = new DBRow(this);
-            for (int i = 0; i < row.Values.Length; i++)
+            for (var i = 0; i < row.Values.Length; i++)
             {
                 var column = Columns[i];
                 row.Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;
@@ -73,6 +67,6 @@ namespace MyLibrary.DataBase
             return Name;
         }
 
-        private Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
+        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
     }
 }

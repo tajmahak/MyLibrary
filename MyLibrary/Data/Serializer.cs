@@ -15,11 +15,13 @@ namespace MyLibrary.Data
         public static void InitializeType(Type type)
         {
             lock (_xmlSerializers)
+            {
                 if (!_xmlSerializers.ContainsKey(type))
                 {
                     var xmlSerializer = new XmlSerializer(type);
                     _xmlSerializers.Add(type, xmlSerializer);
                 }
+            }
         }
         public static string Serialize(object obj)
         {
@@ -33,7 +35,9 @@ namespace MyLibrary.Data
         public static T Deserialize<T>(string data)
         {
             if (data == null)
+            {
                 return Activator.CreateInstance<T>();
+            }
 
             var xmlSerializer = GetXmlSerializer(typeof(T));
 
@@ -43,12 +47,14 @@ namespace MyLibrary.Data
             return (T)obj;
         }
 
-        private static Dictionary<Type, XmlSerializer> _xmlSerializers;
+        private static readonly Dictionary<Type, XmlSerializer> _xmlSerializers;
         private static XmlSerializer GetXmlSerializer(Type type)
         {
             InitializeType(type);
             lock (_xmlSerializers)
+            {
                 return _xmlSerializers[type];
+            }
         }
     }
 }

@@ -59,7 +59,7 @@ namespace MyLibrary.DataBase
             var table = new DBTable(_model);
             using (var schema = _reader.GetSchemaTable())
             {
-                int index = 0;
+                var index = 0;
                 foreach (DataRow schemaRow in schema.Rows)
                 {
                     var column = new DBColumn(table);
@@ -68,7 +68,7 @@ namespace MyLibrary.DataBase
                     column.Name = (string)schemaRow["ColumnName"];
 
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
-                    string columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
+                    var columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
                         column.Name : string.Concat(schemaBaseTableName, '.', column.Name);
                     if (_model.TryGetColumn(columnName) != null)
                     {
@@ -81,10 +81,10 @@ namespace MyLibrary.DataBase
             return table;
         }
 
-        private DbCommand _command;
-        private DbDataReader _reader;
-        private DBTable _table;
-        private DBModelBase _model;
+        private readonly DbCommand _command;
+        private readonly DbDataReader _reader;
+        private readonly DBTable _table;
+        private readonly DBModelBase _model;
 
         #region Сущности интерфейсов IEnumerable, IEnumerator
 
@@ -96,13 +96,7 @@ namespace MyLibrary.DataBase
         {
             return this;
         }
-        object IEnumerator.Current
-        {
-            get
-            {
-                return Current;
-            }
-        }
+        object IEnumerator.Current => Current;
         public void Reset()
         {
             throw new NotSupportedException();

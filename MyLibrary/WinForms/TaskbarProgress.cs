@@ -37,7 +37,7 @@ namespace MyLibrary.WinForms
 
             // ITaskbarList3
             [PreserveSig]
-            void SetProgressValue(IntPtr hwnd, UInt64 ullCompleted, UInt64 ullTotal);
+            void SetProgressValue(IntPtr hwnd, ulong ullCompleted, ulong ullTotal);
             [PreserveSig]
             void SetProgressState(IntPtr hwnd, TaskbarStates state);
         }
@@ -49,8 +49,8 @@ namespace MyLibrary.WinForms
         {
         }
 
-        private static ITaskbarList3 taskbarInstance = (ITaskbarList3)new TaskbarInstance();
-        private static bool taskbarSupported = Environment.OSVersion.Version >= new Version(6, 1);
+        private static readonly ITaskbarList3 taskbarInstance = (ITaskbarList3)new TaskbarInstance();
+        private static readonly bool taskbarSupported = Environment.OSVersion.Version >= new Version(6, 1);
 
         public static void SetState(IntPtr windowHandle, TaskbarStates taskbarState)
         {

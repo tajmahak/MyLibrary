@@ -122,7 +122,7 @@ namespace MyLibrary.Interop.MSOffice
             return null;
         }
 
-        private string _caption; // для идентификации процесса при установке фокуса на окно
+        private readonly string _caption; // для идентификации процесса при установке фокуса на окно
         private bool _disposed;
     }
 }

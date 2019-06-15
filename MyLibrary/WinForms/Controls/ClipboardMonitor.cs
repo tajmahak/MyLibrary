@@ -58,7 +58,7 @@ namespace MyLibrary.WinForms.Controls
 
         private void OnClipboardChanged()
         {
-            IDataObject iData = Clipboard.GetDataObject();
+            var iData = Clipboard.GetDataObject();
             ClipboardChanged?.Invoke(this, new ClipboardChangedEventArgs(iData));
         }
         private IntPtr _nextClipboardViewer;

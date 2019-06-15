@@ -276,6 +276,6 @@ namespace MyLibrary.Net
             return _str.ToString();
         }
 
-        private StringBuilder _str = new StringBuilder();
+        private readonly StringBuilder _str = new StringBuilder();
     }
 }

@@ -22,7 +22,7 @@ namespace MyLibrary.WinForms.Controls
     public class DataGridViewProgressCell : DataGridViewImageCell
     {
         // Used to make custom cell consistent with a DataGridViewImageCell
-        private static Image emptyImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        private static readonly Image emptyImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         public DataGridViewProgressCell()
         {
             base.ValueType = typeof(int);
@@ -46,8 +46,8 @@ namespace MyLibrary.WinForms.Controls
                 return;
             }
 
-            int progressVal = (int)value;
-            float percentage = (progressVal / 100.0f); // Need to convert to float before division; otherwise C# returns int which is 0 for anything but 100%.
+            var progressVal = (int)value;
+            var percentage = (progressVal / 100.0f); // Need to convert to float before division; otherwise C# returns int which is 0 for anything but 100%.
             Brush backColorBrush = new SolidBrush(cellStyle.BackColor);
             Brush foreColorBrush = new SolidBrush(cellStyle.ForeColor);
             // Draws the cell grid

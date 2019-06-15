@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MyLibrary.Data;
 
 namespace MyLibrary.WinForms.Controls
 {
@@ -61,7 +61,7 @@ namespace MyLibrary.WinForms.Controls
 
                 Format.SetValue(this, "sortedColumn", dataGridViewColumn);
                 Format.SetValue(this, "sortOrder", sortOrder);
-                for (int i = 0; i < Columns.Count; i++)
+                for (var i = 0; i < Columns.Count; i++)
                 {
                     var column = Columns[i];
                     if (column == dataGridViewColumn)
@@ -75,7 +75,7 @@ namespace MyLibrary.WinForms.Controls
                 }
 
                 var rows = new DataGridViewRow[Rows.Count];
-                for (int i = 0; i < Rows.Count; i++)
+                for (var i = 0; i < Rows.Count; i++)
                 {
                     rows[i] = Rows[i];
                 }

@@ -6,20 +6,8 @@ namespace MyLibrary.Interop.MSOffice
     public sealed class ExcelRange
     {
         public E.Range Range { get; private set; }
-        public int RowsCount
-        {
-            get
-            {
-                return Range.Rows.Count;
-            }
-        }
-        public int ColumnsCount
-        {
-            get
-            {
-                return Range.Columns.Count;
-            }
-        }
+        public int RowsCount => Range.Rows.Count;
+        public int ColumnsCount => Range.Columns.Count;
 
         public ExcelRange(E.Range eRange)
         {

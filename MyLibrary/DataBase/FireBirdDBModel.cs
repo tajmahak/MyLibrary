@@ -46,11 +46,11 @@ namespace MyLibrary.DataBase
                     }
                 }
 
-                for (int i = 0; i < tables.Count; i++)
+                for (var i = 0; i < tables.Count; i++)
                 {
                     var tableRow = dataSet.Tables[i];
                     var table = tables[i];
-                    for (int j = 0; j < tableRow.Columns.Count; j++)
+                    for (var j = 0; j < tableRow.Columns.Count; j++)
                     {
                         var columnRow = tableRow.Columns[j];
                         var column = new DBColumn(table)
@@ -193,7 +193,7 @@ namespace MyLibrary.DataBase
                     throw DBInternal.WrongUpdateCommandException();
                 }
 
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block1 = blockList[i];
                     if (i > 0)
@@ -204,7 +204,7 @@ namespace MyLibrary.DataBase
                 }
 
                 sql.Concat(")VALUES(");
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block1 = blockList[i];
                     if (i > 0)
@@ -215,7 +215,7 @@ namespace MyLibrary.DataBase
                 }
 
                 sql.Concat(")MATCHING(");
-                for (int i = 0; i < block.Args.Length; i++)
+                for (var i = 0; i < block.Args.Length; i++)
                 {
                     if (i > 0)
                     {
@@ -240,10 +240,10 @@ namespace MyLibrary.DataBase
             if (blockList.Count > 0)
             {
                 sql.Concat(" RETURNING ");
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
-                    for (int j = 0; j < block.Length; j++)
+                    for (var j = 0; j < block.Length; j++)
                     {
                         if (j > 0)
                         {

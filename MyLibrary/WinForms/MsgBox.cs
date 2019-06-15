@@ -11,8 +11,8 @@ namespace MyLibrary.WinForms
         {
             #region Подготовка параметров
             {
-                List<object> itemsList = new List<object>();
-                for (int i = 0; i < items.Length; i++)
+                var itemsList = new List<object>();
+                for (var i = 0; i < items.Length; i++)
                 {
                     if (items[i] is object[])
                         itemsList.AddRange((object[])items[i]);
@@ -24,15 +24,15 @@ namespace MyLibrary.WinForms
 
             IWin32Window owner = null;
             string text = "", caption = "";
-            MessageBoxButtons buttons = MessageBoxButtons.OK;
-            MessageBoxIcon icon = MessageBoxIcon.None;
-            MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1;
+            var buttons = MessageBoxButtons.OK;
+            var icon = MessageBoxIcon.None;
+            var defaultButton = MessageBoxDefaultButton.Button1;
 
-            object[] strings = Array.FindAll(items, x => x is string);
+            var strings = Array.FindAll(items, x => x is string);
             if (strings.Length > 0) text = (string)strings[0];
             if (strings.Length > 1) caption = (string)strings[1];
 
-            object enums = Array.Find(items, x => x is IWin32Window);
+            var enums = Array.Find(items, x => x is IWin32Window);
             if (enums != null) owner = (IWin32Window)enums;
             enums = Array.Find(items, x => x is MessageBoxButtons);
             if (enums != null) buttons = (MessageBoxButtons)enums;

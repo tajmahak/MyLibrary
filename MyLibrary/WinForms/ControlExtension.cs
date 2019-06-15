@@ -15,11 +15,11 @@ namespace MyLibrary.WinForms
         /// <returns></returns>
         public static bool FocusProgram()
         {
-            string exePath = Assembly.GetEntryAssembly().Location;
+            var exePath = Assembly.GetEntryAssembly().Location;
             var currentProcess = Process.GetCurrentProcess();
             var processes = Process.GetProcessesByName(currentProcess.ProcessName);
             processes = Array.FindAll(processes, x => x.Id != currentProcess.Id);
-            foreach (Process process in processes)
+            foreach (var process in processes)
             {
                 if (string.Equals(exePath, currentProcess.MainModule.FileName, StringComparison.InvariantCultureIgnoreCase))
                 {

@@ -65,12 +65,12 @@ namespace MyLibrary.Interop
             }
             if (folder != null)
             {
-                IntPtr pidlMain = IntPtr.Zero;
+                var pidlMain = IntPtr.Zero;
                 try
                 {
-                    int cParsed = 0;
-                    int pdwAttrib = 0;
-                    string directoryName = Path.GetDirectoryName(filePath);
+                    var cParsed = 0;
+                    var pdwAttrib = 0;
+                    var directoryName = Path.GetDirectoryName(filePath);
                     folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, directoryName, ref cParsed, ref pidlMain, ref pdwAttrib);
                 }
                 catch (Exception ex)
@@ -80,7 +80,7 @@ namespace MyLibrary.Interop
                 }
                 if (pidlMain != IntPtr.Zero)
                 {
-                    Guid iidShellFolder = new Guid("000214E6-0000-0000-C000-000000000046");
+                    var iidShellFolder = new Guid("000214E6-0000-0000-C000-000000000046");
                     IShellFolder item = null;
                     try
                     {
@@ -107,10 +107,10 @@ namespace MyLibrary.Interop
                         }
                         if (idEnum != null)
                         {
-                            int hRes = 0;
-                            IntPtr pidl = IntPtr.Zero;
-                            int fetched = 0;
-                            bool complete = false;
+                            var hRes = 0;
+                            var pidl = IntPtr.Zero;
+                            var fetched = 0;
+                            var complete = false;
                             while (!complete)
                             {
                                 hRes = idEnum.Next(1, ref pidl, ref fetched);
@@ -174,30 +174,30 @@ namespace MyLibrary.Interop
         }
         private bool GetThumbNail(string file, IntPtr pidl, IShellFolder item, Size size, ref Bitmap thumbnail)
         {
-            IntPtr hBmp = IntPtr.Zero;
+            var hBmp = IntPtr.Zero;
             IExtractImage extractImage = null;
             try
             {
-                string pidlPath = PathFromPidl(pidl);
+                var pidlPath = PathFromPidl(pidl);
                 if (Path.GetFileName(pidlPath).ToUpper().Equals(Path.GetFileName(file).ToUpper()))
                 {
                     IUnknown iunk = null;
-                    int prgf = 0;
-                    Guid iidExtractImage = new Guid("BB2E617C-0920-11d1-9A0B-00C04FC2D6C1");
+                    var prgf = 0;
+                    var iidExtractImage = new Guid("BB2E617C-0920-11d1-9A0B-00C04FC2D6C1");
                     item.GetUIObjectOf(IntPtr.Zero, 1, ref pidl, ref iidExtractImage, ref prgf, ref iunk);
                     extractImage = (IExtractImage)iunk;
                     if (extractImage != null)
                     {
-                        SIZE sz = new SIZE
+                        var sz = new SIZE
                         {
                             cx = size.Width,
                             cy = size.Height
                         };
-                        StringBuilder location = new StringBuilder(260, 260);
-                        int priority = 0;
-                        int requestedColourDepth = 32;
-                        EIEIFLAG flags = EIEIFLAG.IEIFLAG_ASPECT | EIEIFLAG.IEIFLAG_SCREEN;
-                        int uFlags = (int)flags;
+                        var location = new StringBuilder(260, 260);
+                        var priority = 0;
+                        var requestedColourDepth = 32;
+                        var flags = EIEIFLAG.IEIFLAG_ASPECT | EIEIFLAG.IEIFLAG_SCREEN;
+                        var uFlags = (int)flags;
                         try
                         {
                             extractImage.GetLocation(location, location.Capacity, ref priority, ref sz, requestedColourDepth, ref uFlags);
@@ -236,8 +236,8 @@ namespace MyLibrary.Interop
         }
         private string PathFromPidl(IntPtr pidl)
         {
-            StringBuilder path = new StringBuilder(260, 260);
-            int result = SHGetPathFromIDList(pidl, path);
+            var path = new StringBuilder(260, 260);
+            var result = SHGetPathFromIDList(pidl, path);
             if (result == 0)
             {
                 return string.Empty;
@@ -252,7 +252,7 @@ namespace MyLibrary.Interop
             get
             {
                 IShellFolder ppshf = null;
-                int r = SHGetDesktopFolder(ref ppshf);
+                var r = SHGetDesktopFolder(ref ppshf);
                 return ppshf;
             }
         }

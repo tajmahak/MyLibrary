@@ -46,11 +46,11 @@ namespace MyLibrary.DataBase
                     }
                 }
 
-                for (int i = 0; i < tables.Count; i++)
+                for (var i = 0; i < tables.Count; i++)
                 {
                     var tableRow = dataSet.Tables[i];
                     var table = tables[i];
-                    for (int j = 0; j < tableRow.Columns.Count; j++)
+                    for (var j = 0; j < tableRow.Columns.Count; j++)
                     {
                         var columnRow = tableRow.Columns[j];
                         var column = new DBColumn(table)

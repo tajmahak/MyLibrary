@@ -5,12 +5,9 @@ namespace MyLibrary.WinForms
 {
     public class GridRowManager
     {
-        public int Count
-        {
-            get { return _rows.Count; }
-        }
-        private DataGridView _grid;
-        private List<DataGridViewRow> _rows;
+        public int Count => _rows.Count;
+        private readonly DataGridView _grid;
+        private readonly List<DataGridViewRow> _rows;
         private Dictionary<string, int> _columnsIndex;
 
         public GridRowManager(DataGridView grid, int? capacity = null)
@@ -38,7 +35,7 @@ namespace MyLibrary.WinForms
         public Row Create()
         {
             _columnsIndex = new Dictionary<string, int>();
-            for (int i = 0; i < _grid.Columns.Count; i++)
+            for (var i = 0; i < _grid.Columns.Count; i++)
                 _columnsIndex.Add(_grid.Columns[i].Name, i);
             return new Row(this);
         }
@@ -68,21 +65,19 @@ namespace MyLibrary.WinForms
             {
                 get
                 {
-                    int index = GridRows._columnsIndex[columnName];
+                    var index = GridRows._columnsIndex[columnName];
                     return Values[index];
                 }
                 set
                 {
-                    int index = GridRows._columnsIndex[columnName];
+                    var index = GridRows._columnsIndex[columnName];
                     Values[index] = value;
                 }
             }
             public object this[int columnIndex]
             {
-                get
-                { return Values[columnIndex]; }
-                set
-                { Values[columnIndex] = value; }
+                get => Values[columnIndex];
+                set => Values[columnIndex] = value;
             }
         }
         #endregion

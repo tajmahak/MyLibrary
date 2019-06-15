@@ -8,7 +8,10 @@ namespace MyLibrary.Data
         public static string ReplaceWrongChars(string value, params char[] chars)
         {
             foreach (var c in chars)
+            {
                 value = value.Replace(c, '_');
+            }
+
             return value;
         }
         public static string GetCorrectPath(string directoryPath, string fileName)
@@ -18,7 +21,7 @@ namespace MyLibrary.Data
 
             // удаление неиспользуемых символов
             directoryPath = ReplaceWrongChars(directoryPath, Path.GetInvalidPathChars());
-            
+
             directoryPath = Path.GetFullPath(directoryPath);
             if (fileName == null)
             {
@@ -52,7 +55,7 @@ namespace MyLibrary.Data
         public static void CreateDirectory(string path, bool isFilePath)
         {
             if (isFilePath)
-            { 
+            {
                 path = Path.GetDirectoryName(path);
             }
             if (!Directory.Exists(path))

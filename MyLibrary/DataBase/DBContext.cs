@@ -100,7 +100,7 @@ namespace MyLibrary.DataBase
                     var table = tableRowsItem.Key;
                     var rowList = tableRowsItem.Value;
 
-                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
                         row = rowList[rowIndex];
                         if (row.State == DataRowState.Deleted)
@@ -129,7 +129,7 @@ namespace MyLibrary.DataBase
                     var table = item.Key;
                     var rowList = item.Value;
 
-                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
                         row = rowList[rowIndex];
 
@@ -140,7 +140,7 @@ namespace MyLibrary.DataBase
                             rowContainerList.Add(rowContainer);
                         }
 
-                        for (int columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
+                        for (var columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
                         {
                             var value = row[columnIndex];
                             if (value is Guid tempID)
@@ -172,8 +172,8 @@ namespace MyLibrary.DataBase
 
                 #endregion
 
-                bool saveError = false;
-                for (int i = 0; i < rowContainerList.Count; i++)
+                var saveError = false;
+                for (var i = 0; i < rowContainerList.Count; i++)
                 {
                     var rowContainer = rowContainerList[i];
                     row = rowContainer.Row;
@@ -186,7 +186,7 @@ namespace MyLibrary.DataBase
                         #region Замена временных Id на присвоенные
 
                         var idContainer = idContainerList[tempID];
-                        for (int j = 0; j < idContainer.Count; j++)
+                        for (var j = 0; j < idContainer.Count; j++)
                         {
                             var list = idContainer[j];
                             list.Row[list.ColumnIndex] = newID;
@@ -224,7 +224,7 @@ namespace MyLibrary.DataBase
                     var table = tableRowsItem.Key;
                     var rowList = tableRowsItem.Value;
 
-                    for (int rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
                     {
                         row = rowList[rowIndex];
                         if (row.State == DataRowState.Modified)
@@ -320,10 +320,10 @@ namespace MyLibrary.DataBase
             if (item.Row.State == DataRowState.Added)
             {
                 // установка значений в строку согласно аргументам
-                for (int i = 0; i < columnConditionPair.Length; i += 2)
+                for (var i = 0; i < columnConditionPair.Length; i += 2)
                 {
-                    string columnName = (string)columnConditionPair[i];
-                    object value = columnConditionPair[i + 1];
+                    var columnName = (string)columnConditionPair[i];
+                    var value = columnConditionPair[i + 1];
                     item.Row[columnName] = value;
                 }
             }
@@ -342,10 +342,10 @@ namespace MyLibrary.DataBase
             if (row.State == DataRowState.Added)
             {
                 // установка значений в строку согласно аргументам
-                for (int i = 0; i < columnConditionPair.Length; i += 2)
+                for (var i = 0; i < columnConditionPair.Length; i += 2)
                 {
-                    string columnName = (string)columnConditionPair[i];
-                    object value = columnConditionPair[i + 1];
+                    var columnName = (string)columnConditionPair[i];
+                    var value = columnConditionPair[i + 1];
                     row[columnName] = value;
                 }
             }
@@ -537,7 +537,7 @@ namespace MyLibrary.DataBase
             {
                 return row;
             }
-            return default(T);
+            return default;
         }
         private T GetOrNewInternal<T>(DBQueryBase query)
         {
@@ -599,7 +599,7 @@ namespace MyLibrary.DataBase
         }
         private int AddCollectionInternal(IEnumerable collection)
         {
-            int count = 0;
+            var count = 0;
             foreach (var row in collection)
             {
                 count += Add(row);
@@ -628,8 +628,8 @@ namespace MyLibrary.DataBase
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Insert);
 
-                int index = 0;
-                for (int i = 0; i < row.Table.Columns.Count; i++)
+                var index = 0;
+                for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table[i].IsPrimary)
                     {
@@ -649,8 +649,8 @@ namespace MyLibrary.DataBase
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Update);
 
-                int index = 0;
-                for (int i = 0; i < row.Table.Columns.Count; i++)
+                var index = 0;
+                for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table[i].IsPrimary)
                     {
@@ -683,17 +683,17 @@ namespace MyLibrary.DataBase
             }
 
             var cmd = Query(tableName);
-            for (int i = 0; i < columnConditionPair.Length; i += 2)
+            for (var i = 0; i < columnConditionPair.Length; i += 2)
             {
-                string columnName = (string)columnConditionPair[i];
-                object value = columnConditionPair[i + 1];
+                var columnName = (string)columnConditionPair[i];
+                var value = columnConditionPair[i + 1];
                 cmd.Where(columnName, value);
             }
             return cmd;
         }
 
         private DbTransaction _transaction;
-        private Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
+        private readonly Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
 
         private class InsertRowContainer
         {

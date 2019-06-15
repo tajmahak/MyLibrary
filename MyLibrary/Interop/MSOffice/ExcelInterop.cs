@@ -12,27 +12,9 @@ namespace MyLibrary.Interop.MSOffice
         public E.Application Application { get; private set; }
         public E.Workbook Workbook { get; private set; }
         public E.Worksheet Worksheet { get; private set; }
-        public int SheetsCount
-        {
-            get
-            {
-                return Workbook.Sheets.Count;
-            }
-        }
-        public int SheetRowsCount
-        {
-            get
-            {
-                return Worksheet.UsedRange.Rows.Count;
-            }
-        }
-        public int SheetColumnsCount
-        {
-            get
-            {
-                return Worksheet.UsedRange.Columns.Count;
-            }
-        }
+        public int SheetsCount => Workbook.Sheets.Count;
+        public int SheetRowsCount => Worksheet.UsedRange.Rows.Count;
+        public int SheetColumnsCount => Worksheet.UsedRange.Columns.Count;
 
         public ExcelInterop()
         {

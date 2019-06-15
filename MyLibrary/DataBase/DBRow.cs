@@ -22,10 +22,7 @@ namespace MyLibrary.DataBase
 
         public object this[int columnIndex]
         {
-            get
-            {
-                return Values[columnIndex];
-            }
+            get => Values[columnIndex];
             set
             {
                 var column = Table[columnIndex];
@@ -58,7 +55,7 @@ namespace MyLibrary.DataBase
         }
         public void SetNotNull()
         {
-            for (int i = 0; i < Table.Columns.Count; i++)
+            for (var i = 0; i < Table.Columns.Count; i++)
             {
                 SetNotNull(i);
             }
@@ -167,8 +164,8 @@ namespace MyLibrary.DataBase
             {
                 #region Проверка значения на разницу с предыдущим значением
 
-                object prevValue = Values[column.OrderIndex];
-                bool isChanged = true;
+                var prevValue = Values[column.OrderIndex];
+                var isChanged = true;
                 if (value.GetType() == prevValue.GetType() && value is IComparable)
                 {
                     isChanged = !Equals(value, prevValue);

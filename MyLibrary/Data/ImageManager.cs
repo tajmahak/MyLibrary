@@ -51,7 +51,10 @@ namespace MyLibrary.Data
             backgroundImage = new Bitmap(backgroundImage);
             var destRect = new Rectangle(0, 0, backgroundImage.Width, backgroundImage.Height);
             using (var graphics = Graphics.FromImage(backgroundImage))
+            {
                 graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+            }
+
             return backgroundImage;
         }
         /// <summary>
@@ -62,7 +65,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static Image GetColorCircleImage(Image image, Color backgrColor)
         {
-            int scalePixel = image.Width / 10;
+            var scalePixel = image.Width / 10;
             var newImg = new Bitmap(image.Width, image.Height);
             var destRect = new Rectangle(scalePixel, scalePixel, image.Width - scalePixel, image.Height - scalePixel);
             using (var graphics = Graphics.FromImage(newImg))

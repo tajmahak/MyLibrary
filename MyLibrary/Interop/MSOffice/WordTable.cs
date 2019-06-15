@@ -7,20 +7,8 @@ namespace MyLibrary.Interop.MSOffice
     {
         public W.Table Table { get; private set; }
         public W.Document Document { get; private set; }
-        public int RowsCount
-        {
-            get
-            {
-                return Table.Rows.Count;
-            }
-        }
-        public int ColumnsCount
-        {
-            get
-            {
-                return Table.Columns.Count;
-            }
-        }
+        public int RowsCount => Table.Rows.Count;
+        public int ColumnsCount => Table.Columns.Count;
 
         public WordTable(W.Table wTable, W.Document wDocument)
         {

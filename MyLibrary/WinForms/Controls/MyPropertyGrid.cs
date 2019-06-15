@@ -10,7 +10,7 @@ namespace MyLibrary.WinForms.Controls
         private bool _readOnly;
         public bool ReadOnly
         {
-            get { return _readOnly; }
+            get => _readOnly;
             set
             {
                 _readOnly = value;

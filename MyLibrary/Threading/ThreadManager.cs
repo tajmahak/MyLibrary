@@ -39,13 +39,7 @@ namespace MyLibrary.Threading
         }
 
         // Свойства
-        public bool Aborted
-        {
-            get
-            {
-                return _aborted;
-            }
-        }
+        public bool Aborted => _aborted;
 
         /// <summary>
         /// 
@@ -81,9 +75,9 @@ namespace MyLibrary.Threading
         {
             Started?.Invoke(this, EventArgs.Empty);
 
-            int completedThreads = 0;
-            int index = 0;
-            for (int i = 0; i < _threads.Length; i++)
+            var completedThreads = 0;
+            var index = 0;
+            for (var i = 0; i < _threads.Length; i++)
             {
                 var thread = new Thread(() =>
                 {
@@ -132,7 +126,7 @@ namespace MyLibrary.Threading
             _aborted = true;
             lock (_threads)
             {
-                for (int i = 0; i < _threads.Length; i++)
+                for (var i = 0; i < _threads.Length; i++)
                 {
                     _threads[i].Abort();
                 }
@@ -150,7 +144,7 @@ namespace MyLibrary.Threading
         /// </summary>
         public void Join()
         {
-            for (int i = 0; i < _threads.Length; i++)
+            for (var i = 0; i < _threads.Length; i++)
             {
                 _threads[i].Join();
             }
@@ -167,8 +161,8 @@ namespace MyLibrary.Threading
         public event EventHandler<EventArgs> Completed;
 
         // Закрытые сущности
-        private Thread[] _threads;
-        private int _tasksCount;
+        private readonly Thread[] _threads;
+        private readonly int _tasksCount;
         private volatile bool _aborted;
     }
 }

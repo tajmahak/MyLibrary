@@ -43,7 +43,7 @@ namespace MyLibrary.DataBase
         public void Initialize(Type[] ormTableTypes)
         {
             Tables = new DBTable[ormTableTypes.Length];
-            for (int i = 0; i < Tables.Count; i++)
+            for (var i = 0; i < Tables.Count; i++)
             {
                 var tableType = ormTableTypes[i];
                 var table = new DBTable(this);
@@ -187,7 +187,7 @@ namespace MyLibrary.DataBase
                             }
                             else
                             {
-                                for (int j = 0; j < block.Length; j++)
+                                for (var j = 0; j < block.Length; j++)
                                 {
                                     if (index > 0)
                                     {
@@ -222,7 +222,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectSum:
                             #region
-                            for (int j = 0; j < block.Length; j++)
+                            for (var j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
@@ -235,7 +235,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectSumAs:
                             #region
-                            for (int i = 0; i < block.Length; i += 2)
+                            for (var i = 0; i < block.Length; i += 2)
                             {
                                 if (index > 0)
                                 {
@@ -248,7 +248,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectMax:
                             #region
-                            for (int j = 0; j < block.Length; j++)
+                            for (var j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
@@ -261,7 +261,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectMaxAs:
                             #region
-                            for (int j = 0; j < block.Length; j += 2)
+                            for (var j = 0; j < block.Length; j += 2)
                             {
                                 if (index > 0)
                                 {
@@ -274,7 +274,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectMin:
                             #region
-                            for (int j = 0; j < block.Length; j++)
+                            for (var j = 0; j < block.Length; j++)
                             {
                                 if (index > 0)
                                 {
@@ -287,7 +287,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectMinAs:
                             #region
-                            for (int j = 0; j < block.Length; j += 2)
+                            for (var j = 0; j < block.Length; j += 2)
                             {
                                 if (index > 0)
                                 {
@@ -311,7 +311,7 @@ namespace MyLibrary.DataBase
                             }
                             else
                             {
-                                for (int j = 0; j < block.Length; j++)
+                                for (var j = 0; j < block.Length; j++)
                                 {
                                     if (index > 0)
                                     {
@@ -343,7 +343,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.WrongInsertCommandException();
             }
 
-            for (int i = 0; i < blockList.Count; i++)
+            for (var i = 0; i < blockList.Count; i++)
             {
                 var block = blockList[i];
                 if (i > 0)
@@ -353,7 +353,7 @@ namespace MyLibrary.DataBase
                 sql.Concat(GetColumnName(block[0]));
             }
             sql.Concat(")VALUES(");
-            for (int i = 0; i < blockList.Count; i++)
+            for (var i = 0; i < blockList.Count; i++)
             {
                 var block = blockList[i];
                 if (i > 0)
@@ -374,7 +374,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.WrongUpdateCommandException();
             }
 
-            for (int i = 0; i < blockList.Count; i++)
+            for (var i = 0; i < blockList.Count; i++)
             {
                 var block = blockList[i];
                 if (i > 0)
@@ -490,7 +490,7 @@ namespace MyLibrary.DataBase
             {
                 sql.Concat(" WHERE ");
 
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
                     if (i > 0)
@@ -567,7 +567,7 @@ namespace MyLibrary.DataBase
                             #region Добавление списка значений
 
                             var values = (object[])block[1];
-                            for (int j = 0; j < values.Length; j++)
+                            for (var j = 0; j < values.Length; j++)
                             {
                                 if (j > 0)
                                 {
@@ -600,7 +600,7 @@ namespace MyLibrary.DataBase
             {
                 sql.Concat(" ORDER BY ");
                 var index = 0;
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
                     switch (block.Type)
@@ -611,7 +611,7 @@ namespace MyLibrary.DataBase
                         case DBQueryStructureType.OrderByUpperDesc:
                             #region
                             var args = (string[])block.Args;
-                            for (int j = 0; j < args.Length; j++)
+                            for (var j = 0; j < args.Length; j++)
                             {
                                 if (index > 0)
                                 {
@@ -648,7 +648,7 @@ namespace MyLibrary.DataBase
             {
                 sql.Concat(" GROUP BY ");
                 var index = 0;
-                for (int i = 0; i < blockList.Count; i++)
+                for (var i = 0; i < blockList.Count; i++)
                 {
                     var block = blockList[i];
                     switch (block.Type)
@@ -656,7 +656,7 @@ namespace MyLibrary.DataBase
                         case DBQueryStructureType.GroupBy:
                             #region
                             var args = (string[])block.Args;
-                            for (int j = 0; j < args.Length; j++)
+                            for (var j = 0; j < args.Length; j++)
                             {
                                 if (index > 0)
                                 {
@@ -706,8 +706,8 @@ namespace MyLibrary.DataBase
             var sql = new StringBuilder();
             sql.Concat("INSERT INTO ", GetName(table.Name), " VALUES(");
 
-            int index = 0;
-            int paramIndex = 0;
+            var index = 0;
+            var paramIndex = 0;
             foreach (var column in table.Columns)
             {
                 if (index++ > 0)
@@ -737,7 +737,7 @@ namespace MyLibrary.DataBase
             var sql = new StringBuilder();
 
             sql.Concat("UPDATE ", GetName(table.Name), " SET ");
-            int index = 0;
+            var index = 0;
             foreach (var column in table.Columns)
             {
                 if (column.IsPrimary)
@@ -762,17 +762,17 @@ namespace MyLibrary.DataBase
 
         protected string GetFullName(object value)
         {
-            string[] split = ((string)value).Split('.');
+            var split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
         }
         protected string GetName(object value)
         {
-            string[] split = ((string)value).Split('.');
+            var split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock);
         }
         protected string GetColumnName(object value)
         {
-            string[] split = ((string)value).Split('.');
+            var split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[1], CloseBlock);
         }
         protected string GetParameter(object value, DBCompiledQuery cQuery)
@@ -1049,7 +1049,7 @@ namespace MyLibrary.DataBase
                     }
 
                     var arguments = new object[methodCallExpression.Arguments.Count];
-                    for (int i = 0; i < arguments.Length; i++)
+                    for (var i = 0; i < arguments.Length; i++)
                     {
                         arguments[i] = GetValueFromExpression(methodCallExpression.Arguments[i], expression);
                     }
@@ -1072,7 +1072,7 @@ namespace MyLibrary.DataBase
                 if (parseValue)
                 {
                     var array = (Array)Activator.CreateInstance(newArrayExpression.Type, newArrayExpression.Expressions.Count);
-                    for (int i = 0; i < array.Length; i++)
+                    for (var i = 0; i < array.Length; i++)
                     {
                         var value = GetValueFromExpression(newArrayExpression.Expressions[i], expression);
                         array.SetValue(value, i);
@@ -1095,7 +1095,7 @@ namespace MyLibrary.DataBase
         {
             var sql = new StringBuilder();
 
-            string notBlock = (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Not) ?
+            var notBlock = (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Not) ?
                "NOT " : string.Empty;
 
             var argumentsCount = expression.Arguments.Count;
@@ -1309,7 +1309,7 @@ namespace MyLibrary.DataBase
                     else if (value is object[] array)
                     {
                         sql.Concat(GetArgument(0), ' ', notBlock, "IN(");
-                        for (int i = 0; i < array.Length; i++)
+                        for (var i = 0; i < array.Length; i++)
                         {
                             if (i > 0)
                             {
@@ -1348,7 +1348,7 @@ namespace MyLibrary.DataBase
                 case nameof(DBFunction.Coalesce):
                     sql.Concat("COALESCE(", GetArgument(0), ',', GetArgument(1));
                     var expressionArray = GetParamsArgument(2);
-                    for (int i = 0; i < expressionArray.Count; i++)
+                    for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
                         sql.Concat(GetSqlFromExpression(expressionArray[i], cQuery, expression));
@@ -1359,7 +1359,7 @@ namespace MyLibrary.DataBase
                 case nameof(DBFunction.Decode):
                     sql.Concat("DECODE(", GetArgument(0));
                     expressionArray = GetParamsArgument(1);
-                    for (int i = 0; i < expressionArray.Count; i++)
+                    for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
                         sql.Concat(GetSqlFromExpression(expressionArray[i], cQuery, expression));
@@ -1370,7 +1370,7 @@ namespace MyLibrary.DataBase
                 case nameof(DBFunction.MaxValue):
                     sql.Concat("MAXVALUE(", GetArgument(0));
                     expressionArray = GetParamsArgument(1);
-                    for (int i = 0; i < expressionArray.Count; i++)
+                    for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
                         sql.Concat(GetSqlFromExpression(expressionArray[i], cQuery, expression));
@@ -1381,7 +1381,7 @@ namespace MyLibrary.DataBase
                 case nameof(DBFunction.MinValue):
                     sql.Concat("MINVALUE(", GetArgument(0));
                     expressionArray = GetParamsArgument(1);
-                    for (int i = 0; i < expressionArray.Count; i++)
+                    for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
                         sql.Concat(GetSqlFromExpression(expressionArray[i], cQuery, expression));
@@ -1413,17 +1413,17 @@ namespace MyLibrary.DataBase
                 _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)
                 {
-                    string fullName = string.Concat(table.Name, '.', column.Name);
+                    var fullName = string.Concat(table.Name, '.', column.Name);
                     _columnsDict.Add(fullName, column);
                 }
             }
         }
 
-        private Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
-        private Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
-        private Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
-        private Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
-        private Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
-        private Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
+        private readonly Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
+        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
     }
 }

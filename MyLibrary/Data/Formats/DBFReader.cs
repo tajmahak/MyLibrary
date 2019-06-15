@@ -63,17 +63,14 @@ namespace MyLibrary.Data.Formats
         {
             return this;
         }
-        object IEnumerator.Current
-        {
-            get => Current;
-        }
+        object IEnumerator.Current => Current;
 
         private void OpenFile(string path)
         {
             var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             _stream = new BinaryReader(fileStream);
 
-            byte[] buffer = _stream.ReadBytes(Marshal.SizeOf(typeof(DBFHeader)));
+            var buffer = _stream.ReadBytes(Marshal.SizeOf(typeof(DBFHeader)));
 
             var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             _header = (DBFHeader)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(DBFHeader));
@@ -116,7 +113,7 @@ namespace MyLibrary.Data.Formats
             }
             Columns = colList.ToArray();
 
-            for (int i = 0; i < Columns.Length; i++)
+            for (var i = 0; i < Columns.Length; i++)
             {
                 _columnDict.Add(Columns[i].Name, i);
             }
@@ -138,7 +135,7 @@ namespace MyLibrary.Data.Formats
                 #region Заполнение строки
 
                 string number;
-                for (int i = 0; i < _fields.Count; i++)
+                for (var i = 0; i < _fields.Count; i++)
                 {
                     var field = (FieldDescriptor)_fields[i];
                     switch (field.fieldType)
@@ -170,9 +167,9 @@ namespace MyLibrary.Data.Formats
                             {
                                 if (IsNumber(year) && IsNumber(month) && IsNumber(day))
                                 {
-                                    if ((Int32.Parse(year) > 1900))
+                                    if ((int.Parse(year) > 1900))
                                     {
-                                        values[i] = new DateTime(Int32.Parse(year), Int32.Parse(month), Int32.Parse(day));
+                                        values[i] = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
                                     }
                                 }
                             }
@@ -186,7 +183,7 @@ namespace MyLibrary.Data.Formats
                             break;
 
                         case 'L': // Boolean (Y/N)
-                            byte boolean = recReader.ReadByte();
+                            var boolean = recReader.ReadByte();
                             switch ((char)boolean)
                             {
                                 case 'T':
@@ -221,12 +218,12 @@ namespace MyLibrary.Data.Formats
         }
         private static bool IsNumber(string numberString)
         {
-            char[] numbers = numberString.ToCharArray();
-            int number_count = 0;
-            int point_count = 0;
-            int space_count = 0;
+            var numbers = numberString.ToCharArray();
+            var number_count = 0;
+            var point_count = 0;
+            var space_count = 0;
 
-            foreach (char number in numbers)
+            foreach (var number in numbers)
             {
                 if ((number >= 48 && number <= 57))
                 {
@@ -250,25 +247,25 @@ namespace MyLibrary.Data.Formats
         }
         private static DateTime ToJulianDateTime(long lJDN)
         {
-            double p = Convert.ToDouble(lJDN);
-            double s1 = p + 68569;
-            double n = Math.Floor(4 * s1 / 146097);
-            double s2 = s1 - Math.Floor((146097 * n + 3) / 4);
-            double i = Math.Floor(4000 * (s2 + 1) / 1461001);
-            double s3 = s2 - Math.Floor(1461 * i / 4) + 31;
-            double q = Math.Floor(80 * s3 / 2447);
-            double d = s3 - Math.Floor(2447 * q / 80);
-            double s4 = Math.Floor(q / 11);
-            double m = q + 2 - 12 * s4;
-            double j = 100 * (n - 49) + i + s4;
+            var p = Convert.ToDouble(lJDN);
+            var s1 = p + 68569;
+            var n = Math.Floor(4 * s1 / 146097);
+            var s2 = s1 - Math.Floor((146097 * n + 3) / 4);
+            var i = Math.Floor(4000 * (s2 + 1) / 1461001);
+            var s3 = s2 - Math.Floor(1461 * i / 4) + 31;
+            var q = Math.Floor(80 * s3 / 2447);
+            var d = s3 - Math.Floor(2447 * q / 80);
+            var s4 = Math.Floor(q / 11);
+            var m = q + 2 - 12 * s4;
+            var j = 100 * (n - 49) + i + s4;
             return new DateTime(Convert.ToInt32(j), Convert.ToInt32(m), Convert.ToInt32(d));
         }
         private int _recordNumber = 1;
-        private Encoding _encoding;
+        private readonly Encoding _encoding;
         private BinaryReader _stream;
         private DBFHeader _header;
-        private Dictionary<string, int> _columnDict = new Dictionary<string, int>();
-        private ArrayList _fields = new ArrayList();
+        private readonly Dictionary<string, int> _columnDict = new Dictionary<string, int>();
+        private readonly ArrayList _fields = new ArrayList();
     }
 
     public class DBFColumn
@@ -290,10 +287,7 @@ namespace MyLibrary.Data.Formats
     public class DBFRow
     {
         public object[] Values { get; private set; }
-        public object this[int index]
-        {
-            get => Values[index];
-        }
+        public object this[int index] => Values[index];
         public object this[string columnName]
         {
             get
@@ -309,7 +303,7 @@ namespace MyLibrary.Data.Formats
             Values = values;
         }
 
-        private DBFReader _reader;
+        private readonly DBFReader _reader;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -319,17 +313,17 @@ namespace MyLibrary.Data.Formats
         public byte updateYear;
         public byte updateMonth;
         public byte updateDay;
-        public Int32 numRecords;
-        public Int16 headerLen;
-        public Int16 recordLen;
-        public Int16 reserved1;
+        public int numRecords;
+        public short headerLen;
+        public short recordLen;
+        public short reserved1;
         public byte incompleteTrans;
         public byte encryptionFlag;
-        public Int32 reserved2;
-        public Int64 reserved3;
+        public int reserved2;
+        public long reserved3;
         public byte MDX;
         public byte language;
-        public Int16 reserved4;
+        public short reserved4;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -338,12 +332,12 @@ namespace MyLibrary.Data.Formats
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 11)]
         public string fieldName;
         public char fieldType;
-        public Int32 address;
+        public int address;
         public byte fieldLen;
         public byte count;
-        public Int16 reserved1;
+        public short reserved1;
         public byte workArea;
-        public Int16 reserved2;
+        public short reserved2;
         public byte flag;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
         public byte[] reserved3;

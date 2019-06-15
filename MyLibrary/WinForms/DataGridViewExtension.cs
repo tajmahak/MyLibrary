@@ -1,8 +1,8 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MyLibrary.Data;
 
 namespace MyLibrary.WinForms
 {
@@ -99,7 +99,7 @@ namespace MyLibrary.WinForms
         }
         public static void SelectElement(this DataGridView grid, int rowIndex, string selectedColumnName)
         {
-            int index = GetSelectedRowIndex(grid);
+            var index = GetSelectedRowIndex(grid);
             SelectElement(grid, rowIndex, index);
         }
 
@@ -116,7 +116,7 @@ namespace MyLibrary.WinForms
             var editingControl = grid.EditingControl;
             if (editingControl != null)
             {
-                object value = gridCell.Value;
+                var value = gridCell.Value;
                 value = value ?? string.Empty;
 
                 if (!Format.IsEquals(editingControl.Text, (string)value))
@@ -126,10 +126,10 @@ namespace MyLibrary.WinForms
 
         public static bool Search(this DataGridView grid, int columnIndex, string value, int startRowIndex = 0, bool precision = false)
         {
-            string pattern = value.Trim().ToUpperInvariant();
+            var pattern = value.Trim().ToUpperInvariant();
             #region 1) Поиск по совпадению целой строки
 
-            for (int i = startRowIndex; i < grid.Rows.Count; i++)
+            for (var i = startRowIndex; i < grid.Rows.Count; i++)
             {
                 var gridValue = DataGridViewExtension.Get<string>(grid.Rows[i], columnIndex, false);
                 gridValue = gridValue.ToUpperInvariant();
@@ -144,7 +144,7 @@ namespace MyLibrary.WinForms
             if (!precision)
             {
                 #region 2) Поиск строки по начальному вхождению
-                for (int i = startRowIndex; i < grid.Rows.Count; i++)
+                for (var i = startRowIndex; i < grid.Rows.Count; i++)
                 {
                     var gridValue = DataGridViewExtension.Get<string>(grid.Rows[i], columnIndex, false);
                     gridValue = gridValue.ToUpperInvariant();
@@ -160,7 +160,7 @@ namespace MyLibrary.WinForms
         }
         public static bool Search(this DataGridView grid, string columnName, string value, int startRowIndex = 0, bool precision = false)
         {
-            int index = grid.Columns[columnName].Index;
+            var index = grid.Columns[columnName].Index;
             return Search(grid, index, value, startRowIndex, precision);
         }
 
@@ -185,7 +185,7 @@ namespace MyLibrary.WinForms
         }
         public static DataGridViewRow GetSelectedRow(this DataGridView grid)
         {
-            int index = GetSelectedRowIndex(grid);
+            var index = GetSelectedRowIndex(grid);
             if (index == -1)
                 return null;
             return grid.Rows[index];
@@ -239,9 +239,9 @@ namespace MyLibrary.WinForms
         public static List<T> GetTags<T>(this DataGridViewRowCollection collection)
         {
             var tags = new List<T>(collection.Count);
-            for (int i = 0; i < collection.Count; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
-                var row = (DataGridViewRow)collection[i];
+                var row = collection[i];
                 tags.Add(row.GetTag<T>());
             }
             return tags;
@@ -249,7 +249,7 @@ namespace MyLibrary.WinForms
         public static List<T> GetTags<T>(this IList<DataGridViewRow> list)
         {
             var tags = new List<T>(list.Count);
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 var row = list[i];
                 tags.Add(row.GetTag<T>());
@@ -261,7 +261,7 @@ namespace MyLibrary.WinForms
         {
             var gridRow = grid.GetSelectedRow();
             if (gridRow == null)
-                return default(T);
+                return default;
 
             return GetTag<T>(gridRow);
         }
@@ -273,7 +273,7 @@ namespace MyLibrary.WinForms
         {
             var gridRows = grid.GetSelectedRows();
             var list = new List<T>(gridRows.Length);
-            for (int i = 0; i < gridRows.Length; i++)
+            for (var i = 0; i < gridRows.Length; i++)
             {
                 var gridRow = gridRows[i];
                 list.Add(srcList[gridRow.Index]);
@@ -282,7 +282,7 @@ namespace MyLibrary.WinForms
         }
         public static DataGridViewRow GetRowFromTag<T>(this DataGridView grid, T item)
         {
-            for (int i = 0; i < grid.Rows.Count; i++)
+            for (var i = 0; i < grid.Rows.Count; i++)
             {
                 var gridRow = grid.Rows[i];
                 var tag = (T)gridRow.Tag;
@@ -314,7 +314,7 @@ namespace MyLibrary.WinForms
 
         public static void TryDataError(this DataGridView grid, DataGridViewDataErrorEventArgs e)
         {
-            string caption = string.Format("Колонка \"{0}\"", grid.Columns[e.ColumnIndex].HeaderText);
+            var caption = string.Format("Колонка \"{0}\"", grid.Columns[e.ColumnIndex].HeaderText);
 
             string text;
             if (e.Exception is FormatException)
@@ -326,7 +326,7 @@ namespace MyLibrary.WinForms
 
         public static bool CheckEmptyCellsFilter(this DataGridView grid, Predicate<int> filter, params int[] columnIndexes)
         {
-            for (int i = 0; i < grid.Rows.Count; i++)
+            for (var i = 0; i < grid.Rows.Count; i++)
             {
                 #region [if] Фильтр
 
@@ -338,7 +338,7 @@ namespace MyLibrary.WinForms
 
                 #endregion
 
-                for (int j = 0; j < columnIndexes.Length; j++)
+                for (var j = 0; j < columnIndexes.Length; j++)
                 {
                     var columnIndex = columnIndexes[j];
 
@@ -412,9 +412,9 @@ namespace MyLibrary.WinForms
         private static int[] GetColumnIndex(DataGridView grid, string[] columnNameArray)
         {
             var indexArray = new int[columnNameArray.Length];
-            for (int i = 0; i < indexArray.Length; i++)
+            for (var i = 0; i < indexArray.Length; i++)
             {
-                string columnName = columnNameArray[i];
+                var columnName = columnNameArray[i];
                 indexArray[i] = grid.Columns[columnName].Index;
             }
             return indexArray;

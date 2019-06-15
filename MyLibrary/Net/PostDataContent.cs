@@ -88,7 +88,7 @@ namespace MyLibrary.Net
         private PostDataMultiPartContent()
         {
             var boundary = new StringBuilder();
-            for (int i = 0; i < 14; i++)
+            for (var i = 0; i < 14; i++)
             {
                 boundary.Append(_rnd.Next(10));
             }
@@ -140,6 +140,6 @@ namespace MyLibrary.Net
             return "multipart/form-data; boundary=---------------------------" + Boundary;
         }
 
-        private static Random _rnd = new Random();
+        private static readonly Random _rnd = new Random();
     }
 }

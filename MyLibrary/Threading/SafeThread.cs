@@ -24,13 +24,7 @@ namespace MyLibrary.Threading
         }
 
         public Thread CurrentThread { get; private set; }
-        public bool Aborted
-        {
-            get
-            {
-                return _aborted;
-            }
-        }
+        public bool Aborted => _aborted;
         public void Start()
         {
             CurrentThread.Start();
