@@ -247,7 +247,7 @@
         /// <param name="endlen">Длина выходной строки.</param>
         /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом (' ').</param>
         /// <returns></returns>
-        public static string LPad(string str, int endlen, string padstr = null)
+        public static string LPad(string str, int endlen, string padstr)
         {
             throw DBInternal.DBFunctionException();
         }
@@ -272,7 +272,7 @@
         /// <param name="pos">Позиция, с которой происходит замена.</param>
         /// <param name="length">Количество символов, которые будут удалены из исходной строки.</param>
         /// <returns></returns>
-        public static string Overlay(string @string, string replacement, int pos, int? length = null)
+        public static string Overlay(string @string, string replacement, int pos, int? length)
         {
             throw DBInternal.DBFunctionException();
         }
@@ -330,7 +330,7 @@
         /// <param name="endlen">Длина выходной строки.</param>
         /// <param name="padstr">Строка, которой дополняется исходная строка до указанной длины. По умолчанию является пробелом(' ').</param>
         /// <returns></returns>
-        public static string RPad(string str, int endlen, string padstr = null)
+        public static string RPad(string str, int endlen, string padstr)
         {
             throw DBInternal.DBFunctionException();
         }
@@ -354,7 +354,7 @@
         /// <param name="startpos">Позиция, с которой начинается извлечение подстроки. Целочисленное выражение.</param>
         /// <param name="length">Длина возвращаемой подстроки. Целочисленное выражение.</param>
         /// <returns></returns>
-        public static string SubString(string str, int startpos, int? length = null)
+        public static string SubString(string str, int startpos, int? length)
         {
             throw DBInternal.DBFunctionException();
         }
