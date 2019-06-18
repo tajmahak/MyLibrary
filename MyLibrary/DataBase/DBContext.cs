@@ -508,6 +508,11 @@ namespace MyLibrary.DataBase
             if (_tableRows.TryGetValue(dbRow.Table, out var rowList))
             {
                 rowList.Remove(dbRow);
+
+                if (rowList.Count == 0)
+                {
+                    _tableRows.Remove(dbRow.Table);
+                }
             }
         }
 

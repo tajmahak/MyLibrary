@@ -542,17 +542,17 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.WhereContainingUpper:
                             #region
-                            sql.Concat(" UPPER(", GetFullName(block[0]), ") CONTAINING ", GetParameter(block[1], cQuery));
+                            sql.Concat("UPPER(", GetFullName(block[0]), ") CONTAINING ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereLike:
                             #region
-                            sql.Concat(GetFullName(block[0]), " LIKE \'", block[1], '\'');
+                            sql.Concat(GetFullName(block[0]), " LIKE ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereLikeUpper:
                             #region
-                            sql.Concat(" UPPER(", GetFullName(block[0]), ") LIKE '", block[1], '\'');
+                            sql.Concat("UPPER(", GetFullName(block[0]), ") LIKE ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereIn_command:
