@@ -36,10 +36,15 @@ namespace MyLibrary.WinForms
                 var column = grid.Columns[colIndex];
                 var tbColumn = (column as DataGridViewTextBoxColumn);
                 if (tbColumn == null)
+                {
                     continue;
+                }
+
                 tbColumn.ValueType = type;
                 if (format != null)
+                {
                     tbColumn.DefaultCellStyle.Format = format;
+                }
             }
         }
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params string[] columnNames)
@@ -53,7 +58,10 @@ namespace MyLibrary.WinForms
             grid.SortCompare += (sender, e) =>
             {
                 if (e.Column.Index != columnIndex)
+                {
                     return;
+                }
+
                 var gridCell1 = grid[columnIndex, e.RowIndex1];
                 var gridCell2 = grid[columnIndex, e.RowIndex2];
                 e.SortResult = comparer(gridCell1, gridCell2);
@@ -84,7 +92,9 @@ namespace MyLibrary.WinForms
                 grid.Rows[rowIndex].Selected = true;
                 var gridCell = grid[0, rowIndex];
                 if (gridCell.Visible)
+                {
                     grid.CurrentCell = gridCell;
+                }
             }
             else
             {
@@ -111,7 +121,9 @@ namespace MyLibrary.WinForms
         {
             var gridCell = grid.CurrentCell;
             if (gridCell == null)
+            {
                 return;
+            }
 
             var editingControl = grid.EditingControl;
             if (editingControl != null)
@@ -120,7 +132,9 @@ namespace MyLibrary.WinForms
                 value = value ?? string.Empty;
 
                 if (!Format.IsEquals(editingControl.Text, (string)value))
+                {
                     editingControl.Text = value.ToString();
+                }
             }
         }
 
@@ -167,27 +181,39 @@ namespace MyLibrary.WinForms
         public static DataGridViewRow FirstRow(this DataGridView grid)
         {
             if (grid.Rows.Count == 0)
+            {
                 return null;
+            }
+
             return grid.Rows[0];
         }
         public static DataGridViewRow LastRow(this DataGridView grid)
         {
             if (grid.Rows.Count == 0)
+            {
                 return null;
+            }
+
             return grid.Rows[grid.Rows.Count - 1];
         }
 
         public static int GetSelectedRowIndex(this DataGridView grid)
         {
             if (grid.SelectedCells.Count == 0)
+            {
                 return -1;
+            }
+
             return grid.SelectedCells[0].RowIndex;
         }
         public static DataGridViewRow GetSelectedRow(this DataGridView grid)
         {
             var index = GetSelectedRowIndex(grid);
             if (index == -1)
+            {
                 return null;
+            }
+
             return grid.Rows[index];
         }
         public static DataGridViewCell GetSelectedCell(this DataGridView grid)
@@ -201,7 +227,10 @@ namespace MyLibrary.WinForms
         public static DataGridViewRow GetRow(this DataGridViewCell gridCell)
         {
             if (gridCell.RowIndex == -1)
+            {
                 return null;
+            }
+
             return gridCell.DataGridView.Rows[gridCell.RowIndex];
         }
         public static DataGridViewTextBoxColumn GetTextBoxColumn(this DataGridView grid, string columnName)
@@ -261,7 +290,9 @@ namespace MyLibrary.WinForms
         {
             var gridRow = grid.GetSelectedRow();
             if (gridRow == null)
+            {
                 return default;
+            }
 
             return GetTag<T>(gridRow);
         }
@@ -318,8 +349,13 @@ namespace MyLibrary.WinForms
 
             string text;
             if (e.Exception is FormatException)
+            {
                 text = "Введённое значение не соответствует формату ячейки.";
-            else text = e.Exception.Message;
+            }
+            else
+            {
+                text = e.Exception.Message;
+            }
 
             MsgBox.ShowError(text, caption);
         }
@@ -333,7 +369,9 @@ namespace MyLibrary.WinForms
                 if (filter != null)
                 {
                     if (filter(i))
+                    {
                         continue;
+                    }
                 }
 
                 #endregion
@@ -399,8 +437,13 @@ namespace MyLibrary.WinForms
             if (gridRow.Index == -1)
             {
                 if (InsertIndex == -1)
+                {
                     grid.Rows.Add(gridRow);
-                else grid.Rows.Insert(InsertIndex, gridRow);
+                }
+                else
+                {
+                    grid.Rows.Insert(InsertIndex, gridRow);
+                }
             }
 
             if (EditColumnIndex != -1)

@@ -1,7 +1,6 @@
 ﻿using MyLibrary.WinForms.Controls;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace MyLibrary.WinForms
@@ -22,9 +21,14 @@ namespace MyLibrary.WinForms
             }
 
         }
-        public void ApplyStyle(Control control, bool recursive = true)
+        public void ApplyStyle(Control control, bool recursive, params Control[] excludeControls)
         {
             ControlExtension.SetDoubleBuffer(control, true);
+
+            if (Array.Exists(excludeControls, x => x == control))
+            {
+                return;
+            }
 
             if (control is Form form)
             {
@@ -64,8 +68,8 @@ namespace MyLibrary.WinForms
                 if (style != null)
                 {
                     myDataGridView.AlternatingRowsDefaultCellStyle = style.AlternatingRowsDefaultCellStyle.Clone();
-                    myDataGridView.AutoSizeColumnsMode = style.AutoSizeColumnsMode;
-                    myDataGridView.AutoSizeRowsMode = style.AutoSizeRowsMode;
+                    //myDataGridView.AutoSizeColumnsMode = style.AutoSizeColumnsMode;
+                    //myDataGridView.AutoSizeRowsMode = style.AutoSizeRowsMode;
                     myDataGridView.BackgroundColor = style.BackgroundColor;
                     myDataGridView.BorderStyle = style.BorderStyle;
                     myDataGridView.CellBorderStyle = style.CellBorderStyle;
@@ -73,15 +77,14 @@ namespace MyLibrary.WinForms
                     myDataGridView.ColumnHeadersDefaultCellStyle = style.ColumnHeadersDefaultCellStyle.Clone();
                     myDataGridView.ColumnHeadersHeight = style.ColumnHeadersHeight;
                     myDataGridView.ColumnHeadersHeightSizeMode = style.ColumnHeadersHeightSizeMode;
-                    myDataGridView.ColumnHeadersVisible = style.ColumnHeadersVisible;
                     myDataGridView.DefaultCellStyle = style.DefaultCellStyle.Clone();
                     myDataGridView.EnableHeadersVisualStyles = style.EnableHeadersVisualStyles;
                     myDataGridView.Font = style.Font;
                     myDataGridView.GridColor = style.GridColor;
-                    myDataGridView.MultiSelect = style.MultiSelect;
+                    //myDataGridView.MultiSelect = style.MultiSelect;
                     myDataGridView.RowHeadersBorderStyle = style.RowHeadersBorderStyle;
                     myDataGridView.RowHeadersDefaultCellStyle = style.RowHeadersDefaultCellStyle.Clone();
-                    myDataGridView.RowHeadersVisible = style.RowHeadersVisible;
+                    //myDataGridView.RowHeadersVisible = style.RowHeadersVisible;
                     myDataGridView.RowHeadersWidth = style.RowHeadersWidth;
                     myDataGridView.RowHeadersWidthSizeMode = style.RowHeadersWidthSizeMode;
                     myDataGridView.RowsDefaultCellStyle = style.RowsDefaultCellStyle.Clone();
@@ -91,7 +94,6 @@ namespace MyLibrary.WinForms
                     myDataGridView.ShowCellToolTips = style.ShowCellToolTips;
                     myDataGridView.ShowEditingIcon = style.ShowEditingIcon;
                     myDataGridView.ShowRowErrors = style.ShowRowErrors;
-                    myDataGridView.StableSort = style.StableSort;
                 }
             }
 
@@ -100,10 +102,8 @@ namespace MyLibrary.WinForms
                 var style = GetStyle<Label>();
                 if (style != null)
                 {
-                    label.AutoEllipsis = style.AutoEllipsis;
                     label.BackColor = style.BackColor;
                     label.BorderStyle = style.BorderStyle;
-                    label.Font = new Font(style.Font, label.Font.Style);
                     label.ForeColor = style.ForeColor;
                 }
             }
@@ -120,7 +120,7 @@ namespace MyLibrary.WinForms
             {
                 foreach (Control childControl in control.Controls)
                 {
-                    ApplyStyle(childControl, recursive);
+                    ApplyStyle(childControl, recursive, excludeControls);
                 }
             }
         }
