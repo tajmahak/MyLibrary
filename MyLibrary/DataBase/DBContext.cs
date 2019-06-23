@@ -426,7 +426,115 @@ namespace MyLibrary.DataBase
             return ExistsInternal(query);
         }
 
-        public int Add<T>(T row)
+        public int Add(DBRow row)
+        {
+            return AddInternal(row);
+        }
+        public int Add<TTable>(TTable row) where TTable : DBOrmTableBase
+        {
+            return AddInternal(row);
+        }
+
+        public void Clear()
+        {
+            foreach (var rowList in _tableRows.Values)
+            {
+                rowList.ForEach(row =>
+                {
+                    if (row.State == DataRowState.Added)
+                    {
+                        row.State = DataRowState.Detached;
+                    }
+                });
+                rowList.Clear();
+            }
+        }
+        public void Clear(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+            if (_tableRows.TryGetValue(table, out var rowList))
+            {
+                rowList.Clear();
+            }
+        }
+        public void Clear(DBRow row)
+        {
+            ClearInternal(row);
+        }
+        public void Clear<TTable>(TTable row) where TTable : DBOrmTableBase
+        {
+            ClearInternal(row);
+        }
+
+        public List<TTable> GetSetRows<TTable>() where TTable : DBOrmTableBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            return GetSetRowsInternal<TTable>(tableName);
+        }
+        public List<DBRow> GetSetRows(string tableName)
+        {
+            return GetSetRowsInternal<DBRow>(tableName);
+        }
+
+        #endregion
+
+        private T NewInternal<T>(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+            var row = table.CreateRow();
+            AddInternal(row);
+            return DBInternal.PackRow<T>(row);
+        }
+        private T GetInternal<T>(DBQueryBase query)
+        {
+            query.AddBlock(DBQueryStructureType.Limit, 1);
+            foreach (var row in SelectInternal<T>(query))
+            {
+                return row;
+            }
+            return default;
+        }
+        private T GetOrNewInternal<T>(DBQueryBase query)
+        {
+            var row = GetInternal<T>(query);
+
+            if (row != null)
+            {
+                AddInternal(row);
+                return row;
+            }
+
+            return NewInternal<T>(query.Table.Name);
+        }
+        private DBReader<T> SelectInternal<T>(DBQueryBase query)
+        {
+            if (query.StatementType != StatementType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+
+            return new DBReader<T>(Connection, Model, query);
+        }
+        private TType GetValueInternal<TType>(DBQueryBase query)
+        {
+            if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
+            {
+                query.AddBlock(DBQueryStructureType.Limit, 1);
+            }
+
+            using (var command = Model.CreateCommand(Connection, query))
+            {
+                var value = command.ExecuteScalar();
+                return Format.Convert<TType>(value);
+            }
+        }
+        private bool ExistsInternal(DBQueryBase query)
+        {
+            var row = GetInternal<DBRow>(query);
+            return (row != null);
+        }
+
+        private int AddInternal<T>(T row)
         {
             if (row is IEnumerable)
             {
@@ -465,30 +573,7 @@ namespace MyLibrary.DataBase
 
             return 1;
         }
-
-        public void Clear()
-        {
-            foreach (var rowList in _tableRows.Values)
-            {
-                rowList.ForEach(row =>
-                {
-                    if (row.State == DataRowState.Added)
-                    {
-                        row.State = DataRowState.Detached;
-                    }
-                });
-                rowList.Clear();
-            }
-        }
-        public void Clear(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            if (_tableRows.TryGetValue(table, out var rowList))
-            {
-                rowList.Clear();
-            }
-        }
-        public void Clear<T>(T row)
+        private void ClearInternal<T>(T row)
         {
             if (row is IEnumerable)
             {
@@ -517,75 +602,6 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-
-        public List<TTable> GetSetRows<TTable>() where TTable : DBOrmTableBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
-            return GetSetRowsInternal<TTable>(tableName);
-        }
-        public List<DBRow> GetSetRows(string tableName)
-        {
-            return GetSetRowsInternal<DBRow>(tableName);
-        }
-
-        #endregion
-
-        private T NewInternal<T>(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var row = table.CreateRow();
-            Add(row);
-            return DBInternal.PackRow<T>(row);
-        }
-        private T GetInternal<T>(DBQueryBase query)
-        {
-            query.AddBlock(DBQueryStructureType.Limit, 1);
-            foreach (var row in SelectInternal<T>(query))
-            {
-                return row;
-            }
-            return default;
-        }
-        private T GetOrNewInternal<T>(DBQueryBase query)
-        {
-            var row = GetInternal<T>(query);
-
-            if (row != null)
-            {
-                Add(row);
-                return row;
-            }
-
-            return NewInternal<T>(query.Table.Name);
-        }
-        private DBReader<T> SelectInternal<T>(DBQueryBase query)
-        {
-            if (query.StatementType != StatementType.Select)
-            {
-                throw DBInternal.SqlExecuteException();
-            }
-
-            return new DBReader<T>(Connection, Model, query);
-        }
-        private TType GetValueInternal<TType>(DBQueryBase query)
-        {
-            if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
-            {
-                query.AddBlock(DBQueryStructureType.Limit, 1);
-            }
-
-            using (var command = Model.CreateCommand(Connection, query))
-            {
-                var value = command.ExecuteScalar();
-                return Format.Convert<TType>(value);
-            }
-        }
-        private bool ExistsInternal(DBQueryBase query)
-        {
-            var row = GetInternal<DBRow>(query);
-            return (row != null);
-        }
-
         private List<T> GetSetRowsInternal<T>(string tableName)
         {
             var table = Model.GetTable(tableName);
@@ -609,7 +625,7 @@ namespace MyLibrary.DataBase
             var count = 0;
             foreach (var row in collection)
             {
-                count += Add(row);
+                count += AddInternal(row);
             }
             return count;
         }
@@ -617,7 +633,7 @@ namespace MyLibrary.DataBase
         {
             foreach (var row in collection)
             {
-                Clear(row);
+                ClearInternal(row);
             }
         }
 
