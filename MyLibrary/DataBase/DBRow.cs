@@ -9,16 +9,16 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBRow
     {
+        public DBTable Table { get; private set; }
+        public DataRowState State { get; internal set; }
+        internal object[] Values;
+
         internal DBRow(DBTable table)
         {
             Table = table;
             Values = new object[table.Columns.Count];
             State = DataRowState.Detached;
         }
-
-        public DBTable Table { get; private set; }
-        public DataRowState State { get; internal set; }
-        internal object[] Values;
 
         public object this[int columnIndex]
         {

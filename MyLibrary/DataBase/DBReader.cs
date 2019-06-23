@@ -12,6 +12,12 @@ namespace MyLibrary.DataBase
     /// <typeparam name="T"></typeparam>
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
+        public T Current { get; private set; }
+        private readonly DbCommand _command;
+        private readonly DbDataReader _reader;
+        private readonly DBTable _table;
+        private readonly DBModelBase _model;
+
         public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
         {
             _model = model;
@@ -37,7 +43,6 @@ namespace MyLibrary.DataBase
             }
             return false;
         }
-        public T Current { get; private set; }
         public List<T> ToList()
         {
             var list = new List<T>();
@@ -51,8 +56,6 @@ namespace MyLibrary.DataBase
         {
             return ToList().ToArray();
         }
-
-        #region Скрытые сущности
 
         private DBTable GenerateTable()
         {
@@ -80,12 +83,6 @@ namespace MyLibrary.DataBase
             }
             return table;
         }
-
-        private readonly DbCommand _command;
-        private readonly DbDataReader _reader;
-        private readonly DBTable _table;
-        private readonly DBModelBase _model;
-
         #region Сущности интерфейсов IEnumerable, IEnumerator
 
         public IEnumerator<T> GetEnumerator()
@@ -101,8 +98,6 @@ namespace MyLibrary.DataBase
         {
             throw new NotSupportedException();
         }
-
-        #endregion
 
         #endregion
     }

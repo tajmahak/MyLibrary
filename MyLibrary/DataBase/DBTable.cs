@@ -9,16 +9,17 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBTable
     {
+        public string Name { get; set; }
+        public ReadOnlyList<DBColumn> Columns { get; private set; }
+        public DBColumn PrimaryKeyColumn { get; set; }
+        public DBModelBase Model { get; private set; }
+        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
+
         public DBTable(DBModelBase model)
         {
             Columns = new List<DBColumn>();
             Model = model;
         }
-
-        public string Name { get; set; }
-        public ReadOnlyList<DBColumn> Columns { get; private set; }
-        public DBColumn PrimaryKeyColumn { get; set; }
-        public DBModelBase Model { get; private set; }
 
         public DBColumn this[int index] => Columns[index];
         public DBColumn this[string columnName]
@@ -66,7 +67,5 @@ namespace MyLibrary.DataBase
         {
             return Name;
         }
-
-        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
     }
 }

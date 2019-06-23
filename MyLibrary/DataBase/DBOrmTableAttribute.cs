@@ -8,10 +8,11 @@ namespace MyLibrary.DataBase
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmTableAttribute : Attribute
     {
+        public string TableName { get; private set; }
+
         public DBOrmTableAttribute(string tableName)
         {
             TableName = tableName;
         }
-        public string TableName { get; private set; }
     }
 }

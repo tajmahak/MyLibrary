@@ -18,9 +18,14 @@ namespace MyLibrary.DataBase
     {
         public ReadOnlyArray<DBTable> Tables { get; private set; }
         public bool IsInitialized { get; private set; }
-
         public string OpenBlock { get; protected set; } = string.Empty;
         public string CloseBlock { get; protected set; } = string.Empty;
+        private readonly Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
+        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
 
         public abstract DBTable[] GetTableSchema(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
@@ -156,8 +161,7 @@ namespace MyLibrary.DataBase
             return null;
         }
 
-        #region [protected] Вспомогательные сущности для получения SQL-команд
-
+        // Вспомогательные сущности для получения SQL-команд
         protected void PrepareSelectBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = query.FindBlocks(x => x.StartsWith("Select"));
@@ -837,8 +841,6 @@ namespace MyLibrary.DataBase
             return sql.ToString();
         }
 
-        #endregion
-
         private object ParseExpression(bool parseValue, Expression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             var sql = new StringBuilder();
@@ -1423,12 +1425,5 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-
-        private readonly Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
-        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
     }
 }

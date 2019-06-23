@@ -7,11 +7,6 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBColumn
     {
-        public DBColumn(DBTable table)
-        {
-            Table = table;
-        }
-
         public int OrderIndex { get; set; }
         public string Name { get; set; }
         public Type DataType { get; set; }
@@ -22,6 +17,10 @@ namespace MyLibrary.DataBase
         public string Description { get; set; }
         public DBTable Table { get; private set; }
 
+        public DBColumn(DBTable table)
+        {
+            Table = table;
+        }
         public override string ToString()
         {
             return Name;
