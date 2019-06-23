@@ -17,11 +17,14 @@ namespace MyLibrary.WinForms
 
             if (selectedRowIndex != null && selectedRowIndex > 0)
             {
-                if (selectedRowIndex.Value >= grid.Rows.Count)
+                if (selectedRowIndex >= grid.Rows.Count)
                 {
                     selectedRowIndex = grid.Rows.Count - 1;
                 }
-                grid.SelectElement(selectedRowIndex.Value);
+                if (selectedRowIndex != -1)
+                {
+                    grid.SelectElement(selectedRowIndex.Value);
+                }
             }
             if (firstRowIndex != -1 && firstRowIndex < grid.Rows.Count)
             {
@@ -421,7 +424,7 @@ namespace MyLibrary.WinForms
             return CheckEmptyCellsFilter(grid, filter, index);
         }
 
-      
+
         public static int AddRow(this DataGridView grid, DataGridViewRow gridRow, int InsertIndex = -1, int EditColumnIndex = -1)
         {
             if (gridRow.Index == -1)
