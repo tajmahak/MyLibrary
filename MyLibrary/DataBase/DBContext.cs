@@ -434,6 +434,14 @@ namespace MyLibrary.DataBase
         {
             return AddInternal(row);
         }
+        public int Add(IEnumerable<DBRow> collection)
+        {
+            return AddInternal(collection);
+        }
+        public int Add<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        {
+            return AddInternal(collection);
+        }
 
         public void Clear()
         {
@@ -464,6 +472,14 @@ namespace MyLibrary.DataBase
         public void Clear<TTable>(TTable row) where TTable : DBOrmTableBase
         {
             ClearInternal(row);
+        }
+        public void Clear(IEnumerable<DBRow> collection)
+        {
+            ClearInternal(collection);
+        }
+        public void Clear<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        {
+            ClearInternal(collection);
         }
 
         public List<TTable> GetSetRows<TTable>() where TTable : DBOrmTableBase

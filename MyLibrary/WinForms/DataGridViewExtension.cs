@@ -36,7 +36,34 @@ namespace MyLibrary.WinForms
             var manager = new DataGridViewRowManager(grid);
             return manager;
         }
+        public static void SelectNextRow(this DataGridView grid)
+        {
+            var index = grid.GetSelectedRowIndex();
+            if (index == -1)
+            {
+                return;
+            }
 
+            index++;
+            if (index < grid.Rows.Count)
+            {
+                grid.CurrentCell = grid[0, index];
+            }
+        }
+        public static void SelectPrevRow(this DataGridView grid)
+        {
+            var index = grid.GetSelectedRowIndex();
+            if (index == -1)
+            {
+                return;
+            }
+
+            index--;
+            if (index >= 0)
+            {
+                grid.CurrentCell = grid[0, index];
+            }
+        }
 
 
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params int[] columnIndexes)
