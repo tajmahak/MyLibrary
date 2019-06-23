@@ -13,6 +13,12 @@ namespace MyLibrary.DataBase
     /// </summary>
     public class DBContext : IDisposable
     {
+        public DBModelBase Model { get; private set; }
+        public DbConnection Connection { get; set; }
+        public bool AutoCommit { get; set; } = true;
+        private readonly Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
+        private DbTransaction _transaction;
+
         public DBContext(DBModelBase model, DbConnection connection)
         {
             Model = model;
@@ -23,10 +29,6 @@ namespace MyLibrary.DataBase
                 Model.Initialize(Connection);
             }
         }
-
-        public DBModelBase Model { get; private set; }
-        public DbConnection Connection { get; set; }
-        public bool AutoCommit { get; set; } = true;
 
         public DBQuery Query(string tableName)
         {
@@ -696,9 +698,6 @@ namespace MyLibrary.DataBase
             }
             return cmd;
         }
-
-        private DbTransaction _transaction;
-        private readonly Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
 
         private class InsertRowContainer
         {

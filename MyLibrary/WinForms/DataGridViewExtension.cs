@@ -28,6 +28,13 @@ namespace MyLibrary.WinForms
                 grid.FirstDisplayedScrollingRowIndex = firstRowIndex;
             }
         }
+        public static DataGridViewRowManager CreateRowManager(this DataGridView grid)
+        {
+            var manager = new DataGridViewRowManager(grid);
+            return manager;
+        }
+
+
 
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params int[] columnIndexes)
         {
@@ -414,24 +421,7 @@ namespace MyLibrary.WinForms
             return CheckEmptyCellsFilter(grid, filter, index);
         }
 
-        public static DataGridViewRow CreateRow(this DataGridView grid, params object[] values)
-        {
-            var row = new DataGridViewRow();
-            row.CreateCells(grid, values);
-            #region Применение шаблона
-
-            var template = (DataGridViewRow)grid.RowTemplate.Clone();
-            row.ContextMenuStrip = template.ContextMenuStrip;
-            row.DefaultCellStyle = template.DefaultCellStyle;
-            row.DividerHeight = template.DividerHeight;
-            row.ErrorText = template.ErrorText;
-            row.Height = grid.RowTemplate.Height;
-            row.ReadOnly = template.ReadOnly;
-            row.Resizable = template.Resizable;
-
-            #endregion
-            return row;
-        }
+      
         public static int AddRow(this DataGridView grid, DataGridViewRow gridRow, int InsertIndex = -1, int EditColumnIndex = -1)
         {
             if (gridRow.Index == -1)
