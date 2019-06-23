@@ -69,6 +69,7 @@ namespace MyLibrary.DataBase
                     column.OrderIndex = index++;
                     column.DataType = (Type)schemaRow["DataType"];
                     column.Name = (string)schemaRow["ColumnName"];
+                    column.Size = (int)schemaRow["ColumnSize"];
 
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
                     var columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
