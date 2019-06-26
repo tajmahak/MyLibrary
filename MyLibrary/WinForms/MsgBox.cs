@@ -59,7 +59,7 @@ namespace MyLibrary.WinForms
         {
             return Show(items, MessageBoxIcon.Warning, MessageBoxButtons.YesNo);
         }
-        public static DialogResult ShowDeleteRowQuestion(params object[] items)
+        public static DialogResult ShowDeleteRecordQuestion(params object[] items)
         {
             return ShowQuestion(items, "Вы действительно хотите удалить текущую запись?", MessageBoxButtons.YesNo, MessageBoxDefaultButton.Button2);
         }

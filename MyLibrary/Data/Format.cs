@@ -123,7 +123,7 @@ namespace MyLibrary.Data
             {
                 return ArrayEquals((T[])((object)x), (T[])((object)y));
             }
-            return object.Equals(x, y);
+            return Equals(x, y);
         }
         public static bool IsEquals(object x, object y)
         {

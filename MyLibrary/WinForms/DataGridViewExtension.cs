@@ -150,10 +150,6 @@ namespace MyLibrary.WinForms
             SelectElement(grid, rowIndex, index);
         }
 
-        public static bool BeginEdit(this DataGridView grid)
-        {
-            return grid.BeginEdit(true);
-        }
         public static void RefreshCellValue(this DataGridView grid)
         {
             var gridCell = grid.CurrentCell;
@@ -168,7 +164,7 @@ namespace MyLibrary.WinForms
                 var value = gridCell.Value;
                 value = value ?? string.Empty;
 
-                if (!Format.IsEquals(editingControl.Text, (string)value))
+                if (!Format.IsEquals(editingControl.Text, value.ToString()))
                 {
                     editingControl.Text = value.ToString();
                 }
@@ -182,7 +178,7 @@ namespace MyLibrary.WinForms
 
             for (var i = startRowIndex; i < grid.Rows.Count; i++)
             {
-                var gridValue = DataGridViewExtension.Get<string>(grid.Rows[i], columnIndex, false);
+                var gridValue = Get<string>(grid.Rows[i], columnIndex, false);
                 gridValue = gridValue.ToUpperInvariant();
                 if (gridValue == pattern)
                 {
@@ -197,7 +193,7 @@ namespace MyLibrary.WinForms
                 #region 2) Поиск строки по начальному вхождению
                 for (var i = startRowIndex; i < grid.Rows.Count; i++)
                 {
-                    var gridValue = DataGridViewExtension.Get<string>(grid.Rows[i], columnIndex, false);
+                    var gridValue = Get<string>(grid.Rows[i], columnIndex, false);
                     gridValue = gridValue.ToUpperInvariant();
                     if (gridValue.IndexOf(pattern) == 0)
                     {

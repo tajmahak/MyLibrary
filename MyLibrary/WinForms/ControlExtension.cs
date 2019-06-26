@@ -38,13 +38,18 @@ namespace MyLibrary.WinForms
         public static void ProcessKeyPress(KeyPressEventArgs e, Type formatType)
         {
             if (formatType == null)
+            {
                 return;
+            }
 
             // вещественные типы
             if (formatType == typeof(decimal) || formatType == typeof(double) || formatType == typeof(float))
             {
                 if (e.KeyChar == '.')
+                {
                     e.KeyChar = ',';
+                }
+
                 var c = e.KeyChar;
                 e.Handled = !(char.IsControl(c) || char.IsDigit(c) || c == '-' || c == ',');
             }
@@ -53,7 +58,10 @@ namespace MyLibrary.WinForms
             else if (formatType == typeof(long) || formatType == typeof(int) || formatType == typeof(short) || formatType == typeof(byte))
             {
                 if (e.KeyChar == '.')
+                {
                     e.KeyChar = ',';
+                }
+
                 var c = e.KeyChar;
                 e.Handled = !(char.IsControl(c) || char.IsDigit(c) || c == '-');
             }
@@ -71,9 +79,7 @@ namespace MyLibrary.WinForms
                 var editingControl = (TextBox)grid.EditingControl;
                 if (editingControl != null)
                 {
-                    var gridColumn = gridCell.GetColumn();
-                    var formatType = gridCell.GetColumn().ValueType;
-                    ProcessKeyPress(e, formatType);
+                    ProcessKeyPress(e, gridCell.ValueType);
                 }
             }
         }
