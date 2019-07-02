@@ -92,7 +92,9 @@ namespace MyLibrary.Net
                             args.TotalBytesToReceive = totalBytesToReceive;
                             DownloadProgressChanged(this, args);
                             if (args.Cancel)
+                            {
                                 break;
+                            }
                         }
                     } while ((knownContentLength && totalBytesToReceive < contentLength) || (!knownContentLength && bytesReceived > 0));
                 }

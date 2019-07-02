@@ -60,7 +60,7 @@ namespace MyLibrary.Interop.MSOffice
 
         private static W.WdColor GetColor(Color color)
         {
-            var wColor = (W.WdColor)(color.R + 0x100 * color.G + 0x10000 * color.B);
+            var wColor = (W.WdColor)(color.R + (0x100 * color.G) + (0x10000 * color.B));
             return wColor;
         }
     }

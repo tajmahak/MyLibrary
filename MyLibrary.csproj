@@ -112,9 +112,6 @@
     <Compile Include="MyLibrary\WinForms\Controls\MyNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MyLibrary\WinForms\Controls\MyPropertyGrid.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="MyLibrary\WinForms\Controls\MyTextBox.cs">
       <SubType>Component</SubType>
     </Compile>

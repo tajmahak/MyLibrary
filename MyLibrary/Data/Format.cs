@@ -82,8 +82,6 @@ namespace MyLibrary.Data
                 return 1;
             }
 
-            var type1 = x.GetType();
-            var type2 = y.GetType();
             if (x is IComparable && y is IComparable)
             {
                 return ((IComparable)x).CompareTo(y);
@@ -174,7 +172,7 @@ namespace MyLibrary.Data
             {
                 return ArrayEquals((byte[])x, (byte[])y);
             }
-            return object.Equals(x, y);
+            return Equals(x, y);
         }
         public static bool ArrayEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
@@ -197,10 +195,7 @@ namespace MyLibrary.Data
         public static string GetNotEmptyString(object value)
         {
             var sValue = Convert<string>(value);
-            if (IsNull(value))
-            {
-                return string.Empty;
-            }
+            sValue = IsNull(value) ? string.Empty : sValue;
             return sValue;
         }
         public static string GetIgnoreCaseString(object value)
@@ -300,7 +295,7 @@ namespace MyLibrary.Data
             while (len >= 1024 && order < sizes.Length - 1)
             {
                 order++;
-                len = len / 1024;
+                len /= 1024;
             }
 
             var val = value / (decimal)Math.Pow(1024, order);

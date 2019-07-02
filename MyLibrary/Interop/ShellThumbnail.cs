@@ -54,7 +54,7 @@ namespace MyLibrary.Interop
         public Bitmap GetFileThumbnail(string filePath, Size size)
         {
             Bitmap thumbnail = null;
-            IShellFolder folder = null;
+            IShellFolder folder;
             try
             {
                 folder = GetDesktopFolder;
@@ -107,13 +107,12 @@ namespace MyLibrary.Interop
                         }
                         if (idEnum != null)
                         {
-                            var hRes = 0;
                             var pidl = IntPtr.Zero;
                             var fetched = 0;
                             var complete = false;
                             while (!complete)
                             {
-                                hRes = idEnum.Next(1, ref pidl, ref fetched);
+                                var hRes = idEnum.Next(1, ref pidl, ref fetched);
                                 if (hRes != 0)
                                 {
                                     pidl = IntPtr.Zero;
@@ -252,7 +251,7 @@ namespace MyLibrary.Interop
             get
             {
                 IShellFolder ppshf = null;
-                var r = SHGetDesktopFolder(ref ppshf);
+                SHGetDesktopFolder(ref ppshf);
                 return ppshf;
             }
         }

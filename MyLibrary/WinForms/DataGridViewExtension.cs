@@ -144,11 +144,6 @@ namespace MyLibrary.WinForms
             }
             grid.FirstDisplayedScrollingRowIndex = rowIndex;
         }
-        public static void SelectElement(this DataGridView grid, int rowIndex, string selectedColumnName)
-        {
-            var index = GetSelectedRowIndex(grid);
-            SelectElement(grid, rowIndex, index);
-        }
 
         public static void RefreshCellValue(this DataGridView grid)
         {

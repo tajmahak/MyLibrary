@@ -21,14 +21,18 @@ namespace MyLibrary.WinForms.Controls
                 if (value > decimal.MaxValue - Increment)
                 {
                     if (value != decimal.MaxValue)
-                        value = decimal.MaxValue;
+                    {
+                        Value = decimal.MaxValue;
+                    }
                     return;
                 }
                 value += Increment;
                 if (value > Maximum)
                 {
                     if (Value != Maximum)
+                    {
                         Value = Maximum;
+                    }
                     return;
                 }
             }
@@ -37,14 +41,19 @@ namespace MyLibrary.WinForms.Controls
                 if (value < decimal.MinValue + Increment)
                 {
                     if (value != decimal.MinValue)
-                        value = decimal.MinValue;
+                    {
+                        Value = decimal.MinValue;
+                    }
                     return;
                 }
                 value -= Increment;
                 if (value < Minimum)
                 {
                     if (Value != Minimum)
+                    {
                         Value = Minimum;
+                    }
+
                     return;
                 }
             }

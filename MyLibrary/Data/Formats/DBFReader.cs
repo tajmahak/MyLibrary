@@ -250,14 +250,14 @@ namespace MyLibrary.Data.Formats
             var p = Convert.ToDouble(lJDN);
             var s1 = p + 68569;
             var n = Math.Floor(4 * s1 / 146097);
-            var s2 = s1 - Math.Floor((146097 * n + 3) / 4);
+            var s2 = s1 - Math.Floor(((146097 * n) + 3) / 4);
             var i = Math.Floor(4000 * (s2 + 1) / 1461001);
             var s3 = s2 - Math.Floor(1461 * i / 4) + 31;
             var q = Math.Floor(80 * s3 / 2447);
             var d = s3 - Math.Floor(2447 * q / 80);
             var s4 = Math.Floor(q / 11);
-            var m = q + 2 - 12 * s4;
-            var j = 100 * (n - 49) + i + s4;
+            var m = q + 2 - (12 * s4);
+            var j = (100 * (n - 49)) + i + s4;
             return new DateTime(Convert.ToInt32(j), Convert.ToInt32(m), Convert.ToInt32(d));
         }
         private int _recordNumber = 1;

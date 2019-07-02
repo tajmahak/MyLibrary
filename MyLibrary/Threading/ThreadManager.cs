@@ -83,7 +83,9 @@ namespace MyLibrary.Threading
                         while (true)
                         {
                             if (_aborted)
+                            {
                                 return;
+                            }
 
                             int current_index;
                             lock (_threads)

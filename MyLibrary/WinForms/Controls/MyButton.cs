@@ -89,9 +89,7 @@ namespace MyLibrary.WinForms.Controls
             set
             {
                 _fixPress = value;
-                if (_fixPress)
-                    Mode = ButtonMode.Press;
-                else Mode = ButtonMode.None;
+                Mode = _fixPress ? ButtonMode.Press : ButtonMode.None;
             }
         }
         [DefaultValue(true)]
@@ -141,14 +139,21 @@ namespace MyLibrary.WinForms.Controls
 
             #region Отрисовка фона
             {
-                Brush brush = null;
+                Brush brush;
                 if (Enabled)
                 {
                     if (Mode == ButtonMode.Press)
+                    {
                         brush = new SolidBrush(PressedColor);
+                    }
                     else if (Mode == ButtonMode.Hot)
+                    {
                         brush = new SolidBrush(EnterColor);
-                    else brush = new SolidBrush(BackColor);
+                    }
+                    else
+                    {
+                        brush = new SolidBrush(BackColor);
+                    }
                 }
                 else
                 {
@@ -196,7 +201,10 @@ namespace MyLibrary.WinForms.Controls
 
                 var image = Image;
                 if (!Enabled)
+                {
                     image = GetGrayImage(image);
+                }
+
                 graphics.DrawImage(image, x, y, image.Width, image.Height);
             }
             #endregion
@@ -231,8 +239,13 @@ namespace MyLibrary.WinForms.Controls
                 { x += 1; y += 1; }
 
                 if (Enabled)
+                {
                     TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x, y, Width, Height), ForeColor, flags);
-                else TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x, y, Width, Height), DisableForeColor, flags);
+                }
+                else
+                {
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x, y, Width, Height), DisableForeColor, flags);
+                }
             }
             #endregion
             #region Отрисовка границы
@@ -259,13 +272,19 @@ namespace MyLibrary.WinForms.Controls
         protected override void OnEnter(EventArgs e)
         {
             if (FixPress)
+            {
                 Mode = ButtonMode.Press;
+            }
+
             base.OnEnter(e);
         }
         protected override void OnLeave(EventArgs e)
         {
             if (FixPress)
+            {
                 Mode = ButtonMode.Press;
+            }
+
             base.OnLeave(e);
         }
 
@@ -273,33 +292,49 @@ namespace MyLibrary.WinForms.Controls
         {
             Mode = ButtonMode.Hot;
             if (FixPress)
+            {
                 Mode = ButtonMode.Press;
+            }
 
             base.OnMouseEnter(e);
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            lastMouseButton = e.Button;
             if (e.Button == MouseButtons.Right)
+            {
                 return;
+            }
+
             Mode = ButtonMode.Press;
             base.OnMouseDown(e);
         }
         protected override void OnMouseUp(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
+            {
                 return;
+            }
+
             if (Mode != ButtonMode.None)
+            {
                 Mode = ButtonMode.Hot;
+            }
+
             if (FixPress)
+            {
                 Mode = ButtonMode.Press;
+            }
+
             base.OnMouseUp(e);
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             Mode = ButtonMode.None;
             if (FixPress)
+            {
                 Mode = ButtonMode.Press;
+            }
+
             base.OnMouseLeave(e);
         }
 
@@ -316,8 +351,6 @@ namespace MyLibrary.WinForms.Controls
                 Refresh();
             }
         }
-
-        private MouseButtons lastMouseButton;
 
         [Browsable(false)]
         public new ImageLayout BackgroundImageLayout { get; set; }

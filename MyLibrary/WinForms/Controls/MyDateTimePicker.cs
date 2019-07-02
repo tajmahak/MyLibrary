@@ -11,16 +11,13 @@ namespace MyLibrary.WinForms.Controls
         public bool NextTabOnEnterButton { get; set; }
         public DateTime? CheckedValue
         {
-            get
-            {
-                if (!Checked)
-                    return null;
-                return Value;
-            }
+            get => Checked ? (DateTime?)Value : null;
             set
             {
                 if (value == null)
+                {
                     Checked = false;
+                }
                 else
                 {
                     Value = value.Value;
