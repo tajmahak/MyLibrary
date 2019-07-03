@@ -443,6 +443,23 @@ namespace MyLibrary.DataBase
             return AddInternal(collection);
         }
 
+        public void SaveAndClear(DBRow row)
+        {
+            SaveAndClearInternal(row);
+        }
+        public void SaveAndClear<TTable>(TTable row) where TTable : DBOrmTableBase
+        {
+            SaveAndClearInternal(row);
+        }
+        public void SaveAndClear(IEnumerable<DBRow> collection)
+        {
+            SaveAndClearInternal(collection);
+        }
+        public void SaveAndClear<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        {
+            SaveAndClearInternal(collection);
+        }
+
         public void Clear()
         {
             foreach (var rowList in _tableRows.Values)
@@ -550,14 +567,14 @@ namespace MyLibrary.DataBase
             return (row != null);
         }
 
-        private int AddInternal<T>(T row)
+        private int AddInternal<T>(T value)
         {
-            if (row is IEnumerable)
+            if (value is IEnumerable)
             {
-                return AddCollectionInternal((IEnumerable)row);
+                return AddCollectionInternal((IEnumerable)value);
             }
 
-            var dbRow = DBInternal.UnpackRow(row);
+            var dbRow = DBInternal.UnpackRow(value);
             if (dbRow.Table.Name == null)
             {
                 throw DBInternal.ProcessRowException();
@@ -589,15 +606,21 @@ namespace MyLibrary.DataBase
 
             return 1;
         }
-        private void ClearInternal<T>(T row)
+        private void SaveAndClearInternal<T>(T value)
         {
-            if (row is IEnumerable)
+            AddInternal(value);
+            Save();
+            ClearInternal(value);
+        }
+        private void ClearInternal<T>(T value)
+        {
+            if (value is IEnumerable)
             {
-                ClearCollectionInternal((IEnumerable)row);
+                ClearCollectionInternal((IEnumerable)value);
                 return;
             }
 
-            var dbRow = DBInternal.UnpackRow(row);
+            var dbRow = DBInternal.UnpackRow(value);
             if (dbRow.Table.Name == null)
             {
                 throw DBInternal.ProcessRowException();
