@@ -13,7 +13,9 @@ namespace MyLibrary.WinForms
             var selectedRowIndex = grid.GetSelectedRow()?.Index;
             var firstRowIndex = grid.FirstDisplayedScrollingRowIndex;
 
+            grid.SuspendLayout();
             updateListAction();
+            grid.ResumeLayout();
 
             if (selectedRowIndex != null && selectedRowIndex > 0)
             {
@@ -64,6 +66,33 @@ namespace MyLibrary.WinForms
                 grid.CurrentCell = grid[0, index];
             }
         }
+        public static void CommitDataFromEditingControl(this DataGridView grid)
+        {
+            var gridCell = grid.GetSelectedCell();
+            if (gridCell == null)
+            {
+                return;
+            }
+
+            var editingControl = grid.EditingControl;
+            if (editingControl != null)
+            {
+                var text = editingControl.Text;
+                if (text.Length == 0)
+                {
+                    grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                }
+                else if (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal))
+                {
+                    if (decimal.TryParse(text, out _))
+                    {
+                        grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                    }
+                }
+            }
+        }
+
+
 
 
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params int[] columnIndexes)
