@@ -88,7 +88,7 @@ namespace MyLibrary.WinForms
         }
         public static DialogResult ShowDeleteRecordQuestion(params object[] items)
         {
-            return ShowQuestion(items, "Вы действительно хотите удалить текущую запись?", MessageBoxButtons.YesNo, MessageBoxDefaultButton.Button2);
+            return ShowQuestion(items, "Вы действительно хотите удалить текущую запись?", MessageBoxButtons.YesNo);
         }
     }
 }
