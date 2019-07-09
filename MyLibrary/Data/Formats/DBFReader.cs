@@ -280,7 +280,7 @@ namespace MyLibrary.Data.Formats
         }
         public override string ToString()
         {
-            return string.Format("{0} [{1}]", Name, ValueType.Name);
+            return $"{Name} [{ValueType.Name}]";
         }
     }
 

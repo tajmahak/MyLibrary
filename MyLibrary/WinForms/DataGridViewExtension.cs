@@ -402,7 +402,7 @@ namespace MyLibrary.WinForms
 
         public static void TryDataError(this DataGridView grid, DataGridViewDataErrorEventArgs e)
         {
-            var caption = string.Format("Колонка \"{0}\"", grid.Columns[e.ColumnIndex].HeaderText);
+            var caption = $"Колонка \"{grid.Columns[e.ColumnIndex].HeaderText}\"";
 
             string text;
             if (e.Exception is FormatException)
@@ -440,7 +440,7 @@ namespace MyLibrary.WinForms
                     var gridCell = grid[columnIndex, i];
                     if (Format.IsEmpty(gridCell.Value))
                     {
-                        MsgBox.ShowError(string.Format("Не заполнено значение ячейки \"{0}\".", grid.Columns[columnIndex].HeaderText));
+                        MsgBox.ShowError($"Не заполнено значение ячейки \"{grid.Columns[columnIndex].HeaderText}\".");
                         grid.ClearSelection();
                         grid.CurrentCell = gridCell;
                         grid.Parent.Focus();

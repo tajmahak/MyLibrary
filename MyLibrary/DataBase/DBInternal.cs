@@ -90,28 +90,25 @@ namespace MyLibrary.DataBase
         }
         public static Exception UnknownTableException(string tableName)
         {
-            return new Exception(string.Format("Неизвестная таблица \"{0}\".", tableName));
+            return new Exception($"Неизвестная таблица \"{tableName}\".");
         }
         public static Exception UnknownColumnException(DBTable table, string columnName)
         {
             string text;
             if (table != null)
             {
-                text = string.Format("Таблица \"{0}\" - неизвестный столбец \"{1}\".", table.Name, columnName);
+                text = $"Таблица \"{table.Name}\" - неизвестный столбец \"{columnName}\".";
             }
             else
             {
-                text = string.Format("Неизвестный столбец \"{0}\".", table.Name);
+                text = $"Неизвестный столбец \"{table.Name}\".";
             }
 
             return new Exception(text);
         }
         public static Exception DataConvertException(DBColumn column, object value, Exception innerException)
         {
-            return new Exception(string.Format("{0}: приведение из \"{1}\" в \"{2}\" невозможно.",
-                column.Name,
-                column.DataType.Name,
-                value.GetType().Name),
+            return new Exception($"{column.Name}: приведение из \"{column.DataType.Name}\" в \"{value.GetType().Name}\" невозможно.",
                 innerException);
         }
         public static Exception SqlExecuteException()
@@ -137,7 +134,7 @@ namespace MyLibrary.DataBase
                 return ex;
             }
 
-            throw new Exception(string.Format("Ошибка сохранения БД. \"{0}\" - {1}.", row.Table.Name, ex.Message), ex);
+            throw new Exception($"Ошибка сохранения БД. \"{row.Table.Name}\" - {ex.Message}.", ex);
         }
         public static Exception DbSaveWrongRelationsException()
         {
@@ -145,7 +142,7 @@ namespace MyLibrary.DataBase
         }
         public static Exception StringOverflowException(DBColumn column)
         {
-            return new Exception(string.Format("\"{0}\": длина строки превышает допустимую длину.", column.Name));
+            return new Exception($"\"{column.Name}\": длина строки превышает допустимую длину.");
         }
         public static Exception GenerateSetIDException(DBColumn column)
         {

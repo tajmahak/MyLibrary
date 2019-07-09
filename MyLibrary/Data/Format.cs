@@ -299,7 +299,7 @@ namespace MyLibrary.Data
             }
 
             var val = value / (decimal)Math.Pow(1024, order);
-            var text = string.Format("{0:0.00} {1}", val, sizes[order]).Replace(',', '.');
+            var text = $"{val:0.00} {sizes[order]}".Replace(',', '.');
             return text;
         }
 
