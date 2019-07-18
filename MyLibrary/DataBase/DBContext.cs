@@ -486,6 +486,11 @@ namespace MyLibrary.DataBase
         {
             ClearInternal(row);
         }
+        public void Clear<TTable>()
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            Clear(tableName);
+        }
         public void Clear<TTable>(TTable row) where TTable : DBOrmTableBase
         {
             ClearInternal(row);

@@ -91,6 +91,25 @@ namespace MyLibrary.WinForms
                 }
             }
         }
+        public static void RefreshEditingControl(this DataGridView grid)
+        {
+            var gridCell = grid.CurrentCell;
+            if (gridCell == null)
+            {
+                return;
+            }
+
+            var editingControl = grid.EditingControl;
+            if (editingControl != null)
+            {
+                var value = gridCell.Value;
+                var text = (value == null) ? string.Empty : value.ToString();
+                if (!Format.IsEquals(editingControl.Text, text))
+                {
+                    editingControl.Text = text;
+                }
+            }
+        }
 
 
 
@@ -174,26 +193,6 @@ namespace MyLibrary.WinForms
             grid.FirstDisplayedScrollingRowIndex = rowIndex;
         }
 
-        public static void RefreshCellValue(this DataGridView grid)
-        {
-            var gridCell = grid.CurrentCell;
-            if (gridCell == null)
-            {
-                return;
-            }
-
-            var editingControl = grid.EditingControl;
-            if (editingControl != null)
-            {
-                var value = gridCell.Value;
-                value = value ?? string.Empty;
-
-                if (!Format.IsEquals(editingControl.Text, value.ToString()))
-                {
-                    editingControl.Text = value.ToString();
-                }
-            }
-        }
 
         public static bool Search(this DataGridView grid, int columnIndex, string value, int startRowIndex = 0, bool precision = false)
         {
