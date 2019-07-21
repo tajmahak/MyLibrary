@@ -7,11 +7,6 @@ namespace MyLibrary.Data
 {
     public static class Serializer
     {
-        static Serializer()
-        {
-            _xmlSerializers = new Dictionary<Type, XmlSerializer>();
-        }
-
         public static void InitializeType(Type type)
         {
             lock (_xmlSerializers)
@@ -23,37 +18,49 @@ namespace MyLibrary.Data
                 }
             }
         }
-        public static string Serialize(object obj)
+        public static string SerializeToXml(object obj)
         {
             var xmlSerializer = GetXmlSerializer(obj.GetType());
-
-            var mem = new MemoryStream();
-            xmlSerializer.Serialize(mem, obj);
-            var data = mem.ToArray();
-            return Convert.ToBase64String(data);
-        }
-        public static T Deserialize<T>(string data)
-        {
-            if (data == null)
+            using (var textWriter = new StringWriter())
             {
-                return Activator.CreateInstance<T>();
+                xmlSerializer.Serialize(textWriter, obj);
+                return textWriter.ToString();
             }
-
-            var xmlSerializer = GetXmlSerializer(typeof(T));
-
-            var mem = new MemoryStream(Convert.FromBase64String(data));
-            var obj = xmlSerializer.Deserialize(mem);
-            mem.Dispose();
-            return (T)obj;
+        }
+        public static T DeserializeFromXml<T>(string xml)
+        {
+            var xmlSerializer = new XmlSerializer(typeof(T));
+            using (var textReader = new StringReader(xml))
+            {
+                var obj = (T)xmlSerializer.Deserialize(textReader);
+                CorrectObject(obj);
+                return obj;
+            }
         }
 
-        private static readonly Dictionary<Type, XmlSerializer> _xmlSerializers;
+        private static readonly Dictionary<Type, XmlSerializer> _xmlSerializers = new Dictionary<Type, XmlSerializer>();
         private static XmlSerializer GetXmlSerializer(Type type)
         {
             InitializeType(type);
             lock (_xmlSerializers)
             {
                 return _xmlSerializers[type];
+            }
+        }
+        private static void CorrectObject(object obj)
+        {
+            //  исправление многострочного string после десериализации
+            foreach (var property in obj.GetType().GetProperties())
+            {
+                if (property.PropertyType == typeof(string))
+                {
+                    var value = (string)property.GetValue(obj, null);
+                    if (value != null)
+                    {
+                        value = value.Replace("\n", "\r\n");
+                        property.SetValue(obj, value, null);
+                    }
+                }
             }
         }
     }
