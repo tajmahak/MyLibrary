@@ -57,7 +57,7 @@ namespace MyLibrary.WinForms
                     myButton.Font = style.Font;
                     myButton.ForeColor = style.ForeColor;
                     myButton.OffsetOnClick = style.OffsetOnClick;
-                    myButton.TextAlign = style.TextAlign;
+                    //myButton.TextAlign = style.TextAlign;
                     myButton.PressedColor = style.PressedColor;
                 }
             }
