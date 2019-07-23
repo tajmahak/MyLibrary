@@ -76,8 +76,7 @@ namespace MyLibrary.WinForms
             var gridCell = grid.GetSelectedCell();
             if (gridCell != null)
             {
-                var editingControl = (TextBox)grid.EditingControl;
-                if (editingControl != null)
+                if (grid.EditingControl is TextBox _)
                 {
                     ProcessKeyPress(e, gridCell.ValueType);
                 }

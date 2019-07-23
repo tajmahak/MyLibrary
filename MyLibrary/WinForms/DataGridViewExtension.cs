@@ -399,7 +399,7 @@ namespace MyLibrary.WinForms
             return Get<T>(gridRow.Cells[columnName], allowNullString);
         }
 
-        public static void TryDataError(this DataGridView grid, DataGridViewDataErrorEventArgs e)
+        public static void ProcessDataError(this DataGridView grid, DataGridViewDataErrorEventArgs e)
         {
             var caption = $"Колонка \"{grid.Columns[e.ColumnIndex].HeaderText}\"";
 
