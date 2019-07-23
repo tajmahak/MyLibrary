@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MyLibrary.WinForms
@@ -66,30 +67,43 @@ namespace MyLibrary.WinForms
                 grid.CurrentCell = grid[0, index];
             }
         }
-        public static void CommitDataFromEditingControl(this DataGridView grid)
+        public static bool CommitEdit(this DataGridView grid)
         {
             var gridCell = grid.GetSelectedCell();
             if (gridCell == null)
             {
-                return;
+                return false;
             }
 
             var editingControl = grid.EditingControl;
-            if (editingControl != null)
+            if (editingControl == null)
             {
-                var text = editingControl.Text;
-                if (text.Length == 0)
+                return false;
+            }
+
+            var text = editingControl.Text;
+            if (text == Format.GetNotEmptyString(gridCell.Value))
+            {
+                return false;
+            }
+
+            if (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal))
+            {
+                if (decimal.TryParse(text, out _))
                 {
                     grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                }
-                else if (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal))
-                {
-                    if (decimal.TryParse(text, out _))
-                    {
-                        grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                    }
+                    SetBackColor(gridCell, editingControl);
+                    return true;
                 }
             }
+            else
+            {
+                grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                SetBackColor(gridCell, editingControl);
+                return true;
+            }
+
+            return false;
         }
         public static void RefreshEditingControl(this DataGridView grid)
         {
@@ -110,8 +124,28 @@ namespace MyLibrary.WinForms
                 }
             }
         }
-
-
+        private static void SetBackColor(DataGridViewCell gridCell, Control editingControl)
+        {
+            var grid = gridCell.DataGridView;
+            var color = gridCell.Style.BackColor;
+            if (color == Color.Empty)
+            {
+                if (gridCell.RowIndex % 2 == 0)
+                {
+                    color = grid.DefaultCellStyle.BackColor;
+                }
+                else
+                {
+                    color = grid.AlternatingRowsDefaultCellStyle.BackColor;
+                    if (color == Color.Empty)
+                    {
+                        color = grid.DefaultCellStyle.BackColor;
+                    }
+                }
+            }
+            grid.EditingPanel.BackColor = color;
+            editingControl.BackColor = color;
+        }
 
 
         public static void SetColumnDataType(this DataGridView grid, Type type, string format, params int[] columnIndexes)
