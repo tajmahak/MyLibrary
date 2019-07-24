@@ -87,7 +87,7 @@ namespace MyLibrary.WinForms
                 return false;
             }
 
-            if (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal))
+            if (text.Length > 0 && (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal)))
             {
                 if (decimal.TryParse(text, out _))
                 {
