@@ -87,22 +87,44 @@ namespace MyLibrary.WinForms
                 return false;
             }
 
-            if (text.Length > 0 && (gridCell.ValueType == typeof(int) || gridCell.ValueType == typeof(decimal)))
+            var needCommit = true;
+            if (text.Length > 0)
             {
-                if (decimal.TryParse(text, out _))
+                try
                 {
-                    grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                    SetBackColor(gridCell, editingControl);
-                    return true;
+                    Convert.ChangeType(text, gridCell.ValueType);
+                }
+                catch
+                {
+                    needCommit = false;
                 }
             }
-            else
+            if (needCommit)
             {
-                grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                SetBackColor(gridCell, editingControl);
-                return true;
-            }
+                var commit = grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
+                // Замена цвета ячейки
+                var color = gridCell.Style.BackColor;
+                if (color == Color.Empty)
+                {
+                    if (gridCell.RowIndex % 2 == 0)
+                    {
+                        color = grid.DefaultCellStyle.BackColor;
+                    }
+                    else
+                    {
+                        color = grid.AlternatingRowsDefaultCellStyle.BackColor;
+                        if (color == Color.Empty)
+                        {
+                            color = grid.DefaultCellStyle.BackColor;
+                        }
+                    }
+                }
+                grid.EditingPanel.BackColor = color;
+                editingControl.BackColor = color;
+
+                return commit;
+            }
             return false;
         }
         public static void RefreshEditingControl(this DataGridView grid)
@@ -123,28 +145,6 @@ namespace MyLibrary.WinForms
                     editingControl.Text = text;
                 }
             }
-        }
-        private static void SetBackColor(DataGridViewCell gridCell, Control editingControl)
-        {
-            var grid = gridCell.DataGridView;
-            var color = gridCell.Style.BackColor;
-            if (color == Color.Empty)
-            {
-                if (gridCell.RowIndex % 2 == 0)
-                {
-                    color = grid.DefaultCellStyle.BackColor;
-                }
-                else
-                {
-                    color = grid.AlternatingRowsDefaultCellStyle.BackColor;
-                    if (color == Color.Empty)
-                    {
-                        color = grid.DefaultCellStyle.BackColor;
-                    }
-                }
-            }
-            grid.EditingPanel.BackColor = color;
-            editingControl.BackColor = color;
         }
 
 
