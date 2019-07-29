@@ -16,6 +16,18 @@ namespace MyLibrary.DataBase
         public DBModelBase Model { get; private set; }
         public DbConnection Connection { get; set; }
         public bool AutoCommit { get; set; } = true;
+        public int RowCount
+        {
+            get
+            {
+                var count = 0;
+                foreach (var tableRows in _tableRows.Values)
+                {
+                    count += tableRows.Count;
+                }
+                return count;
+            }
+        }
         private readonly Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
         private DbTransaction _transaction;
 
