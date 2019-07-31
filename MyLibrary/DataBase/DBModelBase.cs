@@ -811,6 +811,7 @@ namespace MyLibrary.DataBase
         }
         protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)
         {
+            //!!! не работает x=> x.BoolFlag ; x => !x.BoolFlag
             var value = ParseExpression(false, (Expression)expression, cQuery, (Expression)parentExpression);
             return value.ToString();
         }

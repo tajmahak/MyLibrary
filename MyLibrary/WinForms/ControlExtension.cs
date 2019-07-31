@@ -33,9 +33,9 @@ namespace MyLibrary.WinForms
         /// <summary>
         /// Обработка события KeyPress при вводе текста согласно указанному формату вводимых данных
         /// </summary>
-        /// <param name="e"></param>
         /// <param name="formatType"></param>
-        public static void ProcessKeyPress(KeyPressEventArgs e, Type formatType)
+        /// <param name="e"></param>
+        public static void ProcessKeyPress(Type formatType, KeyPressEventArgs e)
         {
             if (formatType == null)
             {
@@ -78,7 +78,7 @@ namespace MyLibrary.WinForms
             {
                 if (grid.EditingControl is TextBox _)
                 {
-                    ProcessKeyPress(e, gridCell.ValueType);
+                    ProcessKeyPress(gridCell.ValueType, e);
                 }
             }
         }

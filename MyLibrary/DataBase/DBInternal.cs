@@ -108,7 +108,7 @@ namespace MyLibrary.DataBase
         }
         public static Exception DataConvertException(DBColumn column, object value, Exception innerException)
         {
-            return new Exception($"{column.Name}: приведение из \"{column.DataType.Name}\" в \"{value.GetType().Name}\" невозможно.",
+            return new Exception($"{column.Name}: приведение из '{value.GetType().Name}' в '{column.DataType.Name}' невозможно.",
                 innerException);
         }
         public static Exception SqlExecuteException()
