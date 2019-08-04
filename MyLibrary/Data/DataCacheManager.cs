@@ -7,7 +7,7 @@ using System.Text;
 
 namespace MyLibrary.Data
 {
-    public class DataCacheManager : IDisposable
+    public class DataCacheManager
     {
         private readonly DBContext _context;
 
@@ -75,10 +75,6 @@ namespace MyLibrary.Data
             {
                 _context.Execute(cmd);
             }
-        }
-        public void Dispose()
-        {
-            _context.Dispose();
         }
 
         private void Save(string key, byte[] data, CacheType type)

@@ -11,7 +11,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Представляет механизм для работы с БД.
     /// </summary>
-    public class DBContext : IDisposable
+    public class DBContext
     {
         public DBModelBase Model { get; private set; }
         public DbConnection Connection { get; set; }
@@ -262,11 +262,6 @@ namespace MyLibrary.DataBase
                 Clear();
                 throw DBInternal.DbSaveException(row, ex);
             }
-        }
-        public void Dispose()
-        {
-            CommitTransaction();
-            Clear();
         }
 
         #region Работа с данными
