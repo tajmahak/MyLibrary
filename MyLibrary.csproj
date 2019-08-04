@@ -44,7 +44,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Signature.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>MyLibrary.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FirebirdSql.Data.FirebirdClient, Version=5.8.1.0, Culture=neutral, PublicKeyToken=3750abcc3150b00c, processorArchitecture=MSIL">
@@ -166,7 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="MyLibrary.ruleset" />
-    <None Include="Signature.pfx" />
+    <None Include="MyLibrary.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
