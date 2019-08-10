@@ -31,10 +31,8 @@ namespace MyLibrary.Net
         }
         public void Dispose()
         {
-            if (Response != null)
-            {
-                Response.Close();
-            }
+            Response?.Close();
+            Response = null;
         }
 
         public void AddHeader(string name, string value)
@@ -72,8 +70,10 @@ namespace MyLibrary.Net
                 var contentLength = Response.ContentLength;
                 var knownContentLength = (contentLength != -1);
 
-                var args = new DownloadProgressChangedEventArgs();
-                args.ContentLength = contentLength;
+                var args = new DownloadProgressChangedEventArgs
+                {
+                    ContentLength = contentLength
+                };
 
                 var buffer = new byte[0x40000]; // размер буфера 256 КБ
                 using (var stream = GetResponseStream())

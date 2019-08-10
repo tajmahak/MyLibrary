@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.Collections
 {
-    public class ReadOnlyList<T> : ICollection<T>, IEnumerable<T>, IEnumerable
+    public sealed class ReadOnlyList<T> : ICollection<T>, IEnumerable<T>, IEnumerable
     {
         public ReadOnlyList(List<T> list)
         {

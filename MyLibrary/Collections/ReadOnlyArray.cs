@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace MyLibrary.Collections
 {
-    public class ReadOnlyArray<T> : ICollection<T>, IEnumerable
+    public sealed class ReadOnlyArray<T> : ICollection<T>, IEnumerable
     {
         public ReadOnlyArray(T[] array)
         {
