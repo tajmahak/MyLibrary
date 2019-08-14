@@ -450,6 +450,11 @@ namespace MyLibrary.DataBase
             return AddInternal(collection);
         }
 
+        public void SaveAndClear()
+        {
+            Save();
+            Clear();
+        }
         public void SaveAndClear(DBRow row)
         {
             SaveAndClearInternal(row);
