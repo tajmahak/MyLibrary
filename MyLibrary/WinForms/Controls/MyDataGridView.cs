@@ -1,11 +1,12 @@
 ﻿using MyLibrary.Data;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace MyLibrary.WinForms.Controls
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public class MyDataGridView : DataGridView
     {
         public MyDataGridView()
@@ -27,6 +28,11 @@ namespace MyLibrary.WinForms.Controls
                 return true;
             }
             return base.ProcessDialogKey(keyData);
+        }
+
+        public bool MoveToNextCell()
+        {
+            return ProcessTabKey(Keys.Tab);
         }
 
         protected override bool ProcessDataGridViewKey(KeyEventArgs e)
