@@ -6,9 +6,12 @@ namespace MyLibrary.Data.Formats
 {
     public class JsonNode : IEnumerable<JsonNode>
     {
-        public static JsonNode Parse(string json)
+        public static JsonNode Parse(string json, bool useDecodeString = false)
         {
-            json = DecodeJSString(json);
+            if (useDecodeString)
+            {
+                json = DecodeJSString(json);
+            }
 
             var token = JToken.Parse(json);
             var node = new JsonNode();
