@@ -193,7 +193,10 @@ namespace MyLibrary.DataBase
             cQuery.CommandText = sql.ToString();
             return cQuery;
         }
-
+        public string GetUpdateSelectivityIndexCommandText(DBIndex index)
+        {
+            return string.Concat("SET STATISTICS INDEX ", GetName(index.Name));
+        }
         private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var block = query.FindBlock(DBQueryStructureType.UpdateOrInsert);
