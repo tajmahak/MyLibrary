@@ -531,7 +531,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.WhereBetween:
                             #region
-                            sql.Concat(GetFullName(block[0]), "BETWEEN ", GetParameter(block[1], cQuery), " AND ", GetParameter(block[2], cQuery));
+                            sql.Concat(GetFullName(block[0]), " BETWEEN ", GetParameter(block[1], cQuery), " AND ", GetParameter(block[2], cQuery));
                             break;
                         #endregion
                         case DBQueryStructureType.WhereUpper:

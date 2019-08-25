@@ -10,14 +10,14 @@ namespace MyLibrary.DataBase
     public sealed class DBTable
     {
         public string Name { get; set; }
-        public ReadOnlyList<DBColumn> Columns { get; private set; }
+        public ReadOnlyList<DBColumn> Columns { get; private set; } = new List<DBColumn>();
+        public ReadOnlyList<DBIndex> Indexes { get; private set; } = new List<DBIndex>();
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
         private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
 
         public DBTable(DBModelBase model)
         {
-            Columns = new List<DBColumn>();
             Model = model;
         }
 

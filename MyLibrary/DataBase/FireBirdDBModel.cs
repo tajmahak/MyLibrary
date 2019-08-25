@@ -106,6 +106,22 @@ namespace MyLibrary.DataBase
                 }
             }
 
+            using (var indexesSchema = connection.GetSchema("Indexes"))
+            {
+                foreach (DataRow indexRow in indexesSchema.Rows)
+                {
+                    var tableName = (string)indexRow["TABLE_NAME"];
+                    var table = tables.Find(x => x.Name == tableName);
+                    if (table != null)
+                    {
+                        table.Indexes.List.Add(new DBIndex(table)
+                        {
+                            Name = (string)indexRow["INDEX_NAME"],
+                        });
+                    }
+                }
+            }
+
             return tables.ToArray();
         }
         protected override string GetInsertCommandText(DBTable table)
