@@ -61,7 +61,7 @@ namespace MyLibrary.DataBase
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
-                        table.AddColumn(column);
+                        table.Columns.Add(column);
                     }
                 }
             }
@@ -121,7 +121,7 @@ namespace MyLibrary.DataBase
                     var table = tables.Find(x => x.Name == tableName);
                     if (table != null)
                     {
-                        table.Indexes.List.Add(new DBIndex(table)
+                        table.Indexes.Add(new DBIndex(table)
                         {
                             Name = (string)indexRow["INDEX_NAME"],
                             IsActive = (short)indexRow["IS_INACTIVE"] == 0,

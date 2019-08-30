@@ -79,7 +79,7 @@ namespace MyLibrary.DataBase
                         column.Name = string.Concat(schemaBaseTableName, '.', column.Name);
                     }
 
-                    table.AddColumn(column);
+                    table.Columns.Add(column);
                 }
             }
             return table;

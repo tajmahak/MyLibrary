@@ -92,7 +92,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyLibrary\Collections\ReadOnlyArray.cs" />
+    <Compile Include="MyLibrary\DataBase\DBTableCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />
+    <Compile Include="MyLibrary\DataBase\DBColumnCollection.cs" />
+    <Compile Include="MyLibrary\DataBase\DBIndexCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBRowCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBIndex.cs" />
     <Compile Include="MyLibrary\DataBase\DBParameter.cs" />

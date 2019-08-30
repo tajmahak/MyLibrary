@@ -1,6 +1,4 @@
-﻿using MyLibrary.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace MyLibrary.DataBase
 {
@@ -10,11 +8,10 @@ namespace MyLibrary.DataBase
     public sealed class DBTable
     {
         public string Name { get; set; }
-        public ReadOnlyList<DBColumn> Columns { get; private set; } = new List<DBColumn>();
-        public ReadOnlyList<DBIndex> Indexes { get; private set; } = new List<DBIndex>();
+        public DBColumnCollection Columns { get; private set; } = new DBColumnCollection();
+        public DBIndexCollection Indexes { get; private set; } = new DBIndexCollection();
         public DBColumn PrimaryKeyColumn { get; set; }
         public DBModelBase Model { get; private set; }
-        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
 
         public DBTable(DBModelBase model)
         {
@@ -26,7 +23,8 @@ namespace MyLibrary.DataBase
         {
             get
             {
-                if (!_columnsDict.TryGetValue(columnName, out var column))
+                var column = Columns[columnName];
+                if (column == null)
                 {
                     throw DBInternal.UnknownColumnException(this, columnName);
                 }
@@ -44,25 +42,6 @@ namespace MyLibrary.DataBase
             }
             return row;
         }
-        public void AddColumn(DBColumn column)
-        {
-            string columnName;
-            if (column.Table.Name == null)
-            {
-                columnName = column.Name;
-            }
-            else
-            {
-                columnName = string.Concat(column.Table.Name, '.', column.Name);
-            }
-
-            Columns.List.Add(column);
-            if (!_columnsDict.ContainsKey(columnName))
-            {
-                _columnsDict.Add(columnName, column);
-            }
-        }
-
         public override string ToString()
         {
             return Name;

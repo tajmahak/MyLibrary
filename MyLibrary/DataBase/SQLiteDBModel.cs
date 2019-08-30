@@ -59,7 +59,7 @@ namespace MyLibrary.DataBase
                             Name = columnRow.ColumnName,
                             DataType = columnRow.DataType
                         };
-                        table.AddColumn(column);
+                        table.Columns.Add(column);
                     }
                 }
             }

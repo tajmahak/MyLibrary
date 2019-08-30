@@ -9,6 +9,7 @@ namespace MyLibrary.DataBase
     {
         public int OrderIndex { get; set; }
         public string Name { get; set; }
+        public string FullName => Table.Name == null ? Name : string.Concat(Table.Name, '.', Name);
         public Type DataType { get; set; }
         public bool IsPrimary { get; set; }
         public bool NotNull { get; set; }

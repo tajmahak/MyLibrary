@@ -80,7 +80,7 @@ namespace MyLibrary.DataBase
                         table.PrimaryKeyColumn = column;
                     }
 
-                    table.AddColumn(column);
+                    table.Columns.Add(column);
                 }
                 Tables[i] = table;
             }
