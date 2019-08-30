@@ -28,7 +28,7 @@ namespace MyLibrary.DataBase
                 return count;
             }
         }
-        private readonly Dictionary<DBTable, List<DBRow>> _tableRows = new Dictionary<DBTable, List<DBRow>>();
+        private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
         private DbTransaction _transaction;
 
         public DBContext(DBModelBase model, DbConnection connection)
@@ -112,11 +112,11 @@ namespace MyLibrary.DataBase
                 foreach (var tableRowsItem in _tableRows)
                 {
                     var table = tableRowsItem.Key;
-                    var rowList = tableRowsItem.Value;
+                    var rowCollection = tableRowsItem.Value;
 
-                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowCollection.Count; rowIndex++)
                     {
-                        row = rowList[rowIndex];
+                        row = rowCollection[rowIndex];
                         if (row.State == DataRowState.Deleted)
                         {
                             if (!(row[table.PrimaryKeyColumn.OrderIndex] is Guid))
@@ -125,7 +125,7 @@ namespace MyLibrary.DataBase
                             }
                         }
                     }
-                    rowList.RemoveAll(x => x.State == DataRowState.Deleted);
+                    rowCollection.Clear(x => x.State == DataRowState.Deleted);
                 }
 
                 #endregion
@@ -141,11 +141,11 @@ namespace MyLibrary.DataBase
                 foreach (var item in _tableRows)
                 {
                     var table = item.Key;
-                    var rowList = item.Value;
+                    var rowCollection = item.Value;
 
-                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowCollection.Count; rowIndex++)
                     {
-                        row = rowList[rowIndex];
+                        row = rowCollection[rowIndex];
 
                         InsertRowContainer rowContainer = null;
                         if (row.State == DataRowState.Added)
@@ -236,11 +236,11 @@ namespace MyLibrary.DataBase
                 foreach (var tableRowsItem in _tableRows)
                 {
                     var table = tableRowsItem.Key;
-                    var rowList = tableRowsItem.Value;
+                    var rowCollection = tableRowsItem.Value;
 
-                    for (var rowIndex = 0; rowIndex < rowList.Count; rowIndex++)
+                    for (var rowIndex = 0; rowIndex < rowCollection.Count; rowIndex++)
                     {
-                        row = rowList[rowIndex];
+                        row = rowCollection[rowIndex];
                         if (row.State == DataRowState.Modified)
                         {
                             ExecuteUpdateCommand(row);
@@ -474,24 +474,25 @@ namespace MyLibrary.DataBase
 
         public void Clear()
         {
-            foreach (var rowList in _tableRows.Values)
+            foreach (var rowCollection in _tableRows.Values)
             {
-                rowList.ForEach(row =>
+                foreach (var row in rowCollection)
                 {
                     if (row.State == DataRowState.Added)
                     {
                         row.State = DataRowState.Detached;
                     }
-                });
-                rowList.Clear();
+                }
+                rowCollection.Clear();
             }
+            _tableRows.Clear();
         }
         public void Clear(string tableName)
         {
             var table = Model.GetTable(tableName);
-            if (_tableRows.TryGetValue(table, out var rowList))
+            if (_tableRows.TryGetValue(table, out var rowCollection))
             {
-                rowList.Clear();
+                rowCollection.Clear();
             }
         }
         public void Clear(DBRow row)
@@ -605,16 +606,15 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            if (!_tableRows.TryGetValue(dbRow.Table, out var rowList))
+            if (!_tableRows.TryGetValue(dbRow.Table, out var rowCollection))
             {
-                rowList = new List<DBRow>();
-                _tableRows.Add(dbRow.Table, rowList);
+                rowCollection = new DBRowCollection();
+                _tableRows.Add(dbRow.Table, rowCollection);
             }
 
-            //!!! очень долгая работа при большом кол-ве строк. Требуется оптимизация
-            if (!rowList.Contains(dbRow))
+            if (!rowCollection.Contains(dbRow))
             {
-                rowList.Add(dbRow);
+                rowCollection.Add(dbRow);
             }
 
             if (dbRow.State == DataRowState.Detached)
@@ -649,11 +649,10 @@ namespace MyLibrary.DataBase
                 dbRow.State = DataRowState.Detached;
             }
 
-            if (_tableRows.TryGetValue(dbRow.Table, out var rowList))
+            if (_tableRows.TryGetValue(dbRow.Table, out var rowCollection))
             {
-                rowList.Remove(dbRow);
-
-                if (rowList.Count == 0)
+                rowCollection.Remove(dbRow);
+                if (rowCollection.Count == 0)
                 {
                     _tableRows.Remove(dbRow.Table);
                 }
@@ -663,10 +662,10 @@ namespace MyLibrary.DataBase
         {
             var table = Model.GetTable(tableName);
 
-            if (_tableRows.TryGetValue(table, out var rowList))
+            if (_tableRows.TryGetValue(table, out var rowCollection))
             {
-                var list = new List<T>(rowList.Count);
-                foreach (var row in rowList)
+                var list = new List<T>(rowCollection.Count);
+                foreach (var row in rowCollection)
                 {
                     list.Add(DBInternal.PackRow<T>(row));
                 }
