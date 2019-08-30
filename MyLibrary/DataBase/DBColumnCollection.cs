@@ -33,10 +33,6 @@ namespace MyLibrary.DataBase
             // колонки могут быть с одинаковыми названиями
             _list.Add(item);
         }
-        public DBColumn Find(Predicate<DBColumn> match)
-        {
-            return _list.Find(match);
-        }
         public void Clear()
         {
             _list.Clear();
@@ -46,6 +42,10 @@ namespace MyLibrary.DataBase
         {
             return _dictionary.ContainsValue(item);
         }
+        public bool Contains(string fullName)
+        {
+            return _dictionary.ContainsKey(fullName);
+        }
         public void CopyTo(DBColumn[] array, int arrayIndex)
         {
             _list.CopyTo(array, arrayIndex);
@@ -53,6 +53,10 @@ namespace MyLibrary.DataBase
         public IEnumerator<DBColumn> GetEnumerator()
         {
             return _list.GetEnumerator();
+        }
+        public DBColumn Find(Predicate<DBColumn> match)
+        {
+            return _list.Find(match);
         }
         public bool Remove(DBColumn item)
         {

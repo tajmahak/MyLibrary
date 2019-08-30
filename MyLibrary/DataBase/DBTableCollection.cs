@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
@@ -25,11 +26,8 @@ namespace MyLibrary.DataBase
 
         public void Add(DBTable item)
         {
-            if (!_dictionary.ContainsKey(item.Name))
-            {
-                _list.Add(item);
-                _dictionary.Add(item.Name, item);
-            }
+            _list.Add(item);
+            _dictionary.Add(item.Name, item);
         }
         public void Clear()
         {
@@ -48,14 +46,17 @@ namespace MyLibrary.DataBase
         {
             return _list.GetEnumerator();
         }
+        public DBTable Find(Predicate<DBTable> match)
+        {
+            return _list.Find(match);
+        }
         public bool Remove(DBTable item)
         {
             if (_dictionary.ContainsKey(item.Name))
             {
                 _dictionary.Remove(item.Name);
-                return _list.Remove(item);
             }
-            return false;
+            return _list.Remove(item);
         }
         IEnumerator IEnumerable.GetEnumerator()
         {

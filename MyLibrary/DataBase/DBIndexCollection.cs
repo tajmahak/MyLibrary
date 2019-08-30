@@ -26,10 +26,6 @@ namespace MyLibrary.DataBase
             _list.Clear();
             _hashSet.Clear();
         }
-        public DBIndex Find(Predicate<DBIndex> match)
-        {
-            return _list.Find(match);
-        }
         public bool Contains(DBIndex item)
         {
             return _hashSet.Contains(item);
@@ -41,6 +37,10 @@ namespace MyLibrary.DataBase
         public IEnumerator<DBIndex> GetEnumerator()
         {
             return _list.GetEnumerator();
+        }
+        public DBIndex Find(Predicate<DBIndex> match)
+        {
+            return _list.Find(match);
         }
         public bool Remove(DBIndex item)
         {
