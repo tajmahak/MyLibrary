@@ -611,6 +611,7 @@ namespace MyLibrary.DataBase
                 _tableRows.Add(dbRow.Table, rowList);
             }
 
+            //!!! очень долгая работа при большом кол-ве строк. Требуется оптимизация
             if (!rowList.Contains(dbRow))
             {
                 rowList.Add(dbRow);
