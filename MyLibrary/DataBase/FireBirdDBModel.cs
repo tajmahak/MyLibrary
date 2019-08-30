@@ -117,6 +117,9 @@ namespace MyLibrary.DataBase
                         table.Indexes.List.Add(new DBIndex(table)
                         {
                             Name = (string)indexRow["INDEX_NAME"],
+                            IsActive = (short)indexRow["IS_INACTIVE"] == 0,
+                            IsUnique = (short)indexRow["IS_UNIQUE"] == 1,
+                            IsPrimary = (bool)indexRow["IS_PRIMARY"],
                         });
                     }
                 }
@@ -193,10 +196,20 @@ namespace MyLibrary.DataBase
             cQuery.CommandText = sql.ToString();
             return cQuery;
         }
+
         public string GetUpdateSelectivityIndexCommandText(DBIndex index)
         {
             return string.Concat("SET STATISTICS INDEX ", GetName(index.Name));
         }
+        public string GetActivateIndexCommandText(DBIndex index)
+        {
+            return string.Concat("ALTER INDEX ", GetName(index.Name), " ACTIVE");
+        }
+        public string GetDeactivateIndexCommandText(DBIndex index)
+        {
+            return string.Concat("ALTER INDEX ", GetName(index.Name), " INACTIVE");
+        }
+
         private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var block = query.FindBlock(DBQueryStructureType.UpdateOrInsert);
