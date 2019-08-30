@@ -50,6 +50,10 @@ namespace MyLibrary.DataBase
         {
             return Context.RowExistsInternal(this);
         }
+        public int Execute()
+        {
+            return Context.Execute(this);
+        }
 
         protected DBQueryBase(DBTable table, DBContext context)
         {
@@ -104,20 +108,6 @@ namespace MyLibrary.DataBase
 
         public DBQueryBase(DBTable table, DBContext context) : base(table, context)
         {
-        }
-
-        // Работа с контекстом БД
-        public new TTable ReadRow<TTable>() where TTable : DBOrmTableBase
-        {
-            return Context.GetRowInternal<TTable>(this);
-        }
-        public new TTable GetRowOrNew<TTable>() where TTable : DBOrmTableBase
-        {
-            return Context.GetRowOrNewInternal<TTable>(this);
-        }
-        public new DBReader<TTable> Read<TTable>() where TTable : DBOrmTableBase
-        {
-            return Context.ReadInternal<TTable>(this);
         }
 
         // Работа с командами SQL
@@ -1105,143 +1095,157 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Представляет типизированный запрос базы данных для таблиц <see cref="DBOrmTableBase"/>.
     /// </summary>
-    public class DBQuery<T> : DBQueryBase<DBQuery<T>> where T : DBOrmTableBase
+    public class DBQuery<TTable> : DBQueryBase<DBQuery<TTable>> where TTable : DBOrmTableBase
     {
         public DBQuery(DBTable table, DBContext context) : base(table, context)
         {
         }
 
-        public new DBQuery<T> Select(Expression<Func<object>> expression)
+        // Работа с контекстом БД
+        public new TTable ReadRow() 
         {
-            return base.Select(expression);
+            return Context.GetRowInternal<TTable>(this);
         }
-        public DBQuery<T> Select(Expression<Func<T, object>> expression)
+        public new TTable GetRowOrNew()
         {
-            return base.Select(expression);
+            return Context.GetRowOrNewInternal<TTable>(this);
         }
-        public DBQuery<T> Select(Expression<Func<T, object[]>> expression)
+        public new DBReader<TTable> Read() 
         {
-            return base.Select(expression);
-        }
-        public DBQuery<T> Select<T2>(Expression<Func<T, T2, object[]>> expression)
-            where T2 : DBOrmTableBase
-        {
-            return base.Select(expression);
-        }
-        public DBQuery<T> Select<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
-            where T2 : DBOrmTableBase
-            where T3 : DBOrmTableBase
-        {
-            return base.Select(expression);
-        }
-        public DBQuery<T> Select<T2, T3, T4>(Expression<Func<T, T2, T3, T4, object[]>> expression)
-            where T2 : DBOrmTableBase
-            where T3 : DBOrmTableBase
-            where T4 : DBOrmTableBase
-        {
-            return base.Select(expression);
+            return Context.ReadInternal<TTable>(this);
         }
 
-        public DBQuery<T> Where(Expression<Func<T, bool>> expression)
+        public new DBQuery<TTable> Select(Expression<Func<object>> expression)
         {
-            return base.Where(expression);
+            return base.Select(expression);
         }
-        public DBQuery<T> Where<T2>(Expression<Func<T, T2, bool>> expression)
+        public DBQuery<TTable> Select(Expression<Func<TTable, object>> expression)
+        {
+            return base.Select(expression);
+        }
+        public DBQuery<TTable> Select(Expression<Func<TTable, object[]>> expression)
+        {
+            return base.Select(expression);
+        }
+        public DBQuery<TTable> Select<T2>(Expression<Func<TTable, T2, object[]>> expression)
             where T2 : DBOrmTableBase
         {
-            return base.Where(expression);
+            return base.Select(expression);
         }
-        public DBQuery<T> Where<T2, T3>(Expression<Func<T, T2, T3, bool>> expression)
+        public DBQuery<TTable> Select<T2, T3>(Expression<Func<TTable, T2, T3, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            return base.Where(expression);
+            return base.Select(expression);
         }
-        public DBQuery<T> Where<T2, T3, T4>(Expression<Func<T, T2, T3, T4, bool>> expression)
+        public DBQuery<TTable> Select<T2, T3, T4>(Expression<Func<TTable, T2, T3, T4, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
             where T4 : DBOrmTableBase
         {
+            return base.Select(expression);
+        }
+
+        public DBQuery<TTable> Where(Expression<Func<TTable, bool>> expression)
+        {
+            return base.Where(expression);
+        }
+        public DBQuery<TTable> Where<T2>(Expression<Func<TTable, T2, bool>> expression)
+            where T2 : DBOrmTableBase
+        {
+            return base.Where(expression);
+        }
+        public DBQuery<TTable> Where<T2, T3>(Expression<Func<TTable, T2, T3, bool>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            return base.Where(expression);
+        }
+        public DBQuery<TTable> Where<T2, T3, T4>(Expression<Func<TTable, T2, T3, T4, bool>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+            where T4 : DBOrmTableBase
+        {
             return base.Where(expression);
         }
 
-        public DBQuery<T> InnerJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<TTable> InnerJoin<T2>() where T2 : DBOrmTableBase
         {
-            return InnerJoin<T, T2>();
+            return InnerJoin<TTable, T2>();
         }
-        public DBQuery<T> LeftJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<TTable> LeftJoin<T2>() where T2 : DBOrmTableBase
         {
-            return LeftJoin<T, T2>();
+            return LeftJoin<TTable, T2>();
         }
-        public DBQuery<T> RightJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<TTable> RightJoin<T2>() where T2 : DBOrmTableBase
         {
-            return RightJoin<T, T2>();
+            return RightJoin<TTable, T2>();
         }
-        public DBQuery<T> FullJoin<T2>() where T2 : DBOrmTableBase
+        public DBQuery<TTable> FullJoin<T2>() where T2 : DBOrmTableBase
         {
-            return FullJoin<T, T2>();
-        }
-
-        public DBQuery<T> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
-        {
-            return InnerJoinAs<T, T2>(alias);
-        }
-        public DBQuery<T> LeftJoinAs<T2>(string alias) where T2 : DBOrmTableBase
-        {
-            return LeftJoinAs<T, T2>(alias);
-        }
-        public DBQuery<T> RightJoinAs<T2>(string alias) where T2 : DBOrmTableBase
-        {
-            return RightJoinAs<T, T2>(alias);
-        }
-        public DBQuery<T> FullJoinAs<T2>(string alias) where T2 : DBOrmTableBase
-        {
-            return FullJoinAs<T, T2>(alias);
+            return FullJoin<TTable, T2>();
         }
 
-        public DBQuery<T> OrderBy(Expression<Func<T, object>> expression)
+        public DBQuery<TTable> InnerJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            return OrderBy<T>(expression);
+            return InnerJoinAs<TTable, T2>(alias);
         }
-        public DBQuery<T> OrderBy(Expression<Func<T, object[]>> expression)
+        public DBQuery<TTable> LeftJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            return OrderBy<T>(expression);
+            return LeftJoinAs<TTable, T2>(alias);
         }
-        public DBQuery<T> OrderBy<T2>(Expression<Func<T, T2, object[]>> expression)
-            where T2 : DBOrmTableBase
+        public DBQuery<TTable> RightJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            return OrderBy<T, T2>(expression);
+            return RightJoinAs<TTable, T2>(alias);
         }
-        public DBQuery<T> OrderBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
-            where T2 : DBOrmTableBase
-            where T3 : DBOrmTableBase
+        public DBQuery<TTable> FullJoinAs<T2>(string alias) where T2 : DBOrmTableBase
         {
-            return OrderBy<T, T2, T3>(expression);
+            return FullJoinAs<TTable, T2>(alias);
         }
 
-        public DBQuery<T> GroupBy(Expression<Func<T, object>> expression)
+        public DBQuery<TTable> OrderBy(Expression<Func<TTable, object>> expression)
         {
-            return GroupBy<T>(expression);
+            return OrderBy<TTable>(expression);
         }
-        public DBQuery<T> GroupBy(Expression<Func<T, object[]>> expression)
+        public DBQuery<TTable> OrderBy(Expression<Func<TTable, object[]>> expression)
         {
-            return GroupBy<T>(expression);
+            return OrderBy<TTable>(expression);
         }
-        public DBQuery<T> GroupBy<T2>(Expression<Func<T, T2, object[]>> expression)
+        public DBQuery<TTable> OrderBy<T2>(Expression<Func<TTable, T2, object[]>> expression)
             where T2 : DBOrmTableBase
         {
-            return GroupBy<T, T2>(expression);
+            return OrderBy<TTable, T2>(expression);
         }
-        public DBQuery<T> GroupBy<T2, T3>(Expression<Func<T, T2, T3, object[]>> expression)
+        public DBQuery<TTable> OrderBy<T2, T3>(Expression<Func<TTable, T2, T3, object[]>> expression)
             where T2 : DBOrmTableBase
             where T3 : DBOrmTableBase
         {
-            return GroupBy<T, T2, T3>(expression);
+            return OrderBy<TTable, T2, T3>(expression);
         }
 
-        public DBQuery<T> Having(Expression<Func<T, bool>> expression)
+        public DBQuery<TTable> GroupBy(Expression<Func<TTable, object>> expression)
         {
-            return Having<T>(expression);
+            return GroupBy<TTable>(expression);
+        }
+        public DBQuery<TTable> GroupBy(Expression<Func<TTable, object[]>> expression)
+        {
+            return GroupBy<TTable>(expression);
+        }
+        public DBQuery<TTable> GroupBy<T2>(Expression<Func<TTable, T2, object[]>> expression)
+            where T2 : DBOrmTableBase
+        {
+            return GroupBy<TTable, T2>(expression);
+        }
+        public DBQuery<TTable> GroupBy<T2, T3>(Expression<Func<TTable, T2, T3, object[]>> expression)
+            where T2 : DBOrmTableBase
+            where T3 : DBOrmTableBase
+        {
+            return GroupBy<TTable, T2, T3>(expression);
+        }
+
+        public DBQuery<TTable> Having(Expression<Func<TTable, bool>> expression)
+        {
+            return Having<TTable>(expression);
         }
     }
 }
