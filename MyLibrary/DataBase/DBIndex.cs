@@ -3,10 +3,11 @@
     public class DBIndex
     {
         public string Name { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsPrimary { get; set; }
+        public bool IsUnique { get; set; }
+        public bool IsForeign { get; set; }
         public DBTable Table { get; private set; }
-        public bool IsActive { get; internal set; }
-        public bool IsPrimary { get; internal set; }
-        public bool IsUnique { get; internal set; }
 
         public DBIndex(DBTable table)
         {

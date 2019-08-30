@@ -22,6 +22,7 @@ namespace MyLibrary.DataBase
         {
             var tables = new List<DBTable>();
 
+            #region Tables
             using (var tableSchema = connection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
@@ -33,7 +34,8 @@ namespace MyLibrary.DataBase
                         tables.Add(table);
                     }
                 }
-            }
+            } 
+            #endregion
 
             using (var dataSet = new DataSet())
             {
@@ -64,6 +66,7 @@ namespace MyLibrary.DataBase
                 }
             }
 
+            #region Columns
             using (var columnSchema = connection.GetSchema("Columns"))
             {
                 foreach (DataRow columnRow in columnSchema.Rows)
@@ -91,7 +94,9 @@ namespace MyLibrary.DataBase
                     }
                 }
             }
+            #endregion
 
+            #region PrimaryKeys
             using (var primaryKeySchema = connection.GetSchema("PrimaryKeys"))
             {
                 foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
@@ -105,7 +110,9 @@ namespace MyLibrary.DataBase
                     table.PrimaryKeyColumn = column;
                 }
             }
+            #endregion
 
+            #region Indexes
             using (var indexesSchema = connection.GetSchema("Indexes"))
             {
                 foreach (DataRow indexRow in indexesSchema.Rows)
@@ -124,6 +131,27 @@ namespace MyLibrary.DataBase
                     }
                 }
             }
+            #endregion
+
+            #region ForeignKeys
+            using (var foreignKeysSchema = connection.GetSchema("ForeignKeys"))
+            {
+                foreach (DataRow foreignKeysRow in foreignKeysSchema.Rows)
+                {
+                    var tableName = (string)foreignKeysRow["TABLE_NAME"];
+                    var table = tables.Find(x => x.Name == tableName);
+                    if (table != null)
+                    {
+                        var indexName = (string)foreignKeysRow["INDEX_NAME"];
+                        var index = table.Indexes.Find(x => x.Name == indexName);
+                        if (index != null)
+                        {
+                            index.IsForeign = true;
+                        }
+                    }
+                }
+            } 
+            #endregion
 
             return tables.ToArray();
         }
