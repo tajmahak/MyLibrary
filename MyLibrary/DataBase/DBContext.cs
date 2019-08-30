@@ -517,16 +517,6 @@ namespace MyLibrary.DataBase
             ClearInternal(collection);
         }
 
-        public List<TTable> GetSetRows<TTable>() where TTable : DBOrmTableBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
-            return GetSetRowsInternal<TTable>(tableName);
-        }
-        public List<DBRow> GetSetRows(string tableName)
-        {
-            return GetSetRowsInternal<DBRow>(tableName);
-        }
-
         #endregion
 
         internal T NewRowInternal<T>(string tableName)
@@ -656,24 +646,6 @@ namespace MyLibrary.DataBase
                 {
                     _tableRows.Remove(dbRow.Table);
                 }
-            }
-        }
-        private List<T> GetSetRowsInternal<T>(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-
-            if (_tableRows.TryGetValue(table, out var rowCollection))
-            {
-                var list = new List<T>(rowCollection.Count);
-                foreach (var row in rowCollection)
-                {
-                    list.Add(DBInternal.PackRow<T>(row));
-                }
-                return list;
-            }
-            else
-            {
-                return new List<T>(0);
             }
         }
         private int AddCollectionInternal(IEnumerable collection)
