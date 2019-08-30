@@ -27,7 +27,7 @@ namespace MyLibrary.Data
             DBRow row;
             lock (_context)
             {
-                row = _context.Get(cmd);
+                row = _context.ReadRow(cmd);
             }
 
             if (row == null)
