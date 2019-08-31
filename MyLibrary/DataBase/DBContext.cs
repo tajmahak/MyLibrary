@@ -156,8 +156,7 @@ namespace MyLibrary.DataBase
 
                         for (var columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
                         {
-                            var value = row[columnIndex];
-                            if (value is DBTempId tempID)
+                            if (row[columnIndex] is DBTempId tempID)
                             {
                                 var idContainer = new TempIdContainer(row, columnIndex);
 
@@ -718,7 +717,7 @@ namespace MyLibrary.DataBase
             {
                 cmd.Transaction = _transaction;
                 cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Delete);
-                Model.AddCommandParameter(cmd, "@id", row[row.Table.PrimaryKeyColumn.OrderIndex]);
+                Model.AddCommandParameter(cmd, "@id", row.PrimaryKeyValue);
 
                 cmd.ExecuteNonQuery();
             }
