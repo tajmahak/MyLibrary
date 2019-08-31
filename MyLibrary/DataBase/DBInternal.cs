@@ -86,7 +86,7 @@ namespace MyLibrary.DataBase
 
         public static Exception ArgumentNullException(string argumentName)
         {
-            throw new ArgumentNullException(argumentName);
+            return new ArgumentNullException(argumentName);
         }
         public static Exception UnknownTableException(string tableName)
         {
@@ -133,20 +133,19 @@ namespace MyLibrary.DataBase
             {
                 return ex;
             }
-
-            throw new Exception($"Ошибка сохранения БД. \"{row.Table.Name}\" - {ex.Message}.", ex);
+            return new Exception($"Ошибка сохранения БД. '{row.Table.Name}' - {ex.Message}.", ex);
         }
         public static Exception DbSaveWrongRelationsException()
         {
-            throw new Exception("Неверные связи между строками.");
+            return new Exception("Неверные связи между строками.");
         }
         public static Exception StringOverflowException(DBColumn column)
         {
-            return new Exception($"\"{column.Name}\": длина строки превышает допустимую длину.");
+            return new Exception($"'{column.FullName}': длина строки превышает допустимую длину.");
         }
         public static Exception GenerateSetIDException(DBColumn column)
         {
-            return new Exception("Невозможно изменить значение первичного ключа.");
+            return new Exception($"'{column.FullName}' - невозможно изменить значение первичного ключа.");
         }
         public static Exception WrongInsertCommandException()
         {
@@ -158,15 +157,7 @@ namespace MyLibrary.DataBase
         }
         public static Exception UnsupportedCommandContextException()
         {
-            throw new Exception("Недопустимая операция в текущем контексте команды.");
-        }
-        public static Exception NotFindRowException()
-        {
-            throw new Exception("Не найдено ни одной строки.");
-        }
-        public static Exception RowDeleteException()
-        {
-            return new Exception("Невозможно удалить строку, т.к. нет привязки к DBSet.");
+            return new Exception("Недопустимая операция в текущем контексте команды.");
         }
         public static Exception ParameterValuePairException()
         {
@@ -174,23 +165,19 @@ namespace MyLibrary.DataBase
         }
         public static Exception OrmTableNotAttributeException(Type type)
         {
-            return new Exception(type.FullName + " - отсутствует атрибут таблицы.");
+            return new Exception($"'{type.FullName}' - отсутствует атрибут таблицы.");
         }
         public static Exception DBFunctionException()
         {
-            return new Exception("Функции класса " + nameof(DBFunction) + " не могут быть вызваны напрямую.");
+            return new Exception($"Функции класса {nameof(DBFunction)} не могут быть вызваны напрямую.");
         }
         public static Exception ForeignKeyException()
         {
             return new Exception("Отсутствует внешний ключ.");
         }
-        public static Exception ContextInitializeException()
-        {
-            return new Exception("Экземпляр " + nameof(DBContext) + " уже был инициализирован.");
-        }
         public static Exception GetDefaultSqlQueryException(DBTable table)
         {
-            return new Exception("Невозможно получить SQL-команду для таблицы '" + table.Name + "', т.к. в ней отсутствует первичный ключ.");
+            return new Exception($"Невозможно получить SQL-команду для таблицы '{table.Name}', т.к. в ней отсутствует первичный ключ.");
         }
     }
 }
