@@ -119,7 +119,7 @@ namespace MyLibrary.DataBase
                         row = rowCollection[rowIndex];
                         if (row.State == DataRowState.Deleted)
                         {
-                            if (!(row[table.PrimaryKeyColumn.OrderIndex] is Guid))
+                            if (row.PrimaryKeyValue is DBTempId == false)
                             {
                                 ExecuteDeleteCommand(row);
                             }
@@ -134,7 +134,7 @@ namespace MyLibrary.DataBase
                 // список всех Insert-строк
                 var rowContainerList = new List<InsertRowContainer>();
                 // список всех временных ID, с привязкой к Insert-строкам
-                var idContainerList = new Dictionary<Guid, List<TempIdContainer>>();
+                var idContainerList = new Dictionary<DBTempId, List<TempIdContainer>>();
 
                 #region Формирование списков
 
@@ -157,7 +157,7 @@ namespace MyLibrary.DataBase
                         for (var columnIndex = 0; columnIndex < table.Columns.Count; columnIndex++)
                         {
                             var value = row[columnIndex];
-                            if (value is Guid tempID)
+                            if (value is DBTempId tempID)
                             {
                                 var idContainer = new TempIdContainer(row, columnIndex);
 
@@ -194,7 +194,7 @@ namespace MyLibrary.DataBase
 
                     if (rowContainer.TempIdCount == 1)
                     {
-                        var tempID = (Guid)row[row.Table.PrimaryKeyColumn.OrderIndex];
+                        var tempID = (DBTempId)row.PrimaryKeyValue;
                         var newID = ExecuteInsertCommand(row);
 
                         #region Замена временных Id на присвоенные
@@ -588,12 +588,9 @@ namespace MyLibrary.DataBase
                 throw DBInternal.ProcessRowException();
             }
 
-            if (dbRow.State == DataRowState.Deleted)
+            if (dbRow.State == DataRowState.Deleted && dbRow.PrimaryKeyValue is DBTempId)
             {
-                if (dbRow[dbRow.Table.PrimaryKeyColumn.OrderIndex] is Guid)
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             if (!_tableRows.TryGetValue(dbRow.Table, out var rowCollection))

@@ -103,6 +103,7 @@
     <Compile Include="MyLibrary\DataBase\DBFunction.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureBlock.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureType.cs" />
+    <Compile Include="MyLibrary\DataBase\DBTempId.cs" />
     <Compile Include="MyLibrary\DataBase\MsSqlServerDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Collections\ReadOnlyList.cs" />

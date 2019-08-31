@@ -42,6 +42,7 @@ namespace MyLibrary.DataBase
                 SetValue(column, value);
             }
         }
+        public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
 
         public void SetNotNull(int columnIndex)
         {
@@ -122,7 +123,7 @@ namespace MyLibrary.DataBase
         {
             value = value ?? DBNull.Value;
 
-            if (value is Guid)
+            if (value is DBTempId)
             {
                 if (column.IsPrimary)
                 {
