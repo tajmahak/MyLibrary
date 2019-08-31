@@ -23,7 +23,7 @@ namespace MyLibrary.DataBase
             _model = model;
             _command = model.CreateCommand(connection, query);
             _reader = _command.ExecuteReader();
-            _table = (!query.IsView) ? query.Table : GenerateTable();
+            _table = query.IsView ? GetTableFromSchema() : query.Table;
         }
         public void Dispose()
         {
@@ -57,28 +57,23 @@ namespace MyLibrary.DataBase
             return ToList().ToArray();
         }
 
-        private DBTable GenerateTable()
+        private DBTable GetTableFromSchema()
         {
             var table = new DBTable(_model);
             using (var schema = _reader.GetSchemaTable())
             {
-                var index = 0;
+                var orderIndex = 0;
                 foreach (DataRow schemaRow in schema.Rows)
                 {
-                    var column = new DBColumn(table);
-                    column.OrderIndex = index++;
-                    column.DataType = (Type)schemaRow["DataType"];
-                    column.Name = (string)schemaRow["ColumnName"];
-                    column.Size = (int)schemaRow["ColumnSize"];
-
                     var schemaBaseTableName = (string)schemaRow["BaseTableName"];
-                    var columnName = string.IsNullOrEmpty(schemaBaseTableName) ?
-                        column.Name : string.Concat(schemaBaseTableName, '.', column.Name);
-                    if (_model.TryGetColumn(columnName) != null)
+                    var schemaColumnName = (string)schemaRow["ColumnName"];
+                    var column = new DBColumn(table)
                     {
-                        column.Name = string.Concat(schemaBaseTableName, '.', column.Name);
-                    }
-
+                        OrderIndex = orderIndex++,
+                        DataType = (Type)schemaRow["DataType"],
+                        Name = string.IsNullOrEmpty(schemaBaseTableName) ? schemaColumnName : string.Concat(schemaBaseTableName, '.', schemaColumnName),
+                        Size = (int)schemaRow["ColumnSize"]
+                    };
                     table.Columns.Add(column);
                 }
             }
