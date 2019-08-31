@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
@@ -45,10 +44,6 @@ namespace MyLibrary.DataBase
         public IEnumerator<DBTable> GetEnumerator()
         {
             return _list.GetEnumerator();
-        }
-        public DBTable Find(Predicate<DBTable> match)
-        {
-            return _list.Find(match);
         }
         public bool Remove(DBTable item)
         {
