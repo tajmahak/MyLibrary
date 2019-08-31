@@ -38,7 +38,7 @@ namespace MyLibrary.DataBase
             for (var i = 0; i < row.Values.Length; i++)
             {
                 var column = Columns[i];
-                row.Values[i] = (column.IsPrimary) ? Guid.NewGuid() : column.DefaultValue;
+                row.Values[i] = column.IsPrimary ? Guid.NewGuid() : column.DefaultValue;
             }
             return row;
         }
