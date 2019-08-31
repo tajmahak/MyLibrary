@@ -67,7 +67,7 @@ namespace MyLibrary.DataBase
         }
         public override string ToString()
         {
-            return _list.ToString();
+            return $"{nameof(Count)} = {Count}";
         }
     }
 }
