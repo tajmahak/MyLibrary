@@ -1,7 +1,6 @@
 ﻿using FirebirdSql.Data.FirebirdClient;
 using MyLibrary.Data;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Text;
@@ -18,10 +17,8 @@ namespace MyLibrary.DataBase
             OpenBlock = CloseBlock = "\"";
         }
 
-        public override DBTable[] GetTableSchema(DbConnection connection)
+        public override void FillTableSchema(DbConnection connection)
         {
-            var tables = new List<DBTable>();
-
             #region Tables
             using (var tableSchema = connection.GetSchema("Tables"))
             {
@@ -29,17 +26,19 @@ namespace MyLibrary.DataBase
                 {
                     if ((short)tableRow["IS_SYSTEM_TABLE"] == 0)
                     {
-                        var table = new DBTable(this);
-                        table.Name = (string)tableRow["TABLE_NAME"];
-                        tables.Add(table);
+                        var table = new DBTable(this)
+                        {
+                            Name = (string)tableRow["TABLE_NAME"]
+                        };
+                        Tables.Add(table);
                     }
                 }
-            } 
+            }
             #endregion
 
             using (var dataSet = new DataSet())
             {
-                foreach (var table in tables)
+                foreach (var table in Tables)
                 {
                     var query = string.Concat("SELECT FIRST 0 * FROM \"", table.Name, "\"");
                     using (var dataAdapter = new FbDataAdapter(query, (FbConnection)connection))
@@ -48,10 +47,10 @@ namespace MyLibrary.DataBase
                     }
                 }
 
-                for (var i = 0; i < tables.Count; i++)
+                for (var i = 0; i < Tables.Count; i++)
                 {
                     var tableRow = dataSet.Tables[i];
-                    var table = tables[i];
+                    var table = Tables[i];
                     for (var j = 0; j < tableRow.Columns.Count; j++)
                     {
                         var columnRow = tableRow.Columns[j];
@@ -72,7 +71,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
                     var tableName = (string)columnRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
+                    var table = Tables[tableName];
                     if (table != null)
                     {
                         var columnName = (string)columnRow["COLUMN_NAME"];
@@ -102,7 +101,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
                 {
                     var tableName = (string)primaryKeyRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
+                    var table = Tables[tableName];
 
                     var columnName = (string)primaryKeyRow["COLUMN_NAME"];
                     var column = table.Columns.Find(x => x.Name == columnName);
@@ -118,7 +117,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow indexRow in indexesSchema.Rows)
                 {
                     var tableName = (string)indexRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
+                    var table = Tables[tableName];
                     if (table != null)
                     {
                         table.Indexes.Add(new DBIndex(table)
@@ -139,7 +138,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow foreignKeysRow in foreignKeysSchema.Rows)
                 {
                     var tableName = (string)foreignKeysRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
+                    var table = Tables[tableName];
                     if (table != null)
                     {
                         var indexName = (string)foreignKeysRow["INDEX_NAME"];
@@ -150,10 +149,8 @@ namespace MyLibrary.DataBase
                         }
                     }
                 }
-            } 
+            }
             #endregion
-
-            return tables.ToArray();
         }
         protected override string GetInsertCommandText(DBTable table)
         {
@@ -175,19 +172,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectBlock(sql, query, cQuery);
 
-                var block = query.FindBlock(DBQueryStructureType.Distinct);
+                var block = query.Structure.Find(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = query.FindBlock(DBQueryStructureType.Offset);
+                block = query.Structure.Find(DBQueryStructureType.Offset);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
-                block = query.FindBlock(DBQueryStructureType.Limit);
+                block = query.Structure.Find(DBQueryStructureType.Limit);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[0]));
@@ -240,14 +237,14 @@ namespace MyLibrary.DataBase
 
         private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var block = query.FindBlock(DBQueryStructureType.UpdateOrInsert);
+            var block = query.Structure.Find(DBQueryStructureType.UpdateOrInsert);
             if (block != null)
             {
                 #region UPDATE OR INSERT
 
                 sql.Concat("UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
 
-                var blockList = query.FindBlocks(DBQueryStructureType.Set);
+                var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
                 {
                     throw DBInternal.WrongUpdateCommandException();
@@ -296,7 +293,7 @@ namespace MyLibrary.DataBase
         }
         private void PrepareReturningBlock(StringBuilder sql, DBQueryBase query)
         {
-            var blockList = query.FindBlocks(DBQueryStructureType.Returning);
+            var blockList = query.Structure.FindAll(DBQueryStructureType.Returning);
             if (blockList.Count > 0)
             {
                 sql.Concat(" RETURNING ");

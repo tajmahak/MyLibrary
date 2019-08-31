@@ -31,12 +31,12 @@ namespace MyLibrary.DataBase
         private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
         private DbTransaction _transaction;
 
-        public DBContext(DBModelBase model, DbConnection connection)
+        internal DBContext(DBModelBase model, DbConnection connection)
         {
             Model = model;
             Connection = connection;
 
-            if (!Model.IsInitialized)
+            if (!Model.Initialized)
             {
                 Model.Initialize(Connection);
             }
@@ -528,7 +528,7 @@ namespace MyLibrary.DataBase
         }
         internal T GetRowInternal<T>(DBQueryBase query)
         {
-            query.AddBlock(DBQueryStructureType.Limit, 1);
+            query.Structure.Add(DBQueryStructureType.Limit, 1);
             foreach (var row in ReadInternal<T>(query))
             {
                 return row;
@@ -560,7 +560,7 @@ namespace MyLibrary.DataBase
         {
             if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
-                query.AddBlock(DBQueryStructureType.Limit, 1);
+                query.Structure.Add(DBQueryStructureType.Limit, 1);
             }
 
             using (var command = Model.CreateCommand(Connection, query))

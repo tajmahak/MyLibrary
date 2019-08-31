@@ -1,5 +1,4 @@
-﻿using MyLibrary.Collections;
-using MyLibrary.Data;
+﻿using MyLibrary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,18 +15,17 @@ namespace MyLibrary.DataBase
     /// </summary>
     public abstract class DBModelBase
     {
-        public ReadOnlyArray<DBTable> Tables { get; private set; }
-        public bool IsInitialized { get; private set; }
+        public DBTableCollection Tables { get; private set; } = new DBTableCollection();
+        public DBColumnCollection Columns { get; private set; } = new DBColumnCollection();
         public string OpenBlock { get; protected set; } = string.Empty;
         public string CloseBlock { get; protected set; } = string.Empty;
+        public bool Initialized { get; private set; }
         private readonly Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
         private readonly Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
         private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
         private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<string, DBTable> _tablesDict = new Dictionary<string, DBTable>();
-        private readonly Dictionary<string, DBColumn> _columnsDict = new Dictionary<string, DBColumn>();
 
-        public abstract DBTable[] GetTableSchema(DbConnection connection);
+        public abstract void FillTableSchema(DbConnection connection);
         public abstract void AddCommandParameter(DbCommand command, string name, object value);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
         public virtual object ExecuteInsertCommand(DbCommand command)
@@ -37,22 +35,21 @@ namespace MyLibrary.DataBase
 
         public void Initialize(DbConnection connection)
         {
-            if (IsInitialized)
-            {
-                throw DBInternal.ContextInitializeException();
-            }
-            Tables = GetTableSchema(connection);
+            Tables.Clear();
+            FillTableSchema(connection);
             InitializeDictionaries();
-            IsInitialized = true;
+            Initialized = true;
         }
         public void Initialize(Type[] ormTableTypes)
         {
-            Tables = new DBTable[ormTableTypes.Length];
-            for (var i = 0; i < Tables.Count; i++)
+            Tables.Clear();
+            for (var i = 0; i < ormTableTypes.Length; i++)
             {
                 var tableType = ormTableTypes[i];
-                var table = new DBTable(this);
-                table.Name = DBInternal.GetTableNameFromAttribute(tableType);
+                var table = new DBTable(this)
+                {
+                    Name = DBInternal.GetTableNameFromAttribute(tableType)
+                };
 
                 foreach (var columnProperty in tableType.GetProperties())
                 {
@@ -63,9 +60,11 @@ namespace MyLibrary.DataBase
                     }
 
                     var attr = (DBOrmColumnAttribute)attrList[0];
-                    var column = new DBColumn(table);
-                    column.Name = attr.ColumnName.Split('.')[1];
-                    column.NotNull = attr.NotNull;
+                    var column = new DBColumn(table)
+                    {
+                        Name = attr.ColumnName.Split('.')[1],
+                        NotNull = attr.NotNull
+                    };
 
                     var columnType = columnProperty.PropertyType;
                     if (columnType.IsGenericType && columnType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -82,10 +81,10 @@ namespace MyLibrary.DataBase
 
                     table.Columns.Add(column);
                 }
-                Tables[i] = table;
+                Tables.Add(table);
             }
             InitializeDictionaries();
-            IsInitialized = true;
+            Initialized = true;
         }
         public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
@@ -126,9 +125,10 @@ namespace MyLibrary.DataBase
             var context = new DBContext(this, connection);
             return context;
         }
+
         public DBTable GetTable(string tableName)
         {
-            var table = TryGetTable(tableName);
+            var table = Tables[tableName];
             if (table == null)
             {
                 throw DBInternal.UnknownTableException(tableName);
@@ -137,34 +137,18 @@ namespace MyLibrary.DataBase
         }
         public DBColumn GetColumn(string columnName)
         {
-            var column = TryGetColumn(columnName);
+            var column = Columns[columnName];
             if (column == null)
             {
                 throw DBInternal.UnknownColumnException(null, columnName);
             }
             return column;
         }
-        public DBTable TryGetTable(string tableName)
-        {
-            if (_tablesDict.TryGetValue(tableName, out var table))
-            {
-                return table;
-            }
-            return null;
-        }
-        public DBColumn TryGetColumn(string columnName)
-        {
-            if (_columnsDict.TryGetValue(columnName, out var column))
-            {
-                return column;
-            }
-            return null;
-        }
 
         // Вспомогательные сущности для получения SQL-команд
         protected void PrepareSelectBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = query.FindBlocks(x => x.StartsWith("Select"));
+            var blockList = query.Structure.FindAll(x => x.StartsWith("Select"));
             if (blockList.Count == 0)
             {
                 sql.Concat(_selectCommandsDict[query.Table]);
@@ -341,7 +325,7 @@ namespace MyLibrary.DataBase
         {
             sql.Concat("INSERT INTO ", GetName(query.Table.Name), '(');
 
-            var blockList = query.FindBlocks(DBQueryStructureType.Set);
+            var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.WrongInsertCommandException();
@@ -372,7 +356,7 @@ namespace MyLibrary.DataBase
         {
             sql.Concat("UPDATE ", GetName(query.Table.Name), " SET ");
 
-            var blockList = query.FindBlocks(DBQueryStructureType.Set);
+            var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
                 throw DBInternal.WrongUpdateCommandException();
@@ -488,7 +472,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareWhereBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var blockList = query.FindBlocks(x => x.StartsWith("Where"));
+            var blockList = query.Structure.FindAll(x => x.StartsWith("Where"));
 
             if (blockList.Count > 0)
             {
@@ -599,7 +583,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareOrderByBlock(StringBuilder sql, DBQueryBase query)
         {
-            var blockList = query.FindBlocks(x => x.StartsWith("OrderBy"));
+            var blockList = query.Structure.FindAll(x => x.StartsWith("OrderBy"));
             if (blockList.Count > 0)
             {
                 sql.Concat(" ORDER BY ");
@@ -647,7 +631,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareGroupByBlock(StringBuilder sql, DBQueryBase query)
         {
-            var blockList = query.FindBlocks(x => x.StartsWith("GroupBy"));
+            var blockList = query.Structure.FindAll(x => x.StartsWith("GroupBy"));
             if (blockList.Count > 0)
             {
                 sql.Concat(" GROUP BY ");
@@ -681,7 +665,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareHavingBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var block = query.FindBlock(x => x == DBQueryStructureType.Having_expression);
+            var block = query.Structure.Find(x => x == DBQueryStructureType.Having_expression);
             if (block != null)
             {
                 sql.Concat(" HAVING ", GetSqlFromExpression(block[0], cQuery));
@@ -782,7 +766,7 @@ namespace MyLibrary.DataBase
         {
             value = value ?? DBNull.Value;
 
-            if (value is string && _columnsDict.ContainsKey((string)value))
+            if (value is string stringValue && Columns.Contains(stringValue))
             {
                 return GetFullName((string)value);
             }
@@ -1408,6 +1392,11 @@ namespace MyLibrary.DataBase
         }
         private void InitializeDictionaries()
         {
+            Columns.Clear();
+            _selectCommandsDict.Clear();
+            _insertCommandsDict.Clear();
+            _updateCommandsDict.Clear();
+            _deleteCommandsDict.Clear();
             foreach (var table in Tables)
             {
                 _selectCommandsDict.Add(table, GetSelectCommandText(table));
@@ -1418,11 +1407,9 @@ namespace MyLibrary.DataBase
                     _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
                 }
 
-                _tablesDict.Add(table.Name, table);
                 foreach (var column in table.Columns)
                 {
-                    var fullName = string.Concat(table.Name, '.', column.Name);
-                    _columnsDict.Add(fullName, column);
+                    Columns.Add(column);
                 }
             }
         }

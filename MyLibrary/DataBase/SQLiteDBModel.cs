@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
@@ -18,26 +17,26 @@ namespace MyLibrary.DataBase
             CloseBlock = "]";
         }
 
-        public override DBTable[] GetTableSchema(DbConnection connection)
+        public override void FillTableSchema(DbConnection connection)
         {
-            var tables = new List<DBTable>();
-
             using (var tableSchema = connection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
                     if ((string)tableRow["TABLE_TYPE"] != "SYSTEM_TABLE")
                     {
-                        var table = new DBTable(this);
-                        table.Name = (string)tableRow["TABLE_NAME"];
-                        tables.Add(table);
+                        var table = new DBTable(this)
+                        {
+                            Name = (string)tableRow["TABLE_NAME"]
+                        };
+                        Tables.Add(table);
                     }
                 }
             }
 
             using (var dataSet = new DataSet())
             {
-                foreach (var table in tables)
+                foreach (var table in Tables)
                 {
                     var query = string.Concat("SELECT * FROM \"", table.Name, "\" LIMIT 0");
                     using (var dataAdapter = new SQLiteDataAdapter(query, (SQLiteConnection)connection))
@@ -46,10 +45,10 @@ namespace MyLibrary.DataBase
                     }
                 }
 
-                for (var i = 0; i < tables.Count; i++)
+                for (var i = 0; i < Tables.Count; i++)
                 {
                     var tableRow = dataSet.Tables[i];
-                    var table = tables[i];
+                    var table = Tables[i];
                     for (var j = 0; j < tableRow.Columns.Count; j++)
                     {
                         var columnRow = tableRow.Columns[j];
@@ -69,7 +68,7 @@ namespace MyLibrary.DataBase
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
                     var tableName = (string)columnRow["TABLE_NAME"];
-                    var table = tables.Find(x => x.Name == tableName);
+                    var table = Tables[tableName];
                     if (table != null)
                     {
                         var columnName = (string)columnRow["COLUMN_NAME"];
@@ -95,8 +94,6 @@ namespace MyLibrary.DataBase
                     }
                 }
             }
-
-            return tables.ToArray();
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {
@@ -123,19 +120,19 @@ namespace MyLibrary.DataBase
             {
                 PrepareSelectBlock(sql, query, cQuery);
 
-                var block = query.FindBlock(DBQueryStructureType.Distinct);
+                var block = query.Structure.Find(DBQueryStructureType.Distinct);
                 if (block != null)
                 {
                     sql.Insert(6, " DISTINCT");
                 }
 
-                block = query.FindBlock(DBQueryStructureType.Offset);
+                block = query.Structure.Find(DBQueryStructureType.Offset);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" SKIP ", block[0]));
                 }
 
-                block = query.FindBlock(DBQueryStructureType.Limit);
+                block = query.Structure.Find(DBQueryStructureType.Limit);
                 if (block != null)
                 {
                     sql.Insert(6, string.Concat(" FIRST ", block[0]));
