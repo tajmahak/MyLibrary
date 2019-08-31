@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyLibrary\Collections\ReadOnlyArray.cs" />
+    <Compile Include="MyLibrary\DataBase\DBQueryStructureBlockCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBTableCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />
     <Compile Include="MyLibrary\DataBase\DBColumnCollection.cs" />
