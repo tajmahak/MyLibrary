@@ -56,5 +56,9 @@ namespace MyLibrary.DataBase
         {
             return _list.GetEnumerator();
         }
+        public override string ToString()
+        {
+            return _list.ToString();
+        }
     }
 }
