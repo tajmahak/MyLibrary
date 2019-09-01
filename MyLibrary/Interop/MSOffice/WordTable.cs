@@ -49,6 +49,12 @@ namespace MyLibrary.Interop.MSOffice
             var wRange = wCell.Range;
             wRange.Rows.Add();
         }
+        public void DeleteRow(int rowIndex, int columnIndex = 0)
+        {
+            var wCell = Table.Cell(rowIndex + 1, columnIndex + 1);
+            var wRange = wCell.Range;
+            wRange.Rows.Delete();
+        }
         public string GetValue(int rowIndex, int columnIndex)
         {
             return Table.Cell(rowIndex + 1, columnIndex + 1).Range.Text;
