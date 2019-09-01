@@ -486,6 +486,11 @@ namespace MyLibrary.DataBase
             }
             _tableRows.Clear();
         }
+        public void Clear<TTable>()
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            Clear(tableName);
+        }
         public void Clear(string tableName)
         {
             var table = Model.GetTable(tableName);
@@ -497,11 +502,6 @@ namespace MyLibrary.DataBase
         public void Clear(DBRow row)
         {
             ClearInternal(row);
-        }
-        public void Clear<TTable>()
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
-            Clear(tableName);
         }
         public void Clear<TTable>(TTable row) where TTable : DBOrmTableBase
         {
