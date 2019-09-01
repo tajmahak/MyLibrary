@@ -89,19 +89,25 @@ namespace MyLibrary.Data
             throw new Exception("Сравнение указанных значений невозможно.");
         }
 
-        public static object GetNotNullValue(Type type)
+        public static bool IsNull(object value)
         {
-            if (type == typeof(string))
+            return value == null || value is DBNull;
+        }
+        public static bool IsEmpty(object value)
+        {
+            if (IsNull(value))
             {
-                return string.Empty;
+                return true;
             }
-
-            if (type.BaseType == typeof(Array))
+            if (value is string @string)
             {
-                return Activator.CreateInstance(type, 0);
+                return string.IsNullOrEmpty(@string);
             }
-
-            return Activator.CreateInstance(type);
+            if (value is StringBuilder stringBuilder)
+            {
+                return stringBuilder.Length == 0;
+            }
+            return Equals(value, Activator.CreateInstance(value.GetType()));
         }
 
         public static bool IsEquals<T>(T x, T y) where T : IEquatable<T>
@@ -119,7 +125,7 @@ namespace MyLibrary.Data
             var type = typeof(T);
             if (type.BaseType == typeof(Array))
             {
-                return ArrayEquals((T[])((object)x), (T[])((object)y));
+                return IsEqualsArray((T[])(object)x, (T[])(object)y);
             }
             return Equals(x, y);
         }
@@ -170,11 +176,26 @@ namespace MyLibrary.Data
 
             if (type1 == typeof(byte[]))
             {
-                return ArrayEquals((byte[])x, (byte[])y);
+                return IsEqualsArray((byte[])x, (byte[])y);
             }
             return Equals(x, y);
         }
-        public static bool ArrayEquals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
+        public static bool IsEqualsString(string str1, string str2, bool ignoreCase = false)
+        {
+            if (ignoreCase)
+            {
+                if (!IsEmpty(str1))
+                {
+                    str1 = str1.ToUpper();
+                }
+                if (!IsEmpty(str2))
+                {
+                    str2 = str2.ToUpper();
+                }
+            }
+            return IsEquals(str1, str2);
+        }
+        public static bool IsEqualsArray<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
             if (blob1.Length != blob2.Length)
             {
@@ -192,117 +213,39 @@ namespace MyLibrary.Data
             return true;
         }
 
-        public static string GetNotEmptyString(object value)
-        {
-            var sValue = Convert<string>(value);
-            sValue = IsNull(value) ? string.Empty : sValue;
-            return sValue;
-        }
-        public static string GetIgnoreCaseString(object value)
-        {
-            var sValue = GetNotEmptyString(value);
-            return sValue.ToUpperInvariant();
-        }
-        public static bool IsContainsString(string value1, string value2, bool ignoreCase = false)
+        public static bool IsContainsString(string str1, string str2, bool ignoreCase = false)
         {
             if (ignoreCase)
             {
-                value1 = value1.ToUpperInvariant();
-                value2 = value2.ToUpperInvariant();
+                str1 = str1.ToUpper();
+                str2 = str2.ToUpper();
             }
-            return value1.Contains(value2);
+            return str1.Contains(str2);
         }
 
-        public static bool IsNull(object value)
+        public static object GetNotNullValue(Type type)
         {
-            return value == null || value is DBNull;
-        }
-        public static bool IsEmpty(object value)
-        {
-            if (IsNull(value))
+            if (type == typeof(string))
             {
-                return true;
-            }
-            if (value is string @string)
-            {
-                return string.IsNullOrEmpty(@string);
-            }
-            if (value is StringBuilder stringBuilder)
-            {
-                return stringBuilder.Length == 0;
-            }
-            return Equals(value, Activator.CreateInstance(value.GetType()));
-        }
-
-        /// <summary>
-        /// Округляет десятичное значение до ближайшего целого. Параметр задает правило округления значения, если оно находится ровно посредине между двумя другими числами
-        /// </summary>
-        /// <param name="value">Округляемое число</param>
-        /// <param name="decimals">Значение, задающее правило округления, если его значение находится ровно посредине между двумя другими числами</param>
-        /// <param name="mode">Значение, задающее правило округления параметра value, если его значение находится ровно посредине между двумя другими числами</param>
-        /// <returns></returns>
-        public static decimal RoundDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
-        {
-            var digit = Convert<decimal>(value);
-            return Math.Round(digit, decimals, mode);
-        }
-        public static decimal? RoundDigitValue(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
-        {
-            if (IsEmpty(value))
-            {
-                return null;
+                return string.Empty;
             }
 
-            var digit = Convert<decimal>(value);
-            return Math.Round(digit, decimals, mode);
-        }
-        public static string FormatString<T>(T value, string format) where T : IFormattable
-        {
-            return value.ToString(format, null);
-        }
-        public static string FormatDigit(object value, int decimals = 0, bool allowNull = false)
-        {
-            if (allowNull && IsNull(value))
+            if (type.BaseType == typeof(Array))
             {
-                return null;
+                return Activator.CreateInstance(type, 0);
             }
 
-            if (IsNull(value))
-            {
-                value = decimal.Zero;
-            }
-
-            var text = System.Convert.ToDecimal(value).ToString("N" + decimals);
-            if (text.Length > 0)
-            {
-                if (text[0] == '-')
-                {
-                    // вставка пробела между минусом и значением в отрицательном числе
-                    text = text.Insert(1, "\u00A0");
-                }
-            }
-            return text;
+            return Activator.CreateInstance(type);
+        }
+        public static string ConvertToNotNullString(object value)
+        {
+            value = Convert<string>(value);
+            return IsNull(value) ? string.Empty : (string)value;
         }
         public static string[] Split(string value, params string[] values)
         {
             return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
         }
-        public static string FormatFileSize(long value)
-        {
-            string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
-            var order = 0;
-            var len = value;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len /= 1024;
-            }
-
-            var val = value / (decimal)Math.Pow(1024, order);
-            var text = $"{val:0.00} {sizes[order]}".Replace(',', '.');
-            return text;
-        }
-
         public static void SetValue(object obj, string memberName, object value)
         {
             var type = obj.GetType();
@@ -338,6 +281,59 @@ namespace MyLibrary.Data
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public static string FormattedDigit(object value, int decimals = 0, bool allowNull = false)
+        {
+            if (allowNull && IsNull(value))
+            {
+                return null;
+            }
+
+            if (IsNull(value))
+            {
+                value = decimal.Zero;
+            }
+
+            var text = System.Convert.ToDecimal(value).ToString($"N{decimals}");
+            if (text.Length > 0)
+            {
+                if (text[0] == '-')
+                {
+                    // вставка пробела между минусом и значением в отрицательном числе
+                    text = text.Insert(1, "\u00A0");
+                }
+            }
+            return text;
+        }
+        public static string FormattedFileSize(long value)
+        {
+            string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
+            var order = 0;
+            var len = value;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len /= 1024;
+            }
+
+            var val = value / (decimal)Math.Pow(1024, order);
+            var text = $"{val:0.00} {sizes[order]}".Replace(',', '.');
+            return text;
+        }
+
+        public static decimal Round(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
+        {
+            var digit = Convert<decimal>(value);
+            return Math.Round(digit, decimals, mode);
+        }
+        public static decimal? RoundNullableDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
+        {
+            if (IsEmpty(value))
+            {
+                return null;
+            }
+            return Round(value, decimals, mode);
         }
 
         /// <summary>
