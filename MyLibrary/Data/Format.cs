@@ -215,7 +215,7 @@ namespace MyLibrary.Data
 
         public static bool IsNull(object value)
         {
-            return (value == null || value is DBNull);
+            return value == null || value is DBNull;
         }
         public static bool IsEmpty(object value)
         {
@@ -231,7 +231,7 @@ namespace MyLibrary.Data
             {
                 return stringBuilder.Length == 0;
             }
-            return false;
+            return Equals(value, Activator.CreateInstance(value.GetType()));
         }
 
         /// <summary>
