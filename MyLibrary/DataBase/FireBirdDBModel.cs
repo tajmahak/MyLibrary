@@ -151,6 +151,29 @@ namespace MyLibrary.DataBase
                 }
             }
             #endregion
+
+            // Код для отображения DataTable в Excel
+            //var schema = connection.GetSchema();
+            //var str = new StringBuilder();
+            //foreach (DataColumn column in schema.Columns)
+            //{
+            //    str.Append(column.ColumnName + "\t");
+            //}
+            //str.AppendLine();
+            //foreach (DataColumn column in schema.Columns)
+            //{
+            //    str.Append(column.DataType.Name + "\t");
+            //}
+            //str.AppendLine();
+            //foreach (DataRow row in schema.Rows)
+            //{
+            //    foreach (var value in row.ItemArray)
+            //    {
+            //        str.Append(value + "\t");
+            //    }
+            //    str.AppendLine();
+            //}
+            //var text = str.ToString();
         }
         protected override string GetInsertCommandText(DBTable table)
         {
