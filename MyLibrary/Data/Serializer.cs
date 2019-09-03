@@ -8,17 +8,6 @@ namespace MyLibrary.Data
 {
     public static class Serializer
     {
-        public static void InitializeXmlType(Type type)
-        {
-            lock (_xmlSerializers)
-            {
-                if (!_xmlSerializers.ContainsKey(type))
-                {
-                    var xmlSerializer = new XmlSerializer(type);
-                    _xmlSerializers.Add(type, xmlSerializer);
-                }
-            }
-        }
         public static string SerializeToXml(object obj)
         {
             var xmlSerializer = GetXmlSerializer(obj.GetType());
@@ -99,9 +88,20 @@ namespace MyLibrary.Data
                 return _xmlSerializers[type];
             }
         }
+        private static void InitializeXmlType(Type type)
+        {
+            lock (_xmlSerializers)
+            {
+                if (!_xmlSerializers.ContainsKey(type))
+                {
+                    var xmlSerializer = new XmlSerializer(type);
+                    _xmlSerializers.Add(type, xmlSerializer);
+                }
+            }
+        }
         private static void CorrectObject(object obj)
         {
-            //  исправление многострочного string после десериализации
+            //  исправление многострочного string после десериализации XML
             foreach (var property in obj.GetType().GetProperties())
             {
                 if (property.PropertyType == typeof(string))

@@ -285,6 +285,47 @@ namespace MyLibrary.Data
             }
         }
 
+        public static byte[] CompressText(string text)
+        {
+            var data = Encoding.UTF8.GetBytes(text);
+            using (var mem = new MemoryStream())
+            {
+                using (var stream = new DeflateStream(mem, CompressionMode.Compress))
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+                data = mem.ToArray();
+            }
+            return data;
+        }
+        public static string DecompressText(byte[] data)
+        {
+            using (var mem = new MemoryStream(data))
+            using (var stream = new DeflateStream(mem, CompressionMode.Decompress))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                var text = reader.ReadToEnd();
+                return text;
+            }
+        }
+        public static string ToBase64(byte[] data)
+        {
+            return System.Convert.ToBase64String(data);
+        }
+        public static byte[] FromBase64(string data)
+        {
+            return System.Convert.FromBase64String(data);
+        }
+        public static string ToHexText(byte[] data)
+        {
+            var str = new StringBuilder(data.Length * 2);
+            for (var i = 0; i < data.Length; i++)
+            {
+                str.Append(data[i].ToString("x2"));
+            }
+            return str.ToString();
+        }
+
         public static string FormattedDigit(object value, int decimals = 0, bool allowNull = false)
         {
             if (allowNull && IsNull(value))
@@ -402,31 +443,6 @@ namespace MyLibrary.Data
             }
             // Step 7
             return d[n, m];
-        }
-
-
-        public static byte[] CompressText(string text)
-        {
-            var data = Encoding.UTF8.GetBytes(text);
-            using (var mem = new MemoryStream())
-            {
-                using (var stream = new DeflateStream(mem, CompressionMode.Compress))
-                {
-                    stream.Write(data, 0, data.Length);
-                }
-                data = mem.ToArray();
-            }
-            return data;
-        }
-        public static string DecompressText(byte[] data)
-        {
-            using (var mem = new MemoryStream(data))
-            using (var stream = new DeflateStream(mem, CompressionMode.Decompress))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
-            {
-                var text = reader.ReadToEnd();
-                return text;
-            }
         }
     }
 }
