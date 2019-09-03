@@ -107,6 +107,7 @@
     <Compile Include="MyLibrary\DataBase\MsSqlServerDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
     <Compile Include="MyLibrary\Collections\ReadOnlyList.cs" />
+    <Compile Include="MyLibrary\Data\Criptography.cs" />
     <Compile Include="MyLibrary\Data\StringBuilderExtension.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
