@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 
@@ -400,6 +402,31 @@ namespace MyLibrary.Data
             }
             // Step 7
             return d[n, m];
+        }
+
+
+        public static byte[] CompressText(string text)
+        {
+            var data = Encoding.UTF8.GetBytes(text);
+            using (var mem = new MemoryStream())
+            {
+                using (var stream = new DeflateStream(mem, CompressionMode.Compress))
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+                data = mem.ToArray();
+            }
+            return data;
+        }
+        public static string DecompressText(byte[] data)
+        {
+            using (var mem = new MemoryStream(data))
+            using (var stream = new DeflateStream(mem, CompressionMode.Decompress))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                var text = reader.ReadToEnd();
+                return text;
+            }
         }
     }
 }
