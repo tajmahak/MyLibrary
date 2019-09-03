@@ -16,6 +16,16 @@ namespace MyLibrary.WinForms
         {
             return grid.CurrentCell;
         }
+        public static DataGridViewCell[] GetSelectedCells(this DataGridView grid)
+        {
+            var array = new DataGridViewCell[grid.SelectedCells.Count];
+            grid.SelectedCells.CopyTo(array, 0);
+
+            Sorting.StableInsertionSort(array, (x, y) => x.ColumnIndex.CompareTo(y.ColumnIndex));
+            Sorting.StableInsertionSort(array, (x, y) => x.RowIndex.CompareTo(y.RowIndex));
+
+            return array;
+        }
         public static DataGridViewRow GetSelectedRow(this DataGridView grid)
         {
             var index = GetSelectedRowIndex(grid);
