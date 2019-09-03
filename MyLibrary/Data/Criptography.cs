@@ -6,13 +6,19 @@ namespace MyLibrary.Data
 {
     public static class Cryptography
     {
+        /// <summary>
+        /// Выполняет симметричное шифрование с помощью алгоритма <see cref="Aes"/>.
+        /// </summary>
+        /// <param name="data">Данные, которые необходимо зашифровать.</param>
+        /// <param name="key">Секретный ключ, который должен использоваться (128/192/256 бит).</param>
+        /// <returns></returns>
         public static byte[] EncryptAES(byte[] data, byte[] key)
         {
             using (var aes = Aes.Create())
             {
                 aes.KeySize = key.Length * 8;
                 aes.BlockSize = 128;
-                aes.Padding = PaddingMode.PKCS7;
+                aes.Padding = PaddingMode.Zeros;
 
                 aes.Key = key;
                 aes.GenerateIV();
@@ -28,6 +34,12 @@ namespace MyLibrary.Data
                 }
             }
         }
+        /// <summary>
+        /// Выполняет симметричное дешифрование с помощью алгоритма <see cref="Aes"/>.
+        /// </summary>
+        /// <param name="data">Данные, которые необходимо дешифровать.</param>
+        /// <param name="key">Секретный ключ, который должен использоваться (128/192/256 бит).</param>
+        /// <returns></returns>
         public static byte[] DecryptAES(byte[] data, byte[] key)
         {
             using (var aes = Aes.Create())
@@ -58,15 +70,51 @@ namespace MyLibrary.Data
                     }
                 }
             }
-
-
-
-
-
-
-
-
         }
+
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="MD5"/>.
+        /// </summary>
+        /// <param name="data">Массив байтов.</param>
+        /// <returns></returns>
+        public static byte[] GetMD5Hash(byte[] data)
+        {
+            using (var md5 = MD5.Create())
+            {
+                return md5.ComputeHash(data);
+            }
+        }
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="SHA1"/>.
+        /// </summary>
+        /// <param name="data">Массив байтов.</param>
+        /// <returns></returns>
+        public static byte[] GetSHA1Hash(byte[] data)
+        {
+            using (var sha1 = SHA1.Create())
+            {
+                return sha1.ComputeHash(data);
+            }
+        }
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="SHA256"/>.
+        /// </summary>
+        /// <param name="data">Массив байтов.</param>
+        /// <returns></returns>
+        public static byte[] GetSHA256Hash(byte[] data)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                return sha256.ComputeHash(data);
+            }
+        }
+
+        /// <summary>
+        /// Заполняет массив байтов криптостойкой случайной последовательностью значений.
+        /// </summary>
+        /// <param name="length">Длина получаемого массива байт.</param>
+        /// <param name="nonZero">Заполнять ненулевыми значениями.</param>
+        /// <returns></returns>
         public static byte[] GetRandomBytes(int length, bool nonZero = false)
         {
             var data = new byte[length];
