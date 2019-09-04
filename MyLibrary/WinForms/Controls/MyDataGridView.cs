@@ -97,11 +97,21 @@ namespace MyLibrary.WinForms.Controls
                     rows[i] = Rows[i];
                 }
 
-                Sorting.StableInsertionSort(rows, (x, y) =>
+                Sorting.StableInsertionSort(rows, (row1, row2) =>
                 {
-                    var value1 = x.Cells[dataGridViewColumn.Index].Value;
-                    var value2 = y.Cells[dataGridViewColumn.Index].Value;
-                    return Format.Compare(value1, value2);
+                    var cellValue1 = row1.Cells[dataGridViewColumn.Index].Value;
+                    var cellValue2 = row2.Cells[dataGridViewColumn.Index].Value;
+
+                    var e = new DataGridViewSortCompareEventArgs(dataGridViewColumn, cellValue1, cellValue2, row1.Index, row2.Index);
+                    OnSortCompare(e);
+                    if (e.Handled)
+                    {
+                        return e.SortResult;
+                    }
+                    else
+                    {
+                        return Format.Compare(cellValue1, cellValue2);
+                    }
                 });
 
                 if (sortOrder == SortOrder.Descending)
