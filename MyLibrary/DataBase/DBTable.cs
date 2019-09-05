@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MyLibrary.DataBase
+﻿namespace MyLibrary.DataBase
 {
     /// <summary>
     /// Представляет схему таблицы БД.

@@ -18,19 +18,19 @@ namespace MyLibrary.DataBase
         // Работа с контекстом БД
         public TTable ReadRow<TTable>() where TTable : DBOrmTableBase
         {
-            return Context.GetRowInternal<TTable>(this);
+            return Context.ReadRowInternal<TTable>(this);
         }
         public DBRow ReadRow()
         {
-            return Context.GetRowInternal<DBRow>(this);
+            return Context.ReadRowInternal<DBRow>(this);
         }
         public TTable GetRowOrNew<TTable>() where TTable : DBOrmTableBase
         {
-            return Context.GetRowOrNewInternal<TTable>(this);
+            return Context.ReadRowOrNewInternal<TTable>(this);
         }
         public DBRow GetRowOrNew()
         {
-            return Context.GetRowOrNewInternal<DBRow>(this);
+            return Context.ReadRowOrNewInternal<DBRow>(this);
         }
         public DBReader<TTable> Read<TTable>() where TTable : DBOrmTableBase
         {
@@ -1074,11 +1074,11 @@ namespace MyLibrary.DataBase
         // Работа с контекстом БД
         public new TTable ReadRow()
         {
-            return Context.GetRowInternal<TTable>(this);
+            return Context.ReadRowInternal<TTable>(this);
         }
         public new TTable GetRowOrNew()
         {
-            return Context.GetRowOrNewInternal<TTable>(this);
+            return Context.ReadRowOrNewInternal<TTable>(this);
         }
         public new DBReader<TTable> Read()
         {
