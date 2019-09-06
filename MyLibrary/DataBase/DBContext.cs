@@ -42,19 +42,6 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public DBQuery Query(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery(table, this);
-            return query;
-        }
-        public DBQuery<TRow> Query<TRow>() where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery<TRow>(table, this);
-            return query;
-        }
         public void CommitTransaction()
         {
             if (_transaction != null)
@@ -261,6 +248,20 @@ namespace MyLibrary.DataBase
                 Clear();
                 throw DBInternal.DbSaveException(row, ex);
             }
+        }
+
+        public DBQuery Query(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery(table, this);
+            return query;
+        }
+        public DBQuery<TRow> Query<TRow>() where TRow : DBOrmRowBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery<TRow>(table, this);
+            return query;
         }
 
         #region Работа с данными
