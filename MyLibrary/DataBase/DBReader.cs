@@ -17,13 +17,15 @@ namespace MyLibrary.DataBase
         private readonly DbDataReader _reader;
         private readonly DBTable _table;
         private readonly DBModelBase _model;
+        private readonly Func<DBRow, T> _rowConverter;
 
-        public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query)
+        public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query, Func<DBRow, T> rowConverter)
         {
             _model = model;
             _command = model.CreateCommand(connection, query);
             _reader = _command.ExecuteReader();
             _table = query.IsView ? GetTableFromSchema() : query.Table;
+            _rowConverter = rowConverter;
         }
         public void Dispose()
         {
@@ -38,7 +40,7 @@ namespace MyLibrary.DataBase
                 var row = new DBRow(_table);
                 _reader.GetValues(row.Values);
                 row.State = DataRowState.Unchanged;
-                Current = DBInternal.PackRow<T>(row);
+                Current = _rowConverter(row);
                 return true;
             }
             return false;
@@ -52,23 +54,9 @@ namespace MyLibrary.DataBase
             }
             return list;
         }
-        public List<TOut> ToList<TOut>(Func<T, TOut> convertFunc)
-        {
-            var list = new List<TOut>();
-            foreach (var row in this)
-            {
-                var item = convertFunc(row);
-                list.Add(item);
-            }
-            return list;
-        }
         public T[] ToArray()
         {
             return ToList().ToArray();
-        }
-        public TOut[] ToArray<TOut>(Func<T, TOut> convertFunc)
-        {
-            return ToList(convertFunc).ToArray();
         }
 
         private DBTable GetTableFromSchema()

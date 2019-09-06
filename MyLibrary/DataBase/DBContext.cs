@@ -266,87 +266,104 @@ namespace MyLibrary.DataBase
 
         #region Работа с данными
 
+        public DBRow NewRow(string tableName)
+        {
+            var table = Model.GetTable(tableName);
+            var row = table.CreateRow();
+            AddRowInternal(row);
+            return row;
+        }
         public TRow NewRow<TRow>() where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            return NewRowInternal<TRow>(tableName);
-        }
-        public DBRow NewRow(string tableName)
-        {
-            return NewRowInternal<DBRow>(tableName);
+            var row = NewRow(tableName);
+            return CreateOrmRow<TRow>(row);
         }
 
+        public DBReader<DBRow> Read(DBQueryBase query)
+        {
+            return ReadInternal(query, row => row);
+        }
+        public DBReader<DBRow> Read(string tableName, params object[] columnConditionPair)
+        {
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return Read(query);
+        }
+        public DBReader<TRow> Read<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
+        {
+            return ReadInternal(query, row => CreateOrmRow<TRow>(row));
+        }
+        public DBReader<TRow> Read<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
+        {
+            return ReadInternal(query, row => CreateOrmRow<TRow>(row));
+        }
+        public DBReader<TRow> Read<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
+        {
+            var query = Query<TRow>();
+            query.Where(whereExpression);
+            return Read(query);
+        }
+        public DBReader<TRow> Read<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return Read<TRow>(query);
+        }
+        public DBReader<T> Read<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
+        {
+            return ReadInternal(query, rowConverter);
+        }
+        public DBReader<T> Read<TRow, T>(DBQuery<TRow> query, Func<TRow, T> rowConverter) where TRow : DBOrmRowBase
+        {
+            return ReadInternal(query, row => rowConverter(CreateOrmRow<TRow>(row)));
+        }
+
+        public DBRow ReadRow(DBQueryBase query)
+        {
+            return ReadRowInternal(query, row => row);
+        }
+        public DBRow ReadRow(string tableName, params object[] columnConditionPair)
+        {
+            var query = CreateSelectQuery(tableName, columnConditionPair);
+            return ReadRow(query);
+        }
         public TRow ReadRow<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
         {
-            return ReadRowInternal<TRow>(query);
+            return ReadRowInternal(query, row => CreateOrmRow<TRow>(row));
         }
         public TRow ReadRow<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
         {
-            return ReadRowInternal<TRow>(query);
+            return ReadRowInternal<TRow>(query, row => CreateOrmRow<TRow>(row));
         }
         public TRow ReadRow<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
             var query = Query<TRow>();
             query.Where(whereExpression);
-            return ReadRowInternal<TRow>(query);
+            return ReadRow(query);
         }
         public TRow ReadRow<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadRowInternal<TRow>(query);
+            return ReadRow<TRow>(query);
         }
-        public DBRow ReadRow(DBQueryBase query)
+        public T ReadRow<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
         {
-            return ReadRowInternal<DBRow>(query);
+            return ReadRowInternal<T>(query, rowConverter);
         }
-        public DBRow ReadRow(string tableName, params object[] columnConditionPair)
+        public T ReadRow<TRow, T>(DBQuery<TRow> query, Func<TRow, T> rowConverter) where TRow : DBOrmRowBase
         {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadRowInternal<DBRow>(query);
+            return ReadRowInternal(query, row => rowConverter(CreateOrmRow<TRow>(row)));
         }
 
-        public TRow ReadRowOrNew<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
-        {
-            return ReadRowOrNewInternal<TRow>(query);
-        }
-        public TRow ReadRowOrNew<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
-        {
-            return ReadRowOrNewInternal<TRow>(query);
-        }
-        public TRow ReadRowOrNew<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Where(whereExpression);
-            return ReadRowOrNewInternal<TRow>(query);
-        }
-        public TRow ReadRowOrNew<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            var item = ReadRowOrNewInternal<TRow>(query);
-
-            if (item.Row.State == DataRowState.Added)
-            {
-                // установка значений в строку согласно аргументам
-                for (var i = 0; i < columnConditionPair.Length; i += 2)
-                {
-                    var columnName = (string)columnConditionPair[i];
-                    var value = columnConditionPair[i + 1];
-                    item[columnName] = value;
-                }
-            }
-
-            return item;
-        }
         public DBRow ReadRowOrNew(DBQueryBase query)
         {
-            return ReadRowOrNewInternal<DBRow>(query);
+            return ReadRowOrNewInternal(query, row => row);
         }
         public DBRow ReadRowOrNew(string tableName, params object[] columnConditionPair)
         {
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            var row = ReadRowOrNewInternal<DBRow>(query);
+            var row = ReadRowOrNew(query);
 
             if (row.State == DataRowState.Added)
             {
@@ -361,35 +378,38 @@ namespace MyLibrary.DataBase
 
             return row;
         }
-
-        public DBReader<TRow> Read<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
+        public TRow ReadRowOrNew<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
         {
-            return ReadInternal<TRow>(query);
+            return ReadRowOrNewInternal(query, row => CreateOrmRow<TRow>(row));
         }
-        public DBReader<TRow> Read<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
+        public TRow ReadRowOrNew<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
         {
-            return ReadInternal<TRow>(query);
+            return ReadRowOrNewInternal(query, row => CreateOrmRow<TRow>(row));
         }
-        public DBReader<TRow> Read<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
+        public TRow ReadRowOrNew<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
             var query = Query<TRow>();
             query.Where(whereExpression);
-            return ReadInternal<TRow>(query);
+            return ReadRowOrNew(query);
         }
-        public DBReader<TRow> Read<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
+        public TRow ReadRowOrNew<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadInternal<TRow>(query);
-        }
-        public DBReader<DBRow> Read(DBQueryBase query)
-        {
-            return ReadInternal<DBRow>(query);
-        }
-        public DBReader<DBRow> Read(string tableName, params object[] columnConditionPair)
-        {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadInternal<DBRow>(query);
+            var item = ReadRowOrNew<TRow>(query);
+
+            if (item.Row.State == DataRowState.Added)
+            {
+                // установка значений в строку согласно аргументам
+                for (var i = 0; i < columnConditionPair.Length; i += 2)
+                {
+                    var columnName = (string)columnConditionPair[i];
+                    var value = columnConditionPair[i + 1];
+                    item[columnName] = value;
+                }
+            }
+
+            return item;
         }
 
         public TValue ReadValue<TValue>(DBQueryBase query)
@@ -519,44 +539,39 @@ namespace MyLibrary.DataBase
 
         #endregion
 
-        internal T NewRowInternal<T>(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var row = table.CreateRow();
-            AddRowInternal(row);
-            return DBInternal.PackRow<T>(row);
-        }
-        internal T ReadRowInternal<T>(DBQueryBase query)
+        private T ReadRowInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
         {
             query.Structure.Add(DBQueryStructureType.Limit, 1);
-            foreach (var row in ReadInternal<T>(query))
+            foreach (var row in ReadInternal<T>(query, rowConverter))
             {
                 return row;
             }
             return default;
         }
-        internal T ReadRowOrNewInternal<T>(DBQueryBase query)
+        private T ReadRowOrNewInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
         {
-            var row = ReadRowInternal<T>(query);
-
+            var row = ReadRowInternal(query, rowConverter);
             if (row != null)
             {
                 AddRowInternal(row);
-                return row;
             }
-
-            return NewRowInternal<T>(query.Table.Name);
+            else
+            {
+                var dbRow = NewRow(query.Table.Name);
+                row = rowConverter(dbRow);
+            }
+            return row;
         }
-        internal DBReader<T> ReadInternal<T>(DBQueryBase query)
+        private DBReader<T> ReadInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
         {
             if (query.StatementType != StatementType.Select)
             {
                 throw DBInternal.SqlExecuteException();
             }
 
-            return new DBReader<T>(Connection, Model, query);
+            return new DBReader<T>(Connection, Model, query, rowConverter);
         }
-        internal TType ReadValueInternal<TType>(DBQueryBase query)
+        private TType ReadValueInternal<TType>(DBQueryBase query)
         {
             if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
@@ -569,9 +584,9 @@ namespace MyLibrary.DataBase
                 return Format.Convert<TType>(value);
             }
         }
-        internal bool RowExistsInternal(DBQueryBase query)
+        private bool RowExistsInternal(DBQueryBase query)
         {
-            var row = ReadRowInternal<DBRow>(query);
+            var row = ReadRowInternal<DBRow>(query, x => x);
             return (row != null);
         }
 
@@ -582,7 +597,7 @@ namespace MyLibrary.DataBase
                 return AddCollectionInternal((IEnumerable)value);
             }
 
-            var dbRow = DBInternal.UnpackRow(value);
+            var dbRow = ExtractDBRow(value);
             if (dbRow.Table.Name == null)
             {
                 throw DBInternal.ProcessRowException();
@@ -625,7 +640,7 @@ namespace MyLibrary.DataBase
                 return;
             }
 
-            var dbRow = DBInternal.UnpackRow(value);
+            var dbRow = ExtractDBRow(value);
             if (dbRow.Table.Name == null)
             {
                 throw DBInternal.ProcessRowException();
@@ -738,6 +753,26 @@ namespace MyLibrary.DataBase
                 cmd.Where(columnName, value);
             }
             return cmd;
+        }
+        private static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRowBase
+        {
+            return (TRow)Activator.CreateInstance(typeof(TRow), row);
+        }
+        private static DBRow ExtractDBRow(object row)
+        {
+            if (row == null)
+            {
+                return null;
+            }
+            if (row is DBRow dbRow)
+            {
+                return dbRow;
+            }
+            if (row is DBOrmRowBase ormRow)
+            {
+                return ormRow.Row;
+            }
+            throw DBInternal.ExtractDBRowException(row.GetType());
         }
 
         private class InsertRowContainer

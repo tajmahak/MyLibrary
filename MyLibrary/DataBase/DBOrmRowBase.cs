@@ -58,13 +58,5 @@ namespace MyLibrary.DataBase
         public DBOrmRowBase(DBRow row) : base(row)
         {
         }
-
-        //!!!
-        // Вместо Convert(x) и ToList(x) сделать Read(x=>new {x}) ReadRow(x=>{x})
-
-        public TOut Convert<TOut>(Func<T, TOut> convertFunc)
-        {
-            return convertFunc(this as T);
-        }
     }
 }

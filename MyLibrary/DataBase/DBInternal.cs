@@ -7,26 +7,6 @@ namespace MyLibrary.DataBase
     /// </summary>
     internal static class DBInternal
     {
-        public static T PackRow<T>(object row)
-        {
-            if (typeof(T) == typeof(DBRow))
-            {
-                return (T)row;
-            }
-            return (T)Activator.CreateInstance(typeof(T), row);
-        }
-        public static DBRow UnpackRow(object row)
-        {
-            if (row == null)
-            {
-                return null;
-            }
-            if (row is DBOrmRowBase)
-            {
-                return (row as DBOrmRowBase).Row;
-            }
-            return (DBRow)row;
-        }
         public static string GetTableNameFromAttribute(Type type)
         {
             DBOrmTableAttribute attribute;
@@ -178,6 +158,10 @@ namespace MyLibrary.DataBase
         public static Exception GetDefaultSqlQueryException(DBTable table)
         {
             return new Exception($"Невозможно получить SQL-команду для таблицы '{table.Name}', т.к. в ней отсутствует первичный ключ.");
+        }
+        public static Exception ExtractDBRowException(Type type)
+        {
+            throw new Exception($"'{type.Name}' - невозможно извлечь строку.");
         }
     }
 }
