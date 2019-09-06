@@ -21,9 +21,9 @@ namespace MyLibrary.DataBase
             {
                 return null;
             }
-            if (row is DBOrmTableBase)
+            if (row is DBOrmRowBase)
             {
-                return (row as DBOrmTableBase).Row;
+                return (row as DBOrmRowBase).Row;
             }
             return (DBRow)row;
         }

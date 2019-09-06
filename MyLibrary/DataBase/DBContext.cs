@@ -48,11 +48,11 @@ namespace MyLibrary.DataBase
             var query = new DBQuery(table, this);
             return query;
         }
-        public DBQuery<TTable> Query<TTable>() where TTable : DBOrmTableBase
+        public DBQuery<TRow> Query<TRow>() where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var table = Model.GetTable(tableName);
-            var query = new DBQuery<TTable>(table, this);
+            var query = new DBQuery<TRow>(table, this);
             return query;
         }
         public void CommitTransaction()
@@ -265,35 +265,35 @@ namespace MyLibrary.DataBase
 
         #region Работа с данными
 
-        public TTable NewRow<TTable>() where TTable : DBOrmTableBase
+        public TRow NewRow<TRow>() where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
-            return NewRowInternal<TTable>(tableName);
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            return NewRowInternal<TRow>(tableName);
         }
         public DBRow NewRow(string tableName)
         {
             return NewRowInternal<DBRow>(tableName);
         }
 
-        public TTable ReadRow<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
+        public TRow ReadRow<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
         {
-            return ReadRowInternal<TTable>(query);
+            return ReadRowInternal<TRow>(query);
         }
-        public TTable ReadRow<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
+        public TRow ReadRow<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
         {
-            return ReadRowInternal<TTable>(query);
+            return ReadRowInternal<TRow>(query);
         }
-        public TTable ReadRow<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public TRow ReadRow<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
-            var query = Query<TTable>();
+            var query = Query<TRow>();
             query.Where(whereExpression);
-            return ReadRowInternal<TTable>(query);
+            return ReadRowInternal<TRow>(query);
         }
-        public TTable ReadRow<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        public TRow ReadRow<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadRowInternal<TTable>(query);
+            return ReadRowInternal<TRow>(query);
         }
         public DBRow ReadRow(DBQueryBase query)
         {
@@ -305,25 +305,25 @@ namespace MyLibrary.DataBase
             return ReadRowInternal<DBRow>(query);
         }
 
-        public TTable ReadRowOrNew<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
+        public TRow ReadRowOrNew<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
         {
-            return ReadRowOrNewInternal<TTable>(query);
+            return ReadRowOrNewInternal<TRow>(query);
         }
-        public TTable ReadRowOrNew<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
+        public TRow ReadRowOrNew<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
         {
-            return ReadRowOrNewInternal<TTable>(query);
+            return ReadRowOrNewInternal<TRow>(query);
         }
-        public TTable ReadRowOrNew<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public TRow ReadRowOrNew<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
-            var query = Query<TTable>();
+            var query = Query<TRow>();
             query.Where(whereExpression);
-            return ReadRowOrNewInternal<TTable>(query);
+            return ReadRowOrNewInternal<TRow>(query);
         }
-        public TTable ReadRowOrNew<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        public TRow ReadRowOrNew<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            var item = ReadRowOrNewInternal<TTable>(query);
+            var item = ReadRowOrNewInternal<TRow>(query);
 
             if (item.Row.State == DataRowState.Added)
             {
@@ -332,7 +332,7 @@ namespace MyLibrary.DataBase
                 {
                     var columnName = (string)columnConditionPair[i];
                     var value = columnConditionPair[i + 1];
-                    item.Row[columnName] = value;
+                    item[columnName] = value;
                 }
             }
 
@@ -361,25 +361,25 @@ namespace MyLibrary.DataBase
             return row;
         }
 
-        public DBReader<TTable> Read<TTable>(DBQueryBase query) where TTable : DBOrmTableBase
+        public DBReader<TRow> Read<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
         {
-            return ReadInternal<TTable>(query);
+            return ReadInternal<TRow>(query);
         }
-        public DBReader<TTable> Read<TTable>(DBQuery<TTable> query) where TTable : DBOrmTableBase
+        public DBReader<TRow> Read<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
         {
-            return ReadInternal<TTable>(query);
+            return ReadInternal<TRow>(query);
         }
-        public DBReader<TTable> Read<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public DBReader<TRow> Read<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
-            var query = Query<TTable>();
+            var query = Query<TRow>();
             query.Where(whereExpression);
-            return ReadInternal<TTable>(query);
+            return ReadInternal<TRow>(query);
         }
-        public DBReader<TTable> Read<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        public DBReader<TRow> Read<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadInternal<TTable>(query);
+            return ReadInternal<TRow>(query);
         }
         public DBReader<DBRow> Read(DBQueryBase query)
         {
@@ -391,38 +391,38 @@ namespace MyLibrary.DataBase
             return ReadInternal<DBRow>(query);
         }
 
-        public TType ReadValue<TType>(DBQueryBase query)
+        public TValue ReadValue<TValue>(DBQueryBase query)
         {
-            return ReadValueInternal<TType>(query);
+            return ReadValueInternal<TValue>(query);
         }
-        public TType ReadValue<TType, TTable>(string columnName, Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public TValue ReadValue<TValue, TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
-            var query = Query<TTable>();
+            var query = Query<TRow>();
             query.Select(columnName);
             query.Where(whereExpression);
-            return ReadValueInternal<TType>(query);
+            return ReadValueInternal<TValue>(query);
         }
-        public TType ReadValue<TType>(string columnName, params object[] columnConditionPair)
+        public TValue ReadValue<TValue>(string columnName, params object[] columnConditionPair)
         {
             var tableName = columnName.Split('.')[0];
             var query = CreateSelectQuery(tableName, columnConditionPair);
             query.Select(columnName);
-            return ReadValueInternal<TType>(query);
+            return ReadValueInternal<TValue>(query);
         }
 
         public bool RowExists(DBQueryBase query)
         {
             return RowExistsInternal(query);
         }
-        public bool RowExists<TTable>(Expression<Func<TTable, bool>> whereExpression) where TTable : DBOrmTableBase
+        public bool RowExists<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
         {
-            var query = Query<TTable>();
+            var query = Query<TRow>();
             query.Where(whereExpression);
             return RowExistsInternal(query);
         }
-        public bool RowExists<TTable>(params object[] columnConditionPair) where TTable : DBOrmTableBase
+        public bool RowExists<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var query = CreateSelectQuery(tableName, columnConditionPair);
             return RowExistsInternal(query);
         }
@@ -436,7 +436,7 @@ namespace MyLibrary.DataBase
         {
             return AddRowInternal(row);
         }
-        public int Add<TTable>(TTable row) where TTable : DBOrmTableBase
+        public int Add<TRow>(TRow row) where TRow : DBOrmRowBase
         {
             return AddRowInternal(row);
         }
@@ -444,7 +444,7 @@ namespace MyLibrary.DataBase
         {
             return AddRowInternal(collection);
         }
-        public int Add<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        public int Add<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
             return AddRowInternal(collection);
         }
@@ -458,7 +458,7 @@ namespace MyLibrary.DataBase
         {
             SaveAndClearInternal(row);
         }
-        public void SaveAndClear<TTable>(TTable row) where TTable : DBOrmTableBase
+        public void SaveAndClear<TRow>(TRow row) where TRow : DBOrmRowBase
         {
             SaveAndClearInternal(row);
         }
@@ -466,7 +466,7 @@ namespace MyLibrary.DataBase
         {
             SaveAndClearInternal(collection);
         }
-        public void SaveAndClear<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        public void SaveAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
             SaveAndClearInternal(collection);
         }
@@ -486,9 +486,9 @@ namespace MyLibrary.DataBase
             }
             _tableRows.Clear();
         }
-        public void Clear<TTable>()
+        public void Clear<TRow>()
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TTable));
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             Clear(tableName);
         }
         public void Clear(string tableName)
@@ -503,7 +503,7 @@ namespace MyLibrary.DataBase
         {
             ClearInternal(row);
         }
-        public void Clear<TTable>(TTable row) where TTable : DBOrmTableBase
+        public void Clear<TRow>(TRow row) where TRow : DBOrmRowBase
         {
             ClearInternal(row);
         }
@@ -511,7 +511,7 @@ namespace MyLibrary.DataBase
         {
             ClearInternal(collection);
         }
-        public void Clear<TTable>(IEnumerable<TTable> collection) where TTable : DBOrmTableBase
+        public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
             ClearInternal(collection);
         }

@@ -20,15 +20,6 @@ namespace MyLibrary.DataBase
             State = DataRowState.Detached;
         }
 
-        public object this[int columnIndex]
-        {
-            get => Values[columnIndex];
-            set
-            {
-                var column = Table[columnIndex];
-                SetValue(column, value);
-            }
-        }
         public object this[string columnName]
         {
             get
@@ -42,38 +33,34 @@ namespace MyLibrary.DataBase
                 SetValue(column, value);
             }
         }
-        public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
-
-        public void SetNotNull(int columnIndex)
+        public object this[int columnIndex]
         {
-            var column = Table.Columns[columnIndex];
-            SetNotNull(column);
-        }
-        public void SetNotNull(string columnName)
-        {
-            var column = Table[columnName];
-            SetNotNull(column.OrderIndex);
-        }
-        public void SetNotNull()
-        {
-            for (var i = 0; i < Table.Columns.Count; i++)
+            get => Values[columnIndex];
+            set
             {
-                SetNotNull(i);
+                var column = Table[columnIndex];
+                SetValue(column, value);
             }
         }
+        public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
 
-        public T Get<T>(int columnIndex)
-        {
-            var value = Values[columnIndex];
-            return Format.Convert<T>(value);
-        }
         public T Get<T>(string columnName)
         {
             var column = Table[columnName];
             var value = Values[column.OrderIndex];
             return Format.Convert<T>(value);
         }
+        public T Get<T>(int columnIndex)
+        {
+            var value = Values[columnIndex];
+            return Format.Convert<T>(value);
+        }
 
+        public string GetString(string columnName, bool allowNull = false)
+        {
+            var column = Table[columnName];
+            return GetString(column.OrderIndex, allowNull);
+        }
         public string GetString(int columnIndex, bool allowNull = false)
         {
             var value = Get<string>(columnIndex);
@@ -83,12 +70,12 @@ namespace MyLibrary.DataBase
             }
             return value;
         }
-        public string GetString(string columnName, bool allowNull = false)
+
+        public string GetString(string columnName, string format)
         {
             var column = Table[columnName];
-            return GetString(column.OrderIndex, allowNull);
+            return GetString(column.OrderIndex, format);
         }
-
         public string GetString(int columnIndex, string format)
         {
             var value = this[columnIndex];
@@ -98,20 +85,33 @@ namespace MyLibrary.DataBase
             }
             return ((IFormattable)value).ToString(format, null);
         }
-        public string GetString(string columnName, string format)
-        {
-            var column = Table[columnName];
-            return GetString(column.OrderIndex, format);
-        }
 
-        public bool IsNull(int columnIndex)
-        {
-            return (Values[columnIndex] is DBNull);
-        }
         public bool IsNull(string columnName)
         {
             var column = Table[columnName];
             return IsNull(column.OrderIndex);
+        }
+        public bool IsNull(int columnIndex)
+        {
+            return Format.IsNull(Values[columnIndex]);
+        }
+
+        public void SetNotNull(string columnName)
+        {
+            var column = Table[columnName];
+            SetNotNull(column.OrderIndex);
+        }
+        public void SetNotNull(int columnIndex)
+        {
+            var column = Table.Columns[columnIndex];
+            SetNotNull(column);
+        }
+        public void SetNotNull()
+        {
+            for (var i = 0; i < Table.Columns.Count; i++)
+            {
+                SetNotNull(i);
+            }
         }
 
         public void Delete()

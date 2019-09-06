@@ -52,9 +52,23 @@ namespace MyLibrary.DataBase
             }
             return list;
         }
+        public List<TOut> ToList<TOut>(Func<T, TOut> convertFunc)
+        {
+            var list = new List<TOut>();
+            foreach (var row in this)
+            {
+                var item = convertFunc(row);
+                list.Add(item);
+            }
+            return list;
+        }
         public T[] ToArray()
         {
             return ToList().ToArray();
+        }
+        public TOut[] ToArray<TOut>(Func<T, TOut> convertFunc)
+        {
+            return ToList(convertFunc).ToArray();
         }
 
         private DBTable GetTableFromSchema()
