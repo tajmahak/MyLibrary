@@ -53,15 +53,18 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Базовый класс для типизированных ORM-таблиц.
     /// </summary>
-    public abstract class DBOrmRowBase<T> : DBOrmRowBase
+    public abstract class DBOrmRowBase<T> : DBOrmRowBase where T : DBOrmRowBase
     {
         public DBOrmRowBase(DBRow row) : base(row)
         {
         }
 
-        public TOut Convert<TOut>(Func<DBOrmRowBase<T>, TOut> convertFunc)
+        //!!!
+        // Вместо Convert(x) и ToList(x) сделать Read(x=>new {x}) ReadRow(x=>{x})
+
+        public TOut Convert<TOut>(Func<T, TOut> convertFunc)
         {
-            return convertFunc(this);
+            return convertFunc(this as T);
         }
     }
 }
