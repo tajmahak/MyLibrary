@@ -571,7 +571,7 @@ namespace MyLibrary.DataBase
 
             return new DBReader<T>(Connection, Model, query, rowConverter);
         }
-        private TType ReadValueInternal<TType>(DBQueryBase query)
+        private TValue ReadValueInternal<TValue>(DBQueryBase query)
         {
             if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
             {
@@ -581,7 +581,7 @@ namespace MyLibrary.DataBase
             using (var command = Model.CreateCommand(Connection, query))
             {
                 var value = command.ExecuteScalar();
-                return Format.Convert<TType>(value);
+                return Format.Convert<TValue>(value);
             }
         }
         private bool RowExistsInternal(DBQueryBase query)
