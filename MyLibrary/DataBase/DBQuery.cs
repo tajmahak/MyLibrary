@@ -12,7 +12,7 @@ namespace MyLibrary.DataBase
         public StatementType StatementType { get; protected set; } = StatementType.Select;
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
-        public DBContext Context { get; private set; }
+        protected internal DBContext Context { get; private set; }
         protected internal DBQueryStructureBlockCollection Structure { get; private set; } = new DBQueryStructureBlockCollection();
 
         // Работа с контекстом БД
@@ -82,7 +82,7 @@ namespace MyLibrary.DataBase
     /// <typeparam name="TQuery"></typeparam>
     public abstract class DBQueryBase<TQuery> : DBQueryBase
     {
-        private TQuery This => (TQuery)((object)this);
+        private TQuery This => (TQuery)(object)this;
 
         public DBQueryBase(DBTable table, DBContext context) : base(table, context)
         {

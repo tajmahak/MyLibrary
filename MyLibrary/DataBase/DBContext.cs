@@ -686,10 +686,10 @@ namespace MyLibrary.DataBase
         }
         private object ExecuteInsertCommand(DBRow row)
         {
-            using (var cmd = Connection.CreateCommand())
+            using (var dbCommand = Connection.CreateCommand())
             {
-                cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Insert);
+                dbCommand.Transaction = _transaction;
+                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Insert);
 
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
@@ -699,43 +699,43 @@ namespace MyLibrary.DataBase
                         continue;
                     }
 
-                    Model.AddCommandParameter(cmd, string.Concat("@p", index), row[i]);
+                    Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
                     index++;
                 }
-                return Model.ExecuteInsertCommand(cmd);
+                return Model.ExecuteInsertCommand(dbCommand);
             }
         }
         private void ExecuteUpdateCommand(DBRow row)
         {
-            using (var cmd = Connection.CreateCommand())
+            using (var dbCommand = Connection.CreateCommand())
             {
-                cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Update);
+                dbCommand.Transaction = _transaction;
+                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Update);
 
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table[i].IsPrimary)
                     {
-                        Model.AddCommandParameter(cmd, "@id", row[i]);
+                        Model.AddCommandParameter(dbCommand, "@id", row[i]);
                         continue;
                     }
-                    Model.AddCommandParameter(cmd, string.Concat("@p", index), row[i]);
+                    Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
                     index++;
                 }
 
-                cmd.ExecuteNonQuery();
+                dbCommand.ExecuteNonQuery();
             }
         }
         private void ExecuteDeleteCommand(DBRow row)
         {
-            using (var cmd = Connection.CreateCommand())
+            using (var dbCommand = Connection.CreateCommand())
             {
-                cmd.Transaction = _transaction;
-                cmd.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Delete);
-                Model.AddCommandParameter(cmd, "@id", row.PrimaryKeyValue);
+                dbCommand.Transaction = _transaction;
+                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Delete);
+                Model.AddCommandParameter(dbCommand, "@id", row.PrimaryKeyValue);
 
-                cmd.ExecuteNonQuery();
+                dbCommand.ExecuteNonQuery();
             }
         }
         private DBQuery CreateSelectQuery(string tableName, params object[] columnConditionPair)
@@ -745,14 +745,14 @@ namespace MyLibrary.DataBase
                 throw DBInternal.ParameterValuePairException();
             }
 
-            var cmd = Query(tableName);
+            var query = Query(tableName);
             for (var i = 0; i < columnConditionPair.Length; i += 2)
             {
                 var columnName = (string)columnConditionPair[i];
                 var value = columnConditionPair[i + 1];
-                cmd.Where(columnName, value);
+                query.Where(columnName, value);
             }
-            return cmd;
+            return query;
         }
         private static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRowBase
         {
