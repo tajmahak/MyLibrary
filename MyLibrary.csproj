@@ -144,7 +144,7 @@
     <Compile Include="MyLibrary\DataBase\DBOrmColumnAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\DBOrmTableAttribute.cs" />
     <Compile Include="MyLibrary\DataBase\DBOrmRowBase.cs" />
-    <Compile Include="MyLibrary\Data\DataCacheManager.cs" />
+    <Compile Include="MyLibrary\Data\DataBaseCache.cs" />
     <Compile Include="MyLibrary\Data\Format.cs" />
     <Compile Include="MyLibrary\Data\Formats\DBFReader.cs" />
     <Compile Include="MyLibrary\Data\Formats\HtmlAgilityPackExtension.cs" />
