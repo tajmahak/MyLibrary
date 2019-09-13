@@ -91,7 +91,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyLibrary\Collections\ReadOnlyArray.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureBlockCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBTableCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />
@@ -106,7 +105,6 @@
     <Compile Include="MyLibrary\DataBase\DBTempId.cs" />
     <Compile Include="MyLibrary\DataBase\MsSqlServerDBModel.cs" />
     <Compile Include="MyLibrary\DataBase\SQLiteDBModel.cs" />
-    <Compile Include="MyLibrary\Collections\ReadOnlyList.cs" />
     <Compile Include="MyLibrary\Data\Criptography.cs" />
     <Compile Include="MyLibrary\Data\StringBuilderExtension.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
