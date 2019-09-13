@@ -1,6 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -15,7 +13,6 @@ namespace MyLibrary.DataBase
     {
         public DBModelBase Model { get; private set; }
         public DbConnection Connection { get; set; }
-        public bool AutoCommit { get; set; } = true;
         public int RowCount
         {
             get
@@ -29,7 +26,6 @@ namespace MyLibrary.DataBase
             }
         }
         private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
-        private DbTransaction _transaction;
 
         internal DBContext(DBModelBase model, DbConnection connection)
         {
@@ -42,58 +38,43 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public void CommitTransaction()
+        public DBQuery Query(string tableName, params object[] columnConditionPair)
         {
-            if (_transaction != null)
+            if (columnConditionPair.Length % 2 != 0)
             {
-                _transaction.Commit();
-                _transaction.Dispose();
-                _transaction = null;
+                throw DBInternal.ParameterValuePairException();
             }
-        }
-        public void RollbackTransaction()
-        {
-            if (_transaction != null)
-            {
-                _transaction.Rollback();
-                _transaction.Dispose();
-                _transaction = null;
-            }
-        }
-        public int Execute(DBQueryBase query)
-        {
-            if (query.StatementType == StatementType.Select)
-            {
-                throw DBInternal.SqlExecuteException();
-            }
-            try
-            {
-                OpenTransaction();
-                int affectedRows;
-                using (var command = Model.CreateCommand(Connection, query))
-                {
-                    command.Transaction = _transaction;
-                    affectedRows = command.ExecuteNonQuery();
-                }
-                if (AutoCommit)
-                {
-                    CommitTransaction();
-                }
-                return affectedRows;
-            }
-            catch
-            {
-                RollbackTransaction();
-                throw;
-            }
-        }
-        public void Save()
-        {
-            OpenTransaction();
 
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery(table, this);
+            for (var i = 0; i < columnConditionPair.Length; i += 2)
+            {
+                var columnName = (string)columnConditionPair[i];
+                var value = columnConditionPair[i + 1];
+                query.Where(columnName, value);
+            }
+            return query;
+        }
+        public DBQuery<TRow> Query<TRow>(Expression<Func<TRow, bool>> whereExpression = null) where TRow : DBOrmRowBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery<TRow>(table, this);
+            if (whereExpression != null)
+            {
+                query.Where(whereExpression);
+            }
+            return query;
+        }
+        public DBContextCommitInfo Commit()
+        {
+            var commitInfo = new DBContextCommitInfo();
             DBRow row = null;
+            DbTransaction transaction = null;
             try
             {
+                transaction = Connection.BeginTransaction();
+
                 #region DELETE
 
                 foreach (var tableRowsItem in _tableRows)
@@ -108,7 +89,7 @@ namespace MyLibrary.DataBase
                         {
                             if (row.PrimaryKeyValue is DBTempId == false)
                             {
-                                ExecuteDeleteCommand(row);
+                                commitInfo.DeletedRowsCount += ExecuteDeleteCommand(row, transaction);
                             }
                         }
                     }
@@ -181,7 +162,8 @@ namespace MyLibrary.DataBase
                     if (rowContainer.TempIdCount == 1)
                     {
                         var tempID = (DBTempId)row.PrimaryKeyValue;
-                        var newID = ExecuteInsertCommand(row);
+                        var newID = ExecuteInsertCommand(row, transaction);
+                        commitInfo.InsertedRowsCount++;
 
                         #region Замена временных Id на присвоенные
 
@@ -229,7 +211,7 @@ namespace MyLibrary.DataBase
                         row = rowCollection[rowIndex];
                         if (row.State == DataRowState.Modified)
                         {
-                            ExecuteUpdateCommand(row);
+                            commitInfo.UpdatedRowsCount += ExecuteUpdateCommand(row, transaction);
                             row.State = DataRowState.Unchanged;
                         }
                     }
@@ -237,259 +219,114 @@ namespace MyLibrary.DataBase
 
                 #endregion
 
-                if (AutoCommit)
-                {
-                    CommitTransaction();
-                }
+                transaction.Commit();
+                transaction.Dispose();
+                Clear();
             }
             catch (Exception ex)
             {
-                RollbackTransaction();
-                Clear();
+                transaction?.Rollback();
+                transaction?.Dispose();
                 throw DBInternal.DbSaveException(row, ex);
             }
+            return commitInfo;
         }
-
-        public DBQuery Query(string tableName)
-        {
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery(table, this);
-            return query;
-        }
-        public DBQuery<TRow> Query<TRow>() where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery<TRow>(table, this);
-            return query;
-        }
-
-        #region Работа с данными
 
         public DBRow NewRow(string tableName)
         {
             var table = Model.GetTable(tableName);
             var row = table.CreateRow();
-            AddRowInternal(row);
+            Add(row);
             return row;
         }
         public TRow NewRow<TRow>() where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var row = NewRow(tableName);
-            return CreateOrmRow<TRow>(row);
-        }
-
-        public DBReader<DBRow> Read(DBQueryBase query)
-        {
-            return ReadInternal(query, row => row);
-        }
-        public DBReader<DBRow> Read(string tableName, params object[] columnConditionPair)
-        {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return Read(query);
-        }
-        public DBReader<TRow> Read<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
-        {
-            return ReadInternal(query, row => CreateOrmRow<TRow>(row));
-        }
-        public DBReader<TRow> Read<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
-        {
-            return ReadInternal(query, row => CreateOrmRow<TRow>(row));
-        }
-        public DBReader<TRow> Read<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Where(whereExpression);
-            return Read(query);
-        }
-        public DBReader<TRow> Read<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return Read<TRow>(query);
-        }
-        public DBReader<T> Read<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
-        {
-            return ReadInternal(query, rowConverter);
-        }
-        public DBReader<T> Read<TRow, T>(DBQuery<TRow> query, Func<TRow, T> rowConverter) where TRow : DBOrmRowBase
-        {
-            return ReadInternal(query, row => rowConverter(CreateOrmRow<TRow>(row)));
-        }
-
-        public DBRow ReadRow(DBQueryBase query)
-        {
-            return ReadRowInternal(query, row => row);
-        }
-        public DBRow ReadRow(string tableName, params object[] columnConditionPair)
-        {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadRow(query);
-        }
-        public TRow ReadRow<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
-        {
-            return ReadRowInternal(query, row => CreateOrmRow<TRow>(row));
-        }
-        public TRow ReadRow<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
-        {
-            return ReadRowInternal<TRow>(query, row => CreateOrmRow<TRow>(row));
-        }
-        public TRow ReadRow<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Where(whereExpression);
-            return ReadRow(query);
-        }
-        public TRow ReadRow<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return ReadRow<TRow>(query);
-        }
-        public T ReadRow<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
-        {
-            return ReadRowInternal<T>(query, rowConverter);
-        }
-        public T ReadRow<TRow, T>(DBQuery<TRow> query, Func<TRow, T> rowConverter) where TRow : DBOrmRowBase
-        {
-            return ReadRowInternal(query, row => rowConverter(CreateOrmRow<TRow>(row)));
-        }
-
-        public DBRow ReadRowOrNew(DBQueryBase query)
-        {
-            return ReadRowOrNewInternal(query, row => row);
-        }
-        public DBRow ReadRowOrNew(string tableName, params object[] columnConditionPair)
-        {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            var row = ReadRowOrNew(query);
-
-            if (row.State == DataRowState.Added)
-            {
-                // установка значений в строку согласно аргументам
-                for (var i = 0; i < columnConditionPair.Length; i += 2)
-                {
-                    var columnName = (string)columnConditionPair[i];
-                    var value = columnConditionPair[i + 1];
-                    row[columnName] = value;
-                }
-            }
-
-            return row;
-        }
-        public TRow ReadRowOrNew<TRow>(DBQueryBase query) where TRow : DBOrmRowBase
-        {
-            return ReadRowOrNewInternal(query, row => CreateOrmRow<TRow>(row));
-        }
-        public TRow ReadRowOrNew<TRow>(DBQuery<TRow> query) where TRow : DBOrmRowBase
-        {
-            return ReadRowOrNewInternal(query, row => CreateOrmRow<TRow>(row));
-        }
-        public TRow ReadRowOrNew<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Where(whereExpression);
-            return ReadRowOrNew(query);
-        }
-        public TRow ReadRowOrNew<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            var item = ReadRowOrNew<TRow>(query);
-
-            if (item.Row.State == DataRowState.Added)
-            {
-                // установка значений в строку согласно аргументам
-                for (var i = 0; i < columnConditionPair.Length; i += 2)
-                {
-                    var columnName = (string)columnConditionPair[i];
-                    var value = columnConditionPair[i + 1];
-                    item[columnName] = value;
-                }
-            }
-
-            return item;
-        }
-
-        public TValue ReadValue<TValue>(DBQueryBase query)
-        {
-            return ReadValueInternal<TValue>(query);
-        }
-        public TValue ReadValue<TValue, TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Select(columnName);
-            query.Where(whereExpression);
-            return ReadValueInternal<TValue>(query);
-        }
-        public TValue ReadValue<TValue>(string columnName, params object[] columnConditionPair)
-        {
-            var tableName = columnName.Split('.')[0];
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            query.Select(columnName);
-            return ReadValueInternal<TValue>(query);
-        }
-
-        public bool RowExists(DBQueryBase query)
-        {
-            return RowExistsInternal(query);
-        }
-        public bool RowExists<TRow>(Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
-        {
-            var query = Query<TRow>();
-            query.Where(whereExpression);
-            return RowExistsInternal(query);
-        }
-        public bool RowExists<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
-        {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return RowExistsInternal(query);
-        }
-        public bool RowExists(string tableName, params object[] columnConditionPair)
-        {
-            var query = CreateSelectQuery(tableName, columnConditionPair);
-            return RowExistsInternal(query);
+            return DBInternal.CreateOrmRow<TRow>(row);
         }
 
         public int Add(DBRow row)
         {
-            return AddRowInternal(row);
+            if (row.Table.Name == null)
+            {
+                throw DBInternal.ProcessRowException();
+            }
+
+            if (row.State == DataRowState.Deleted && row.PrimaryKeyValue is DBTempId)
+            {
+                return 0;
+            }
+
+            if (!_tableRows.TryGetValue(row.Table, out var rowCollection))
+            {
+                rowCollection = new DBRowCollection();
+                _tableRows.Add(row.Table, rowCollection);
+            }
+
+            if (!rowCollection.Contains(row))
+            {
+                rowCollection.Add(row);
+            }
+
+            if (row.State == DataRowState.Detached)
+            {
+                row.State = DataRowState.Added;
+            }
+
+            return 1;
         }
         public int Add<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            return AddRowInternal(row);
+            return Add(ExtractDBRow(row));
         }
         public int Add(IEnumerable<DBRow> collection)
         {
-            return AddRowInternal(collection);
+            var count = 0;
+            foreach (var row in collection)
+            {
+                count += Add(row);
+            }
+            return count;
         }
         public int Add<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
-            return AddRowInternal(collection);
+            var count = 0;
+            foreach (var row in collection)
+            {
+                count += Add(row);
+            }
+            return count;
         }
 
         public void SaveAndClear()
         {
-            Save();
+            Commit();
             Clear();
         }
         public void SaveAndClear(DBRow row)
         {
-            SaveAndClearInternal(row);
+            Add(row);
+            Commit();
+            Clear(row);
         }
         public void SaveAndClear<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            SaveAndClearInternal(row);
+            Add(row);
+            Commit();
+            Clear(row);
         }
         public void SaveAndClear(IEnumerable<DBRow> collection)
         {
-            SaveAndClearInternal(collection);
+            Add(collection);
+            Commit();
+            Clear(collection);
         }
         public void SaveAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
-            SaveAndClearInternal(collection);
+            Add(collection);
+            Commit();
+            Clear(collection);
         }
 
         public void Clear()
@@ -503,7 +340,6 @@ namespace MyLibrary.DataBase
                         row.State = DataRowState.Detached;
                     }
                 }
-                rowCollection.Clear();
             }
             _tableRows.Clear();
         }
@@ -517,178 +353,62 @@ namespace MyLibrary.DataBase
             var table = Model.GetTable(tableName);
             if (_tableRows.TryGetValue(table, out var rowCollection))
             {
-                rowCollection.Clear();
+                foreach (var row in rowCollection)
+                {
+                    if (row.State == DataRowState.Added)
+                    {
+                        row.State = DataRowState.Detached;
+                    }
+                }
+                _tableRows.Remove(table);
             }
         }
         public void Clear(DBRow row)
         {
-            ClearInternal(row);
-        }
-        public void Clear<TRow>(TRow row) where TRow : DBOrmRowBase
-        {
-            ClearInternal(row);
-        }
-        public void Clear(IEnumerable<DBRow> collection)
-        {
-            ClearInternal(collection);
-        }
-        public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
-        {
-            ClearInternal(collection);
-        }
-
-        #endregion
-
-        private T ReadRowInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
-        {
-            query.Structure.Add(DBQueryStructureType.Limit, 1);
-            foreach (var row in ReadInternal<T>(query, rowConverter))
-            {
-                return row;
-            }
-            return default;
-        }
-        private T ReadRowOrNewInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
-        {
-            var row = ReadRowInternal(query, rowConverter);
-            if (row != null)
-            {
-                AddRowInternal(row);
-            }
-            else
-            {
-                var dbRow = NewRow(query.Table.Name);
-                row = rowConverter(dbRow);
-            }
-            return row;
-        }
-        private DBReader<T> ReadInternal<T>(DBQueryBase query, Func<DBRow, T> rowConverter)
-        {
-            if (query.StatementType != StatementType.Select)
-            {
-                throw DBInternal.SqlExecuteException();
-            }
-
-            return new DBReader<T>(Connection, Model, query, rowConverter);
-        }
-        private TValue ReadValueInternal<TValue>(DBQueryBase query)
-        {
-            if (query.StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
-            {
-                query.Structure.Add(DBQueryStructureType.Limit, 1);
-            }
-
-            using (var command = Model.CreateCommand(Connection, query))
-            {
-                var value = command.ExecuteScalar();
-                return Format.Convert<TValue>(value);
-            }
-        }
-        private bool RowExistsInternal(DBQueryBase query)
-        {
-            var row = ReadRowInternal<DBRow>(query, x => x);
-            return (row != null);
-        }
-
-        private int AddRowInternal<T>(T value)
-        {
-            if (value is IEnumerable)
-            {
-                return AddCollectionInternal((IEnumerable)value);
-            }
-
-            var dbRow = ExtractDBRow(value);
-            if (dbRow.Table.Name == null)
+            if (row.Table.Name == null)
             {
                 throw DBInternal.ProcessRowException();
             }
 
-            if (dbRow.State == DataRowState.Deleted && dbRow.PrimaryKeyValue is DBTempId)
+            if (_tableRows.TryGetValue(row.Table, out var rowCollection))
             {
-                return 0;
-            }
-
-            if (!_tableRows.TryGetValue(dbRow.Table, out var rowCollection))
-            {
-                rowCollection = new DBRowCollection();
-                _tableRows.Add(dbRow.Table, rowCollection);
-            }
-
-            if (!rowCollection.Contains(dbRow))
-            {
-                rowCollection.Add(dbRow);
-            }
-
-            if (dbRow.State == DataRowState.Detached)
-            {
-                dbRow.State = DataRowState.Added;
-            }
-
-            return 1;
-        }
-        private void SaveAndClearInternal<T>(T value)
-        {
-            AddRowInternal(value);
-            Save();
-            ClearInternal(value);
-        }
-        private void ClearInternal<T>(T value)
-        {
-            if (value is IEnumerable)
-            {
-                ClearCollectionInternal((IEnumerable)value);
-                return;
-            }
-
-            var dbRow = ExtractDBRow(value);
-            if (dbRow.Table.Name == null)
-            {
-                throw DBInternal.ProcessRowException();
-            }
-
-            if (dbRow.State == DataRowState.Added)
-            {
-                dbRow.State = DataRowState.Detached;
-            }
-
-            if (_tableRows.TryGetValue(dbRow.Table, out var rowCollection))
-            {
-                rowCollection.Remove(dbRow);
-                if (rowCollection.Count == 0)
+                if (rowCollection.Remove(row))
                 {
-                    _tableRows.Remove(dbRow.Table);
+                    if (row.State == DataRowState.Added)
+                    {
+                        row.State = DataRowState.Detached;
+                    }
+                    if (rowCollection.Count == 0)
+                    {
+                        _tableRows.Remove(row.Table);
+                    }
                 }
             }
         }
-        private int AddCollectionInternal(IEnumerable collection)
+        public void Clear<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            var count = 0;
-            foreach (var row in collection)
-            {
-                count += AddRowInternal(row);
-            }
-            return count;
+            Clear(ExtractDBRow(row));
         }
-        private void ClearCollectionInternal(IEnumerable collection)
+        public void Clear(IEnumerable<DBRow> collection)
         {
             foreach (var row in collection)
             {
-                ClearInternal(row);
+                Clear(row);
+            }
+        }
+        public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        {
+            foreach (var row in collection)
+            {
+                Clear(row);
             }
         }
 
-        private void OpenTransaction()
-        {
-            if (_transaction == null)
-            {
-                _transaction = Connection.BeginTransaction();
-            }
-        }
-        private object ExecuteInsertCommand(DBRow row)
+        private object ExecuteInsertCommand(DBRow row, DbTransaction transaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = _transaction;
+                dbCommand.Transaction = transaction;
                 dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Insert);
 
                 var index = 0;
@@ -705,11 +425,11 @@ namespace MyLibrary.DataBase
                 return Model.ExecuteInsertCommand(dbCommand);
             }
         }
-        private void ExecuteUpdateCommand(DBRow row)
+        private int ExecuteUpdateCommand(DBRow row, DbTransaction transaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = _transaction;
+                dbCommand.Transaction = transaction;
                 dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Update);
 
                 var index = 0;
@@ -724,49 +444,25 @@ namespace MyLibrary.DataBase
                     index++;
                 }
 
-                dbCommand.ExecuteNonQuery();
+                return dbCommand.ExecuteNonQuery();
             }
         }
-        private void ExecuteDeleteCommand(DBRow row)
+        private int ExecuteDeleteCommand(DBRow row, DbTransaction transaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = _transaction;
+                dbCommand.Transaction = transaction;
                 dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Delete);
                 Model.AddCommandParameter(dbCommand, "@id", row.PrimaryKeyValue);
 
-                dbCommand.ExecuteNonQuery();
+                return dbCommand.ExecuteNonQuery();
             }
         }
-        private DBQuery CreateSelectQuery(string tableName, params object[] columnConditionPair)
-        {
-            if (columnConditionPair.Length % 2 != 0)
-            {
-                throw DBInternal.ParameterValuePairException();
-            }
-
-            var query = Query(tableName);
-            for (var i = 0; i < columnConditionPair.Length; i += 2)
-            {
-                var columnName = (string)columnConditionPair[i];
-                var value = columnConditionPair[i + 1];
-                query.Where(columnName, value);
-            }
-            return query;
-        }
-        private static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRowBase
-        {
-            return (TRow)Activator.CreateInstance(typeof(TRow), row);
-        }
-        private static DBRow ExtractDBRow(object row)
+        private static DBRow ExtractDBRow(DBOrmRowBase row)
         {
             if (row == null)
             {
                 return null;
-            }
-            if (row is DBRow dbRow)
-            {
-                return dbRow;
             }
             if (row is DBOrmRowBase ormRow)
             {

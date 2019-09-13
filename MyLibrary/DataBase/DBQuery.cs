@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MyLibrary.Data;
+using System;
 using System.Data;
+using System.Data.Common;
 using System.Linq.Expressions;
 
 namespace MyLibrary.DataBase
@@ -9,58 +11,6 @@ namespace MyLibrary.DataBase
     /// </summary>
     public abstract class DBQueryBase
     {
-        public StatementType StatementType { get; protected set; } = StatementType.Select;
-        public bool IsView { get; protected set; }
-        public DBTable Table { get; private set; }
-        protected internal DBContext Context { get; private set; }
-        protected internal DBQueryStructureBlockCollection Structure { get; private set; } = new DBQueryStructureBlockCollection();
-
-        // Работа с контекстом БД
-        public DBReader<DBRow> Read()
-        {
-            return Context.Read(this);
-        }
-        public DBReader<TRow> Read<TRow>() where TRow : DBOrmRowBase
-        {
-            return Context.Read<TRow>(this);
-        }
-        public DBReader<T> Read<T>(Func<DBRow, T> rowConverter)
-        {
-            return Context.Read(this, rowConverter);
-        }
-        public DBRow ReadRow()
-        {
-            return Context.ReadRow(this);
-        }
-        public TRow ReadRow<TRow>() where TRow : DBOrmRowBase
-        {
-            return Context.ReadRow<TRow>(this);
-        }
-        public T ReadRow<T>(Func<DBRow, T> rowConverter)
-        {
-            return Context.ReadRow(this, rowConverter);
-        }
-        public DBRow GetRowOrNew()
-        {
-            return Context.ReadRowOrNew(this);
-        }
-        public TRow GetRowOrNew<TRow>() where TRow : DBOrmRowBase
-        {
-            return Context.ReadRowOrNew<TRow>(this);
-        }
-        public TType ReadValue<TType>()
-        {
-            return Context.ReadValue<TType>(this);
-        }
-        public bool RowExists()
-        {
-            return Context.RowExists(this);
-        }
-        public int Execute()
-        {
-            return Context.Execute(this);
-        }
-
         protected DBQueryBase(DBTable table, DBContext context)
         {
             if (table == null)
@@ -74,13 +24,118 @@ namespace MyLibrary.DataBase
             Table = table;
             Context = context;
         }
+
+        public StatementType StatementType { get; protected set; } = StatementType.Select;
+        public bool IsView { get; protected set; }
+        public DBTable Table { get; private set; }
+        protected internal DBContext Context { get; private set; }
+        protected internal DBQueryStructureBlockCollection Structure { get; private set; } = new DBQueryStructureBlockCollection();
+
+        // Работа с контекстом БД
+        public DBReader<DBRow> Read()
+        {
+            return Read(row => row);
+        }
+        public DBReader<TRow> Read<TRow>() where TRow : DBOrmRowBase
+        {
+            return Read(row => DBInternal.CreateOrmRow<TRow>(row));
+        }
+        public DBReader<T> Read<T>(Func<DBRow, T> rowConverter)
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+            return new DBReader<T>(Context.Connection, Context.Model, this, rowConverter);
+        }
+
+        public DBRow ReadRow()
+        {
+            return ReadRow(row => row);
+        }
+        public TRow ReadRow<TRow>() where TRow : DBOrmRowBase
+        {
+            return ReadRow(row => DBInternal.CreateOrmRow<TRow>(row));
+        }
+        public T ReadRow<T>(Func<DBRow, T> rowConverter)
+        {
+            Structure.Add(DBQueryStructureType.Limit, 1);
+            foreach (var row in Read(rowConverter))
+            {
+                return row;
+            }
+            return default;
+        }
+
+        public DBRow ReadRowOrNew()
+        {
+            var row = ReadRow();
+            if (row != null)
+            {
+                Context.Add(row);
+            }
+            else
+            {
+                row = Context.NewRow(Table.Name);
+            }
+            return row;
+        }
+        public TRow ReadRowOrNew<TRow>() where TRow : DBOrmRowBase
+        {
+            var row = ReadRowOrNew();
+            return DBInternal.CreateOrmRow<TRow>(row);
+        }
+
+        public TValue ReadValue<TValue>()
+        {
+            if (StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
+            {
+                Structure.Add(DBQueryStructureType.Limit, 1);
+            }
+
+            using (var command = Context.Model.CreateCommand(Context.Connection, this))
+            {
+                var value = command.ExecuteScalar();
+                return Format.Convert<TValue>(value);
+            }
+        }
+        public bool RowExists()
+        {
+            var row = ReadRow();
+            return row != null;
+        }
+        public int Execute()
+        {
+            if (StatementType == StatementType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+            DbTransaction transaction = null;
+            try
+            {
+                transaction = Context.Connection.BeginTransaction();
+                int affectedRows;
+                using (var command = Context.Model.CreateCommand(Context.Connection, this))
+                {
+                    command.Transaction = transaction;
+                    affectedRows = command.ExecuteNonQuery();
+                }
+                transaction.Commit();
+                return affectedRows;
+            }
+            catch
+            {
+                transaction?.Rollback();
+                throw;
+            }
+        }
     }
 
     /// <summary>
     /// Базовый класс с набором функций, представляющих запросы к базе данных.
     /// </summary>
     /// <typeparam name="TQuery"></typeparam>
-    public abstract class DBQueryBase<TQuery> : DBQueryBase
+    public abstract class DBQueryBase<TQuery> : DBQueryBase where TQuery : DBQueryBase
     {
         private TQuery This => (TQuery)(object)this;
 
@@ -1079,26 +1134,25 @@ namespace MyLibrary.DataBase
         {
         }
 
-        // Работа с контекстом БД
         public new DBReader<TRow> Read()
         {
-            return Context.Read(this);
+            return Read<TRow>();
         }
         public DBReader<T> Read<T>(Func<TRow, T> rowConverter)
         {
-            return Context.Read(this, rowConverter);
+            return Read(x => rowConverter(DBInternal.CreateOrmRow<TRow>(x)));
         }
         public new TRow ReadRow()
         {
-            return Context.ReadRow(this);
+            return ReadRow<TRow>();
         }
         public T ReadRow<T>(Func<TRow, T> rowConverter)
         {
-            return Context.ReadRow(this, rowConverter);
+            return ReadRow(x => rowConverter(DBInternal.CreateOrmRow<TRow>(x)));
         }
-        public new TRow GetRowOrNew()
+        public new TRow ReadRowOrNew()
         {
-            return Context.ReadRowOrNew(this);
+            return ReadRowOrNew<TRow>();
         }
 
         public new DBQuery<TRow> Select(Expression<Func<object>> expression)

@@ -24,8 +24,10 @@ namespace MyLibrary.Tests
         }
         private DBQuery<OrmTestTable1> CreateQuery()
         {
-            var query = new DBQuery<OrmTestTable1>(_model.GetTable("TABLE1"));
-            return query;
+            //!!!
+            return null;
+            //var query = new DBQuery<OrmTestTable1>(_model.GetTable("TABLE1"));
+            //return query;
         }
         private DBCompiledQuery CompileQuery(DBQueryBase query)
         {
@@ -119,7 +121,7 @@ namespace MyLibrary.Tests
     }
 
     [DBOrmTable(DbTestTable1._)]
-    internal class OrmTestTable1 : DBOrmTableBase
+    internal class OrmTestTable1 : DBOrmRowBase<OrmTestTable1>
     {
         [DBOrmColumn(DbTestTable1.Id, PrimaryKey: true)]
         public long Id { get; set; }
@@ -129,7 +131,7 @@ namespace MyLibrary.Tests
         public OrmTestTable1(DBRow row) : base(row) { }
     }
     [DBOrmTable(DbTestTable2._)]
-    internal class OrmTestTable2 : DBOrmTableBase
+    internal class OrmTestTable2 : DBOrmRowBase<OrmTestTable2>
     {
         [DBOrmColumn(DbTestTable2.Id, PrimaryKey: true)]
         public long Id { get; set; }

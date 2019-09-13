@@ -38,7 +38,8 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\MyLibrary.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -91,6 +92,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyLibrary\DataBase\DBContextCommitInfo.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureBlockCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBTableCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBCompiledQuery.cs" />

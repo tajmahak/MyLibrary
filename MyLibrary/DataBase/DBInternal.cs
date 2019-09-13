@@ -7,6 +7,11 @@ namespace MyLibrary.DataBase
     /// </summary>
     internal static class DBInternal
     {
+        public static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRowBase
+        {
+            return (TRow)Activator.CreateInstance(typeof(TRow), row);
+        }
+
         public static string GetTableNameFromAttribute(Type type)
         {
             DBOrmTableAttribute attribute;
@@ -161,7 +166,7 @@ namespace MyLibrary.DataBase
         }
         public static Exception ExtractDBRowException(Type type)
         {
-            throw new Exception($"'{type.Name}' - невозможно извлечь строку.");
+            return new Exception($"'{type.Name}' - невозможно извлечь строку.");
         }
     }
 }
