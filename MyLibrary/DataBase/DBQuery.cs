@@ -86,24 +86,6 @@ namespace MyLibrary.DataBase
             return DBInternal.CreateOrmRow<TRow>(row);
         }
 
-        public TValue ReadValue<TValue>()
-        {
-            if (StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
-            {
-                Structure.Add(DBQueryStructureType.Limit, 1);
-            }
-
-            using (var command = Context.Model.CreateCommand(Context.Connection, this))
-            {
-                var value = command.ExecuteScalar();
-                return Format.Convert<TValue>(value);
-            }
-        }
-        public bool RowExists()
-        {
-            var row = ReadRow();
-            return row != null;
-        }
         public int Execute()
         {
             if (StatementType == StatementType.Select)
@@ -128,6 +110,73 @@ namespace MyLibrary.DataBase
                 transaction?.Rollback();
                 throw;
             }
+        }
+        public bool RowExists()
+        {
+            var row = ReadRow();
+            return row != null;
+        }
+
+        public TValue ReadValue<TValue>()
+        {
+            if (StatementType == StatementType.Select) // могут быть команды с блоками RETURNING и т.п.
+            {
+                Structure.Add(DBQueryStructureType.Limit, 1);
+            }
+
+            using (var command = Context.Model.CreateCommand(Context.Connection, this))
+            {
+                var value = command.ExecuteScalar();
+                return Format.Convert<TValue>(value);
+            }
+        }
+        public bool ReadBoolean()
+        {
+            return ReadValue<bool>();
+        }
+        public byte ReadByte()
+        {
+            return ReadValue<byte>();
+        }
+        public byte[] ReadBytes()
+        {
+            return ReadValue<byte[]>();
+        }
+        public DateTime ReadDateTime()
+        {
+            return ReadValue<DateTime>();
+        }
+        public decimal ReadDecimal()
+        {
+            return ReadValue<decimal>();
+        }
+        public double ReadDouble()
+        {
+            return ReadValue<double>();
+        }
+        public short ReadInt16()
+        {
+            return ReadValue<short>();
+        }
+        public int ReadInt32()
+        {
+            return ReadValue<int>();
+        }
+        public long ReadInt64()
+        {
+            return ReadValue<long>();
+        }
+        public float ReadSingle()
+        {
+            return ReadValue<float>();
+        }
+        public string ReadString()
+        {
+            return ReadValue<string>();
+        }
+        public TimeSpan ReadTimeSpan()
+        {
+            return ReadValue<TimeSpan>();
         }
     }
 

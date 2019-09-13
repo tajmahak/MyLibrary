@@ -97,6 +97,7 @@ namespace MyLibrary.DataBase
                 }
 
                 #endregion
+
                 #region INSERT
 
                 // список всех Insert-строк
@@ -199,6 +200,7 @@ namespace MyLibrary.DataBase
                 idContainerList.Clear();
 
                 #endregion
+
                 #region UPDATE
 
                 foreach (var tableRowsItem in _tableRows)
@@ -402,6 +404,117 @@ namespace MyLibrary.DataBase
             {
                 Clear(row);
             }
+        }
+
+        public TValue ReadValue<TRow, TValue>(string columnName, Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
+        {
+            var query = Query<TRow>();
+            query.Select(columnName);
+            query.Where(whereExpression);
+            return query.ReadValue<TValue>();
+        }
+        public bool ReadBoolean<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<bool>(columnName, whereExpression);
+        }
+        public byte ReadByte<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<byte>(columnName, whereExpression);
+        }
+        public byte[] ReadBytes<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<byte[]>(columnName, whereExpression);
+        }
+        public DateTime ReadDateTime<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<DateTime>(columnName, whereExpression);
+        }
+        public decimal ReadDecimal<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<decimal>(columnName, whereExpression);
+        }
+        public double ReadDouble<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<double>(columnName, whereExpression);
+        }
+        public short ReadInt16<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<short>(columnName, whereExpression);
+        }
+        public int ReadInt32<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<int>(columnName, whereExpression);
+        }
+        public long ReadInt64<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<long>(columnName, whereExpression);
+        }
+        public float ReadSingle<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<float>(columnName, whereExpression);
+        }
+        public string ReadString<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<string>(columnName, whereExpression);
+        }
+        public TimeSpan ReadTimeSpan<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        {
+            return ReadValue<TimeSpan>(columnName, whereExpression);
+        }
+        public TValue ReadValue<TValue>(string columnName, params object[] columnConditionPair)
+        {
+            var tableName = columnName.Split('.')[0];
+            var query = Query(tableName, columnConditionPair);
+            query.Select(columnName);
+            return query.ReadValue<TValue>();
+        }
+        public bool ReadBoolean(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<bool>(columnName, columnConditionPair);
+        }
+        public byte ReadByte(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<byte>(columnName, columnConditionPair);
+        }
+        public byte[] ReadBytes(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<byte[]>(columnName, columnConditionPair);
+        }
+        public DateTime ReadDateTime(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<DateTime>(columnName, columnConditionPair);
+        }
+        public decimal ReadDecimal(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<decimal>(columnName, columnConditionPair);
+        }
+        public double ReadDouble(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<double>(columnName, columnConditionPair);
+        }
+        public short ReadInt16(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<short>(columnName, columnConditionPair);
+        }
+        public int ReadInt32(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<int>(columnName, columnConditionPair);
+        }
+        public long ReadInt64(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<long>(columnName, columnConditionPair);
+        }
+        public float ReadSingle(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<float>(columnName, columnConditionPair);
+        }
+        public string ReadString(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<string>(columnName, columnConditionPair);
+        }
+        public TimeSpan ReadTimeSpan(string columnName, params object[] columnConditionPair)
+        {
+            return ReadValue<TimeSpan>(columnName, columnConditionPair);
         }
 
         private object ExecuteInsertCommand(DBRow row, DbTransaction transaction)
