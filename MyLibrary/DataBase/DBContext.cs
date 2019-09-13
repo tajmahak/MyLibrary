@@ -40,19 +40,39 @@ namespace MyLibrary.DataBase
 
         public DBQuery Query(string tableName, params object[] columnConditionPair)
         {
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery(table, this);
+
             if (columnConditionPair.Length % 2 != 0)
             {
                 throw DBInternal.ParameterValuePairException();
             }
-
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery(table, this);
             for (var i = 0; i < columnConditionPair.Length; i += 2)
             {
                 var columnName = (string)columnConditionPair[i];
                 var value = columnConditionPair[i + 1];
                 query.Where(columnName, value);
             }
+
+            return query;
+        }
+        public DBQuery<TRow> Query<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
+        {
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery<TRow>(table, this);
+
+            if (columnConditionPair.Length % 2 != 0)
+            {
+                throw DBInternal.ParameterValuePairException();
+            }
+            for (var i = 0; i < columnConditionPair.Length; i += 2)
+            {
+                var columnName = (string)columnConditionPair[i];
+                var value = columnConditionPair[i + 1];
+                query.Where(columnName, value);
+            }
+
             return query;
         }
         public DBQuery<TRow> Query<TRow>(Expression<Func<TRow, bool>> whereExpression = null) where TRow : DBOrmRowBase
