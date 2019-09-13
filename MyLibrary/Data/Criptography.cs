@@ -7,7 +7,7 @@ namespace MyLibrary.Data
     public static class Cryptography
     {
         /// <summary>
-        /// Выполняет симметричное шифрование с помощью алгоритма <see cref="Aes"/>.
+        /// Выполняет симметричное шифрование с помощью алгоритма AES.
         /// </summary>
         /// <param name="data">Данные, которые необходимо зашифровать.</param>
         /// <param name="key">Секретный ключ, который должен использоваться (128/192/256 бит).</param>
@@ -25,7 +25,7 @@ namespace MyLibrary.Data
 
                 using (var ms = new MemoryStream())
                 using (var writer = new BinaryWriter(ms))
-                using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                using (var encryptor = aes.CreateEncryptor())
                 {
                     writer.Write(data.Length);
                     writer.Write(aes.IV);
@@ -35,7 +35,7 @@ namespace MyLibrary.Data
             }
         }
         /// <summary>
-        /// Выполняет симметричное дешифрование с помощью алгоритма <see cref="Aes"/>.
+        /// Выполняет симметричное дешифрование с помощью алгоритма AES.
         /// </summary>
         /// <param name="data">Данные, которые необходимо дешифровать.</param>
         /// <param name="key">Секретный ключ, который должен использоваться (128/192/256 бит).</param>
@@ -56,7 +56,7 @@ namespace MyLibrary.Data
                     aes.Key = key;
                     aes.IV = reader.ReadBytes(aes.IV.Length);
 
-                    using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                    using (var decryptor = aes.CreateDecryptor())
                     {
                         var decryptData = reader.ReadBytes((int)(ms.Length - ms.Position));
                         decryptData = PerformCryptography(decryptData, decryptor);
@@ -73,7 +73,7 @@ namespace MyLibrary.Data
         }
 
         /// <summary>
-        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="MD5"/>.
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма MD5.
         /// </summary>
         /// <param name="data">Массив байтов.</param>
         /// <returns></returns>
@@ -85,7 +85,7 @@ namespace MyLibrary.Data
             }
         }
         /// <summary>
-        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="SHA1"/>.
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-1.
         /// </summary>
         /// <param name="data">Массив байтов.</param>
         /// <returns></returns>
@@ -97,7 +97,7 @@ namespace MyLibrary.Data
             }
         }
         /// <summary>
-        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма <see cref="SHA256"/>.
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-256.
         /// </summary>
         /// <param name="data">Массив байтов.</param>
         /// <returns></returns>
