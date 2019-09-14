@@ -234,6 +234,13 @@ namespace MyLibrary.Data.Formats
     }
     public class JsonNodeCollection : List<JsonNode>
     {
+        public JsonNodeCollection()
+        {
+        }
+        public JsonNodeCollection(int capacity) : base(capacity)
+        {
+        }
+
         public JsonNode this[string name]
         {
             get
@@ -249,17 +256,5 @@ namespace MyLibrary.Data.Formats
                 return null;
             }
         }
-
-        #region Конструктор
-
-        public JsonNodeCollection()
-        {
-        }
-        public JsonNodeCollection(int capacity)
-            : base(capacity)
-        {
-        }
-
-        #endregion
     }
 }

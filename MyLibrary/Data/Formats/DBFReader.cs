@@ -9,12 +9,12 @@ using System.Threading;
 
 namespace MyLibrary.Data.Formats
 {
-    public class DBFReader : IDisposable, IEnumerable<DBFRow>, IEnumerator<DBFRow>
+    public class DbfReader : IDisposable, IEnumerable<DBFRow>, IEnumerator<DBFRow>
     {
         public static DataTable ToDataTable(string filePath, Encoding encoding)
         {
             var dataTable = new DataTable();
-            using (var dbf = new DBFReader(filePath, encoding))
+            using (var dbf = new DbfReader(filePath, encoding))
             {
                 foreach (var column in dbf.Columns)
                 {
@@ -28,7 +28,7 @@ namespace MyLibrary.Data.Formats
             return dataTable;
         }
 
-        public DBFReader(string path, Encoding encoding)
+        public DbfReader(string path, Encoding encoding)
         {
             _encoding = encoding;
             OpenFile(path);
@@ -297,13 +297,13 @@ namespace MyLibrary.Data.Formats
             }
         }
 
-        internal DBFRow(DBFReader reader, object[] values)
+        internal DBFRow(DbfReader reader, object[] values)
         {
             _reader = reader;
             Values = values;
         }
 
-        private readonly DBFReader _reader;
+        private readonly DbfReader _reader;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
