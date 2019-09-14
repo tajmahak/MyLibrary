@@ -188,7 +188,7 @@ namespace MyLibrary.DataBase
     {
         private TQuery This => (TQuery)(object)this;
 
-        public DBQueryBase(DBTable table, DBContext context) : base(table, context)
+        internal DBQueryBase(DBTable table, DBContext context) : base(table, context)
         {
         }
 
@@ -1169,7 +1169,7 @@ namespace MyLibrary.DataBase
     /// <typeparam name="TQuery"></typeparam>
     public class DBQuery : DBQueryBase<DBQuery>
     {
-        public DBQuery(DBTable table, DBContext context) : base(table, context)
+        internal DBQuery(DBTable table, DBContext context) : base(table, context)
         {
         }
     }
@@ -1179,7 +1179,7 @@ namespace MyLibrary.DataBase
     /// </summary>
     public class DBQuery<TRow> : DBQueryBase<DBQuery<TRow>> where TRow : DBOrmRowBase
     {
-        public DBQuery(DBTable table, DBContext context) : base(table, context)
+        internal DBQuery(DBTable table, DBContext context) : base(table, context)
         {
         }
 

@@ -11,26 +11,34 @@ namespace MyLibrary.DataBase
         {
             return (TRow)Activator.CreateInstance(typeof(TRow), row);
         }
+        public static DBRow ExtractDBRow(DBOrmRowBase row)
+        {
+            if (row == null)
+            {
+                return null;
+            }
+            if (row is DBOrmRowBase ormRow)
+            {
+                return ormRow.Row;
+            }
+            throw DBInternal.ExtractDBRowException(row.GetType());
+        }
 
         public static string GetTableNameFromAttribute(Type type)
         {
-            DBOrmTableAttribute attribute;
             while (true)
             {
                 var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
-                if (attrArray.Length == 0)
+                if (attrArray.Length != 0)
                 {
-                    type = type.BaseType;
-                    if (type == null)
-                    {
-                        throw OrmTableNotAttributeException(type);
-                    }
-                    continue;
+                    return ((DBOrmTableAttribute)attrArray[0]).TableName;
                 }
-                attribute = (DBOrmTableAttribute)attrArray[0];
-                break;
+                type = type.BaseType;
+                if (type == null)
+                {
+                    throw OrmTableNotAttributeException(type);
+                }
             }
-            return attribute.TableName;
         }
         public static string[] GetForeignKey(Type type1, Type type2)
         {

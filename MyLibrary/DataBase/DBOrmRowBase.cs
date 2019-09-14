@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MyLibrary.DataBase
+﻿namespace MyLibrary.DataBase
 {
     /// <summary>
     /// Базовый класс для ORM-таблиц.

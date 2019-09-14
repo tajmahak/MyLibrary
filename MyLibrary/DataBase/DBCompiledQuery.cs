@@ -7,8 +7,8 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBCompiledQuery
     {
-        public string CommandText { get; set; }
-        public List<DBParameter> Parameters { get; set; } = new List<DBParameter>();
-        public int NextParameterNumber { get; set; }
+        public string CommandText { get; internal set; }
+        public List<DBParameter> Parameters { get; private set; } = new List<DBParameter>();
+        internal int NextParameterNumber { get; set; }
     }
 }

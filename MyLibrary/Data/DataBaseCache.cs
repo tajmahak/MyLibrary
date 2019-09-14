@@ -19,7 +19,7 @@ namespace MyLibrary.Data
             DBRow row;
             lock (_context)
             {
-                row = _context.Query(DataCacheTable.TableName)
+                row = _context.Select(DataCacheTable.TableName)
                     .Select(DataCacheTable.Time, DataCacheTable.Data)
                     .Where(DataCacheTable.Hash, hash)
                     .ReadRow();
@@ -56,7 +56,7 @@ namespace MyLibrary.Data
             var hash = CalculateHash(key);
             lock (_context)
             {
-                _context.Query(DataCacheTable.TableName)
+                _context.Insert(DataCacheTable.TableName)
                     .UpdateOrInsert(DataCacheTable.Hash)
                     .Set(DataCacheTable.Hash, hash)
                     .Set(DataCacheTable.Data, data)
@@ -73,8 +73,7 @@ namespace MyLibrary.Data
         {
             lock (_context)
             {
-                _context.Query(DataCacheTable.TableName)
-                    .Delete()
+                _context.Delete(DataCacheTable.TableName)
                     .Where(DataCacheTable.Time, "<", limitDate)
                     .Execute();
             }

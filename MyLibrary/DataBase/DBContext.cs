@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq.Expressions;
 
 namespace MyLibrary.DataBase
 {
@@ -38,54 +37,53 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public DBQuery Query(string tableName, params object[] columnConditionPair)
+        public DBQuery Select(string tableName)
         {
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery(table, this);
-
-            if (columnConditionPair.Length % 2 != 0)
-            {
-                throw DBInternal.ParameterValuePairException();
-            }
-            for (var i = 0; i < columnConditionPair.Length; i += 2)
-            {
-                var columnName = (string)columnConditionPair[i];
-                var value = columnConditionPair[i + 1];
-                query.Where(columnName, value);
-            }
-
+            var query = CreateQuery(tableName);
             return query;
         }
-        public DBQuery<TRow> Query<TRow>(params object[] columnConditionPair) where TRow : DBOrmRowBase
+        public DBQuery Insert(string tableName)
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery<TRow>(table, this);
-
-            if (columnConditionPair.Length % 2 != 0)
-            {
-                throw DBInternal.ParameterValuePairException();
-            }
-            for (var i = 0; i < columnConditionPair.Length; i += 2)
-            {
-                var columnName = (string)columnConditionPair[i];
-                var value = columnConditionPair[i + 1];
-                query.Where(columnName, value);
-            }
-
+            var query = CreateQuery(tableName);
+            query.Insert();
             return query;
         }
-        public DBQuery<TRow> Query<TRow>(Expression<Func<TRow, bool>> whereExpression = null) where TRow : DBOrmRowBase
+        public DBQuery Update(string tableName)
         {
-            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.GetTable(tableName);
-            var query = new DBQuery<TRow>(table, this);
-            if (whereExpression != null)
-            {
-                query.Where(whereExpression);
-            }
+            var query = CreateQuery(tableName);
+            query.Update();
             return query;
         }
+        public DBQuery Delete(string tableName)
+        {
+            var query = CreateQuery(tableName);
+            query.Delete();
+            return query;
+        }
+        public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRowBase
+        {
+            var query = CreateQuery<TRow>();
+            return query;
+        }
+        public DBQuery<TRow> Insert<TRow>() where TRow : DBOrmRowBase
+        {
+            var query = CreateQuery<TRow>();
+            query.Insert();
+            return query;
+        }
+        public DBQuery<TRow> Update<TRow>() where TRow : DBOrmRowBase
+        {
+            var query = CreateQuery<TRow>();
+            query.Update();
+            return query;
+        }
+        public DBQuery<TRow> Delete<TRow>() where TRow : DBOrmRowBase
+        {
+            var query = CreateQuery<TRow>();
+            query.Delete();
+            return query;
+        }
+
         public DBContextCommitInfo Commit()
         {
             var commitInfo = new DBContextCommitInfo();
@@ -96,6 +94,8 @@ namespace MyLibrary.DataBase
                 transaction = Connection.BeginTransaction();
 
                 #region DELETE
+
+                var emptyTables = new List<DBTable>();
 
                 foreach (var tableRowsItem in _tableRows)
                 {
@@ -113,7 +113,17 @@ namespace MyLibrary.DataBase
                             }
                         }
                     }
+
                     rowCollection.Clear(x => x.State == DataRowState.Deleted);
+                    if (rowCollection.Count == 0)
+                    {
+                        emptyTables.Add(table);
+                    }
+                }
+
+                foreach (var table in emptyTables)
+                {
+                    _tableRows.Remove(table);
                 }
 
                 #endregion
@@ -170,11 +180,12 @@ namespace MyLibrary.DataBase
                         }
                     }
                 }
+
                 rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
 
                 #endregion
 
-                var saveError = false;
+                var insertError = false;
                 for (var i = 0; i < rowContainerList.Count; i++)
                 {
                     var rowContainer = rowContainerList[i];
@@ -182,17 +193,17 @@ namespace MyLibrary.DataBase
 
                     if (rowContainer.TempIdCount == 1)
                     {
-                        var tempID = (DBTempId)row.PrimaryKeyValue;
-                        var newID = ExecuteInsertCommand(row, transaction);
+                        var tempId = (DBTempId)row.PrimaryKeyValue;
+                        var rowId = ExecuteInsertCommand(row, transaction);
                         commitInfo.InsertedRowsCount++;
 
                         #region Замена временных Id на присвоенные
 
-                        var idContainer = idContainerList[tempID];
+                        var idContainer = idContainerList[tempId];
                         for (var j = 0; j < idContainer.Count; j++)
                         {
                             var list = idContainer[j];
-                            list.Row[list.ColumnIndex] = newID;
+                            list.Row[list.ColumnIndex] = rowId;
 
                             if (list.ParentContainer != null)
                             {
@@ -202,19 +213,17 @@ namespace MyLibrary.DataBase
 
                         #endregion
                         row.State = DataRowState.Unchanged;
-                        saveError = false;
+                        insertError = false;
                     }
                     else
                     {
-                        if (saveError)
+                        if (insertError)
                         {
                             throw DBInternal.DbSaveWrongRelationsException();
                         }
-
-                        rowContainerList.FindAll(x => x.TempIdCount > 0);
                         rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
                         i = -1;
-                        saveError = true;
+                        insertError = true;
                     }
                 }
                 idContainerList.Clear();
@@ -299,7 +308,7 @@ namespace MyLibrary.DataBase
         }
         public int Add<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            return Add(ExtractDBRow(row));
+            return Add(DBInternal.ExtractDBRow(row));
         }
         public int Add(IEnumerable<DBRow> collection)
         {
@@ -408,7 +417,7 @@ namespace MyLibrary.DataBase
         }
         public void Clear<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            Clear(ExtractDBRow(row));
+            Clear(DBInternal.ExtractDBRow(row));
         }
         public void Clear(IEnumerable<DBRow> collection)
         {
@@ -425,117 +434,19 @@ namespace MyLibrary.DataBase
             }
         }
 
-        public TValue ReadValue<TRow, TValue>(string columnName, Expression<Func<TRow, bool>> whereExpression) where TRow : DBOrmRowBase
+        private DBQuery CreateQuery(string tableName)
         {
-            var query = Query<TRow>();
-            query.Select(columnName);
-            query.Where(whereExpression);
-            return query.ReadValue<TValue>();
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery(table, this);
+            return query;
         }
-        public bool ReadBoolean<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
+        private DBQuery<TRow> CreateQuery<TRow>() where TRow : DBOrmRowBase
         {
-            return ReadValue<bool>(columnName, whereExpression);
+            var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
+            var table = Model.GetTable(tableName);
+            var query = new DBQuery<TRow>(table, this);
+            return query;
         }
-        public byte ReadByte<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<byte>(columnName, whereExpression);
-        }
-        public byte[] ReadBytes<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<byte[]>(columnName, whereExpression);
-        }
-        public DateTime ReadDateTime<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<DateTime>(columnName, whereExpression);
-        }
-        public decimal ReadDecimal<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<decimal>(columnName, whereExpression);
-        }
-        public double ReadDouble<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<double>(columnName, whereExpression);
-        }
-        public short ReadInt16<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<short>(columnName, whereExpression);
-        }
-        public int ReadInt32<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<int>(columnName, whereExpression);
-        }
-        public long ReadInt64<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<long>(columnName, whereExpression);
-        }
-        public float ReadSingle<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<float>(columnName, whereExpression);
-        }
-        public string ReadString<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<string>(columnName, whereExpression);
-        }
-        public TimeSpan ReadTimeSpan<TRow>(string columnName, Expression<Func<TRow, bool>> whereExpression)
-        {
-            return ReadValue<TimeSpan>(columnName, whereExpression);
-        }
-        public TValue ReadValue<TValue>(string columnName, params object[] columnConditionPair)
-        {
-            var tableName = columnName.Split('.')[0];
-            var query = Query(tableName, columnConditionPair);
-            query.Select(columnName);
-            return query.ReadValue<TValue>();
-        }
-        public bool ReadBoolean(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<bool>(columnName, columnConditionPair);
-        }
-        public byte ReadByte(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<byte>(columnName, columnConditionPair);
-        }
-        public byte[] ReadBytes(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<byte[]>(columnName, columnConditionPair);
-        }
-        public DateTime ReadDateTime(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<DateTime>(columnName, columnConditionPair);
-        }
-        public decimal ReadDecimal(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<decimal>(columnName, columnConditionPair);
-        }
-        public double ReadDouble(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<double>(columnName, columnConditionPair);
-        }
-        public short ReadInt16(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<short>(columnName, columnConditionPair);
-        }
-        public int ReadInt32(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<int>(columnName, columnConditionPair);
-        }
-        public long ReadInt64(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<long>(columnName, columnConditionPair);
-        }
-        public float ReadSingle(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<float>(columnName, columnConditionPair);
-        }
-        public string ReadString(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<string>(columnName, columnConditionPair);
-        }
-        public TimeSpan ReadTimeSpan(string columnName, params object[] columnConditionPair)
-        {
-            return ReadValue<TimeSpan>(columnName, columnConditionPair);
-        }
-
         private object ExecuteInsertCommand(DBRow row, DbTransaction transaction)
         {
             using (var dbCommand = Connection.CreateCommand())
@@ -546,13 +457,11 @@ namespace MyLibrary.DataBase
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
-                    if (row.Table[i].IsPrimary)
+                    if (!row.Table[i].IsPrimary)
                     {
-                        continue;
+                        Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        index++;
                     }
-
-                    Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
-                    index++;
                 }
                 return Model.ExecuteInsertCommand(dbCommand);
             }
@@ -570,10 +479,12 @@ namespace MyLibrary.DataBase
                     if (row.Table[i].IsPrimary)
                     {
                         Model.AddCommandParameter(dbCommand, "@id", row[i]);
-                        continue;
                     }
-                    Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
-                    index++;
+                    else
+                    {
+                        Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        index++;
+                    }
                 }
 
                 return dbCommand.ExecuteNonQuery();
@@ -589,18 +500,6 @@ namespace MyLibrary.DataBase
 
                 return dbCommand.ExecuteNonQuery();
             }
-        }
-        private static DBRow ExtractDBRow(DBOrmRowBase row)
-        {
-            if (row == null)
-            {
-                return null;
-            }
-            if (row is DBOrmRowBase ormRow)
-            {
-                return ormRow.Row;
-            }
-            throw DBInternal.ExtractDBRowException(row.GetType());
         }
 
         private class InsertRowContainer
