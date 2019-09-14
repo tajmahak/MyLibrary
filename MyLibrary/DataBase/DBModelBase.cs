@@ -795,7 +795,6 @@ namespace MyLibrary.DataBase
         }
         protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)
         {
-            //!!! не работает x=> x.BoolFlag ; x => !x.BoolFlag
             var value = ParseExpression(false, (Expression)expression, cQuery, (Expression)parentExpression);
             return value.ToString();
         }
@@ -907,11 +906,37 @@ namespace MyLibrary.DataBase
                 {
                     var custAttr = memberExpression.Member.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
                     var attr = (DBOrmColumnAttribute)custAttr[0];
-                    if (parentExpression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Negate)
+
+                    if (parentExpression is UnaryExpression unaryExpression)
                     {
-                        sql.Concat('-');
+                        if (unaryExpression.NodeType == ExpressionType.Negate)
+                        {
+                            sql.Concat('-', GetFullName(attr.ColumnName));
+                        }
+                        else if (unaryExpression.NodeType == ExpressionType.Not)
+                        {
+                            sql.Concat(GetFullName(attr.ColumnName), '=', GetParameter(false, cQuery));
+                        }
+                        else
+                        {
+                            sql.Concat(GetFullName(attr.ColumnName));
+                        }
                     }
-                    sql.Concat(GetFullName(attr.ColumnName));
+                    else
+                    {
+                        if (memberExpression.Type == typeof(bool) &&
+                            (parentExpression == null ||
+                            parentExpression is BinaryExpression binExpression &&
+                            binExpression.NodeType != ExpressionType.Equal &&
+                            binExpression.NodeType != ExpressionType.NotEqual))
+                        {
+                            sql.Concat(GetFullName(attr.ColumnName), '=', GetParameter(true, cQuery));
+                        }
+                        else
+                        {
+                            sql.Concat(GetFullName(attr.ColumnName));
+                        }
+                    }
                 }
                 else if (memberExpression.Member is PropertyInfo)
                 {
@@ -1055,6 +1080,8 @@ namespace MyLibrary.DataBase
             }
             else if (expression is NewArrayExpression newArrayExpression)
             {
+                #region
+
                 if (parseValue)
                 {
                     var array = (Array)Activator.CreateInstance(newArrayExpression.Type, newArrayExpression.Expressions.Count);
@@ -1069,6 +1096,8 @@ namespace MyLibrary.DataBase
                 {
                     throw DBInternal.UnsupportedCommandContextException();
                 }
+
+                #endregion
             }
             else
             {
