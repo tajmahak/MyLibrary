@@ -243,7 +243,6 @@ namespace MyLibrary.DataBase
 
                 transaction.Commit();
                 transaction.Dispose();
-                Clear();
             }
             catch (Exception ex)
             {
