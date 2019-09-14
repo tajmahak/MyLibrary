@@ -7,9 +7,15 @@ namespace MyLibrary.Data
     public class DataBaseCache
     {
         private readonly DBContext _context;
-        public DataBaseCache(DBContext context)
+        private readonly string _tableName, _keyColumnName, _dataColumnName, _timeColumnName;
+
+        public DataBaseCache(DBContext context, string tableName, string keyColumnName, string dataColumnName, string timeColumnName)
         {
             _context = context;
+            _tableName = tableName;
+            _keyColumnName = tableName + "." + keyColumnName;
+            _dataColumnName = tableName + "." + dataColumnName;
+            _timeColumnName = tableName + "." + timeColumnName;
         }
 
         public CacheContent<byte[]> LoadData(string key)
@@ -19,9 +25,9 @@ namespace MyLibrary.Data
             DBRow row;
             lock (_context)
             {
-                row = _context.Select(DataCacheTable.TableName)
-                    .Select(DataCacheTable.Time, DataCacheTable.Data)
-                    .Where(DataCacheTable.Hash, hash)
+                row = _context.Select(_tableName)
+                    .Select(_timeColumnName, _dataColumnName)
+                    .Where(_keyColumnName, hash)
                     .ReadRow();
             }
 
@@ -32,8 +38,8 @@ namespace MyLibrary.Data
 
             return new CacheContent<byte[]>
             {
-                CreateTime = row.Get<DateTime>(DataCacheTable.Time),
-                Data = row.Get<byte[]>(DataCacheTable.Data),
+                CreateTime = row.Get<DateTime>(_timeColumnName),
+                Data = row.Get<byte[]>(_dataColumnName),
             };
         }
         public CacheContent<string> LoadString(string key)
@@ -56,11 +62,11 @@ namespace MyLibrary.Data
             var hash = CalculateHash(key);
             lock (_context)
             {
-                _context.Insert(DataCacheTable.TableName)
-                    .UpdateOrInsert(DataCacheTable.Hash)
-                    .Set(DataCacheTable.Hash, hash)
-                    .Set(DataCacheTable.Data, data)
-                    .Set(DataCacheTable.Time, DateTime.Now)
+                _context.Insert(_tableName)
+                    .UpdateOrInsert(_keyColumnName)
+                    .Set(_keyColumnName, hash)
+                    .Set(_dataColumnName, data)
+                    .Set(_timeColumnName, DateTime.Now)
                     .Execute();
             }
         }
@@ -73,8 +79,8 @@ namespace MyLibrary.Data
         {
             lock (_context)
             {
-                _context.Delete(DataCacheTable.TableName)
-                    .Where(DataCacheTable.Time, "<", limitDate)
+                _context.Delete(_tableName)
+                    .Where(_timeColumnName, "<", limitDate)
                     .Execute();
             }
         }
@@ -84,14 +90,6 @@ namespace MyLibrary.Data
             var data = Encoding.UTF8.GetBytes(text);
             data = Cryptography.GetMD5Hash(data);
             return Format.ToHexText(data);
-        }
-
-        private static class DataCacheTable
-        {
-            public const string TableName = "DATACACHE";
-            public const string Hash = "DATACACHE.HASH";
-            public const string Data = "DATACACHE.DATA";
-            public const string Time = "DATACACHE.TIME";
         }
     }
 
