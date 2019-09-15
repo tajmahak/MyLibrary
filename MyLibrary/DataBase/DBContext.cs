@@ -157,11 +157,9 @@ namespace MyLibrary.DataBase
                         {
                             if (row[columnIndex] is DBTempId tempID)
                             {
-                                var idContainer = new TempIdContainer(row, columnIndex);
-
+                                var idContainer = new TempIdContainer(row, columnIndex, rowContainer);
                                 if (rowContainer != null)
                                 {
-                                    idContainer.ParentContainer = rowContainer;
                                     rowContainer.TempIdCount++;
                                 }
 
@@ -197,21 +195,19 @@ namespace MyLibrary.DataBase
                         var rowId = ExecuteInsertCommand(row, transaction);
                         commitInfo.InsertedRowsCount++;
 
-                        #region Замена временных Id на присвоенные
-
+                        // замена временных ID на присвоенные
                         var idContainer = idContainerList[tempId];
                         for (var j = 0; j < idContainer.Count; j++)
                         {
                             var list = idContainer[j];
                             list.Row[list.ColumnIndex] = rowId;
 
-                            if (list.ParentContainer != null)
+                            if (list.InsertRowContainer != null)
                             {
-                                list.ParentContainer.TempIdCount--;
+                                list.InsertRowContainer.TempIdCount--;
                             }
                         }
 
-                        #endregion
                         row.State = DataRowState.Unchanged;
                         insertError = false;
                     }
@@ -226,6 +222,8 @@ namespace MyLibrary.DataBase
                         insertError = true;
                     }
                 }
+
+                rowContainerList.Clear();
                 idContainerList.Clear();
 
                 #endregion
@@ -266,7 +264,7 @@ namespace MyLibrary.DataBase
         {
             var table = Model.GetTable(tableName);
             var row = table.CreateRow();
-            Add(row);
+            AddRow(row);
             return row;
         }
         public TRow NewRow<TRow>() where TRow : DBOrmRowBase
@@ -276,7 +274,7 @@ namespace MyLibrary.DataBase
             return DBInternal.CreateOrmRow<TRow>(row);
         }
 
-        public int Add(DBRow row)
+        public int AddRow(DBRow row)
         {
             if (row.Table.Name == null)
             {
@@ -306,57 +304,27 @@ namespace MyLibrary.DataBase
 
             return 1;
         }
-        public int Add<TRow>(TRow row) where TRow : DBOrmRowBase
+        public int AddRow<TRow>(TRow row) where TRow : DBOrmRowBase
         {
-            return Add(DBInternal.ExtractDBRow(row));
+            return AddRow(DBInternal.ExtractDBRow(row));
         }
-        public int Add(IEnumerable<DBRow> collection)
+        public int AddRows(IEnumerable<DBRow> collection)
         {
             var count = 0;
             foreach (var row in collection)
             {
-                count += Add(row);
+                count += AddRow(row);
             }
             return count;
         }
-        public int Add<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        public int AddRows<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
         {
             var count = 0;
             foreach (var row in collection)
             {
-                count += Add(row);
+                count += AddRow(row);
             }
             return count;
-        }
-
-        public void SaveAndClear()
-        {
-            Commit();
-            Clear();
-        }
-        public void SaveAndClear(DBRow row)
-        {
-            Add(row);
-            Commit();
-            Clear(row);
-        }
-        public void SaveAndClear<TRow>(TRow row) where TRow : DBOrmRowBase
-        {
-            Add(row);
-            Commit();
-            Clear(row);
-        }
-        public void SaveAndClear(IEnumerable<DBRow> collection)
-        {
-            Add(collection);
-            Commit();
-            Clear(collection);
-        }
-        public void SaveAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
-        {
-            Add(collection);
-            Commit();
-            Clear(collection);
         }
 
         public void Clear()
@@ -432,6 +400,36 @@ namespace MyLibrary.DataBase
             {
                 Clear(row);
             }
+        }
+
+        public void CommitAndClear()
+        {
+            Commit();
+            Clear();
+        }
+        public void CommitAndClear(DBRow row)
+        {
+            AddRow(row);
+            Commit();
+            Clear(row);
+        }
+        public void CommitAndClear<TRow>(TRow row) where TRow : DBOrmRowBase
+        {
+            AddRow(row);
+            Commit();
+            Clear(row);
+        }
+        public void CommitAndClear(IEnumerable<DBRow> collection)
+        {
+            AddRows(collection);
+            Commit();
+            Clear(collection);
+        }
+        public void CommitAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        {
+            AddRows(collection);
+            Commit();
+            Clear(collection);
         }
 
         private DBQuery CreateQuery(string tableName)
@@ -516,12 +514,13 @@ namespace MyLibrary.DataBase
         {
             public DBRow Row;
             public int ColumnIndex;
-            public InsertRowContainer ParentContainer;
+            public InsertRowContainer InsertRowContainer;
 
-            public TempIdContainer(DBRow row, int columnIndex)
+            public TempIdContainer(DBRow row, int columnIndex, InsertRowContainer insertRowContainer)
             {
                 Row = row;
                 ColumnIndex = columnIndex;
+                InsertRowContainer = insertRowContainer;
             }
         }
     }

@@ -72,7 +72,7 @@ namespace MyLibrary.DataBase
             var row = ReadRow();
             if (row != null)
             {
-                Context.Add(row);
+                Context.AddRow(row);
             }
             else
             {
