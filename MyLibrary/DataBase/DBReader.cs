@@ -19,11 +19,11 @@ namespace MyLibrary.DataBase
         private readonly DBModelBase _model;
         private readonly Func<DBRow, T> _rowConverter;
 
-        public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query, Func<DBRow, T> rowConverter)
+        public DBReader(DbConnection connection, DBModelBase model, DBQueryBase query, Func<DBRow, T> rowConverter, CommandBehavior behavior)
         {
             _model = model;
             _command = model.CreateCommand(connection, query);
-            _reader = _command.ExecuteReader();
+            _reader = _command.ExecuteReader(behavior);
             _table = query.IsView ? GetTableFromSchema() : query.Table;
             _rowConverter = rowConverter;
         }

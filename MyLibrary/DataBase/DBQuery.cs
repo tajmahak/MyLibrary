@@ -46,7 +46,7 @@ namespace MyLibrary.DataBase
             {
                 throw DBInternal.SqlExecuteException();
             }
-            return new DBReader<T>(Context.Connection, Context.Model, this, rowConverter);
+            return new DBReader<T>(Context.Connection, Context.Model, this, rowConverter, CommandBehavior.Default);
         }
 
         public DBRow ReadRow()
@@ -60,10 +60,18 @@ namespace MyLibrary.DataBase
         public T ReadRow<T>(Func<DBRow, T> rowConverter)
         {
             Structure.Add(DBQueryStructureType.Limit, 1);
-            foreach (var row in Read(rowConverter))
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.SqlExecuteException();
+            }
+
+            var reader = new DBReader<T>(Context.Connection, Context.Model, this, rowConverter, CommandBehavior.SingleRow);
+            foreach (var row in reader)
             {
                 return row;
             }
+
             return default;
         }
 
