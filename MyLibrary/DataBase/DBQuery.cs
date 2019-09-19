@@ -40,7 +40,7 @@ namespace MyLibrary.DataBase
         {
             return Read(row => DBInternal.CreateOrmRow<TRow>(row));
         }
-        public DBReader<T> Read<T>(Func<DBRow, T> rowConverter)
+        public DBReader<T> Read<T>(Converter<DBRow, T> rowConverter)
         {
             if (StatementType != StatementType.Select)
             {
@@ -57,7 +57,7 @@ namespace MyLibrary.DataBase
         {
             return ReadRow(row => DBInternal.CreateOrmRow<TRow>(row));
         }
-        public T ReadRow<T>(Func<DBRow, T> rowConverter)
+        public T ReadRow<T>(Converter<DBRow, T> rowConverter)
         {
             Structure.Add(DBQueryStructureType.Limit, 1);
 
@@ -1195,7 +1195,7 @@ namespace MyLibrary.DataBase
         {
             return Read<TRow>();
         }
-        public DBReader<T> Read<T>(Func<TRow, T> rowConverter)
+        public DBReader<T> Read<T>(Converter<TRow, T> rowConverter)
         {
             return Read(x => rowConverter(DBInternal.CreateOrmRow<TRow>(x)));
         }
@@ -1203,7 +1203,7 @@ namespace MyLibrary.DataBase
         {
             return ReadRow<TRow>();
         }
-        public T ReadRow<T>(Func<TRow, T> rowConverter)
+        public T ReadRow<T>(Converter<TRow, T> rowConverter)
         {
             return ReadRow(x => rowConverter(DBInternal.CreateOrmRow<TRow>(x)));
         }

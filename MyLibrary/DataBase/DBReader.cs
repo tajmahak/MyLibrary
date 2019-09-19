@@ -16,9 +16,9 @@ namespace MyLibrary.DataBase
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly DBTable _table;
-        private readonly Func<DBRow, T> _rowConverter;
+        private readonly Converter<DBRow, T> _rowConverter;
 
-        public DBReader(DBQueryBase query, DbConnection connection, DBModelBase model, Func<DBRow, T> rowConverter, CommandBehavior behavior)
+        public DBReader(DBQueryBase query, DbConnection connection, DBModelBase model, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
             _command = model.CreateCommand(connection, query);
             _reader = _command.ExecuteReader(behavior);

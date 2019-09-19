@@ -37,12 +37,12 @@ namespace MyLibrary.Data
 
             return (T)value;
         }
-        public static List<TOut> ConvertList<TIn, TOut>(IList<TIn> srcList, Func<TIn, TOut> convertFunc)
+        public static List<TOut> ConvertList<TIn, TOut>(IList<TIn> srcList, Converter<TIn, TOut> converter)
         {
             var destList = new List<TOut>(srcList.Count);
             foreach (var srcItem in srcList)
             {
-                var destItem = convertFunc(srcItem);
+                var destItem = converter(srcItem);
                 destList.Add(destItem);
             }
             return destList;
