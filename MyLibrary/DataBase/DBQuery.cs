@@ -46,7 +46,7 @@ namespace MyLibrary.DataBase
             {
                 throw DBInternal.SqlExecuteException();
             }
-            return new DBReader<T>(Context.Connection, Context.Model, this, rowConverter, CommandBehavior.Default);
+            return new DBReader<T>(this, Context.Connection, Context.Model, rowConverter, CommandBehavior.Default);
         }
 
         public DBRow ReadRow()
@@ -66,7 +66,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.SqlExecuteException();
             }
 
-            var reader = new DBReader<T>(Context.Connection, Context.Model, this, rowConverter, CommandBehavior.SingleRow);
+            var reader = new DBReader<T>(this, Context.Connection, Context.Model, rowConverter, CommandBehavior.SingleRow);
             foreach (var row in reader)
             {
                 return row;
