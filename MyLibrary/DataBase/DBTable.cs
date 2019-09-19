@@ -16,15 +16,6 @@
             Model = model;
         }
 
-        public DBColumn GetColumn(string columnName)
-        {
-            var column = Columns[columnName];
-            if (column == null)
-            {
-                throw DBInternal.UnknownColumnException(this, columnName);
-            }
-            return column;
-        }
         public DBRow CreateRow()
         {
             var row = new DBRow(this);

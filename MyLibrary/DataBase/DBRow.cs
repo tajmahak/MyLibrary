@@ -24,12 +24,12 @@ namespace MyLibrary.DataBase
         {
             get
             {
-                var column = Table.GetColumn(columnName);
+                var column = Table.Columns[columnName];
                 return this[column.OrderIndex];
             }
             set
             {
-                var column = Table.GetColumn(columnName);
+                var column = Table.Columns[columnName];
                 SetValue(column, value);
             }
         }
@@ -46,7 +46,7 @@ namespace MyLibrary.DataBase
 
         public TValue Get<TValue>(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table.Columns[columnName];
             var value = Values[column.OrderIndex];
             return Format.Convert<TValue>(value);
         }
@@ -58,7 +58,7 @@ namespace MyLibrary.DataBase
 
         public string GetString(string columnName, bool allowNull = false)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table.Columns[columnName];
             return GetString(column.OrderIndex, allowNull);
         }
         public string GetString(int columnIndex, bool allowNull = false)
@@ -73,7 +73,7 @@ namespace MyLibrary.DataBase
 
         public string GetString(string columnName, string format)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table.Columns[columnName];
             return GetString(column.OrderIndex, format);
         }
         public string GetString(int columnIndex, string format)
@@ -88,7 +88,7 @@ namespace MyLibrary.DataBase
 
         public bool IsNull(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table.Columns[columnName];
             return IsNull(column.OrderIndex);
         }
         public bool IsNull(int columnIndex)
@@ -98,7 +98,7 @@ namespace MyLibrary.DataBase
 
         public void SetNotNull(string columnName)
         {
-            var column = Table.GetColumn(columnName);
+            var column = Table.Columns[columnName];
             SetNotNull(column.OrderIndex);
         }
         public void SetNotNull(int columnIndex)

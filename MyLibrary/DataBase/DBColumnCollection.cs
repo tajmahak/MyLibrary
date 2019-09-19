@@ -20,7 +20,7 @@ namespace MyLibrary.DataBase
                 {
                     return column;
                 }
-                return null;
+                throw DBInternal.UnknownColumnException(null, fullName);
             }
         }
 

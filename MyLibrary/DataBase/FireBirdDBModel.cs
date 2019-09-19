@@ -71,9 +71,9 @@ namespace MyLibrary.DataBase
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
                     var tableName = (string)columnRow["TABLE_NAME"];
-                    var table = Tables[tableName];
-                    if (table != null)
+                    if (Tables.Contains(tableName))
                     {
+                        var table = Tables[tableName];
                         var columnName = (string)columnRow["COLUMN_NAME"];
                         var column = table.Columns.Find(x => x.Name == columnName);
 
@@ -117,9 +117,9 @@ namespace MyLibrary.DataBase
                 foreach (DataRow indexRow in indexesSchema.Rows)
                 {
                     var tableName = (string)indexRow["TABLE_NAME"];
-                    var table = Tables[tableName];
-                    if (table != null)
+                    if (Tables.Contains(tableName))
                     {
+                        var table = Tables[tableName];
                         table.Indexes.Add(new DBIndex(table)
                         {
                             Name = (string)indexRow["INDEX_NAME"],
@@ -138,9 +138,9 @@ namespace MyLibrary.DataBase
                 foreach (DataRow foreignKeysRow in foreignKeysSchema.Rows)
                 {
                     var tableName = (string)foreignKeysRow["TABLE_NAME"];
-                    var table = Tables[tableName];
-                    if (table != null)
+                    if (Tables.Contains(tableName))
                     {
+                        var table = Tables[tableName];
                         var indexName = (string)foreignKeysRow["INDEX_NAME"];
                         var index = table.Indexes.Find(x => x.Name == indexName);
                         if (index != null)

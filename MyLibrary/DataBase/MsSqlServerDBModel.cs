@@ -110,9 +110,9 @@ namespace MyLibrary.DataBase
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
                     var tableName = (string)columnRow["TABLE_NAME"];
-                    var table = Tables[tableName];
-                    if (table != null)
+                    if (Tables.Contains(tableName))
                     {
+                        var table = Tables[tableName];
                         var columnName = (string)columnRow["COLUMN_NAME"];
                         var column = table.Columns.Find(x => x.Name == columnName);
 

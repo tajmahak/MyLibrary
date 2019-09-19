@@ -19,7 +19,7 @@ namespace MyLibrary.DataBase
                 {
                     return table;
                 }
-                return null;
+                throw DBInternal.UnknownTableException(name);
             }
         }
 
@@ -36,6 +36,10 @@ namespace MyLibrary.DataBase
         public bool Contains(DBTable item)
         {
             return _dictionary.ContainsValue(item);
+        }
+        public bool Contains(string name)
+        {
+            return _dictionary.ContainsKey(name);
         }
         public void CopyTo(DBTable[] array, int arrayIndex)
         {

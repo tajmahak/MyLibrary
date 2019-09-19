@@ -262,7 +262,7 @@ namespace MyLibrary.DataBase
 
         public DBRow NewRow(string tableName)
         {
-            var table = Model.GetTable(tableName);
+            var table = Model.Tables[tableName];
             var row = table.CreateRow();
             AddRow(row);
             return row;
@@ -348,7 +348,7 @@ namespace MyLibrary.DataBase
         }
         public void Clear(string tableName)
         {
-            var table = Model.GetTable(tableName);
+            var table = Model.Tables[tableName];
             if (_tableRows.TryGetValue(table, out var rowCollection))
             {
                 foreach (var row in rowCollection)
@@ -434,14 +434,14 @@ namespace MyLibrary.DataBase
 
         private DBQuery CreateQuery(string tableName)
         {
-            var table = Model.GetTable(tableName);
+            var table = Model.Tables[tableName];
             var query = new DBQuery(table, this);
             return query;
         }
         private DBQuery<TRow> CreateQuery<TRow>() where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.GetTable(tableName);
+            var table = Model.Tables[tableName];
             var query = new DBQuery<TRow>(table, this);
             return query;
         }

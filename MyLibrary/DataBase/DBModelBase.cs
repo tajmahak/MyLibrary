@@ -147,25 +147,6 @@ namespace MyLibrary.DataBase
             return context;
         }
 
-        public DBTable GetTable(string tableName)
-        {
-            var table = Tables[tableName];
-            if (table == null)
-            {
-                throw DBInternal.UnknownTableException(tableName);
-            }
-            return table;
-        }
-        public DBColumn GetColumn(string columnName)
-        {
-            var column = Columns[columnName];
-            if (column == null)
-            {
-                throw DBInternal.UnknownColumnException(null, columnName);
-            }
-            return column;
-        }
-
         protected virtual string GetInsertCommandText(DBTable table)
         {
             var sql = new StringBuilder();
