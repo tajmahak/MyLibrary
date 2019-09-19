@@ -40,10 +40,10 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             Initialized = true;
         }
-        public void Initialize(Type[] ormTableTypes)
+        public void Initialize(IList<Type> ormTableTypes)
         {
             Tables.Clear();
-            for (var i = 0; i < ormTableTypes.Length; i++)
+            for (var i = 0; i < ormTableTypes.Count; i++)
             {
                 var tableType = ormTableTypes[i];
                 var table = new DBTable(this)
@@ -85,6 +85,27 @@ namespace MyLibrary.DataBase
             }
             InitializeDictionaries();
             Initialized = true;
+        }
+        public void Initialize(Type dbType)
+        {
+            var ormTableTypes = new List<Type>();
+
+            var members = dbType.GetMembers(BindingFlags.NonPublic);
+            foreach (Type member in members)
+            {
+                var baseType = member.BaseType;
+                while (baseType != null)
+                {
+                    if (baseType == typeof(DBOrmRowBase))
+                    {
+                        ormTableTypes.Add(member);
+                        break;
+                    }
+                    baseType = baseType.BaseType;
+                }
+            }
+
+            Initialize(ormTableTypes);
         }
         public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
