@@ -1,6 +1,6 @@
 ﻿namespace MyLibrary.DataBase
 {
-    public class DBIndex
+    public sealed class DBIndex
     {
         public string Name { get; set; }
         public bool IsActive { get; set; }

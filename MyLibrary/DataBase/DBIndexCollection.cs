@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
-    public class DBIndexCollection : ICollection<DBIndex>
+    public sealed class DBIndexCollection : ICollection<DBIndex>
     {
         public int Count => _list.Count;
         public bool IsReadOnly => false;

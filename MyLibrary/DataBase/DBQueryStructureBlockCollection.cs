@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
-    public class DBQueryStructureBlockCollection : List<DBQueryStructureBlock>
+    public sealed class DBQueryStructureBlockCollection : List<DBQueryStructureBlock>
     {
         public void Add(DBQueryStructureType type, params object[] args)
         {

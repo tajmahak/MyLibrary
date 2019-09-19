@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
-    public class DBColumnCollection : ICollection<DBColumn>
+    public sealed class DBColumnCollection : ICollection<DBColumn>
     {
         public int Count => _list.Count;
         public bool IsReadOnly => false;

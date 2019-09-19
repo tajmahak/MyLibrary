@@ -1,6 +1,6 @@
 ﻿namespace MyLibrary.DataBase
 {
-    internal class DBTempId
+    internal sealed class DBTempId
     {
     }
 }

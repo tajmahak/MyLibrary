@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
-    public class DBTableCollection : ICollection<DBTable>
+    public sealed class DBTableCollection : ICollection<DBTable>
     {
         public int Count => _list.Count;
         public bool IsReadOnly => false;

@@ -10,7 +10,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Модель БД "Microsoft SQL Server"
     /// </summary>
-    public class MsSqlServerDBModel : DBModelBase
+    public sealed class MsSqlServerDBModel : DBModelBase
     {
         public MsSqlServerDBModel()
         {

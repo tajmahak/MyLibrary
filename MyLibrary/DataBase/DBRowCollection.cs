@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MyLibrary.DataBase
 {
-    internal class DBRowCollection : ICollection<DBRow>
+    internal sealed class DBRowCollection : ICollection<DBRow>
     {
         public int Count => _list.Count;
         public bool IsReadOnly => false;
@@ -28,6 +28,7 @@ namespace MyLibrary.DataBase
         }
         public int Clear(Predicate<DBRow> match)
         {
+            // вероятно, операция добавления работает быстрее, чем List<>.Remove
             var list = _list.FindAll(x => !match(x));
             if (list.Count != _list.Count)
             {
