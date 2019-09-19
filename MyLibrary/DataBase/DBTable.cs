@@ -16,20 +16,15 @@
             Model = model;
         }
 
-        public DBColumn this[int index] => Columns[index];
-        public DBColumn this[string columnName]
+        public DBColumn GetColumn(string columnName)
         {
-            get
+            var column = Columns[columnName];
+            if (column == null)
             {
-                var column = Columns[columnName];
-                if (column == null)
-                {
-                    throw DBInternal.UnknownColumnException(this, columnName);
-                }
-                return column;
+                throw DBInternal.UnknownColumnException(this, columnName);
             }
+            return column;
         }
-
         public DBRow CreateRow()
         {
             var row = new DBRow(this);

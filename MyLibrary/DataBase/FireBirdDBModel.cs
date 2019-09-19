@@ -177,7 +177,7 @@ namespace MyLibrary.DataBase
         }
         protected override string GetInsertCommandText(DBTable table)
         {
-            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetName(table.PrimaryKeyColumn.Name));
+            return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetShortName(table.PrimaryKeyColumn.Name));
         }
         public override void AddCommandParameter(DbCommand command, string name, object value)
         {
@@ -247,15 +247,15 @@ namespace MyLibrary.DataBase
 
         public string GetUpdateSelectivityIndexCommandText(DBIndex index)
         {
-            return string.Concat("SET STATISTICS INDEX ", GetName(index.Name));
+            return string.Concat("SET STATISTICS INDEX ", GetShortName(index.Name));
         }
         public string GetActivateIndexCommandText(DBIndex index)
         {
-            return string.Concat("ALTER INDEX ", GetName(index.Name), " ACTIVE");
+            return string.Concat("ALTER INDEX ", GetShortName(index.Name), " ACTIVE");
         }
         public string GetDeactivateIndexCommandText(DBIndex index)
         {
-            return string.Concat("ALTER INDEX ", GetName(index.Name), " INACTIVE");
+            return string.Concat("ALTER INDEX ", GetShortName(index.Name), " INACTIVE");
         }
 
         private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
@@ -265,7 +265,7 @@ namespace MyLibrary.DataBase
             {
                 #region UPDATE OR INSERT
 
-                sql.Concat("UPDATE OR INSERT INTO ", GetName(query.Table.Name), '(');
+                sql.Concat("UPDATE OR INSERT INTO ", GetShortName(query.Table.Name), '(');
 
                 var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
                 if (blockList.Count == 0)

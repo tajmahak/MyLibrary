@@ -166,7 +166,89 @@ namespace MyLibrary.DataBase
             return column;
         }
 
-        // Вспомогательные сущности для получения SQL-команд
+        protected virtual string GetInsertCommandText(DBTable table)
+        {
+            var sql = new StringBuilder();
+            sql.Concat("INSERT INTO ", GetShortName(table.Name), " VALUES(");
+
+            var index = 0;
+            var paramIndex = 0;
+            foreach (var column in table.Columns)
+            {
+                if (index++ > 0)
+                {
+                    sql.Concat(',');
+                }
+                if (column.IsPrimary)
+                {
+                    sql.Concat("NULL");
+                }
+                else
+                {
+                    sql.Concat("@p", paramIndex++);
+                }
+            }
+            sql.Concat(')');
+            return sql.ToString();
+        }
+        protected string GetSelectCommandText(DBTable table)
+        {
+            var sql = new StringBuilder();
+            sql.Concat("SELECT ", GetShortName(table.Name), ".* FROM ", GetShortName(table.Name));
+            return sql.ToString();
+        }
+        protected string GetUpdateCommandText(DBTable table)
+        {
+            var sql = new StringBuilder();
+
+            sql.Concat("UPDATE ", GetShortName(table.Name), " SET ");
+            var index = 0;
+            foreach (var column in table.Columns)
+            {
+                if (!column.IsPrimary)
+                {
+                    if (index != 0)
+                    {
+                        sql.Concat(',');
+                    }
+                    sql.Concat(GetShortName(column.Name), "=@p", index++);
+                }
+            }
+            sql.Concat(" WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
+        }
+        protected string GetDeleteCommandText(DBTable table)
+        {
+            var sql = new StringBuilder();
+            sql.Concat("DELETE FROM ", GetShortName(table.Name), " WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
+        }
+        private void InitializeDictionaries()
+        {
+            Columns.Clear();
+            _selectCommandsDict.Clear();
+            _insertCommandsDict.Clear();
+            _updateCommandsDict.Clear();
+            _deleteCommandsDict.Clear();
+            foreach (var table in Tables)
+            {
+                _selectCommandsDict.Add(table, GetSelectCommandText(table));
+                if (table.PrimaryKeyColumn != null)
+                {
+                    _insertCommandsDict.Add(table, GetInsertCommandText(table));
+                    _updateCommandsDict.Add(table, GetUpdateCommandText(table));
+                    _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
+                }
+
+                foreach (var column in table.Columns)
+                {
+                    Columns.Add(column);
+                }
+            }
+        }
+
+        #region Вспомогательные сущности для получения SQL-команд
+
         protected void PrepareSelectBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             var blockList = query.Structure.FindAll(x => x.StartsWith("Select"));
@@ -212,7 +294,7 @@ namespace MyLibrary.DataBase
                                     else
                                     {
                                         // Таблица
-                                        sql.Concat(GetName(paramCol), ".*");
+                                        sql.Concat(GetShortName(paramCol), ".*");
                                     }
                                     index++;
                                 }
@@ -225,7 +307,7 @@ namespace MyLibrary.DataBase
                             {
                                 sql.Concat(',');
                             }
-                            sql.Concat(GetFullName(block[1]), " AS ", GetName(block[0]));
+                            sql.Concat(GetFullName(block[1]), " AS ", GetShortName(block[0]));
                             index++;
                             break;
                         #endregion
@@ -250,7 +332,7 @@ namespace MyLibrary.DataBase
                                 {
                                     sql.Concat(',');
                                 }
-                                sql.Concat("SUM(", GetFullName(block[i]), ") AS ", GetName(block[i + 1]));
+                                sql.Concat("SUM(", GetFullName(block[i]), ") AS ", GetShortName(block[i + 1]));
                                 index++;
                             }
                             break;
@@ -276,7 +358,7 @@ namespace MyLibrary.DataBase
                                 {
                                     sql.Concat(',');
                                 }
-                                sql.Concat("MAX(", GetFullName(block[j]), ") AS ", GetName(block[j + 1]));
+                                sql.Concat("MAX(", GetFullName(block[j]), ") AS ", GetShortName(block[j + 1]));
                                 index++;
                             }
                             break;
@@ -302,7 +384,7 @@ namespace MyLibrary.DataBase
                                 {
                                     sql.Concat(',');
                                 }
-                                sql.Concat("MIN(", GetFullName(block[j]), ") AS ", GetName(block[j + 1]));
+                                sql.Concat("MIN(", GetFullName(block[j]), ") AS ", GetShortName(block[j + 1]));
                                 index++;
                             }
                             break;
@@ -332,19 +414,19 @@ namespace MyLibrary.DataBase
                             }
                             break;
                         #endregion
-                        case DBQueryStructureType.Select_expression:
+                        case DBQueryStructureType.SelectExpression:
                             #region
                             sql.Concat(GetListFromExpression(block[0], cQuery));
                             break;
                             #endregion
                     }
                 }
-                sql.Concat(" FROM ", GetName(query.Table.Name));
+                sql.Concat(" FROM ", GetShortName(query.Table.Name));
             }
         }
         protected void PrepareInsertBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            sql.Concat("INSERT INTO ", GetName(query.Table.Name), '(');
+            sql.Concat("INSERT INTO ", GetShortName(query.Table.Name), '(');
 
             var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
@@ -375,7 +457,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareUpdateBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            sql.Concat("UPDATE ", GetName(query.Table.Name), " SET ");
+            sql.Concat("UPDATE ", GetShortName(query.Table.Name), " SET ");
 
             var blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
@@ -395,7 +477,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareDeleteBlock(StringBuilder sql, DBQueryBase query)
         {
-            sql.Concat("DELETE FROM ", GetName(query.Table.Name));
+            sql.Concat("DELETE FROM ", GetShortName(query.Table.Name));
         }
         protected void PrepareJoinBlock(StringBuilder sql, DBQueryBase query)
         {
@@ -404,46 +486,46 @@ namespace MyLibrary.DataBase
                 switch (block.Type)
                 {
                     case DBQueryStructureType.InnerJoin:
-                        sql.Concat(" INNER JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                        sql.Concat(" INNER JOIN ", GetShortName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
                     case DBQueryStructureType.LeftJoin:
-                        sql.Concat(" LEFT JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                        sql.Concat(" LEFT JOIN ", GetShortName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
                     case DBQueryStructureType.RightJoin:
-                        sql.Concat(" RIGHT JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                        sql.Concat(" RIGHT JOIN ", GetShortName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
                     case DBQueryStructureType.FullJoin:
-                        sql.Concat(" FULL JOIN ", GetName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
+                        sql.Concat(" FULL JOIN ", GetShortName(block[0]), " ON ", GetFullName(block[0]), '=', GetFullName(block[1]));
                         break;
 
 
                     case DBQueryStructureType.InnerJoinAs:
-                        sql.Concat(" INNER JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        sql.Concat(" INNER JOIN ", GetShortName(block[1]), " AS ", GetShortName(block[0]), " ON ", GetShortName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryStructureType.LeftJoinAs:
-                        sql.Concat(" LEFT JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        sql.Concat(" LEFT JOIN ", GetShortName(block[1]), " AS ", GetShortName(block[0]), " ON ", GetShortName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryStructureType.RightJoinAs:
-                        sql.Concat(" RIGHT JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        sql.Concat(" RIGHT JOIN ", GetShortName(block[1]), " AS ", GetShortName(block[0]), " ON ", GetShortName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
                     case DBQueryStructureType.FullJoinAs:
-                        sql.Concat(" FULL JOIN ", GetName(block[1]), " AS ", GetName(block[0]), " ON ", GetName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
+                        sql.Concat(" FULL JOIN ", GetShortName(block[1]), " AS ", GetShortName(block[0]), " ON ", GetShortName(block[0]), ".", GetColumnName(block[1]), '=', GetFullName(block[2]));
                         break;
 
-                    case DBQueryStructureType.InnerJoin_type:
-                    case DBQueryStructureType.LeftJoin_type:
-                    case DBQueryStructureType.RightJoin_type:
-                    case DBQueryStructureType.FullJoin_type:
-                    case DBQueryStructureType.InnerJoinAs_type:
-                    case DBQueryStructureType.LeftJoinAs_type:
-                    case DBQueryStructureType.RightJoinAs_type:
-                    case DBQueryStructureType.FullJoinAs_type:
+                    case DBQueryStructureType.InnerJoinType:
+                    case DBQueryStructureType.LeftJoinType:
+                    case DBQueryStructureType.RightJoinType:
+                    case DBQueryStructureType.FullJoinType:
+                    case DBQueryStructureType.InnerJoinAsType:
+                    case DBQueryStructureType.LeftJoinAsType:
+                    case DBQueryStructureType.RightJoinAsType:
+                    case DBQueryStructureType.FullJoinAsType:
                         #region
                         var foreignKey = DBInternal.GetForeignKey((Type)block[0], (Type)block[1]);
                         if (foreignKey == null)
@@ -453,37 +535,37 @@ namespace MyLibrary.DataBase
                         var split = foreignKey[1].Split('.');
                         switch (block.Type)
                         {
-                            case DBQueryStructureType.InnerJoin_type:
-                                sql.Concat(" INNER JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.InnerJoinType:
+                                sql.Concat(" INNER JOIN ", GetShortName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.LeftJoin_type:
-                                sql.Concat(" LEFT JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.LeftJoinType:
+                                sql.Concat(" LEFT JOIN ", GetShortName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.RightJoin_type:
-                                sql.Concat(" RIGHT JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.RightJoinType:
+                                sql.Concat(" RIGHT JOIN ", GetShortName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.FullJoin_type:
-                                sql.Concat(" FULL JOIN ", GetName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.FullJoinType:
+                                sql.Concat(" FULL JOIN ", GetShortName(split[0]), " ON ", GetFullName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
 
-                            case DBQueryStructureType.InnerJoinAs_type:
-                                sql.Concat(" INNER JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.InnerJoinAsType:
+                                sql.Concat(" INNER JOIN ", GetShortName(split[0]), " AS ", GetShortName(block[2]), " ON ", GetShortName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.LeftJoinAs_type:
-                                sql.Concat(" LEFT JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.LeftJoinAsType:
+                                sql.Concat(" LEFT JOIN ", GetShortName(split[0]), " AS ", GetShortName(block[2]), " ON ", GetShortName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.RightJoinAs_type:
-                                sql.Concat(" RIGHT JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.RightJoinAsType:
+                                sql.Concat(" RIGHT JOIN ", GetShortName(split[0]), " AS ", GetShortName(block[2]), " ON ", GetShortName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
 
-                            case DBQueryStructureType.FullJoinAs_type:
-                                sql.Concat(" FULL JOIN ", GetName(split[0]), " AS ", GetName(block[2]), " ON ", GetName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
+                            case DBQueryStructureType.FullJoinAsType:
+                                sql.Concat(" FULL JOIN ", GetShortName(split[0]), " AS ", GetShortName(block[2]), " ON ", GetShortName(block[2]), ".", GetColumnName(foreignKey[1]), '=', GetFullName(foreignKey[0]));
                                 break;
                         }
                         break;
@@ -509,7 +591,7 @@ namespace MyLibrary.DataBase
 
                     switch (block.Type)
                     {
-                        case DBQueryStructureType.Where_expression:
+                        case DBQueryStructureType.WhereExpression:
                             #region
                             sql.Concat(GetSqlFromExpression(block[0], cQuery));
                             break;
@@ -564,13 +646,13 @@ namespace MyLibrary.DataBase
                             sql.Concat("UPPER(", GetFullName(block[0]), ") LIKE ", GetParameter(block[1], cQuery));
                             break;
                         #endregion
-                        case DBQueryStructureType.WhereIn_command:
+                        case DBQueryStructureType.WhereInQuery:
                             #region
                             sql.Concat(GetFullName(block[0]), " IN ");
                             sql.Concat(GetSubQuery((DBQueryBase)block[1], cQuery));
                             break;
                         #endregion
-                        case DBQueryStructureType.WhereIn_values:
+                        case DBQueryStructureType.WhereInValues:
                             #region
                             sql.Concat(GetFullName(block[0]), " IN (");
                             #region Добавление списка значений
@@ -643,7 +725,7 @@ namespace MyLibrary.DataBase
                             break;
                         #endregion
 
-                        case DBQueryStructureType.OrderBy_expression:
+                        case DBQueryStructureType.OrderByExpression:
                             sql.Concat(GetListFromExpression(block[0], null));
                             break;
                     }
@@ -677,7 +759,7 @@ namespace MyLibrary.DataBase
                             break;
                         #endregion
 
-                        case DBQueryStructureType.GroupBy_expression:
+                        case DBQueryStructureType.GroupByExpression:
                             sql.Concat(GetListFromExpression(block[0], null));
                             break;
                     }
@@ -686,7 +768,7 @@ namespace MyLibrary.DataBase
         }
         protected void PrepareHavingBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
-            var block = query.Structure.Find(x => x == DBQueryStructureType.Having_expression);
+            var block = query.Structure.Find(x => x == DBQueryStructureType.HavingExpression);
             if (block != null)
             {
                 sql.Concat(" HAVING ", GetSqlFromExpression(block[0], cQuery));
@@ -709,71 +791,12 @@ namespace MyLibrary.DataBase
             }
         }
 
-        protected virtual string GetInsertCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            sql.Concat("INSERT INTO ", GetName(table.Name), " VALUES(");
-
-            var index = 0;
-            var paramIndex = 0;
-            foreach (var column in table.Columns)
-            {
-                if (index++ > 0)
-                {
-                    sql.Concat(',');
-                }
-                if (column.IsPrimary)
-                {
-                    sql.Concat("NULL");
-                }
-                else
-                {
-                    sql.Concat("@p", paramIndex++);
-                }
-            }
-            sql.Concat(')');
-            return sql.ToString();
-        }
-        protected string GetSelectCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            sql.Concat("SELECT ", GetName(table.Name), ".* FROM ", GetName(table.Name));
-            return sql.ToString();
-        }
-        protected string GetUpdateCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-
-            sql.Concat("UPDATE ", GetName(table.Name), " SET ");
-            var index = 0;
-            foreach (var column in table.Columns)
-            {
-                if (column.IsPrimary)
-                {
-                    continue;
-                }
-                if (index != 0)
-                {
-                    sql.Concat(',');
-                }
-                sql.Concat(GetName(column.Name), "=@p", index++);
-            }
-            sql.Concat(" WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-        protected string GetDeleteCommandText(DBTable table)
-        {
-            var sql = new StringBuilder();
-            sql.Concat("DELETE FROM ", GetName(table.Name), " WHERE ", GetName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-
         protected string GetFullName(object value)
         {
             var split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
         }
-        protected string GetName(object value)
+        protected string GetShortName(object value)
         {
             var split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock);
@@ -1187,15 +1210,15 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.StartingWith):
-                    sql.Concat(GetArgument(0), ' ', notBlock, "STARTING WITH ", GetArgument(1));
+                    sql.Concat(GetArgument(0), " ", notBlock, "STARTING WITH ", GetArgument(1));
                     break;
 
                 case nameof(DBFunction.Containing):
-                    sql.Concat(GetArgument(0), ' ', notBlock, "CONTAINING ", GetArgument(1));
+                    sql.Concat(GetArgument(0), " ", notBlock, "CONTAINING ", GetArgument(1));
                     break;
 
                 case nameof(DBFunction.SimilarTo):
-                    sql.Concat(GetArgument(0), ' ', notBlock, "SIMILAR TO ", GetArgument(1));
+                    sql.Concat(GetArgument(0), " ", notBlock, "SIMILAR TO ", GetArgument(1));
                     if (argumentsCount > 2)
                     {
                         var arg = GetArgument(2);
@@ -1346,11 +1369,11 @@ namespace MyLibrary.DataBase
                     var value = GetValueArgument(1);
                     if (value is DBQueryBase subQuery)
                     {
-                        sql.Concat(GetArgument(0), ' ', notBlock, "IN", GetSubQuery(subQuery, cQuery));
+                        sql.Concat(GetArgument(0), " ", notBlock, "IN", GetSubQuery(subQuery, cQuery));
                     }
                     else if (value is object[] array)
                     {
-                        sql.Concat(GetArgument(0), ' ', notBlock, "IN(");
+                        sql.Concat(GetArgument(0), " ", notBlock, "IN(");
                         for (var i = 0; i < array.Length; i++)
                         {
                             if (i > 0)
@@ -1440,28 +1463,7 @@ namespace MyLibrary.DataBase
 
             return sql.ToString();
         }
-        private void InitializeDictionaries()
-        {
-            Columns.Clear();
-            _selectCommandsDict.Clear();
-            _insertCommandsDict.Clear();
-            _updateCommandsDict.Clear();
-            _deleteCommandsDict.Clear();
-            foreach (var table in Tables)
-            {
-                _selectCommandsDict.Add(table, GetSelectCommandText(table));
-                if (table.PrimaryKeyColumn != null)
-                {
-                    _insertCommandsDict.Add(table, GetInsertCommandText(table));
-                    _updateCommandsDict.Add(table, GetUpdateCommandText(table));
-                    _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
-                }
 
-                foreach (var column in table.Columns)
-                {
-                    Columns.Add(column);
-                }
-            }
-        }
+        #endregion
     }
 }

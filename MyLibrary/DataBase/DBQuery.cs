@@ -249,21 +249,21 @@ namespace MyLibrary.DataBase
         public TQuery Select(Expression<Func<object>> expression)
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object>> expression)
             where TRow : DBOrmRowBase
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object[]>> expression)
             where TRow : DBOrmRowBase
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
         public TQuery Select<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
@@ -271,7 +271,7 @@ namespace MyLibrary.DataBase
             where TRow2 : DBOrmRowBase
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -280,7 +280,7 @@ namespace MyLibrary.DataBase
             where TRow3 : DBOrmRowBase
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3, TRow4>(Expression<Func<TRow, TRow2, TRow3, TRow4, object[]>> expression)
@@ -290,7 +290,7 @@ namespace MyLibrary.DataBase
             where TRow4 : DBOrmRowBase
         {
             IsView = true;
-            Structure.Add(DBQueryStructureType.Select_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
             return This;
         }
 
@@ -500,7 +500,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.InnerJoin_type, typeof(TRow), typeof(TRow2));
+            Structure.Add(DBQueryStructureType.InnerJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
         public TQuery LeftJoin<TRow, TRow2>()
@@ -513,7 +513,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.LeftJoin_type, typeof(TRow), typeof(TRow2));
+            Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
         public TQuery RightJoin<TRow, TRow2>()
@@ -526,7 +526,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.RightJoin_type, typeof(TRow), typeof(TRow2));
+            Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
         public TQuery FullJoin<TRow, TRow2>()
@@ -539,7 +539,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.FullJoin_type, typeof(TRow), typeof(TRow2));
+            Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
         public TQuery InnerJoin(string joinColumnName, string columnName)
@@ -638,7 +638,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.InnerJoinAs_type, typeof(TRow), typeof(TRow2), alias);
+            Structure.Add(DBQueryStructureType.InnerJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery LeftJoinAs<TRow, TRow2>(string alias)
@@ -656,7 +656,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.LeftJoinAs_type, typeof(TRow), typeof(TRow2), alias);
+            Structure.Add(DBQueryStructureType.LeftJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery RightJoinAs<TRow, TRow2>(string alias)
@@ -674,7 +674,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.RightJoinAs_type, typeof(TRow), typeof(TRow2), alias);
+            Structure.Add(DBQueryStructureType.RightJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery FullJoinAs<TRow, TRow2>(string alias)
@@ -692,7 +692,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
-            Structure.Add(DBQueryStructureType.FullJoinAs_type, typeof(TRow), typeof(TRow2), alias);
+            Structure.Add(DBQueryStructureType.FullJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
@@ -803,14 +803,14 @@ namespace MyLibrary.DataBase
         public TQuery Where<TRow>(Expression<Func<TRow, bool>> expression)
             where TRow : DBOrmRowBase
         {
-            Structure.Add(DBQueryStructureType.Where_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.WhereExpression, expression.Body);
             return This;
         }
         public TQuery Where<TRow, TRow2>(Expression<Func<TRow, TRow2, bool>> expression)
             where TRow : DBOrmRowBase
             where TRow2 : DBOrmRowBase
         {
-            Structure.Add(DBQueryStructureType.Where_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.WhereExpression, expression.Body);
             return This;
         }
         public TQuery Where<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, bool>> expression)
@@ -818,7 +818,7 @@ namespace MyLibrary.DataBase
             where TRow2 : DBOrmRowBase
             where TRow3 : DBOrmRowBase
         {
-            Structure.Add(DBQueryStructureType.Where_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.WhereExpression, expression.Body);
             return This;
         }
         public TQuery Where<TRow, TRow2, TRow3, TRow4>(Expression<Func<TRow, TRow2, TRow3, TRow4, bool>> expression)
@@ -827,7 +827,7 @@ namespace MyLibrary.DataBase
             where TRow3 : DBOrmRowBase
             where TRow4 : DBOrmRowBase
         {
-            Structure.Add(DBQueryStructureType.Where_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.WhereExpression, expression.Body);
             return This;
         }
         public TQuery Where(string column, object value)
@@ -960,7 +960,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.ArgumentNullException(nameof(query));
             }
 
-            Structure.Add(DBQueryStructureType.WhereIn_command, columnName, query);
+            Structure.Add(DBQueryStructureType.WhereInQuery, columnName, query);
             return This;
         }
         public TQuery WhereIn(string columnName, params object[] values)
@@ -975,7 +975,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.ArgumentNullException(nameof(values));
             }
 
-            Structure.Add(DBQueryStructureType.WhereIn_values, columnName, values);
+            Structure.Add(DBQueryStructureType.WhereInValues, columnName, values);
             return This;
         }
 
@@ -987,7 +987,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.OrderBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
             return This;
         }
         public TQuery OrderBy<TRow>(Expression<Func<TRow, object[]>> expression)
@@ -998,7 +998,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.OrderBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
             return This;
         }
         public TQuery OrderBy<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
@@ -1010,7 +1010,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.OrderBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
             return This;
         }
         public TQuery OrderBy<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -1023,7 +1023,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.OrderBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
             return This;
         }
         public TQuery OrderBy(params string[] columns)
@@ -1095,7 +1095,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.GroupBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
             return This;
         }
         public TQuery GroupBy<TRow>(Expression<Func<TRow, object[]>> expression)
@@ -1106,7 +1106,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.GroupBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
             return This;
         }
         public TQuery GroupBy<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
@@ -1118,7 +1118,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.GroupBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
             return This;
         }
         public TQuery GroupBy<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -1131,7 +1131,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.GroupBy_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
             return This;
         }
         public TQuery GroupBy(params string[] columns)
@@ -1158,7 +1158,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.Having_expression, expression.Body);
+            Structure.Add(DBQueryStructureType.HavingExpression, expression.Body);
             return This;
         }
     }

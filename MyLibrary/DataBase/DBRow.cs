@@ -24,12 +24,12 @@ namespace MyLibrary.DataBase
         {
             get
             {
-                var column = Table[columnName];
+                var column = Table.GetColumn(columnName);
                 return this[column.OrderIndex];
             }
             set
             {
-                var column = Table[columnName];
+                var column = Table.GetColumn(columnName);
                 SetValue(column, value);
             }
         }
@@ -38,27 +38,27 @@ namespace MyLibrary.DataBase
             get => Values[columnIndex];
             set
             {
-                var column = Table[columnIndex];
+                var column = Table.Columns[columnIndex];
                 SetValue(column, value);
             }
         }
         public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
 
-        public T Get<T>(string columnName)
+        public TValue Get<TValue>(string columnName)
         {
-            var column = Table[columnName];
+            var column = Table.GetColumn(columnName);
             var value = Values[column.OrderIndex];
-            return Format.Convert<T>(value);
+            return Format.Convert<TValue>(value);
         }
-        public T Get<T>(int columnIndex)
+        public TValue Get<TValue>(int columnIndex)
         {
             var value = Values[columnIndex];
-            return Format.Convert<T>(value);
+            return Format.Convert<TValue>(value);
         }
 
         public string GetString(string columnName, bool allowNull = false)
         {
-            var column = Table[columnName];
+            var column = Table.GetColumn(columnName);
             return GetString(column.OrderIndex, allowNull);
         }
         public string GetString(int columnIndex, bool allowNull = false)
@@ -73,22 +73,22 @@ namespace MyLibrary.DataBase
 
         public string GetString(string columnName, string format)
         {
-            var column = Table[columnName];
+            var column = Table.GetColumn(columnName);
             return GetString(column.OrderIndex, format);
         }
         public string GetString(int columnIndex, string format)
         {
             var value = this[columnIndex];
-            if (!(value is IFormattable))
+            if (value is IFormattable formattable)
             {
-                throw DBInternal.StringFormatException();
+                return formattable.ToString(format, null);
             }
-            return ((IFormattable)value).ToString(format, null);
+            throw DBInternal.StringFormatException();
         }
 
         public bool IsNull(string columnName)
         {
-            var column = Table[columnName];
+            var column = Table.GetColumn(columnName);
             return IsNull(column.OrderIndex);
         }
         public bool IsNull(int columnIndex)
@@ -98,7 +98,7 @@ namespace MyLibrary.DataBase
 
         public void SetNotNull(string columnName)
         {
-            var column = Table[columnName];
+            var column = Table.GetColumn(columnName);
             SetNotNull(column.OrderIndex);
         }
         public void SetNotNull(int columnIndex)
@@ -171,9 +171,9 @@ namespace MyLibrary.DataBase
                 {
                     isChanged = !Equals(value, prevValue);
                 }
-                else if (value is byte[] && prevValue is byte[])
+                else if (value is byte[] array1 && prevValue is byte[] array2)
                 {
-                    isChanged = !Format.IsEqualsArray((byte[])value, (byte[])prevValue);
+                    isChanged = !Format.IsEqualsArray(array1, array2);
                 }
 
                 if (isChanged)

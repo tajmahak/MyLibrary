@@ -455,7 +455,7 @@ namespace MyLibrary.DataBase
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
-                    if (!row.Table[i].IsPrimary)
+                    if (!row.Table.Columns[i].IsPrimary)
                     {
                         Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
                         index++;
@@ -474,7 +474,7 @@ namespace MyLibrary.DataBase
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
-                    if (row.Table[i].IsPrimary)
+                    if (row.Table.Columns[i].IsPrimary)
                     {
                         Model.AddCommandParameter(dbCommand, "@id", row[i]);
                     }

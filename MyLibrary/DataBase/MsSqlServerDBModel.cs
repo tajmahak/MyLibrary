@@ -22,7 +22,7 @@ namespace MyLibrary.DataBase
         {
             var sql = new StringBuilder();
 
-            sql.Concat("INSERT INTO ", GetName(table.Name), "(");
+            sql.Concat("INSERT INTO ", GetShortName(table.Name), "(");
 
             var index = 0;
             foreach (var column in table.Columns)
@@ -33,12 +33,12 @@ namespace MyLibrary.DataBase
                 }
                 if (!column.IsPrimary)
                 {
-                    sql.Concat(GetName(column.Name));
+                    sql.Concat(GetShortName(column.Name));
                     index++;
                 }
             }
 
-            sql.Concat(") OUTPUT INSERTED.", GetName(table.PrimaryKeyColumn.Name), " VALUES(");
+            sql.Concat(") OUTPUT INSERTED.", GetShortName(table.PrimaryKeyColumn.Name), " VALUES(");
 
             index = 0;
             foreach (var column in table.Columns)
