@@ -495,45 +495,6 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.InnerJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
-        public TQuery LeftJoin<TRow, TRow2>()
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
-            return This;
-        }
-        public TQuery RightJoin<TRow, TRow2>()
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
-            return This;
-        }
-        public TQuery FullJoin<TRow, TRow2>()
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
-            return This;
-        }
         public TQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName))
@@ -554,81 +515,6 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
             return This;
         }
-        public TQuery LeftJoin(string joinColumnName, string columnName)
-        {
-            if (string.IsNullOrEmpty(joinColumnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            }
-
-            if (string.IsNullOrEmpty(columnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            Structure.Add(DBQueryStructureType.LeftJoin, joinColumnName, columnName);
-            return This;
-        }
-        public TQuery RightJoin(string joinColumnName, string columnName)
-        {
-            if (string.IsNullOrEmpty(joinColumnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            }
-
-            if (string.IsNullOrEmpty(columnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            Structure.Add(DBQueryStructureType.RightJoin, joinColumnName, columnName);
-            return This;
-        }
-        public TQuery FullJoin(string joinColumnName, string columnName)
-        {
-            if (string.IsNullOrEmpty(joinColumnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
-            }
-
-            if (string.IsNullOrEmpty(columnName))
-            {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            Structure.Add(DBQueryStructureType.FullJoin, joinColumnName, columnName);
-            return This;
-        }
-        public TQuery Join<TRow, TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector)
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.SelectExpression, resultSelector.Body);
-            Structure.Add(DBQueryStructureType.Join, outerKeySelector.Body, innerKeySelector.Body);
-            return This;
-        }
-
         public TQuery InnerJoinAs<TRow, TRow2>(string alias)
               where TRow : DBOrmRowBase
               where TRow2 : DBOrmRowBase
@@ -645,60 +531,6 @@ namespace MyLibrary.DataBase
 
             IsView = true;
             Structure.Add(DBQueryStructureType.InnerJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            return This;
-        }
-        public TQuery LeftJoinAs<TRow, TRow2>(string alias)
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (string.IsNullOrEmpty(alias))
-            {
-                throw DBInternal.ArgumentNullException(nameof(alias));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.LeftJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            return This;
-        }
-        public TQuery RightJoinAs<TRow, TRow2>(string alias)
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (string.IsNullOrEmpty(alias))
-            {
-                throw DBInternal.ArgumentNullException(nameof(alias));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.RightJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            return This;
-        }
-        public TQuery FullJoinAs<TRow, TRow2>(string alias)
-            where TRow : DBOrmRowBase
-            where TRow2 : DBOrmRowBase
-        {
-            if (string.IsNullOrEmpty(alias))
-            {
-                throw DBInternal.ArgumentNullException(nameof(alias));
-            }
-
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.FullJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
@@ -727,6 +559,58 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
             return This;
         }
+
+        public TQuery LeftJoin<TRow, TRow2>()
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
+            return This;
+        }
+        public TQuery LeftJoin(string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(joinColumnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            }
+
+            if (string.IsNullOrEmpty(columnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(columnName));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.LeftJoin, joinColumnName, columnName);
+            return This;
+        }
+        public TQuery LeftJoinAs<TRow, TRow2>(string alias)
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (string.IsNullOrEmpty(alias))
+            {
+                throw DBInternal.ArgumentNullException(nameof(alias));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.LeftJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            return This;
+        }
         public TQuery LeftJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias))
@@ -751,6 +635,58 @@ namespace MyLibrary.DataBase
 
             IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinAs, alias, joinColumnName, columnName);
+            return This;
+        }
+
+        public TQuery RightJoin<TRow, TRow2>()
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
+            return This;
+        }
+        public TQuery RightJoin(string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(joinColumnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            }
+
+            if (string.IsNullOrEmpty(columnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(columnName));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.RightJoin, joinColumnName, columnName);
+            return This;
+        }
+        public TQuery RightJoinAs<TRow, TRow2>(string alias)
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (string.IsNullOrEmpty(alias))
+            {
+                throw DBInternal.ArgumentNullException(nameof(alias));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.RightJoinAsType, typeof(TRow), typeof(TRow2), alias);
             return This;
         }
         public TQuery RightJoinAs(string alias, string joinColumnName, string columnName)
@@ -779,6 +715,58 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.RightJoinAs, alias, joinColumnName, columnName);
             return This;
         }
+
+        public TQuery FullJoin<TRow, TRow2>()
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
+            return This;
+        }
+        public TQuery FullJoin(string joinColumnName, string columnName)
+        {
+            if (string.IsNullOrEmpty(joinColumnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+            }
+
+            if (string.IsNullOrEmpty(columnName))
+            {
+                throw DBInternal.ArgumentNullException(nameof(columnName));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.FullJoin, joinColumnName, columnName);
+            return This;
+        }
+        public TQuery FullJoinAs<TRow, TRow2>(string alias)
+           where TRow : DBOrmRowBase
+           where TRow2 : DBOrmRowBase
+        {
+            if (string.IsNullOrEmpty(alias))
+            {
+                throw DBInternal.ArgumentNullException(nameof(alias));
+            }
+
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.FullJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            return This;
+        }
         public TQuery FullJoinAs(string alias, string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(alias))
@@ -803,6 +791,21 @@ namespace MyLibrary.DataBase
 
             IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinAs, alias, joinColumnName, columnName);
+            return This;
+        }
+
+        public TQuery Join<TRow, TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector)
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.SelectExpression, resultSelector.Body);
+            Structure.Add(DBQueryStructureType.Join, outerKeySelector.Body, innerKeySelector.Body);
             return This;
         }
 
@@ -1317,38 +1320,41 @@ namespace MyLibrary.DataBase
         {
             return InnerJoin<TRow, TRow2>();
         }
-        public DBQuery<TRow> LeftJoin<TRow2>() where TRow2 : DBOrmRowBase
-        {
-            return LeftJoin<TRow, TRow2>();
-        }
-        public DBQuery<TRow> RightJoin<TRow2>() where TRow2 : DBOrmRowBase
-        {
-            return RightJoin<TRow, TRow2>();
-        }
-        public DBQuery<TRow> FullJoin<TRow2>() where TRow2 : DBOrmRowBase
-        {
-            return FullJoin<TRow, TRow2>();
-        }
-        public DBQuery<TRow> Join<TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector) where TRow2 : DBOrmRowBase
-        {
-            return base.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
-        }
-
         public DBQuery<TRow> InnerJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return InnerJoinAs<TRow, TRow2>(alias);
+        }
+
+        public DBQuery<TRow> LeftJoin<TRow2>() where TRow2 : DBOrmRowBase
+        {
+            return LeftJoin<TRow, TRow2>();
         }
         public DBQuery<TRow> LeftJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return LeftJoinAs<TRow, TRow2>(alias);
         }
+
+        public DBQuery<TRow> RightJoin<TRow2>() where TRow2 : DBOrmRowBase
+        {
+            return RightJoin<TRow, TRow2>();
+        }
         public DBQuery<TRow> RightJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return RightJoinAs<TRow, TRow2>(alias);
         }
+
+        public DBQuery<TRow> FullJoin<TRow2>() where TRow2 : DBOrmRowBase
+        {
+            return FullJoin<TRow, TRow2>();
+        }
         public DBQuery<TRow> FullJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return FullJoinAs<TRow, TRow2>(alias);
+        }
+
+        public DBQuery<TRow> Join<TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector) where TRow2 : DBOrmRowBase
+        {
+            return base.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
         public DBQuery<TRow> OrderBy(Expression<Func<TRow, object>> expression)
