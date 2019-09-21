@@ -495,6 +495,17 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.InnerJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
+        public TQuery InnerJoin(Type rowType, Type row2Type)
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.InnerJoinType, rowType, row2Type);
+            return This;
+        }
         public TQuery InnerJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName))
@@ -571,6 +582,17 @@ namespace MyLibrary.DataBase
 
             IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
+            return This;
+        }
+        public TQuery LeftJoin(Type rowType, Type row2Type)
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.LeftJoinType, rowType, row2Type);
             return This;
         }
         public TQuery LeftJoin(string joinColumnName, string columnName)
@@ -651,6 +673,17 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
             return This;
         }
+        public TQuery RightJoin(Type rowType, Type row2Type)
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.RightJoinType, rowType, row2Type);
+            return This;
+        }
         public TQuery RightJoin(string joinColumnName, string columnName)
         {
             if (string.IsNullOrEmpty(joinColumnName))
@@ -727,6 +760,17 @@ namespace MyLibrary.DataBase
 
             IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
+            return This;
+        }
+        public TQuery FullJoin(Type rowType, Type row2Type)
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            IsView = true;
+            Structure.Add(DBQueryStructureType.FullJoinType, rowType, row2Type);
             return This;
         }
         public TQuery FullJoin(string joinColumnName, string columnName)
@@ -1320,6 +1364,10 @@ namespace MyLibrary.DataBase
         {
             return InnerJoin<TRow, TRow2>();
         }
+        public DBQuery<TRow> InnerJoin<TRow2>(DBQuery<TRow2> query) where TRow2 : DBOrmRowBase
+        {
+            return InnerJoin(typeof(TRow), typeof(TRow2));
+        }
         public DBQuery<TRow> InnerJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return InnerJoinAs<TRow, TRow2>(alias);
@@ -1328,6 +1376,10 @@ namespace MyLibrary.DataBase
         public DBQuery<TRow> LeftJoin<TRow2>() where TRow2 : DBOrmRowBase
         {
             return LeftJoin<TRow, TRow2>();
+        }
+        public DBQuery<TRow> LeftJoin<TRow2>(DBQuery<TRow2> query) where TRow2 : DBOrmRowBase
+        {
+            return LeftJoin(typeof(TRow), typeof(TRow2));
         }
         public DBQuery<TRow> LeftJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
@@ -1338,6 +1390,10 @@ namespace MyLibrary.DataBase
         {
             return RightJoin<TRow, TRow2>();
         }
+        public DBQuery<TRow> RightJoin<TRow2>(DBQuery<TRow2> query) where TRow2 : DBOrmRowBase
+        {
+            return RightJoin(typeof(TRow), typeof(TRow2));
+        }
         public DBQuery<TRow> RightJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
             return RightJoinAs<TRow, TRow2>(alias);
@@ -1346,6 +1402,10 @@ namespace MyLibrary.DataBase
         public DBQuery<TRow> FullJoin<TRow2>() where TRow2 : DBOrmRowBase
         {
             return FullJoin<TRow, TRow2>();
+        }
+        public DBQuery<TRow> FullJoin<TRow2>(DBQuery<TRow2> query) where TRow2 : DBOrmRowBase
+        {
+            return FullJoin(typeof(TRow), typeof(TRow2));
         }
         public DBQuery<TRow> FullJoinAs<TRow2>(string alias) where TRow2 : DBOrmRowBase
         {
