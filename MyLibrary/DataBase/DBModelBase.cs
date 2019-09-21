@@ -397,7 +397,7 @@ namespace MyLibrary.DataBase
                         #endregion
                         case DBQueryStructureType.SelectExpression:
                             #region
-                            sql.Concat(GetListFromExpression(block[0], cQuery));
+                            sql.Concat(GetStringListFromExpression(block[0], cQuery));
                             break;
                             #endregion
                     }
@@ -707,13 +707,30 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryStructureType.OrderByExpression:
-                            sql.Concat(GetListFromExpression(block[0], null));
+                            #region
+                            if (index > 0)
+                            {
+                                sql.Concat(',');
+                            }
+                            sql.Concat(GetStringListFromExpression(block[0], null));
+                            index++;
                             break;
+                        #endregion
 
-                        //!!!
                         case DBQueryStructureType.OrderByDescendingExpression:
-                            sql.Concat(GetListFromExpression(block[0], null));
+                            #region
+                            var list = GetListFromExpression(block[0], null);
+                            for (int j = 0; j < list.Length; j++)
+                            {
+                                if (index > 0)
+                                {
+                                    sql.Concat(',');
+                                }
+                                sql.Concat(list[i], " DESC");
+                                index++;
+                            }
                             break;
+                            #endregion
                     }
                 }
             }
@@ -746,7 +763,7 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryStructureType.GroupByExpression:
-                            sql.Concat(GetListFromExpression(block[0], null));
+                            sql.Concat(GetStringListFromExpression(block[0], null));
                             break;
                     }
                 }
@@ -833,37 +850,46 @@ namespace MyLibrary.DataBase
             var value = ParseExpression(true, (Expression)expression, null, (Expression)parentExpression);
             return value;
         }
-        protected string GetListFromExpression(object expression, DBCompiledQuery cQuery)
+        protected string GetStringListFromExpression(object expression, DBCompiledQuery cQuery)
         {
             var sql = new StringBuilder();
+
+            var list = GetListFromExpression(expression, cQuery);
+            for (var i = 0; i < list.Length; i++)
+            {
+                if (sql.Length > 0)
+                {
+                    sql.Concat(',');
+                }
+                sql.Concat(list[i]);
+            }
+
+            return sql.ToString();
+        }
+        protected string[] GetListFromExpression(object expression, DBCompiledQuery cQuery)
+        {
+            var list = new List<string>();
+
             if (expression is NewArrayExpression newArrayExpression)
             {
                 foreach (var exprArg in newArrayExpression.Expressions)
                 {
-                    if (sql.Length > 0)
-                    {
-                        sql.Concat(',');
-                    }
-                    sql.Concat(GetSqlFromExpression(exprArg, cQuery, expression));
+                    list.Add(GetSqlFromExpression(exprArg, cQuery, expression));
                 }
             }
             else if (expression is NewExpression newExpression)
             {
                 foreach (var exprArg in newExpression.Arguments)
                 {
-                    if (sql.Length > 0)
-                    {
-                        sql.Concat(',');
-                    }
-                    sql.Concat(GetSqlFromExpression(exprArg, cQuery, expression));
+                    list.Add(GetSqlFromExpression(exprArg, cQuery, expression));
                 }
             }
             else
             {
-                sql.Concat(GetSqlFromExpression(expression, cQuery));
+                list.Add(GetSqlFromExpression(expression, cQuery));
             }
 
-            return sql.ToString();
+            return list.ToArray();
         }
 
         private object ParseExpression(bool parseValue, Expression expression, DBCompiledQuery cQuery, Expression parentExpression)
