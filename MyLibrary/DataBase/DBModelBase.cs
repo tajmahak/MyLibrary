@@ -678,7 +678,7 @@ namespace MyLibrary.DataBase
                     switch (block.Type)
                     {
                         case DBQueryStructureType.OrderBy:
-                        case DBQueryStructureType.OrderByDesc:
+                        case DBQueryStructureType.OrderByDescending:
                         case DBQueryStructureType.OrderByUpper:
                         case DBQueryStructureType.OrderByUpperDesc:
                             #region
@@ -693,7 +693,7 @@ namespace MyLibrary.DataBase
                                 {
                                     case DBQueryStructureType.OrderBy:
                                         sql.Concat(GetFullName(args[j])); break;
-                                    case DBQueryStructureType.OrderByDesc:
+                                    case DBQueryStructureType.OrderByDescending:
                                         sql.Concat(GetFullName(args[j]), " DESC"); break;
                                     case DBQueryStructureType.OrderByUpper:
                                         sql.Concat("UPPER(", GetFullName(args[j]), ")"); break;
@@ -707,6 +707,11 @@ namespace MyLibrary.DataBase
                         #endregion
 
                         case DBQueryStructureType.OrderByExpression:
+                            sql.Concat(GetListFromExpression(block[0], null));
+                            break;
+
+                        //!!!
+                        case DBQueryStructureType.OrderByDescendingExpression:
                             sql.Concat(GetListFromExpression(block[0], null));
                             break;
                     }

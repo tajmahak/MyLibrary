@@ -55,10 +55,11 @@
         WhereExpression,
 
         OrderBy,
-        OrderByDesc,
+        OrderByDescending,
+        OrderByExpression,
+        OrderByDescendingExpression,
         OrderByUpper,
         OrderByUpperDesc,
-        OrderByExpression,
 
         GroupBy,
         GroupByExpression,

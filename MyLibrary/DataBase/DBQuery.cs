@@ -1033,7 +1033,55 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.OrderBy, columns);
             return This;
         }
-        public TQuery OrderByDesc(params string[] columns)
+
+        public TQuery OrderByDescending<TRow>(Expression<Func<TRow, object>> expression)
+            where TRow : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
+            return This;
+        }
+        public TQuery OrderByDescending<TRow>(Expression<Func<TRow, object[]>> expression)
+            where TRow : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
+            return This;
+        }
+        public TQuery OrderByDescending<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
+            return This;
+        }
+        public TQuery OrderByDescending<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
+            where TRow : DBOrmRowBase
+            where TRow2 : DBOrmRowBase
+            where TRow3 : DBOrmRowBase
+        {
+            if (StatementType != StatementType.Select)
+            {
+                throw DBInternal.UnsupportedCommandContextException();
+            }
+
+            Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
+            return This;
+        }
+        public TQuery OrderByDescending(params string[] columns)
         {
             if (columns.Length == 0)
             {
@@ -1045,9 +1093,10 @@ namespace MyLibrary.DataBase
                 throw DBInternal.UnsupportedCommandContextException();
             }
 
-            Structure.Add(DBQueryStructureType.OrderByDesc, columns);
+            Structure.Add(DBQueryStructureType.OrderByDescending, columns);
             return This;
         }
+
         public TQuery OrderByUpper(params string[] columns)
         {
             if (columns.Length == 0)
@@ -1063,7 +1112,7 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.OrderByUpper, columns);
             return This;
         }
-        public TQuery OrderByUpperDesc(params string[] columns)
+        public TQuery OrderByUpperDescendig(params string[] columns)
         {
             if (columns.Length == 0)
             {
@@ -1302,6 +1351,26 @@ namespace MyLibrary.DataBase
             where TRow3 : DBOrmRowBase
         {
             return OrderBy<TRow, TRow2, TRow3>(expression);
+        }
+
+        public DBQuery<TRow> OrderByDescending(Expression<Func<TRow, object>> expression)
+        {
+            return OrderByDescending<TRow>(expression);
+        }
+        public DBQuery<TRow> OrderByDescending(Expression<Func<TRow, object[]>> expression)
+        {
+            return OrderByDescending<TRow>(expression);
+        }
+        public DBQuery<TRow> OrderByDescending<TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
+            where TRow2 : DBOrmRowBase
+        {
+            return OrderByDescending<TRow, TRow2>(expression);
+        }
+        public DBQuery<TRow> OrderByDescending<TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
+            where TRow2 : DBOrmRowBase
+            where TRow3 : DBOrmRowBase
+        {
+            return OrderByDescending<TRow, TRow2, TRow3>(expression);
         }
 
         public DBQuery<TRow> GroupBy(Expression<Func<TRow, object>> expression)
