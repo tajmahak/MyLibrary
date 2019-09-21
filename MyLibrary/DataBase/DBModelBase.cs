@@ -550,6 +550,14 @@ namespace MyLibrary.DataBase
                                 break;
                         }
                         break;
+                    #endregion
+
+                    case DBQueryStructureType.Join:
+                        #region
+                        var column1 = GetSqlFromExpression(block[0], null, null);
+                        var column2 = GetSqlFromExpression(block[1], null, null);
+                        sql.Concat(" JOIN ", column2.Split('.')[0], " ON ", column1, '=', column2);
+                        break;
                         #endregion
                 }
             }

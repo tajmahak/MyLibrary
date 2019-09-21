@@ -26,6 +26,7 @@
         SelectCount,
         SelectExpression,
 
+        Join,
         InnerJoin,
         LeftJoin,
         RightJoin,
