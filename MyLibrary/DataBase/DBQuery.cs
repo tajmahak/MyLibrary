@@ -1,6 +1,5 @@
 ﻿using MyLibrary.Data;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -615,7 +614,7 @@ namespace MyLibrary.DataBase
             Structure.Add(DBQueryStructureType.FullJoin, joinColumnName, columnName);
             return This;
         }
-        public TQuery Join<TRow, TRow2, TValue>(DBQuery<TRow2> inner, Expression<Func<TRow, TValue>> outerKeySelector, Expression<Func<TRow2, TValue>> innerKeySelector, Expression<Func<TRow, TRow2, TRow>> resultSelector)
+        public TQuery Join<TRow, TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector)
             where TRow : DBOrmRowBase
             where TRow2 : DBOrmRowBase
         {
@@ -625,6 +624,7 @@ namespace MyLibrary.DataBase
             }
 
             IsView = true;
+            Structure.Add(DBQueryStructureType.SelectExpression, resultSelector.Body);
             Structure.Add(DBQueryStructureType.Join, outerKeySelector.Body, innerKeySelector.Body);
             return This;
         }
@@ -1329,7 +1329,7 @@ namespace MyLibrary.DataBase
         {
             return FullJoin<TRow, TRow2>();
         }
-        public DBQuery<TRow> Join<TRow2, TValue>(DBQuery<TRow2> inner, Expression<Func<TRow, TValue>> outerKeySelector, Expression<Func<TRow2, TValue>> innerKeySelector, Expression<Func<TRow, TRow2, TRow>> resultSelector) where TRow2 : DBOrmRowBase
+        public DBQuery<TRow> Join<TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector) where TRow2 : DBOrmRowBase
         {
             return base.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
