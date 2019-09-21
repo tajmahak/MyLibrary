@@ -47,8 +47,7 @@ namespace MyLibrary.DataBase
         public TValue Get<TValue>(string columnName)
         {
             var column = Table.Columns[columnName];
-            var value = Values[column.OrderIndex];
-            return Format.Convert<TValue>(value);
+            return Get<TValue>(column.OrderIndex);
         }
         public TValue Get<TValue>(int columnIndex)
         {
@@ -93,7 +92,8 @@ namespace MyLibrary.DataBase
         }
         public bool IsNull(int columnIndex)
         {
-            return Format.IsNull(Values[columnIndex]);
+            var value = Values[columnIndex];
+            return Format.IsNull(value);
         }
 
         public void SetNotNull(string columnName)
@@ -152,7 +152,7 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            if (value is string stringValue)
+            if (column.DataType == typeof(string) && value is string stringValue)
             {
                 // проверка на максимальную длину текстовой строки
                 if (stringValue.Length > column.Size)
@@ -163,25 +163,22 @@ namespace MyLibrary.DataBase
 
             if (State == DataRowState.Unchanged)
             {
-                #region Проверка значения на разницу с предыдущим значением
-
+                // проверка значения на разницу с предыдущим значением
                 var prevValue = Values[column.OrderIndex];
-                var isChanged = true;
+                var modified = true;
                 if (value.GetType() == prevValue.GetType() && value is IComparable)
                 {
-                    isChanged = !Equals(value, prevValue);
+                    modified = !Equals(value, prevValue);
                 }
-                else if (value is byte[] array1 && prevValue is byte[] array2)
+                else if (value is byte[] array && prevValue is byte[] prevArray)
                 {
-                    isChanged = !Format.IsEqualsArray(array1, array2);
+                    modified = !Format.IsEqualsArray(array, prevArray);
                 }
 
-                if (isChanged)
+                if (modified)
                 {
                     State = DataRowState.Modified;
                 }
-
-                #endregion
             }
 
             Values[column.OrderIndex] = value;
