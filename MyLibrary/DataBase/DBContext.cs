@@ -26,7 +26,7 @@ namespace MyLibrary.DataBase
         }
         private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
 
-        internal DBContext(DBModelBase model, DbConnection connection)
+        public DBContext(DBModelBase model, DbConnection connection)
         {
             Model = model;
             Connection = connection;
@@ -39,49 +39,35 @@ namespace MyLibrary.DataBase
 
         public DBQuery Select(string tableName)
         {
-            var query = CreateQuery(tableName);
-            return query;
+            return CreateQuery(tableName, StatementType.Select);
         }
         public DBQuery Insert(string tableName)
         {
-            var query = CreateQuery(tableName);
-            query.Insert();
-            return query;
+            return CreateQuery(tableName, StatementType.Insert);
         }
         public DBQuery Update(string tableName)
         {
-            var query = CreateQuery(tableName);
-            query.Update();
-            return query;
+            return CreateQuery(tableName, StatementType.Update);
         }
         public DBQuery Delete(string tableName)
         {
-            var query = CreateQuery(tableName);
-            query.Delete();
-            return query;
+            return CreateQuery(tableName, StatementType.Delete);
         }
         public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRowBase
         {
-            var query = CreateQuery<TRow>();
-            return query;
+            return CreateQuery<TRow>(StatementType.Select);
         }
         public DBQuery<TRow> Insert<TRow>() where TRow : DBOrmRowBase
         {
-            var query = CreateQuery<TRow>();
-            query.Insert();
-            return query;
+            return CreateQuery<TRow>(StatementType.Insert);
         }
         public DBQuery<TRow> Update<TRow>() where TRow : DBOrmRowBase
         {
-            var query = CreateQuery<TRow>();
-            query.Update();
-            return query;
+            return CreateQuery<TRow>(StatementType.Update);
         }
         public DBQuery<TRow> Delete<TRow>() where TRow : DBOrmRowBase
         {
-            var query = CreateQuery<TRow>();
-            query.Delete();
-            return query;
+            return CreateQuery<TRow>(StatementType.Delete);
         }
 
         public DBContextCommitInfo Commit()
@@ -432,17 +418,17 @@ namespace MyLibrary.DataBase
             Clear(collection);
         }
 
-        private DBQuery CreateQuery(string tableName)
+        private DBQuery CreateQuery(string tableName, StatementType statementType)
         {
             var table = Model.Tables[tableName];
-            var query = new DBQuery(table, this);
+            var query = new DBQuery(table, this, statementType);
             return query;
         }
-        private DBQuery<TRow> CreateQuery<TRow>() where TRow : DBOrmRowBase
+        private DBQuery<TRow> CreateQuery<TRow>(StatementType statementType) where TRow : DBOrmRowBase
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var table = Model.Tables[tableName];
-            var query = new DBQuery<TRow>(table, this);
+            var query = new DBQuery<TRow>(table, this, statementType);
             return query;
         }
         private object ExecuteInsertCommand(DBRow row, DbTransaction transaction)

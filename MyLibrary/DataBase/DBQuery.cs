@@ -11,7 +11,7 @@ namespace MyLibrary.DataBase
     /// </summary>
     public abstract class DBQueryBase
     {
-        protected DBQueryBase(DBTable table, DBContext context)
+        protected DBQueryBase(DBTable table, DBContext context, StatementType statementType)
         {
             if (table == null)
             {
@@ -23,9 +23,10 @@ namespace MyLibrary.DataBase
             }
             Table = table;
             Context = context;
+            StatementType = statementType;
         }
 
-        public StatementType StatementType { get; protected set; } = StatementType.Select;
+        public StatementType StatementType { get; protected set; }
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
         protected internal DBContext Context { get; private set; }
@@ -196,25 +197,8 @@ namespace MyLibrary.DataBase
     {
         private TQuery This => (TQuery)(object)this;
 
-        internal DBQueryBase(DBTable table, DBContext context) : base(table, context)
+        internal DBQueryBase(DBTable table, DBContext context, StatementType statementType) : base(table, context, statementType)
         {
-        }
-
-        // Работа с командами SQL
-        public TQuery Insert()
-        {
-            StatementType = StatementType.Insert;
-            return This;
-        }
-        public TQuery Update()
-        {
-            StatementType = StatementType.Update;
-            return This;
-        }
-        public TQuery Delete()
-        {
-            StatementType = StatementType.Delete;
-            return This;
         }
 
         public TQuery UpdateOrInsert(params string[] matchingColumns)
@@ -1177,7 +1161,7 @@ namespace MyLibrary.DataBase
     /// <typeparam name="TQuery"></typeparam>
     public class DBQuery : DBQueryBase<DBQuery>
     {
-        internal DBQuery(DBTable table, DBContext context) : base(table, context)
+        internal DBQuery(DBTable table, DBContext context, StatementType statementType) : base(table, context, statementType)
         {
         }
     }
@@ -1187,7 +1171,7 @@ namespace MyLibrary.DataBase
     /// </summary>
     public class DBQuery<TRow> : DBQueryBase<DBQuery<TRow>> where TRow : DBOrmRowBase
     {
-        internal DBQuery(DBTable table, DBContext context) : base(table, context)
+        internal DBQuery(DBTable table, DBContext context, StatementType statementType) : base(table, context, statementType)
         {
         }
 
