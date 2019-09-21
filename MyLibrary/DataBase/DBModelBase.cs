@@ -842,6 +842,17 @@ namespace MyLibrary.DataBase
                     sql.Concat(GetSqlFromExpression(exprArg, cQuery, expression));
                 }
             }
+            else if (expression is NewExpression newExpression)
+            {
+                foreach (var exprArg in newExpression.Arguments)
+                {
+                    if (sql.Length > 0)
+                    {
+                        sql.Concat(',');
+                    }
+                    sql.Concat(GetSqlFromExpression(exprArg, cQuery, expression));
+                }
+            }
             else
             {
                 sql.Concat(GetSqlFromExpression(expression, cQuery));
@@ -1054,15 +1065,24 @@ namespace MyLibrary.DataBase
             {
                 #region
 
-                var custAttr = parameterExpression.Type.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
-                if (custAttr.Length > 0)
+                var attrList = parameterExpression.Type.GetCustomAttributes(typeof(DBOrmColumnAttribute), false);
+                if (attrList.Length > 0)
                 {
-                    var attr = (DBOrmColumnAttribute)custAttr[0];
+                    var attr = (DBOrmColumnAttribute)attrList[0];
                     sql.Concat(GetFullName(attr.ColumnName));
                 }
                 else
                 {
-                    throw DBInternal.UnsupportedCommandContextException();
+                    attrList = parameterExpression.Type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
+                    if (attrList.Length > 0)
+                    {
+                        var attr = (DBOrmTableAttribute)attrList[0];
+                        sql.Concat(GetShortName(attr.TableName), ".*");
+                    }
+                    else
+                    {
+                        throw DBInternal.UnsupportedCommandContextException();
+                    }
                 }
 
                 #endregion
