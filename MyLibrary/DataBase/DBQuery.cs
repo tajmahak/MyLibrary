@@ -1305,6 +1305,10 @@ namespace MyLibrary.DataBase
         {
             return ReadRowOrNew<TRow>();
         }
+        public TRow NewRow()
+        {
+            return Context.NewRow<TRow>();
+        }
 
         public new DBQuery<TRow> Select(Expression<Func<object>> expression)
         {

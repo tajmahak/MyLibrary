@@ -44,36 +44,114 @@ namespace MyLibrary.DataBase
         }
         public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
 
-        public TValue Get<TValue>(string columnName)
+        public TValue GetValue<TValue>(string columnName)
         {
             var column = Table.Columns[columnName];
-            return Get<TValue>(column.OrderIndex);
+            return GetValue<TValue>(column.OrderIndex);
         }
-        public TValue Get<TValue>(int columnIndex)
+        public TValue GetValue<TValue>(int columnIndex)
         {
             var value = Values[columnIndex];
             return Format.Convert<TValue>(value);
         }
-
+        public bool GetBoolean(string columnName)
+        {
+            return GetValue<bool>(columnName);
+        }
+        public bool GetBoolean(int columnIndex)
+        {
+            return GetValue<bool>(columnIndex);
+        }
+        public byte GetByte(string columnName)
+        {
+            return GetValue<byte>(columnName);
+        }
+        public byte GetByte(int columnIndex)
+        {
+            return GetValue<byte>(columnIndex);
+        }
+        public byte[] GetBytes(string columnName)
+        {
+            return GetValue<byte[]>(columnName);
+        }
+        public byte[] GetBytes(int columnIndex)
+        {
+            return GetValue<byte[]>(columnIndex);
+        }
+        public DateTime GetDateTime(string columnName)
+        {
+            return GetValue<DateTime>(columnName);
+        }
+        public DateTime GetDateTime(int columnIndex)
+        {
+            return GetValue<DateTime>(columnIndex);
+        }
+        public decimal GetDecimal(string columnName)
+        {
+            return GetValue<decimal>(columnName);
+        }
+        public decimal GetDecimal(int columnIndex)
+        {
+            return GetValue<decimal>(columnIndex);
+        }
+        public double GetDouble(string columnName)
+        {
+            return GetValue<double>(columnName);
+        }
+        public double GetDouble(int columnIndex)
+        {
+            return GetValue<double>(columnIndex);
+        }
+        public short GetInt16(string columnName)
+        {
+            return GetValue<short>(columnName);
+        }
+        public short GetInt16(int columnIndex)
+        {
+            return GetValue<short>(columnIndex);
+        }
+        public int GetInt32(string columnName)
+        {
+            return GetValue<int>(columnName);
+        }
+        public int GetInt32(int columnIndex)
+        {
+            return GetValue<int>(columnIndex);
+        }
+        public long GetInt64(string columnName)
+        {
+            return GetValue<long>(columnName);
+        }
+        public long GetInt64(int columnIndex)
+        {
+            return GetValue<long>(columnIndex);
+        }
+        public float GetSingle(string columnName)
+        {
+            return GetValue<float>(columnName);
+        }
+        public float GetSingle(int columnIndex)
+        {
+            return GetValue<float>(columnIndex);
+        }
         public string GetString(string columnName, bool allowNull = false)
         {
             var column = Table.Columns[columnName];
             return GetString(column.OrderIndex, allowNull);
         }
+        public string GetString(string columnName, string format)
+        {
+            var column = Table.Columns[columnName];
+            return GetString(column.OrderIndex, format);
+        }
         public string GetString(int columnIndex, bool allowNull = false)
         {
-            var value = Get<string>(columnIndex);
+            var value = GetValue<string>(columnIndex);
             if (!allowNull && value == null)
             {
                 return string.Empty;
             }
             return value;
-        }
-
-        public string GetString(string columnName, string format)
-        {
-            var column = Table.Columns[columnName];
-            return GetString(column.OrderIndex, format);
         }
         public string GetString(int columnIndex, string format)
         {
@@ -83,6 +161,14 @@ namespace MyLibrary.DataBase
                 return formattable.ToString(format, null);
             }
             throw DBInternal.StringFormatException();
+        }
+        public TimeSpan GetTimeSpan(string columnName)
+        {
+            return GetValue<TimeSpan>(columnName);
+        }
+        public TimeSpan GetTimeSpan(int columnIndex)
+        {
+            return GetValue<TimeSpan>(columnIndex);
         }
 
         public bool IsNull(string columnName)

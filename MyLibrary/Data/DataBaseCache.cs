@@ -38,8 +38,8 @@ namespace MyLibrary.Data
 
             return new CacheContent<byte[]>
             {
-                CreateTime = row.Get<DateTime>(_timeColumnName),
-                Data = row.Get<byte[]>(_dataColumnName),
+                CreateTime = row.GetDateTime(_timeColumnName),
+                Data = row.GetBytes(_dataColumnName),
             };
         }
         public CacheContent<string> LoadString(string key)
