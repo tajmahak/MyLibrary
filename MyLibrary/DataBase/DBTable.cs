@@ -9,11 +9,9 @@
         public DBColumnCollection Columns { get; private set; } = new DBColumnCollection();
         public DBIndexCollection Indexes { get; private set; } = new DBIndexCollection();
         public DBColumn PrimaryKeyColumn { get; set; }
-        public DBModelBase Model { get; private set; }
 
-        public DBTable(DBModelBase model)
+        public DBTable()
         {
-            Model = model;
         }
 
         public DBRow CreateRow()

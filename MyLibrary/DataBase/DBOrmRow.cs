@@ -3,11 +3,11 @@
     /// <summary>
     /// Базовый класс для ORM-таблиц.
     /// </summary>
-    public abstract class DBOrmRowBase
+    public abstract class DBOrmRow
     {
         public DBRow Row { get; set; }
 
-        public DBOrmRowBase(DBRow row)
+        public DBOrmRow(DBRow row)
         {
             Row = row;
         }
@@ -51,9 +51,9 @@
     /// <summary>
     /// Базовый класс для типизированных ORM-таблиц.
     /// </summary>
-    public abstract class DBOrmRowBase<T> : DBOrmRowBase where T : DBOrmRowBase
+    public abstract class DBOrmRow<TRow> : DBOrmRow where TRow : DBOrmRow
     {
-        public DBOrmRowBase(DBRow row) : base(row)
+        public DBOrmRow(DBRow row) : base(row)
         {
         }
     }

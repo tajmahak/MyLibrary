@@ -13,7 +13,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Базовый класс модели БД, включающего функции взаимодействия с СУБД.
     /// </summary>
-    public abstract class DBModelBase
+    public abstract class DBProvider
     {
         public DBTableCollection Tables { get; private set; } = new DBTableCollection();
         public DBColumnCollection Columns { get; private set; } = new DBColumnCollection();
@@ -46,7 +46,7 @@ namespace MyLibrary.DataBase
             for (var i = 0; i < ormTableTypes.Count; i++)
             {
                 var tableType = ormTableTypes[i];
-                var table = new DBTable(this)
+                var table = new DBTable()
                 {
                     Name = DBInternal.GetTableNameFromAttribute(tableType)
                 };
@@ -96,7 +96,7 @@ namespace MyLibrary.DataBase
                 var baseType = member.BaseType;
                 while (baseType != null)
                 {
-                    if (baseType == typeof(DBOrmRowBase))
+                    if (baseType == typeof(DBOrmRow))
                     {
                         ormTableTypes.Add(member);
                         break;
@@ -728,7 +728,7 @@ namespace MyLibrary.DataBase
                         case DBQueryStructureType.OrderByDescendingExpression:
                             #region
                             var list = GetListFromExpression(block[0], null);
-                            for (int j = 0; j < list.Length; j++)
+                            for (var j = 0; j < list.Length; j++)
                             {
                                 if (index > 0)
                                 {

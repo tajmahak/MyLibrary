@@ -10,9 +10,9 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Модель БД "FireBird".
     /// </summary>
-    public sealed class FireBirdDBModel : DBModelBase
+    public sealed class FireBirdProvider : DBProvider
     {
-        public FireBirdDBModel()
+        public FireBirdProvider()
         {
             OpenBlock = CloseBlock = "\"";
         }
@@ -26,7 +26,7 @@ namespace MyLibrary.DataBase
                 {
                     if ((short)tableRow["IS_SYSTEM_TABLE"] == 0)
                     {
-                        var table = new DBTable(this)
+                        var table = new DBTable()
                         {
                             Name = (string)tableRow["TABLE_NAME"]
                         };

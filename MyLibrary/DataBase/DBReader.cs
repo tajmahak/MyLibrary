@@ -18,11 +18,11 @@ namespace MyLibrary.DataBase
         private readonly DBTable _table;
         private readonly Converter<DBRow, T> _rowConverter;
 
-        public DBReader(DBQueryBase query, DbConnection connection, DBModelBase model, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
+        public DBReader(DBProvider provider, DbConnection connection, DBQueryBase query, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
-            _command = model.CreateCommand(connection, query);
+            _command = provider.CreateCommand(connection, query);
             _reader = _command.ExecuteReader(behavior);
-            _table = query.IsView ? GetTableFromSchema(model) : query.Table;
+            _table = query.IsView ? GetTableFromSchema() : query.Table;
             _rowConverter = rowConverter;
         }
         public void Dispose()
@@ -57,9 +57,9 @@ namespace MyLibrary.DataBase
             return ToList().ToArray();
         }
 
-        private DBTable GetTableFromSchema(DBModelBase model)
+        private DBTable GetTableFromSchema()
         {
-            var table = new DBTable(model);
+            var table = new DBTable();
             using (var schema = _reader.GetSchemaTable())
             {
                 var orderIndex = 0;

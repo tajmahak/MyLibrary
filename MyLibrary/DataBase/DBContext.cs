@@ -10,7 +10,7 @@ namespace MyLibrary.DataBase
     /// </summary>
     public class DBContext
     {
-        public DBModelBase Model { get; private set; }
+        public DBProvider Provider { get; private set; }
         public DbConnection Connection { get; set; }
         public int RowCount
         {
@@ -26,14 +26,14 @@ namespace MyLibrary.DataBase
         }
         private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
 
-        public DBContext(DBModelBase model, DbConnection connection)
+        public DBContext(DBProvider provider, DbConnection connection)
         {
-            Model = model;
+            Provider = provider;
             Connection = connection;
 
-            if (!Model.Initialized)
+            if (!Provider.Initialized)
             {
-                Model.Initialize(Connection);
+                Provider.Initialize(Connection);
             }
         }
 
@@ -53,19 +53,19 @@ namespace MyLibrary.DataBase
         {
             return CreateQuery(tableName, StatementType.Delete);
         }
-        public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRowBase
+        public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Select);
         }
-        public DBQuery<TRow> Insert<TRow>() where TRow : DBOrmRowBase
+        public DBQuery<TRow> Insert<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Insert);
         }
-        public DBQuery<TRow> Update<TRow>() where TRow : DBOrmRowBase
+        public DBQuery<TRow> Update<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Update);
         }
-        public DBQuery<TRow> Delete<TRow>() where TRow : DBOrmRowBase
+        public DBQuery<TRow> Delete<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Delete);
         }
@@ -248,12 +248,12 @@ namespace MyLibrary.DataBase
 
         public DBRow NewRow(string tableName)
         {
-            var table = Model.Tables[tableName];
+            var table = Provider.Tables[tableName];
             var row = table.CreateRow();
             AddRow(row);
             return row;
         }
-        public TRow NewRow<TRow>() where TRow : DBOrmRowBase
+        public TRow NewRow<TRow>() where TRow : DBOrmRow
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             var row = NewRow(tableName);
@@ -290,7 +290,7 @@ namespace MyLibrary.DataBase
 
             return 1;
         }
-        public int AddRow<TRow>(TRow row) where TRow : DBOrmRowBase
+        public int AddRow<TRow>(TRow row) where TRow : DBOrmRow
         {
             return AddRow(DBInternal.ExtractDBRow(row));
         }
@@ -303,7 +303,7 @@ namespace MyLibrary.DataBase
             }
             return count;
         }
-        public int AddRows<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        public int AddRows<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             var count = 0;
             foreach (var row in collection)
@@ -334,7 +334,7 @@ namespace MyLibrary.DataBase
         }
         public void Clear(string tableName)
         {
-            var table = Model.Tables[tableName];
+            var table = Provider.Tables[tableName];
             if (_tableRows.TryGetValue(table, out var rowCollection))
             {
                 foreach (var row in rowCollection)
@@ -369,7 +369,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        public void Clear<TRow>(TRow row) where TRow : DBOrmRowBase
+        public void Clear<TRow>(TRow row) where TRow : DBOrmRow
         {
             Clear(DBInternal.ExtractDBRow(row));
         }
@@ -380,7 +380,7 @@ namespace MyLibrary.DataBase
                 Clear(row);
             }
         }
-        public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             foreach (var row in collection)
             {
@@ -399,7 +399,7 @@ namespace MyLibrary.DataBase
             Commit();
             Clear(row);
         }
-        public void CommitAndClear<TRow>(TRow row) where TRow : DBOrmRowBase
+        public void CommitAndClear<TRow>(TRow row) where TRow : DBOrmRow
         {
             AddRow(row);
             Commit();
@@ -411,7 +411,7 @@ namespace MyLibrary.DataBase
             Commit();
             Clear(collection);
         }
-        public void CommitAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRowBase
+        public void CommitAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             AddRows(collection);
             Commit();
@@ -420,14 +420,14 @@ namespace MyLibrary.DataBase
 
         private DBQuery CreateQuery(string tableName, StatementType statementType)
         {
-            var table = Model.Tables[tableName];
+            var table = Provider.Tables[tableName];
             var query = new DBQuery(table, this, statementType);
             return query;
         }
-        private DBQuery<TRow> CreateQuery<TRow>(StatementType statementType) where TRow : DBOrmRowBase
+        private DBQuery<TRow> CreateQuery<TRow>(StatementType statementType) where TRow : DBOrmRow
         {
             var tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            var table = Model.Tables[tableName];
+            var table = Provider.Tables[tableName];
             var query = new DBQuery<TRow>(table, this, statementType);
             return query;
         }
@@ -436,18 +436,18 @@ namespace MyLibrary.DataBase
             using (var dbCommand = Connection.CreateCommand())
             {
                 dbCommand.Transaction = transaction;
-                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Insert);
+                dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Insert);
 
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (!row.Table.Columns[i].IsPrimary)
                     {
-                        Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        Provider.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
                         index++;
                     }
                 }
-                return Model.ExecuteInsertCommand(dbCommand);
+                return Provider.ExecuteInsertCommand(dbCommand);
             }
         }
         private int ExecuteUpdateCommand(DBRow row, DbTransaction transaction)
@@ -455,18 +455,18 @@ namespace MyLibrary.DataBase
             using (var dbCommand = Connection.CreateCommand())
             {
                 dbCommand.Transaction = transaction;
-                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Update);
+                dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Update);
 
                 var index = 0;
                 for (var i = 0; i < row.Table.Columns.Count; i++)
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
-                        Model.AddCommandParameter(dbCommand, "@id", row[i]);
+                        Provider.AddCommandParameter(dbCommand, "@id", row[i]);
                     }
                     else
                     {
-                        Model.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        Provider.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
                         index++;
                     }
                 }
@@ -479,8 +479,8 @@ namespace MyLibrary.DataBase
             using (var dbCommand = Connection.CreateCommand())
             {
                 dbCommand.Transaction = transaction;
-                dbCommand.CommandText = Model.GetDefaultSqlQuery(row.Table, StatementType.Delete);
-                Model.AddCommandParameter(dbCommand, "@id", row.PrimaryKeyValue);
+                dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Delete);
+                Provider.AddCommandParameter(dbCommand, "@id", row.PrimaryKeyValue);
 
                 return dbCommand.ExecuteNonQuery();
             }

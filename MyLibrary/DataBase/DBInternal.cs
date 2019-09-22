@@ -7,17 +7,17 @@ namespace MyLibrary.DataBase
     /// </summary>
     internal static class DBInternal
     {
-        public static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRowBase
+        public static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRow
         {
             return (TRow)Activator.CreateInstance(typeof(TRow), row);
         }
-        public static DBRow ExtractDBRow(DBOrmRowBase row)
+        public static DBRow ExtractDBRow(DBOrmRow row)
         {
             if (row == null)
             {
                 return null;
             }
-            if (row is DBOrmRowBase ormRow)
+            if (row is DBOrmRow ormRow)
             {
                 return ormRow.Row;
             }
