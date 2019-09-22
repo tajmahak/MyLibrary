@@ -201,6 +201,22 @@ namespace MyLibrary.DataBase
         {
         }
 
+        public TQuery Insert()
+        {
+            StatementType = StatementType.Insert;
+            return This;
+        }
+        public TQuery Update()
+        {
+            StatementType = StatementType.Update;
+            return This;
+        }
+        public TQuery Delete()
+        {
+            StatementType = StatementType.Delete;
+            return This;
+        }
+
         public TQuery UpdateOrInsert(params string[] matchingColumns)
         {
             if (matchingColumns.Length == 0)
