@@ -33,6 +33,18 @@ namespace MyLibrary.Interop
         [DllImport("shell32.dll")]
         internal static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref Shfileinfo psfi, uint cbFileInfo, uint uFlags);
 
+        [DllImport("shell32.dll", CharSet = CharSet.Auto, EntryPoint = "SHFileOperation")]
+        internal static extern int SHFileOperation_x86(ref SHFILEOPSTRUCT_x86 FileOp);
+
+        [DllImport("shell32.dll", CharSet = CharSet.Auto, EntryPoint = "SHFileOperation")]
+        internal static extern int SHFileOperation_x64(ref SHFILEOPSTRUCT_x64 FileOp);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool SetSystemTime(ref SYSTEMTIME time);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool GetSystemTime(ref SYSTEMTIME time);
+
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
         internal static extern int DeleteObject(IntPtr hObject);
 
@@ -86,6 +98,49 @@ namespace MyLibrary.Interop
             public int cy;
         }
 
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 1)]
+        internal struct SHFILEOPSTRUCT_x86
+        {
+            public IntPtr hwnd;
+            [MarshalAs(UnmanagedType.U4)]
+            public FileOperationType wFunc;
+            public string pFrom;
+            public string pTo;
+            public FileOperationFlags fFlags;
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            public string lpszProgressTitle;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        internal struct SHFILEOPSTRUCT_x64
+        {
+            public IntPtr hwnd;
+            [MarshalAs(UnmanagedType.U4)]
+            public FileOperationType wFunc;
+            public string pFrom;
+            public string pTo;
+            public FileOperationFlags fFlags;
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            public string lpszProgressTitle;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SYSTEMTIME
+        {
+            public short wYear;
+            public short wMonth;
+            public short wDayOfWeek;
+            public short wDay;
+            public short wHour;
+            public short wMinute;
+            public short wSecond;
+            public short wMilliseconds;
+        }
+
         #endregion
 
         #region interface
@@ -95,23 +150,17 @@ namespace MyLibrary.Interop
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         internal interface IMalloc
         {
-
-            [PreserveSig()]
+            [PreserveSig]
             IntPtr Alloc(int cb);
-
-            [PreserveSig()]
+            [PreserveSig]
             IntPtr Realloc(IntPtr pv, int cb);
-
-            [PreserveSig()]
+            [PreserveSig]
             void Free(IntPtr pv);
-
-            [PreserveSig()]
+            [PreserveSig]
             int GetSize(IntPtr pv);
-
-            [PreserveSig()]
+            [PreserveSig]
             int DidAlloc(IntPtr pv);
-
-            [PreserveSig()]
+            [PreserveSig]
             void HeapMinimize();
         }
 
@@ -120,14 +169,10 @@ namespace MyLibrary.Interop
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         internal interface IEnumIDList
         {
-
-            [PreserveSig()]
+            [PreserveSig]
             int Next(int celt, ref IntPtr rgelt, ref int pceltFetched);
-
             void Skip(int celt);
-
             void Reset();
-
             void Clone(ref IEnumIDList ppenum);
         }
 
@@ -136,39 +181,17 @@ namespace MyLibrary.Interop
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         internal interface IShellFolder
         {
-
-            void ParseDisplayName(IntPtr hwndOwner, IntPtr pbcReserved,
-              [MarshalAs(UnmanagedType.LPWStr)]string lpszDisplayName,
-              ref int pchEaten, ref IntPtr ppidl, ref int pdwAttributes);
-
-            void EnumObjects(IntPtr hwndOwner,
-              [MarshalAs(UnmanagedType.U4)]ESHCONTF grfFlags,
-              ref IEnumIDList ppenumIDList);
-
-            void BindToObject(IntPtr pidl, IntPtr pbcReserved, ref Guid riid,
-              ref IShellFolder ppvOut);
-
+            void ParseDisplayName(IntPtr hwndOwner, IntPtr pbcReserved, [MarshalAs(UnmanagedType.LPWStr)]string lpszDisplayName, ref int pchEaten, ref IntPtr ppidl, ref int pdwAttributes);
+            void EnumObjects(IntPtr hwndOwner, [MarshalAs(UnmanagedType.U4)]ESHCONTF grfFlags, ref IEnumIDList ppenumIDList);
+            void BindToObject(IntPtr pidl, IntPtr pbcReserved, ref Guid riid, ref IShellFolder ppvOut);
             void BindToStorage(IntPtr pidl, IntPtr pbcReserved, ref Guid riid, IntPtr ppvObj);
-
-            [PreserveSig()]
+            [PreserveSig]
             int CompareIDs(IntPtr lParam, IntPtr pidl1, IntPtr pidl2);
-
-            void CreateViewObject(IntPtr hwndOwner, ref Guid riid,
-              IntPtr ppvOut);
-
-            void GetAttributesOf(int cidl, IntPtr apidl,
-              [MarshalAs(UnmanagedType.U4)]ref ESFGAO rgfInOut);
-
+            void CreateViewObject(IntPtr hwndOwner, ref Guid riid, IntPtr ppvOut);
+            void GetAttributesOf(int cidl, IntPtr apidl, [MarshalAs(UnmanagedType.U4)]ref ESFGAO rgfInOut);
             void GetUIObjectOf(IntPtr hwndOwner, int cidl, ref IntPtr apidl, ref Guid riid, ref int prgfInOut, ref IUnknown ppvOut);
-
-            void GetDisplayNameOf(IntPtr pidl,
-              [MarshalAs(UnmanagedType.U4)]ESHGDN uFlags,
-              ref STRRET_CSTR lpName);
-
-            void SetNameOf(IntPtr hwndOwner, IntPtr pidl,
-              [MarshalAs(UnmanagedType.LPWStr)]string lpszName,
-              [MarshalAs(UnmanagedType.U4)] ESHCONTF uFlags,
-              ref IntPtr ppidlOut);
+            void GetDisplayNameOf(IntPtr pidl, [MarshalAs(UnmanagedType.U4)]ESHGDN uFlags, ref STRRET_CSTR lpName);
+            void SetNameOf(IntPtr hwndOwner, IntPtr pidl, [MarshalAs(UnmanagedType.LPWStr)]string lpszName, [MarshalAs(UnmanagedType.U4)] ESHCONTF uFlags, ref IntPtr ppidlOut);
         }
 
         [ComImport]
@@ -176,9 +199,7 @@ namespace MyLibrary.Interop
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         internal interface IExtractImage
         {
-            void GetLocation([Out(), MarshalAs(UnmanagedType.LPWStr)]
-        StringBuilder pszPathBuffer, int cch, ref int pdwPriority, ref SIZE prgSize, int dwRecClrDepth, ref int pdwFlags);
-
+            void GetLocation([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszPathBuffer, int cch, ref int pdwPriority, ref SIZE prgSize, int dwRecClrDepth, ref int pdwFlags);
             void Extract(ref IntPtr phBmpThumbnail);
         }
 
@@ -187,14 +208,11 @@ namespace MyLibrary.Interop
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         internal interface IUnknown
         {
-
-            [PreserveSig()]
+            [PreserveSig]
             IntPtr QueryInterface(ref Guid riid, ref IntPtr pVoid);
-
-            [PreserveSig()]
+            [PreserveSig]
             IntPtr AddRef();
-
-            [PreserveSig()]
+            [PreserveSig]
             IntPtr Release();
         }
 
@@ -265,6 +283,62 @@ namespace MyLibrary.Interop
             IEIFLAG_NOSTAMP = 128,
             IEIFLAG_NOBORDER = 256,
             IEIFLAG_QUALITY = 512
+        }
+
+        /// <summary>
+        /// Possible flags for the SHFileOperation method.
+        /// </summary>
+        [Flags]
+        internal enum FileOperationFlags : ushort
+        {
+            /// <summary>
+            /// Do not show a dialog during the process
+            /// </summary>
+            FOF_SILENT = 0x0004,
+            /// <summary>
+            /// Do not ask the user to confirm selection
+            /// </summary>
+            FOF_NOCONFIRMATION = 0x0010,
+            /// <summary>
+            /// Delete the file to the recycle bin.  (Required flag to send a file to the bin
+            /// </summary>
+            FOF_ALLOWUNDO = 0x0040,
+            /// <summary>
+            /// Do not show the names of the files or folders that are being recycled.
+            /// </summary>
+            FOF_SIMPLEPROGRESS = 0x0100,
+            /// <summary>
+            /// Surpress errors, if any occur during the process.
+            /// </summary>
+            FOF_NOERRORUI = 0x0400,
+            /// <summary>
+            /// Warn if files are too big to fit in the recycle bin and will need
+            /// to be deleted completely.
+            /// </summary>
+            FOF_WANTNUKEWARNING = 0x4000,
+        }
+
+        /// <summary>
+        /// File Operation Function Type for SHFileOperation
+        /// </summary>
+        internal enum FileOperationType : uint
+        {
+            /// <summary>
+            /// Move the objects
+            /// </summary>
+            FO_MOVE = 0x0001,
+            /// <summary>
+            /// Copy the objects
+            /// </summary>
+            FO_COPY = 0x0002,
+            /// <summary>
+            /// Delete (or recycle) the objects
+            /// </summary>
+            FO_DELETE = 0x0003,
+            /// <summary>
+            /// Rename the object(s)
+            /// </summary>
+            FO_RENAME = 0x0004,
         }
 
         #endregion
