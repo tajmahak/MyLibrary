@@ -21,24 +21,17 @@ namespace MyLibrary.DataBase
             {
                 return ormRow.Row;
             }
-            throw DBInternal.ExtractDBRowException(row.GetType());
+            throw ExtractDBRowException(row.GetType());
         }
 
         public static string GetTableNameFromAttribute(Type type)
         {
-            while (true)
+            var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), true);
+            if (attrArray.Length == 0)
             {
-                var attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), false);
-                if (attrArray.Length != 0)
-                {
-                    return ((DBOrmTableAttribute)attrArray[0]).TableName;
-                }
-                type = type.BaseType;
-                if (type == null)
-                {
-                    throw OrmTableNotAttributeException(type);
-                }
+                throw OrmTableNotAttributeException(type);
             }
+            return ((DBOrmTableAttribute)attrArray[0]).TableName;
         }
         public static string[] GetForeignKey(Type type1, Type type2)
         {

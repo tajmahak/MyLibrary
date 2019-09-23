@@ -10,10 +10,6 @@
         public DBIndexCollection Indexes { get; private set; } = new DBIndexCollection();
         public DBColumn PrimaryKeyColumn { get; set; }
 
-        public DBTable()
-        {
-        }
-
         public DBRow CreateRow()
         {
             var row = new DBRow(this);

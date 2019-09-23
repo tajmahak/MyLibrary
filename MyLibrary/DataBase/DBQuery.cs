@@ -101,22 +101,22 @@ namespace MyLibrary.DataBase
             {
                 throw DBInternal.SqlExecuteException();
             }
-            DbTransaction transaction = null;
+            DbTransaction dbTransaction = null;
             try
             {
-                transaction = Context.Connection.BeginTransaction();
+                dbTransaction = Context.Connection.BeginTransaction();
                 int affectedRows;
-                using (var command = Context.Provider.CreateCommand(Context.Connection, this))
+                using (var dbCommand = Context.Provider.CreateCommand(Context.Connection, this))
                 {
-                    command.Transaction = transaction;
-                    affectedRows = command.ExecuteNonQuery();
+                    dbCommand.Transaction = dbTransaction;
+                    affectedRows = dbCommand.ExecuteNonQuery();
                 }
-                transaction.Commit();
+                dbTransaction.Commit();
                 return affectedRows;
             }
             catch
             {
-                transaction?.Rollback();
+                dbTransaction?.Rollback();
                 throw;
             }
         }
@@ -133,9 +133,9 @@ namespace MyLibrary.DataBase
                 Structure.Add(DBQueryStructureType.Limit, 1);
             }
 
-            using (var command = Context.Provider.CreateCommand(Context.Connection, this))
+            using (var dbCommand = Context.Provider.CreateCommand(Context.Connection, this))
             {
-                var value = command.ExecuteScalar();
+                var value = dbCommand.ExecuteScalar();
                 return Format.Convert<TValue>(value);
             }
         }

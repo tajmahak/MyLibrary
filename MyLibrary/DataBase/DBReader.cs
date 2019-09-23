@@ -13,30 +13,30 @@ namespace MyLibrary.DataBase
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
         public T Current { get; private set; }
-        private readonly DbCommand _command;
-        private readonly DbDataReader _reader;
+        private readonly DbCommand _dbCommand;
+        private readonly DbDataReader _dbReader;
         private readonly DBTable _table;
         private readonly Converter<DBRow, T> _rowConverter;
 
         public DBReader(DBProvider provider, DbConnection connection, DBQueryBase query, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
-            _command = provider.CreateCommand(connection, query);
-            _reader = _command.ExecuteReader(behavior);
+            _dbCommand = provider.CreateCommand(connection, query);
+            _dbReader = _dbCommand.ExecuteReader(behavior);
             _table = query.IsView ? GetTableFromSchema() : query.Table;
             _rowConverter = rowConverter;
         }
         public void Dispose()
         {
-            _reader.Dispose();
-            _command.Dispose();
+            _dbReader.Dispose();
+            _dbCommand.Dispose();
         }
 
         public bool MoveNext()
         {
-            if (_reader.Read())
+            if (_dbReader.Read())
             {
                 var row = new DBRow(_table);
-                _reader.GetValues(row.Values);
+                _dbReader.GetValues(row.Values);
                 row.State = DataRowState.Unchanged;
                 Current = _rowConverter(row);
                 return true;
@@ -60,7 +60,7 @@ namespace MyLibrary.DataBase
         private DBTable GetTableFromSchema()
         {
             var table = new DBTable();
-            using (var schema = _reader.GetSchemaTable())
+            using (var schema = _dbReader.GetSchemaTable())
             {
                 var orderIndex = 0;
                 foreach (DataRow schemaRow in schema.Rows)

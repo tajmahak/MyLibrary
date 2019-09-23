@@ -431,11 +431,11 @@ namespace MyLibrary.DataBase
             var query = new DBQuery<TRow>(table, this, statementType);
             return query;
         }
-        private object ExecuteInsertCommand(DBRow row, DbTransaction transaction)
+        private object ExecuteInsertCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = transaction;
+                dbCommand.Transaction = dbTransaction;
                 dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Insert);
 
                 var index = 0;
@@ -451,11 +451,11 @@ namespace MyLibrary.DataBase
                 return Provider.ExecuteInsertCommand(dbCommand);
             }
         }
-        private int ExecuteUpdateCommand(DBRow row, DbTransaction transaction)
+        private int ExecuteUpdateCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = transaction;
+                dbCommand.Transaction = dbTransaction;
                 dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Update);
 
                 var index = 0;
@@ -477,11 +477,11 @@ namespace MyLibrary.DataBase
                 return dbCommand.ExecuteNonQuery();
             }
         }
-        private int ExecuteDeleteCommand(DBRow row, DbTransaction transaction)
+        private int ExecuteDeleteCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (var dbCommand = Connection.CreateCommand())
             {
-                dbCommand.Transaction = transaction;
+                dbCommand.Transaction = dbTransaction;
                 dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Delete);
 
                 var dbParameter = Provider.CreateParameter("@id", row.PrimaryKeyValue);
