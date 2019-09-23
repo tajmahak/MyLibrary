@@ -854,21 +854,6 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        public TQuery Join<TRow, TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector)
-            where TRow : DBOrmRow
-            where TRow2 : DBOrmRow
-        {
-            if (StatementType != StatementType.Select)
-            {
-                throw DBInternal.UnsupportedCommandContextException();
-            }
-
-            IsView = true;
-            Structure.Add(DBQueryStructureType.SelectExpression, resultSelector.Body);
-            Structure.Add(DBQueryStructureType.Join, outerKeySelector.Body, innerKeySelector.Body);
-            return This;
-        }
-
         public TQuery Where<TRow>(Expression<Func<TRow, bool>> expression)
             where TRow : DBOrmRow
         {
@@ -1430,11 +1415,6 @@ namespace MyLibrary.DataBase
         public DBQuery<TRow> FullJoinAs<TRow2>(string alias) where TRow2 : DBOrmRow
         {
             return FullJoinAs<TRow, TRow2>(alias);
-        }
-
-        public DBQuery<TRow> Join<TRow2, TKey>(DBQuery<TRow2> inner, Expression<Func<TRow, TKey>> outerKeySelector, Expression<Func<TRow2, TKey>> innerKeySelector, Expression<Func<TRow, TRow2, object>> resultSelector) where TRow2 : DBOrmRow
-        {
-            return base.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
         public DBQuery<TRow> OrderBy(Expression<Func<TRow, object>> expression)
