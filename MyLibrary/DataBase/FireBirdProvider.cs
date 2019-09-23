@@ -17,10 +17,10 @@ namespace MyLibrary.DataBase
             OpenBlock = CloseBlock = "\"";
         }
 
-        public override void FillTableSchema(DbConnection connection)
+        public override void FillTableSchema(DbConnection dbConnection)
         {
             #region Tables
-            using (var tableSchema = connection.GetSchema("Tables"))
+            using (var tableSchema = dbConnection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
@@ -41,7 +41,7 @@ namespace MyLibrary.DataBase
                 foreach (var table in Tables)
                 {
                     var query = string.Concat("SELECT FIRST 0 * FROM \"", table.Name, "\"");
-                    using (var dataAdapter = new FbDataAdapter(query, (FbConnection)connection))
+                    using (var dataAdapter = new FbDataAdapter(query, (FbConnection)dbConnection))
                     {
                         dataAdapter.Fill(dataSet, 0, 0, table.Name);
                     }
@@ -66,7 +66,7 @@ namespace MyLibrary.DataBase
             }
 
             #region Columns
-            using (var columnSchema = connection.GetSchema("Columns"))
+            using (var columnSchema = dbConnection.GetSchema("Columns"))
             {
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
@@ -96,7 +96,7 @@ namespace MyLibrary.DataBase
             #endregion
 
             #region PrimaryKeys
-            using (var primaryKeySchema = connection.GetSchema("PrimaryKeys"))
+            using (var primaryKeySchema = dbConnection.GetSchema("PrimaryKeys"))
             {
                 foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
                 {
@@ -112,7 +112,7 @@ namespace MyLibrary.DataBase
             #endregion
 
             #region Indexes
-            using (var indexesSchema = connection.GetSchema("Indexes"))
+            using (var indexesSchema = dbConnection.GetSchema("Indexes"))
             {
                 foreach (DataRow indexRow in indexesSchema.Rows)
                 {
@@ -133,7 +133,7 @@ namespace MyLibrary.DataBase
             #endregion
 
             #region ForeignKeys
-            using (var foreignKeysSchema = connection.GetSchema("ForeignKeys"))
+            using (var foreignKeysSchema = dbConnection.GetSchema("ForeignKeys"))
             {
                 foreach (DataRow foreignKeysRow in foreignKeysSchema.Rows)
                 {

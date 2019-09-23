@@ -17,9 +17,9 @@ namespace MyLibrary.DataBase
             CloseBlock = "]";
         }
 
-        public override void FillTableSchema(DbConnection connection)
+        public override void FillTableSchema(DbConnection dbConnection)
         {
-            using (var tableSchema = connection.GetSchema("Tables"))
+            using (var tableSchema = dbConnection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
@@ -39,7 +39,7 @@ namespace MyLibrary.DataBase
                 foreach (var table in Tables)
                 {
                     var query = string.Concat("SELECT * FROM \"", table.Name, "\" LIMIT 0");
-                    using (var dataAdapter = new SQLiteDataAdapter(query, (SQLiteConnection)connection))
+                    using (var dataAdapter = new SQLiteDataAdapter(query, (SQLiteConnection)dbConnection))
                     {
                         dataAdapter.Fill(dataSet, 0, 0, table.Name);
                     }
@@ -63,7 +63,7 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            using (var columnSchema = connection.GetSchema("Columns"))
+            using (var columnSchema = dbConnection.GetSchema("Columns"))
             {
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
@@ -99,13 +99,13 @@ namespace MyLibrary.DataBase
         {
             return new SQLiteParameter(name, value);
         }
-        public override object ExecuteInsertCommand(DbCommand command)
+        public override object ExecuteInsertCommand(DbCommand dbCommand)
         {
-            var connection = (SQLiteConnection)command.Connection;
-            lock (connection)
+            var dbConnection = (SQLiteConnection)dbCommand.Connection;
+            lock (dbConnection)
             {
-                command.ExecuteNonQuery();
-                return connection.LastInsertRowId;
+                dbCommand.ExecuteNonQuery();
+                return dbConnection.LastInsertRowId;
             }
         }
         public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)

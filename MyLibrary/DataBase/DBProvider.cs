@@ -24,18 +24,18 @@ namespace MyLibrary.DataBase
         private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
         private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
 
-        public abstract void FillTableSchema(DbConnection connection);
+        public abstract void FillTableSchema(DbConnection dbConnection);
         public abstract DbParameter CreateParameter(string name, object value);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
-        public virtual object ExecuteInsertCommand(DbCommand command)
+        public virtual object ExecuteInsertCommand(DbCommand dbCommand)
         {
-            return command.ExecuteScalar();
+            return dbCommand.ExecuteScalar();
         }
 
-        public void Initialize(DbConnection connection)
+        public void Initialize(DbConnection dbConnection)
         {
             Tables.Clear();
-            FillTableSchema(connection);
+            FillTableSchema(dbConnection);
             InitializeDictionaries();
             Initialized = true;
         }
@@ -126,10 +126,10 @@ namespace MyLibrary.DataBase
             }
             throw new NotImplementedException();
         }
-        public DbCommand CreateCommand(DbConnection connection, DBQueryBase query)
+        public DbCommand CreateCommand(DbConnection dbConnection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
-            var dbCommand = connection.CreateCommand();
+            var dbCommand = dbConnection.CreateCommand();
             dbCommand.CommandText = compiledQuery.CommandText;
             foreach (var parameter in compiledQuery.Parameters)
             {
@@ -138,9 +138,9 @@ namespace MyLibrary.DataBase
             }
             return dbCommand;
         }
-        public DBContext CreateDBContext(DbConnection connection)
+        public DBContext CreateDBContext(DbConnection dbConnection)
         {
-            var context = new DBContext(this, connection);
+            var context = new DBContext(this, dbConnection);
             return context;
         }
 

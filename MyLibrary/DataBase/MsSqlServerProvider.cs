@@ -62,9 +62,9 @@ namespace MyLibrary.DataBase
         {
             return new SqlParameter(name, value);
         }
-        public override void FillTableSchema(DbConnection connection)
+        public override void FillTableSchema(DbConnection dbConnection)
         {
-            using (var tableSchema = connection.GetSchema("Tables"))
+            using (var tableSchema = dbConnection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
@@ -81,7 +81,7 @@ namespace MyLibrary.DataBase
                 foreach (var table in Tables)
                 {
                     var query = string.Concat("SELECT TOP 0 * FROM [", table.Name, "]");
-                    using (var dataAdapter = new SqlDataAdapter(query, (SqlConnection)connection))
+                    using (var dataAdapter = new SqlDataAdapter(query, (SqlConnection)dbConnection))
                     {
                         dataAdapter.Fill(dataSet, 0, 0, table.Name);
                     }
@@ -105,7 +105,7 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            using (var columnSchema = connection.GetSchema("Columns"))
+            using (var columnSchema = dbConnection.GetSchema("Columns"))
             {
                 foreach (DataRow columnRow in columnSchema.Rows)
                 {
@@ -131,7 +131,7 @@ namespace MyLibrary.DataBase
                 }
             }
 
-            using (var primaryKeySchema = connection.GetSchema("IndexColumns"))
+            using (var primaryKeySchema = dbConnection.GetSchema("IndexColumns"))
             {
                 foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
                 {
@@ -204,6 +204,5 @@ namespace MyLibrary.DataBase
             cQuery.CommandText = sql.ToString();
             return cQuery;
         }
-
     }
 }
