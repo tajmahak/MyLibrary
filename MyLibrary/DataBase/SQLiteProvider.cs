@@ -95,9 +95,9 @@ namespace MyLibrary.DataBase
                 }
             }
         }
-        public override void AddCommandParameter(DbCommand command, string name, object value)
+        public override DbParameter CreateParameter(string name, object value)
         {
-            ((SQLiteCommand)command).Parameters.AddWithValue(name, value);
+            return new SQLiteParameter(name, value);
         }
         public override object ExecuteInsertCommand(DbCommand command)
         {

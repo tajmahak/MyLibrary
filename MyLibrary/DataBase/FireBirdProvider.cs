@@ -179,9 +179,9 @@ namespace MyLibrary.DataBase
         {
             return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetShortName(table.PrimaryKeyColumn.Name));
         }
-        public override void AddCommandParameter(DbCommand command, string name, object value)
+        public override DbParameter CreateParameter(string name, object value)
         {
-            ((FbCommand)command).Parameters.AddWithValue(name, value);
+            return new FbParameter(name, value);
         }
         public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
         {

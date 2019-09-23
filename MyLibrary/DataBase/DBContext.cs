@@ -443,7 +443,8 @@ namespace MyLibrary.DataBase
                 {
                     if (!row.Table.Columns[i].IsPrimary)
                     {
-                        Provider.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        var dbParameter = Provider.CreateParameter(string.Concat("@p", index), row[i]);
+                        dbCommand.Parameters.Add(dbParameter);
                         index++;
                     }
                 }
@@ -462,11 +463,13 @@ namespace MyLibrary.DataBase
                 {
                     if (row.Table.Columns[i].IsPrimary)
                     {
-                        Provider.AddCommandParameter(dbCommand, "@id", row[i]);
+                        var dbParameter = Provider.CreateParameter("@id", row[i]);
+                        dbCommand.Parameters.Add(dbParameter);
                     }
                     else
                     {
-                        Provider.AddCommandParameter(dbCommand, string.Concat("@p", index), row[i]);
+                        var dbParameter = Provider.CreateParameter(string.Concat("@p", index), row[i]);
+                        dbCommand.Parameters.Add(dbParameter);
                         index++;
                     }
                 }
@@ -480,7 +483,9 @@ namespace MyLibrary.DataBase
             {
                 dbCommand.Transaction = transaction;
                 dbCommand.CommandText = Provider.GetDefaultSqlQuery(row.Table, StatementType.Delete);
-                Provider.AddCommandParameter(dbCommand, "@id", row.PrimaryKeyValue);
+
+                var dbParameter = Provider.CreateParameter("@id", row.PrimaryKeyValue);
+                dbCommand.Parameters.Add(dbParameter);
 
                 return dbCommand.ExecuteNonQuery();
             }

@@ -10,7 +10,7 @@
             throw DBInternal.DBFunctionException();
         }
 
-        public static object Desc(object expr)
+        public static object Descending(object expr)
         {
             throw DBInternal.DBFunctionException();
         }

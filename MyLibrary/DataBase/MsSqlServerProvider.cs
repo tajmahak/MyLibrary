@@ -58,9 +58,9 @@ namespace MyLibrary.DataBase
 
             return sql.ToString();
         }
-        public override void AddCommandParameter(DbCommand command, string name, object value)
+        public override DbParameter CreateParameter(string name, object value)
         {
-            ((SqlCommand)command).Parameters.AddWithValue(name, value);
+            return new SqlParameter(name, value);
         }
         public override void FillTableSchema(DbConnection connection)
         {
@@ -204,5 +204,6 @@ namespace MyLibrary.DataBase
             cQuery.CommandText = sql.ToString();
             return cQuery;
         }
+
     }
 }

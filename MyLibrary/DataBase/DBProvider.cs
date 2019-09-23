@@ -1,7 +1,6 @@
 ﻿using MyLibrary.Data;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -26,7 +25,7 @@ namespace MyLibrary.DataBase
         private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
 
         public abstract void FillTableSchema(DbConnection connection);
-        public abstract void AddCommandParameter(DbCommand command, string name, object value);
+        public abstract DbParameter CreateParameter(string name, object value);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
         public virtual object ExecuteInsertCommand(DbCommand command)
         {
@@ -40,8 +39,25 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             Initialized = true;
         }
-        public void Initialize(IList<Type> ormTableTypes)
+        public void Initialize(Type dbType)
         {
+            var ormTableTypes = new List<Type>();
+
+            var members = dbType.GetMembers(BindingFlags.NonPublic);
+            foreach (Type member in members)
+            {
+                var baseType = member.BaseType;
+                while (baseType != null)
+                {
+                    if (baseType == typeof(DBOrmRow))
+                    {
+                        ormTableTypes.Add(member);
+                        break;
+                    }
+                    baseType = baseType.BaseType;
+                }
+            }
+
             Tables.Clear();
             for (var i = 0; i < ormTableTypes.Count; i++)
             {
@@ -83,33 +99,13 @@ namespace MyLibrary.DataBase
                 }
                 Tables.Add(table);
             }
+
             InitializeDictionaries();
             Initialized = true;
         }
-        public void Initialize(Type dbType)
-        {
-            var ormTableTypes = new List<Type>();
-
-            var members = dbType.GetMembers(BindingFlags.NonPublic);
-            foreach (Type member in members)
-            {
-                var baseType = member.BaseType;
-                while (baseType != null)
-                {
-                    if (baseType == typeof(DBOrmRow))
-                    {
-                        ormTableTypes.Add(member);
-                        break;
-                    }
-                    baseType = baseType.BaseType;
-                }
-            }
-
-            Initialize(ormTableTypes);
-        }
         public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
-            if (table.PrimaryKeyColumn == null && statementType != StatementType.Select)
+            if (statementType != StatementType.Select && table.PrimaryKeyColumn == null)
             {
                 throw DBInternal.GetDefaultSqlQueryException(table);
             }
@@ -133,13 +129,14 @@ namespace MyLibrary.DataBase
         public DbCommand CreateCommand(DbConnection connection, DBQueryBase query)
         {
             var compiledQuery = CompileQuery(query);
-            var command = connection.CreateCommand();
-            command.CommandText = compiledQuery.CommandText;
+            var dbCommand = connection.CreateCommand();
+            dbCommand.CommandText = compiledQuery.CommandText;
             foreach (var parameter in compiledQuery.Parameters)
             {
-                AddCommandParameter(command, parameter.Name, parameter.Value);
+                var dbParameter = CreateParameter(parameter.Name, parameter.Value);
+                dbCommand.Parameters.Add(dbParameter);
             }
-            return command;
+            return dbCommand;
         }
         public DBContext CreateDBContext(DbConnection connection)
         {
@@ -550,7 +547,7 @@ namespace MyLibrary.DataBase
                                 break;
                         }
                         break;
-                    #endregion
+                        #endregion
                 }
             }
         }
@@ -1005,10 +1002,8 @@ namespace MyLibrary.DataBase
                         }
                     }
                 }
-                else if (memberExpression.Member is PropertyInfo)
+                else if (memberExpression.Member is PropertyInfo propertyInfo)
                 {
-                    var propertyInfo = memberExpression.Member as PropertyInfo;
-
                     object value;
                     if (memberExpression.Expression != null)
                     {
@@ -1029,9 +1024,8 @@ namespace MyLibrary.DataBase
                         sql.Concat(GetParameter(value, cQuery));
                     }
                 }
-                else if (memberExpression.Member is FieldInfo)
+                else if (memberExpression.Member is FieldInfo fieldInfo)
                 {
-                    var fieldInfo = memberExpression.Member as FieldInfo;
                     var constantExpression = memberExpression.Expression as ConstantExpression;
                     var value = fieldInfo.GetValue(constantExpression.Value);
 
@@ -1192,48 +1186,39 @@ namespace MyLibrary.DataBase
             var argumentsCount = expression.Arguments.Count;
 
             // для сокращения объёма кода
-            string GetArgument(int f_index)
-            {
-                return GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
-            }
-            object GetValueArgument(int f_index)
-            {
-                return GetValueFromExpression(expression.Arguments[f_index], expression);
-            }
-            ReadOnlyCollection<Expression> GetParamsArgument(int f_index)
-            {
-                return ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
-            }
+            string getArgument(int f_index) => GetSqlFromExpression(expression.Arguments[f_index], cQuery, expression);
+            object getValueArgument(int f_index) => GetValueFromExpression(expression.Arguments[f_index], expression);
+            IList<Expression> getParamsArgument(int f_index) => ((NewArrayExpression)expression.Arguments[f_index]).Expressions;
 
             switch (expression.Method.Name)
             {
                 case nameof(DBFunction.As):
-                    sql.Concat(GetArgument(0), " AS ", OpenBlock, GetValueArgument(1), CloseBlock);
+                    sql.Concat(getArgument(0), " AS ", OpenBlock, getValueArgument(1), CloseBlock);
                     break;
 
-                case nameof(DBFunction.Desc):
-                    sql.Concat(GetArgument(0), " DESC");
+                case nameof(DBFunction.Descending):
+                    sql.Concat(getArgument(0), " DESC");
                     break;
 
                 case nameof(DBFunction.Distinct):
-                    sql.Concat("DISTINCT ", GetArgument(0));
+                    sql.Concat("DISTINCT ", getArgument(0));
                     break;
 
                 case nameof(DBFunction.Alias):
-                    sql.Concat(OpenBlock, GetValueArgument(0), CloseBlock);
+                    sql.Concat(OpenBlock, getValueArgument(0), CloseBlock);
                     break;
 
                 #region Предикаты сравнения
 
                 case nameof(DBFunction.Between):
-                    sql.Concat(GetArgument(0), " ", notBlock, "BETWEEN ", GetArgument(1), " AND ", GetArgument(2));
+                    sql.Concat(getArgument(0), " ", notBlock, "BETWEEN ", getArgument(1), " AND ", getArgument(2));
                     break;
 
                 case nameof(DBFunction.Like):
-                    sql.Concat(GetArgument(0), " ", notBlock, "LIKE ", GetArgument(1));
+                    sql.Concat(getArgument(0), " ", notBlock, "LIKE ", getArgument(1));
                     if (argumentsCount > 2)
                     {
-                        var arg = GetArgument(2);
+                        var arg = getArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(" ESCAPE ", arg);
@@ -1242,18 +1227,18 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.StartingWith):
-                    sql.Concat(GetArgument(0), " ", notBlock, "STARTING WITH ", GetArgument(1));
+                    sql.Concat(getArgument(0), " ", notBlock, "STARTING WITH ", getArgument(1));
                     break;
 
                 case nameof(DBFunction.Containing):
-                    sql.Concat(GetArgument(0), " ", notBlock, "CONTAINING ", GetArgument(1));
+                    sql.Concat(getArgument(0), " ", notBlock, "CONTAINING ", getArgument(1));
                     break;
 
                 case nameof(DBFunction.SimilarTo):
-                    sql.Concat(GetArgument(0), " ", notBlock, "SIMILAR TO ", GetArgument(1));
+                    sql.Concat(getArgument(0), " ", notBlock, "SIMILAR TO ", getArgument(1));
                     if (argumentsCount > 2)
                     {
-                        var arg = GetArgument(2);
+                        var arg = getArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(" ESCAPE ", arg);
@@ -1266,13 +1251,13 @@ namespace MyLibrary.DataBase
                 #region Агрегатные функции
 
                 case nameof(DBFunction.Avg):
-                    sql.Concat("AVG(", GetArgument(0), ")");
+                    sql.Concat("AVG(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Count):
                     if (argumentsCount > 0)
                     {
-                        sql.Concat("COUNT(", GetArgument(0), ")");
+                        sql.Concat("COUNT(", getArgument(0), ")");
                     }
                     else
                     {
@@ -1281,24 +1266,24 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.List):
-                    sql.Concat("LIST(", GetArgument(0));
+                    sql.Concat("LIST(", getArgument(0));
                     if (argumentsCount > 1)
                     {
-                        sql.Concat(",", GetArgument(1));
+                        sql.Concat(",", getArgument(1));
                     }
                     sql.Concat(")");
                     break;
 
                 case nameof(DBFunction.Max):
-                    sql.Concat("MAX(", GetArgument(0), ")");
+                    sql.Concat("MAX(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Min):
-                    sql.Concat("MIN(", GetArgument(0), ")");
+                    sql.Concat("MIN(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Sum):
-                    sql.Concat("SUM(", GetArgument(0), ")");
+                    sql.Concat("SUM(", getArgument(0), ")");
                     break;
 
                 #endregion
@@ -1306,26 +1291,26 @@ namespace MyLibrary.DataBase
                 #region Функции для работы со строками
 
                 case nameof(DBFunction.CharLength):
-                    sql.Concat("CHAR_LENGTH(", GetArgument(0), ")");
+                    sql.Concat("CHAR_LENGTH(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Hash):
-                    sql.Concat("HASH(", GetArgument(0), ")");
+                    sql.Concat("HASH(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Left):
-                    sql.Concat("LEFT(", GetArgument(0), ",", GetArgument(1), ")");
+                    sql.Concat("LEFT(", getArgument(0), ",", getArgument(1), ")");
                     break;
 
                 case nameof(DBFunction.Lower):
-                    sql.Concat("LOWER(", GetArgument(0), ")");
+                    sql.Concat("LOWER(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.LPad):
-                    sql.Concat("LPAD(", GetArgument(0), ",", GetArgument(1));
+                    sql.Concat("LPAD(", getArgument(0), ",", getArgument(1));
                     if (argumentsCount > 2)
                     {
-                        var arg = GetArgument(2);
+                        var arg = getArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(",", arg);
@@ -1335,10 +1320,10 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.Overlay):
-                    sql.Concat("OVERLAY(", GetArgument(0), " PLACING ", GetArgument(1), " FROM ", GetArgument(2));
+                    sql.Concat("OVERLAY(", getArgument(0), " PLACING ", getArgument(1), " FROM ", getArgument(2));
                     if (argumentsCount > 3)
                     {
-                        var arg = GetArgument(3);
+                        var arg = getArgument(3);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(" FOR ", arg);
@@ -1348,22 +1333,22 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.Replace):
-                    sql.Concat("REPLACE(", GetArgument(0), ",", GetArgument(1), ",", GetArgument(2), ")");
+                    sql.Concat("REPLACE(", getArgument(0), ",", getArgument(1), ",", getArgument(2), ")");
                     break;
 
                 case nameof(DBFunction.Reverse):
-                    sql.Concat("REVERSE(", GetArgument(0), ")");
+                    sql.Concat("REVERSE(", getArgument(0), ")");
                     break;
 
                 case nameof(DBFunction.Right):
-                    sql.Concat("RIGHT(", GetArgument(0), ",", GetArgument(1), ")");
+                    sql.Concat("RIGHT(", getArgument(0), ",", getArgument(1), ")");
                     break;
 
                 case nameof(DBFunction.RPad):
-                    sql.Concat("RPAD(", GetArgument(0), ",", GetArgument(1));
+                    sql.Concat("RPAD(", getArgument(0), ",", getArgument(1));
                     if (argumentsCount > 2)
                     {
-                        var arg = GetArgument(2);
+                        var arg = getArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(",", arg);
@@ -1373,10 +1358,10 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.SubString):
-                    sql.Concat("SUBSTRING (", GetArgument(0), " FROM ", GetArgument(1));
+                    sql.Concat("SUBSTRING (", getArgument(0), " FROM ", getArgument(1));
                     if (argumentsCount > 2)
                     {
-                        var arg = GetArgument(2);
+                        var arg = getArgument(2);
                         if (!Format.IsEmpty(arg))
                         {
                             sql.Concat(" FOR ", arg);
@@ -1386,7 +1371,7 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.Upper):
-                    sql.Concat("UPPER(", GetArgument(0), ")");
+                    sql.Concat("UPPER(", getArgument(0), ")");
                     break;
 
                 #endregion
@@ -1394,18 +1379,18 @@ namespace MyLibrary.DataBase
                 #region Предикаты существования
 
                 case nameof(DBFunction.Exists):
-                    sql.Concat(notBlock, "EXISTS", GetArgument(0));
+                    sql.Concat(notBlock, "EXISTS", getArgument(0));
                     break;
 
                 case nameof(DBFunction.In):
-                    var value = GetValueArgument(1);
+                    var value = getValueArgument(1);
                     if (value is DBQueryBase subQuery)
                     {
-                        sql.Concat(GetArgument(0), " ", notBlock, "IN", GetSubQuery(subQuery, cQuery));
+                        sql.Concat(getArgument(0), " ", notBlock, "IN", GetSubQuery(subQuery, cQuery));
                     }
                     else if (value is object[] array)
                     {
-                        sql.Concat(GetArgument(0), " ", notBlock, "IN(");
+                        sql.Concat(getArgument(0), " ", notBlock, "IN(");
                         for (var i = 0; i < array.Length; i++)
                         {
                             if (i > 0)
@@ -1419,7 +1404,7 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.Singular):
-                    sql.Concat(notBlock, "SINGULAR", GetArgument(0));
+                    sql.Concat(notBlock, "SINGULAR", getArgument(0));
                     break;
 
                 #endregion
@@ -1427,15 +1412,15 @@ namespace MyLibrary.DataBase
                 #region Количественные предикаты подзапросов
 
                 case nameof(DBFunction.All):
-                    sql.Concat(notBlock, "ALL", GetArgument(0));
+                    sql.Concat(notBlock, "ALL", getArgument(0));
                     break;
 
                 case nameof(DBFunction.Any):
-                    sql.Concat(notBlock, "ANY", GetArgument(0));
+                    sql.Concat(notBlock, "ANY", getArgument(0));
                     break;
 
                 case nameof(DBFunction.Some):
-                    sql.Concat(notBlock, "SOME", GetArgument(0));
+                    sql.Concat(notBlock, "SOME", getArgument(0));
                     break;
 
                 #endregion
@@ -1443,8 +1428,8 @@ namespace MyLibrary.DataBase
                 #region Условные функции
 
                 case nameof(DBFunction.Coalesce):
-                    sql.Concat("COALESCE(", GetArgument(0), ',', GetArgument(1));
-                    var expressionArray = GetParamsArgument(2);
+                    sql.Concat("COALESCE(", getArgument(0), ',', getArgument(1));
+                    var expressionArray = getParamsArgument(2);
                     for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
@@ -1454,8 +1439,8 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.Decode):
-                    sql.Concat("DECODE(", GetArgument(0));
-                    expressionArray = GetParamsArgument(1);
+                    sql.Concat("DECODE(", getArgument(0));
+                    expressionArray = getParamsArgument(1);
                     for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
@@ -1465,8 +1450,8 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.MaxValue):
-                    sql.Concat("MAXVALUE(", GetArgument(0));
-                    expressionArray = GetParamsArgument(1);
+                    sql.Concat("MAXVALUE(", getArgument(0));
+                    expressionArray = getParamsArgument(1);
                     for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
@@ -1476,8 +1461,8 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.MinValue):
-                    sql.Concat("MINVALUE(", GetArgument(0));
-                    expressionArray = GetParamsArgument(1);
+                    sql.Concat("MINVALUE(", getArgument(0));
+                    expressionArray = getParamsArgument(1);
                     for (var i = 0; i < expressionArray.Count; i++)
                     {
                         sql.Concat(',');
@@ -1487,7 +1472,7 @@ namespace MyLibrary.DataBase
                     break;
 
                 case nameof(DBFunction.NullIf):
-                    sql.Concat("NULLIF(", GetArgument(0), ',', GetArgument(0), ')');
+                    sql.Concat("NULLIF(", getArgument(0), ',', getArgument(0), ')');
                     break;
 
                     #endregion
