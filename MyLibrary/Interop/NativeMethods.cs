@@ -48,6 +48,9 @@ namespace MyLibrary.Interop
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
         internal static extern int DeleteObject(IntPtr hObject);
 
+        [DllImport("ntdll.dll", SetLastError = true)]
+        internal static extern uint RtlComputeCrc32([In] uint InitialCrc, [In] byte[] Buffer, [In] int Length);
+
         #region const
 
         internal const uint ShgfiIcon = 0x000000100;     // get icon

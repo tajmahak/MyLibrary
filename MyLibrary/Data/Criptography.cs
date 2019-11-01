@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyLibrary.Interop;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -85,6 +86,19 @@ namespace MyLibrary.Data
             }
         }
         /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма MD5.
+        /// </summary>
+        /// <param name="inputStream">Входные данные, для которых вычисляется хэш-код.</param>
+        /// <returns></returns>
+        public static byte[] GetMD5Hash(Stream inputStream)
+        {
+            using (var md5 = MD5.Create())
+            {
+                return md5.ComputeHash(inputStream);
+            }
+        }
+
+        /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-1.
         /// </summary>
         /// <param name="data">Массив байтов.</param>
@@ -97,6 +111,19 @@ namespace MyLibrary.Data
             }
         }
         /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-1.
+        /// </summary>
+        /// <param name="inputStream">Входные данные, для которых вычисляется хэш-код.</param>
+        /// <returns></returns>
+        public static byte[] GetSHA1Hash(Stream inputStream)
+        {
+            using (var sha1 = SHA1.Create())
+            {
+                return sha1.ComputeHash(inputStream);
+            }
+        }
+
+        /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-256.
         /// </summary>
         /// <param name="data">Массив байтов.</param>
@@ -108,6 +135,52 @@ namespace MyLibrary.Data
                 return sha256.ComputeHash(data);
             }
         }
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-256.
+        /// </summary>
+        /// <param name="inputStream">Входные данные, для которых вычисляется хэш-код.</param>
+        /// <returns></returns>
+        public static byte[] GetSHA256Hash(Stream inputStream)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                return sha256.ComputeHash(inputStream);
+            }
+        }
+
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
+        /// </summary>
+        /// <param name="data">Массив байтов.</param>
+        /// <returns></returns>
+        public static byte[] GetCRC32Hash(byte[] data)
+        {
+            uint crc32 = 0;
+            crc32 = NativeMethods.RtlComputeCrc32(crc32, data, data.Length);
+            data = BitConverter.GetBytes(crc32);
+            Array.Reverse(data, 0, data.Length);
+            return data;
+        }
+        /// <summary>
+        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
+        /// </summary>
+        /// <param name="inputStream">Входные данные, для которых вычисляется хэш-код.</param>
+        /// <returns></returns>
+        public static byte[] GetCRC32Hash(Stream inputStream)
+        {
+            uint crc32 = 0;
+            int readed;
+            var buffer = new byte[4096];
+
+            while ((readed = inputStream.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                crc32 = NativeMethods.RtlComputeCrc32(crc32, buffer, readed);
+            }
+
+            var hash = BitConverter.GetBytes(crc32);
+            Array.Reverse(hash, 0, hash.Length);
+            return hash;
+        }
 
         /// <summary>
         /// Заполняет массив байтов криптостойкой случайной последовательностью значений.
@@ -118,7 +191,7 @@ namespace MyLibrary.Data
         public static byte[] GetRandomBytes(int length, bool nonZero = false)
         {
             var data = new byte[length];
-            using (var provider = RNGCryptoServiceProvider.Create())
+            using (var provider = RandomNumberGenerator.Create())
             {
                 if (nonZero)
                 {
