@@ -45,9 +45,14 @@ namespace MyLibrary.Net
         {
             Encoding = encoding;
         }
+        public PostDataStringContent(string text, Encoding encoding, string contentType) : this(text, encoding)
+        {
+            ContentType = contentType;
+        }
 
         public string Text { get; set; }
         public Encoding Encoding { get; set; } = Encoding.UTF8;
+        public string ContentType { get; set; } = "application/x-www-form-urlencoded";
 
         public byte[] GetContent()
         {
@@ -55,7 +60,7 @@ namespace MyLibrary.Net
         }
         public string GetContentType()
         {
-            return "application/x-www-form-urlencoded; charset=" + Encoding.WebName;
+            return $"{ContentType}; charset={Encoding.WebName}";
         }
 
         public override string ToString()
@@ -112,7 +117,7 @@ namespace MyLibrary.Net
             {
                 using (var streamWriter = new StreamWriter(memoryStream))
                 {
-                    streamWriter.WriteLine("-----------------------------" + Boundary);
+                    streamWriter.WriteLine($"-----------------------------{Boundary}");
                     if (ContentDisposition != null)
                     {
                         streamWriter.Write("Content-Disposition: ");
@@ -129,7 +134,7 @@ namespace MyLibrary.Net
                     memoryStream.Write(Content, 0, Content.Length);
 
                     streamWriter.WriteLine();
-                    streamWriter.Write("-----------------------------" + Boundary + "--");
+                    streamWriter.Write($"-----------------------------{Boundary}--");
                     streamWriter.Flush();
                 }
                 return memoryStream.ToArray();
@@ -137,7 +142,7 @@ namespace MyLibrary.Net
         }
         public string GetContentType()
         {
-            return "multipart/form-data; boundary=---------------------------" + Boundary;
+            return $"multipart/form-data; boundary=---------------------------{Boundary}";
         }
 
         private static readonly Random _rnd = new Random();
