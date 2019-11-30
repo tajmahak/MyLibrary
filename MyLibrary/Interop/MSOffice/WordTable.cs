@@ -71,5 +71,17 @@ namespace MyLibrary.Interop.MSOffice
             var wRange = Document.Range(wCell1, wCell2);
             return new WordRange(wRange);
         }
+        public void AutoFitContent()
+        {
+            Table.AutoFitBehavior(W.WdAutoFitBehavior.wdAutoFitContent);
+        }
+        public void AutoFitWindow()
+        {
+            Table.AutoFitBehavior(W.WdAutoFitBehavior.wdAutoFitWindow);
+        }
+        public void AutoFitFixed()
+        {
+            Table.AutoFitBehavior(W.WdAutoFitBehavior.wdAutoFitFixed);
+        }
     }
 }
