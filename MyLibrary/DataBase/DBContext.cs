@@ -267,7 +267,7 @@ namespace MyLibrary.DataBase
                 throw DBInternal.ProcessRowException();
             }
 
-            if (row.State == DataRowState.Deleted && row.PrimaryKeyValue is DBTempId)
+            if (row.State == DataRowState.Deleted && row.PrimaryKeyValueIsTemporary)
             {
                 return 0;
             }

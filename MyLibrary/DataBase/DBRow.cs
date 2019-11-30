@@ -43,6 +43,7 @@ namespace MyLibrary.DataBase
             }
         }
         public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
+        public bool PrimaryKeyValueIsTemporary => PrimaryKeyValue is DBTempId;
 
         public TValue GetValue<TValue>(string columnName)
         {
