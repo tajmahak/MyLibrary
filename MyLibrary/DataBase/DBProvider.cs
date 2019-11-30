@@ -1026,8 +1026,16 @@ namespace MyLibrary.DataBase
                 }
                 else if (memberExpression.Member is FieldInfo fieldInfo)
                 {
-                    var constantExpression = memberExpression.Expression as ConstantExpression;
-                    var value = fieldInfo.GetValue(constantExpression.Value);
+                    object value;
+                    if (memberExpression.Expression is ConstantExpression constantExpression)
+                    {
+                        value = fieldInfo.GetValue(constantExpression.Value);
+                    }
+                    else
+                    {
+                        value = GetValueFromExpression(memberExpression.Expression, memberExpression);
+                        value = fieldInfo.GetValue(value);
+                    }
 
                     if (parseValue)
                     {
