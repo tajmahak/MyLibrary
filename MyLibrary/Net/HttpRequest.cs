@@ -170,7 +170,7 @@ namespace MyLibrary.Net
                 Request.Timeout = Timeout;
                 Request.Referer = Referer;
                 Request.UserAgent = UserAgent;
-                Request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+                Request.Accept = "*/*";
                 Request.Headers["Accept-Encoding"] = "gzip, deflate";
                 Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
 
