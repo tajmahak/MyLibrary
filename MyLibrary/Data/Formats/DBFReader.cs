@@ -84,7 +84,8 @@ namespace MyLibrary.Data.Formats
                 handle.Free();
             }
 
-            _stream.BaseStream.Seek(_header.headerLen + 1, SeekOrigin.Begin);
+            //!!_stream.BaseStream.Seek(_header.headerLen + 1, SeekOrigin.Begin); - было так, но при чтении одного из DBF файлов смещение +1 было лишним
+            _stream.BaseStream.Seek(_header.headerLen, SeekOrigin.Begin);
 
             buffer = _stream.ReadBytes(_header.recordLen);
             var recReader = new BinaryReader(new MemoryStream(buffer));
