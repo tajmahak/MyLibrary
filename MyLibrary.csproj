@@ -112,6 +112,11 @@
     <Compile Include="MyLibrary\Interop\RecycleBin.cs" />
     <Compile Include="MyLibrary\Interop\ShellThumbnail.cs" />
     <Compile Include="MyLibrary\Interop\SystemTime.cs" />
+    <Compile Include="MyLibrary\Net\IPostDataContent.cs" />
+    <Compile Include="MyLibrary\Net\PostDataBytesContent.cs" />
+    <Compile Include="MyLibrary\Net\PostDataMultiPartContent.cs" />
+    <Compile Include="MyLibrary\Net\PostDataMultiPartListContent.cs" />
+    <Compile Include="MyLibrary\Net\PostDataStringContent.cs" />
     <Compile Include="MyLibrary\WinForms\ControlExtension.cs" />
     <Compile Include="MyLibrary\WinForms\DataGridViewExtension.cs" />
     <Compile Include="MyLibrary\WinForms\Controls\DataGridViewProgressColumn.cs" />
