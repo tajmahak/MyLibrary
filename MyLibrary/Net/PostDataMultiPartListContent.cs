@@ -20,7 +20,7 @@ namespace MyLibrary.Net
         public string Boundary { get; private set; }
         public List<string[]> Items { get; private set; } = new List<string[]>();
 
-        public void AddItem(string name, string value)
+        public void Add(string name, string value)
         {
             AddItem(name, value, "form-data");
         }
