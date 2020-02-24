@@ -92,6 +92,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyLibrary\Collections\HashCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBContextCommitInfo.cs" />
     <Compile Include="MyLibrary\DataBase\DBQueryStructureBlockCollection.cs" />
     <Compile Include="MyLibrary\DataBase\DBTableCollection.cs" />
