@@ -22,9 +22,9 @@ namespace MyLibrary.Net
 
         public void Add(string name, string value)
         {
-            AddItem(name, value, "form-data");
+            Add(name, value, "form-data");
         }
-        public void AddItem(string name, string value, string contentDisposition)
+        public void Add(string name, string value, string contentDisposition)
         {
             Items.Add(new string[]
             {
