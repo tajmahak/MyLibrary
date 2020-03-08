@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MyLibrary.Net
 {
-    public class HttpRequest : IDisposable
+    public class HttpConnection : IDisposable
     {
         public string RequestUri { get; set; }
         public IPostDataContent PostDataContent { get; set; }
@@ -16,16 +16,17 @@ namespace MyLibrary.Net
         public string UserAgent { get; set; }
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
+        public CookieContainer Cookies { get; private set; } = new CookieContainer();
 
         public event EventHandler BeforeGetResponse;
         public event EventHandler AfterGetResponse;
-        public event EventHandler<DownloadProgressChangedEventArgs> DownloadProgressChanged;
+        public event EventHandler<HttpConnectionDataReceived> DataReceived;
 
-        public HttpRequest()
+        public HttpConnection()
         {
             Timeout = 100000;
         }
-        public HttpRequest(string requestUri)
+        public HttpConnection(string requestUri)
             : this()
         {
             RequestUri = requestUri;
@@ -33,7 +34,6 @@ namespace MyLibrary.Net
         public void Dispose()
         {
             Response?.Close();
-            Response = null;
         }
 
         public void AddHeader(string name, string value)
@@ -43,14 +43,6 @@ namespace MyLibrary.Net
                 _webHeaderCollection = new WebHeaderCollection();
             }
             _webHeaderCollection.Add(name, value);
-        }
-        public void AddCookie(Cookie cookie)
-        {
-            if (_cookieContainer == null)
-            {
-                _cookieContainer = new CookieContainer();
-            }
-            _cookieContainer.Add(cookie);
         }
         public void AddRange(long? from = null, long? to = null)
         {
@@ -71,7 +63,7 @@ namespace MyLibrary.Net
                 var contentLength = Response.ContentLength;
                 var knownContentLength = (contentLength != -1);
 
-                var args = new DownloadProgressChangedEventArgs
+                var args = new HttpConnectionDataReceived
                 {
                     ContentLength = contentLength
                 };
@@ -87,11 +79,11 @@ namespace MyLibrary.Net
                         outputStream.Write(buffer, 0, bytesReceived);
                         totalBytesToReceive += bytesReceived;
 
-                        if (DownloadProgressChanged != null)
+                        if (DataReceived != null)
                         {
                             args.BytesReceived = bytesReceived;
                             args.TotalBytesToReceive = totalBytesToReceive;
-                            DownloadProgressChanged(this, args);
+                            DataReceived(this, args);
                             if (args.Cancel)
                             {
                                 break;
@@ -139,18 +131,18 @@ namespace MyLibrary.Net
         }
         public static string GetString(string requestUri, IPostDataContent postData = null)
         {
-            using (var request = new HttpRequest(requestUri))
+            using (var connection = new HttpConnection(requestUri))
             {
-                request.PostDataContent = postData;
-                return request.GetString();
+                connection.PostDataContent = postData;
+                return connection.GetString();
             }
         }
         public static void GetData(Stream outputStream, string requestUri, IPostDataContent postData = null)
         {
-            using (var request = new HttpRequest(requestUri))
+            using (var connection = new HttpConnection(requestUri))
             {
-                request.PostDataContent = postData;
-                request.GetData(outputStream);
+                connection.PostDataContent = postData;
+                connection.GetData(outputStream);
             }
         }
 
@@ -159,6 +151,7 @@ namespace MyLibrary.Net
         private void GetWebData(Action getDataAction)
         {
             Request = null;
+            Response?.Close();
             Response = null;
             try
             {
@@ -166,6 +159,7 @@ namespace MyLibrary.Net
 
                 #region Настройка Web-запроса
 
+                Request.CookieContainer = Cookies;
                 Request.KeepAlive = true;
                 Request.Timeout = Timeout;
                 Request.Referer = Referer;
@@ -183,10 +177,6 @@ namespace MyLibrary.Net
                     Request.Method = "POST";
                 }
 
-                if (_cookieContainer != null)
-                {
-                    Request.CookieContainer = _cookieContainer;
-                }
                 if (_webHeaderCollection != null)
                 {
                     foreach (string name in _webHeaderCollection)
@@ -239,44 +229,16 @@ namespace MyLibrary.Net
                 }
                 throw;
             }
-            finally
-            {
-                Dispose();
-            }
         }
-        private CookieContainer _cookieContainer;
         private WebHeaderCollection _webHeaderCollection;
         private long? _rangeFrom, _rangeTo;
     }
 
-    public class DownloadProgressChangedEventArgs : EventArgs
+    public class HttpConnectionDataReceived : EventArgs
     {
         public bool Cancel { get; set; }
         public int BytesReceived { get; internal set; }
         public long TotalBytesToReceive { get; internal set; }
         public long ContentLength { get; internal set; }
-    }
-
-    public class RequestParameterBuilder
-    {
-        public RequestParameterBuilder Add(string name, object value)
-        {
-            if (_str.Length > 0)
-            {
-                _str.Append("&");
-            }
-            _str.Append(name);
-            _str.Append("=");
-            _str.Append(value);
-
-            return this;
-        }
-
-        public override string ToString()
-        {
-            return _str.ToString();
-        }
-
-        private readonly StringBuilder _str = new StringBuilder();
     }
 }
