@@ -285,9 +285,9 @@ namespace MyLibrary.Data
             }
         }
 
-        public static byte[] CompressText(string text)
+        public static byte[] CompressText(string value)
         {
-            var data = Encoding.UTF8.GetBytes(text);
+            var data = Encoding.UTF8.GetBytes(value);
             using (var mem = new MemoryStream())
             {
                 using (var stream = new DeflateStream(mem, CompressionMode.Compress))
@@ -298,9 +298,9 @@ namespace MyLibrary.Data
             }
             return data;
         }
-        public static string DecompressText(byte[] data)
+        public static string DecompressText(byte[] value)
         {
-            using (var mem = new MemoryStream(data))
+            using (var mem = new MemoryStream(value))
             using (var stream = new DeflateStream(mem, CompressionMode.Decompress))
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
@@ -308,22 +308,43 @@ namespace MyLibrary.Data
                 return text;
             }
         }
-        public static string ToBase64(byte[] data)
+        public static string ToBase64(byte[] value)
         {
-            return System.Convert.ToBase64String(data);
+            return System.Convert.ToBase64String(value);
         }
-        public static byte[] FromBase64(string data)
+        public static byte[] FromBase64(string value)
         {
-            return System.Convert.FromBase64String(data);
+            return System.Convert.FromBase64String(value);
         }
-        public static string ToHexText(byte[] data)
+        public static string ToHexText(byte[] value)
         {
-            var str = new StringBuilder(data.Length * 2);
-            for (var i = 0; i < data.Length; i++)
+            var charArray = new char[value.Length * 2];
+            var byteIndex = 0;
+            for (var i = 0; i < charArray.Length; i += 2)
             {
-                str.Append(data[i].ToString("x2"));
+                var byteValue = value[byteIndex++];
+                charArray[i] = ToHexValue(byteValue / 16);
+                charArray[i + 1] = ToHexValue(byteValue % 16);
             }
-            return str.ToString();
+            return new string(charArray);
+        }
+        public static byte[] FromHexText(string value)
+        {
+            if (value.Length % 2 != 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            var byteArray = new byte[value.Length / 2];
+            var byteIndex = 0;
+            for (var i = 0; i < value.Length; i += 2)
+            {
+                var n1 = FromHexValue(char.ToUpper(value[i]));
+                var n2 = FromHexValue(char.ToUpper(value[i + 1]));
+                byteArray[byteIndex++] = (byte)((n1 << 4) | n2);
+            }
+
+            return byteArray;
         }
 
         public static string FormattedDigit(object value, int decimals = 0, bool allowNull = false)
@@ -443,6 +464,15 @@ namespace MyLibrary.Data
             }
             // Step 7
             return d[n, m];
+        }
+
+        private static char ToHexValue(int n)
+        {
+            return (n >= 10) ? (char)(n - 10 + 65) : (char)(n + 48); //65 для прописного, 97 для строчного
+        }
+        private static int FromHexValue(char c)
+        {
+            return c > 57 ? (c + 10 - 65) : (c - 48);
         }
     }
 }
