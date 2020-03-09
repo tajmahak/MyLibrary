@@ -12,6 +12,7 @@ namespace MyLibrary.Net
         public IPostDataContent PostDataContent { get; set; }
         public bool UseHeadRequest { get; set; }
         public int Timeout { get; set; } = 100000;
+        public string Accept { get; set; } = "*/*";
         public string Referer { get; set; }
         public string UserAgent { get; set; }
         public long? StartRange { get; set; }
@@ -43,7 +44,10 @@ namespace MyLibrary.Net
         public string GetString()
         {
             string data = null;
-            GetWebData(() => data = GetStringFromResponse(Response));
+            GetWebData(() =>
+            {
+                data = GetStringFromResponse(Response);
+            });
             return data;
         }
         public void GetData(Stream outputStream)
@@ -53,12 +57,7 @@ namespace MyLibrary.Net
                 var contentLength = Response.ContentLength;
                 var knownContentLength = (contentLength != -1);
 
-                var args = new ResponseDataReceivedEventArgs
-                {
-                    ContentLength = contentLength
-                };
-
-                var buffer = new byte[0x40000]; // размер буфера 256 КБ
+                var buffer = new byte[BUFFER_SIZE];
                 using (var stream = GetResponseStream())
                 {
                     long totalBytesToReceive = 0;
@@ -71,9 +70,13 @@ namespace MyLibrary.Net
 
                         if (ResponseDataReceived != null)
                         {
-                            args.ReceivedBytesCount = bytesReceived;
-                            args.TotalBytesToReceive = totalBytesToReceive;
-                            ResponseDataReceived(this, args);
+                            var args = new ResponseDataReceivedEventArgs
+                            {
+                                ContentLength = contentLength,
+                                ReceivedBytesCount = bytesReceived,
+                                TotalBytesToReceive = totalBytesToReceive,
+                            };
+                            ResponseDataReceived.Invoke(this, args);
                             if (args.Cancel)
                             {
                                 break;
@@ -83,16 +86,15 @@ namespace MyLibrary.Net
                 }
             });
         }
-        public void GetResponse()
+        public HttpWebResponse GetResponse()
         {
             GetWebData(null);
+            return Response;
         }
         public Stream GetResponseStream()
         {
             return GetStreamFromResponse(Response);
         }
-
-        #region Статические сущности
 
         public static string GetStringFromResponse(HttpWebResponse response)
         {
@@ -136,8 +138,6 @@ namespace MyLibrary.Net
             }
         }
 
-        #endregion
-
         private void GetWebData(Action getDataAction)
         {
             Request = null;
@@ -146,21 +146,19 @@ namespace MyLibrary.Net
             try
             {
                 Request = (HttpWebRequest)WebRequest.Create(RequestUri);
-
-                #region Настройка Web-запроса
-
                 Request.CookieContainer = Cookies;
                 Request.KeepAlive = true;
                 Request.Timeout = Timeout;
                 Request.Referer = Referer;
                 Request.UserAgent = UserAgent;
-                Request.Accept = "*/*";
-                foreach (string name in Headers)
-                {
-                    var value = Headers[name];
-                    Request.Headers.Add(name, value);
-                }
+                Request.Accept = Accept;
                 Request.Method = PostDataContent == null ? (UseHeadRequest ? "HEAD" : "GET") : "POST";
+
+                foreach (string headerName in Headers)
+                {
+                    var headerValue = Headers[headerName];
+                    Request.Headers.Add(headerName, headerValue);
+                }
 
                 if (StartRange != null || EndRange != null)
                 {
@@ -174,15 +172,13 @@ namespace MyLibrary.Net
                     }
                 }
 
-                #endregion
-
                 CreatingRequest?.Invoke(this, EventArgs.Empty);
 
                 if (PostDataContent != null)
                 {
                     // Отправка POST-данных запроса на сервер
-                    var content = PostDataContent.GetContent();
                     Request.ContentType = PostDataContent.GetContentType();
+                    var content = PostDataContent.GetContent();
                     Request.ContentLength = content.Length;
                     using (var requestStream = Request.GetRequestStream())
                     {
@@ -205,6 +201,8 @@ namespace MyLibrary.Net
                 throw;
             }
         }
+
+        private const int BUFFER_SIZE = 0x40000; // 256 кб
     }
 
     public class ResponseDataReceivedEventArgs : EventArgs
