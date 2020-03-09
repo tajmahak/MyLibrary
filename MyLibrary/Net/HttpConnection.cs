@@ -11,20 +11,24 @@ namespace MyLibrary.Net
         public string RequestUri { get; set; }
         public IPostDataContent PostDataContent { get; set; }
         public bool UseHeadRequest { get; set; }
-        public int Timeout { get; set; }
+        public int Timeout { get; set; } = 100000;
         public string Referer { get; set; }
         public string UserAgent { get; set; }
+        public long? StartRange { get; set; }
+        public long? EndRange { get; set; }
         public HttpWebRequest Request { get; private set; }
         public HttpWebResponse Response { get; private set; }
+        public WebHeaderCollection Headers { get; private set; } = new WebHeaderCollection();
         public CookieContainer Cookies { get; private set; } = new CookieContainer();
 
-        public event EventHandler BeforeGetResponse;
-        public event EventHandler AfterGetResponse;
-        public event EventHandler<HttpConnectionDataReceived> DataReceived;
+        public event EventHandler CreatingRequest;
+        public event EventHandler ResponseReceived;
+        public event EventHandler<ResponseDataReceivedEventArgs> ResponseDataReceived;
 
         public HttpConnection()
         {
-            Timeout = 100000;
+            Headers.Add("Accept-Encoding", "gzip, deflate");
+            Headers.Add("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
         }
         public HttpConnection(string requestUri)
             : this()
@@ -34,20 +38,6 @@ namespace MyLibrary.Net
         public void Dispose()
         {
             Response?.Close();
-        }
-
-        public void AddHeader(string name, string value)
-        {
-            if (_webHeaderCollection == null)
-            {
-                _webHeaderCollection = new WebHeaderCollection();
-            }
-            _webHeaderCollection.Add(name, value);
-        }
-        public void AddRange(long? from = null, long? to = null)
-        {
-            _rangeFrom = from;
-            _rangeTo = to;
         }
 
         public string GetString()
@@ -63,7 +53,7 @@ namespace MyLibrary.Net
                 var contentLength = Response.ContentLength;
                 var knownContentLength = (contentLength != -1);
 
-                var args = new HttpConnectionDataReceived
+                var args = new ResponseDataReceivedEventArgs
                 {
                     ContentLength = contentLength
                 };
@@ -79,11 +69,11 @@ namespace MyLibrary.Net
                         outputStream.Write(buffer, 0, bytesReceived);
                         totalBytesToReceive += bytesReceived;
 
-                        if (DataReceived != null)
+                        if (ResponseDataReceived != null)
                         {
-                            args.BytesReceived = bytesReceived;
+                            args.ReceivedBytesCount = bytesReceived;
                             args.TotalBytesToReceive = totalBytesToReceive;
-                            DataReceived(this, args);
+                            ResponseDataReceived(this, args);
                             if (args.Cancel)
                             {
                                 break;
@@ -165,41 +155,28 @@ namespace MyLibrary.Net
                 Request.Referer = Referer;
                 Request.UserAgent = UserAgent;
                 Request.Accept = "*/*";
-                Request.Headers["Accept-Encoding"] = "gzip, deflate";
-                Request.Headers["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
+                foreach (string name in Headers)
+                {
+                    var value = Headers[name];
+                    Request.Headers.Add(name, value);
+                }
+                Request.Method = PostDataContent == null ? (UseHeadRequest ? "HEAD" : "GET") : "POST";
 
-                if (PostDataContent == null)
+                if (StartRange != null || EndRange != null)
                 {
-                    Request.Method = UseHeadRequest ? "HEAD" : "GET";
-                }
-                else
-                {
-                    Request.Method = "POST";
-                }
-
-                if (_webHeaderCollection != null)
-                {
-                    foreach (string name in _webHeaderCollection)
+                    if (EndRange != null)
                     {
-                        var value = _webHeaderCollection[name];
-                        Request.Headers.Add(name, value);
-                    }
-                }
-                if (_rangeFrom != null || _rangeTo != null)
-                {
-                    if (_rangeTo != null)
-                    {
-                        Request.AddRange(_rangeFrom.Value, _rangeTo.Value);
+                        Request.AddRange(StartRange.Value, EndRange.Value);
                     }
                     else
                     {
-                        Request.AddRange(_rangeFrom.Value);
+                        Request.AddRange(StartRange.Value);
                     }
                 }
 
                 #endregion
 
-                BeforeGetResponse?.Invoke(this, EventArgs.Empty);
+                CreatingRequest?.Invoke(this, EventArgs.Empty);
 
                 if (PostDataContent != null)
                 {
@@ -215,11 +192,9 @@ namespace MyLibrary.Net
 
                 Response = (HttpWebResponse)Request.GetResponse();
 
-                AfterGetResponse?.Invoke(this, EventArgs.Empty);
+                ResponseReceived?.Invoke(this, EventArgs.Empty);
 
                 getDataAction?.Invoke();
-
-                PostDataContent = null;
             }
             catch (Exception ex)
             {
@@ -230,14 +205,12 @@ namespace MyLibrary.Net
                 throw;
             }
         }
-        private WebHeaderCollection _webHeaderCollection;
-        private long? _rangeFrom, _rangeTo;
     }
 
-    public class HttpConnectionDataReceived : EventArgs
+    public class ResponseDataReceivedEventArgs : EventArgs
     {
         public bool Cancel { get; set; }
-        public int BytesReceived { get; internal set; }
+        public int ReceivedBytesCount { get; internal set; }
         public long TotalBytesToReceive { get; internal set; }
         public long ContentLength { get; internal set; }
     }
