@@ -13,14 +13,14 @@ namespace MyLibrary.Data.Formats
     {
         public static DataTable ToDataTable(string filePath, Encoding encoding)
         {
-            var dataTable = new DataTable();
-            using (var dbf = new DbfReader(filePath, encoding))
+            DataTable dataTable = new DataTable();
+            using (DbfReader dbf = new DbfReader(filePath, encoding))
             {
-                foreach (var column in dbf.Columns)
+                foreach (DBFColumn column in dbf.Columns)
                 {
                     dataTable.Columns.Add(column.Name, column.ValueType);
                 }
-                foreach (var row in dbf)
+                foreach (DBFRow row in dbf)
                 {
                     dataTable.Rows.Add(row.Values);
                 }
@@ -52,7 +52,7 @@ namespace MyLibrary.Data.Formats
         }
         public bool MoveNext()
         {
-            var readed = ReadNextRow();
+            bool readed = ReadNextRow();
             return readed;
         }
         public void Reset()
@@ -67,12 +67,12 @@ namespace MyLibrary.Data.Formats
 
         private void OpenFile(string path)
         {
-            var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             _stream = new BinaryReader(fileStream);
 
-            var buffer = _stream.ReadBytes(Marshal.SizeOf(typeof(DBFHeader)));
+            byte[] buffer = _stream.ReadBytes(Marshal.SizeOf(typeof(DBFHeader)));
 
-            var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             _header = (DBFHeader)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(DBFHeader));
             handle.Free();
 
@@ -88,12 +88,12 @@ namespace MyLibrary.Data.Formats
             _stream.BaseStream.Seek(_header.headerLen, SeekOrigin.Begin);
 
             buffer = _stream.ReadBytes(_header.recordLen);
-            var recReader = new BinaryReader(new MemoryStream(buffer));
+            BinaryReader recReader = new BinaryReader(new MemoryStream(buffer));
 
-            var colList = new List<DBFColumn>();
+            List<DBFColumn> colList = new List<DBFColumn>();
             foreach (FieldDescriptor field in _fields)
             {
-                var number = Encoding.UTF8.GetString(recReader.ReadBytes(field.fieldLen));
+                string number = Encoding.UTF8.GetString(recReader.ReadBytes(field.fieldLen));
                 switch (field.fieldType)
                 {
                     case 'N':
@@ -114,7 +114,7 @@ namespace MyLibrary.Data.Formats
             }
             Columns = colList.ToArray();
 
-            for (var i = 0; i < Columns.Length; i++)
+            for (int i = 0; i < Columns.Length; i++)
             {
                 _columnDict.Add(Columns[i].Name, i);
             }
@@ -124,21 +124,21 @@ namespace MyLibrary.Data.Formats
             while (_recordNumber < _header.numRecords)
             {
                 _recordNumber++;
-                var buffer = _stream.ReadBytes(_header.recordLen);
-                var recReader = new BinaryReader(new MemoryStream(buffer));
+                byte[] buffer = _stream.ReadBytes(_header.recordLen);
+                BinaryReader recReader = new BinaryReader(new MemoryStream(buffer));
 
                 if (recReader.ReadChar() == '*')
                 {
                     continue;
                 }
 
-                var values = new object[_fields.Count];
+                object[] values = new object[_fields.Count];
                 #region Заполнение строки
 
                 string number;
-                for (var i = 0; i < _fields.Count; i++)
+                for (int i = 0; i < _fields.Count; i++)
                 {
-                    var field = (FieldDescriptor)_fields[i];
+                    FieldDescriptor field = (FieldDescriptor)_fields[i];
                     switch (field.fieldType)
                     {
                         case 'N':  // Number
@@ -160,9 +160,9 @@ namespace MyLibrary.Data.Formats
                             break;
 
                         case 'D': // Date (YYYYMMDD)
-                            var year = _encoding.GetString(recReader.ReadBytes(4));
-                            var month = _encoding.GetString(recReader.ReadBytes(2));
-                            var day = _encoding.GetString(recReader.ReadBytes(2));
+                            string year = _encoding.GetString(recReader.ReadBytes(4));
+                            string month = _encoding.GetString(recReader.ReadBytes(2));
+                            string day = _encoding.GetString(recReader.ReadBytes(2));
                             values[i] = DBNull.Value;
                             try
                             {
@@ -178,13 +178,13 @@ namespace MyLibrary.Data.Formats
                             break;
 
                         case 'T': // Timestamp, 8 bytes - two integers, first for date, second for time
-                            var lDate = recReader.ReadInt32();
-                            var lTime = recReader.ReadInt32() * 10000L;
+                            int lDate = recReader.ReadInt32();
+                            long lTime = recReader.ReadInt32() * 10000L;
                             values[i] = ToJulianDateTime(lDate).AddTicks(lTime);
                             break;
 
                         case 'L': // Boolean (Y/N)
-                            var boolean = recReader.ReadByte();
+                            byte boolean = recReader.ReadByte();
                             switch ((char)boolean)
                             {
                                 case 'T':
@@ -219,12 +219,12 @@ namespace MyLibrary.Data.Formats
         }
         private static bool IsNumber(string numberString)
         {
-            var numbers = numberString.ToCharArray();
-            var number_count = 0;
-            var point_count = 0;
-            var space_count = 0;
+            char[] numbers = numberString.ToCharArray();
+            int number_count = 0;
+            int point_count = 0;
+            int space_count = 0;
 
-            foreach (var number in numbers)
+            foreach (char number in numbers)
             {
                 if ((number >= 48 && number <= 57))
                 {
@@ -248,17 +248,17 @@ namespace MyLibrary.Data.Formats
         }
         private static DateTime ToJulianDateTime(long lJDN)
         {
-            var p = Convert.ToDouble(lJDN);
-            var s1 = p + 68569;
-            var n = Math.Floor(4 * s1 / 146097);
-            var s2 = s1 - Math.Floor(((146097 * n) + 3) / 4);
-            var i = Math.Floor(4000 * (s2 + 1) / 1461001);
-            var s3 = s2 - Math.Floor(1461 * i / 4) + 31;
-            var q = Math.Floor(80 * s3 / 2447);
-            var d = s3 - Math.Floor(2447 * q / 80);
-            var s4 = Math.Floor(q / 11);
-            var m = q + 2 - (12 * s4);
-            var j = (100 * (n - 49)) + i + s4;
+            double p = Convert.ToDouble(lJDN);
+            double s1 = p + 68569;
+            double n = Math.Floor(4 * s1 / 146097);
+            double s2 = s1 - Math.Floor(((146097 * n) + 3) / 4);
+            double i = Math.Floor(4000 * (s2 + 1) / 1461001);
+            double s3 = s2 - Math.Floor(1461 * i / 4) + 31;
+            double q = Math.Floor(80 * s3 / 2447);
+            double d = s3 - Math.Floor(2447 * q / 80);
+            double s4 = Math.Floor(q / 11);
+            double m = q + 2 - (12 * s4);
+            double j = (100 * (n - 49)) + i + s4;
             return new DateTime(Convert.ToInt32(j), Convert.ToInt32(m), Convert.ToInt32(d));
         }
         private int _recordNumber = 1;
@@ -293,7 +293,7 @@ namespace MyLibrary.Data.Formats
         {
             get
             {
-                var columnIndex = _reader.GetColumnIndex(columnName);
+                int columnIndex = _reader.GetColumnIndex(columnName);
                 return Values[columnIndex];
             }
         }

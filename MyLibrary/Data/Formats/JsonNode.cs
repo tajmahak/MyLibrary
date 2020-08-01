@@ -13,8 +13,8 @@ namespace MyLibrary.Data.Formats
                 json = DecodeJSString(json);
             }
 
-            var token = JToken.Parse(json);
-            var node = new JsonNode();
+            JToken token = JToken.Parse(json);
+            JsonNode node = new JsonNode();
             ParseNode(node, token);
 
             return node;
@@ -44,7 +44,7 @@ namespace MyLibrary.Data.Formats
 
         public override string ToString()
         {
-            var str = Name;
+            string str = Name;
             if (Value != null)
             {
                 str += (" = '" + Value + "'");
@@ -192,7 +192,7 @@ namespace MyLibrary.Data.Formats
             #region JProperty
             if (token is JProperty)
             {
-                var jProperty = token as JProperty;
+                JProperty jProperty = token as JProperty;
                 node.Name = jProperty.Name;
                 ParseNode(node, jProperty.Value);
             }
@@ -201,18 +201,18 @@ namespace MyLibrary.Data.Formats
             #region JValue
             else if (token is JValue)
             {
-                var jValue = token as JValue;
+                JValue jValue = token as JValue;
                 node.Value = jValue.ToString();
             }
             #endregion
             #region JContainer
             else if (token is JContainer)
             {
-                var jContainer = token as JContainer;
+                JContainer jContainer = token as JContainer;
                 node.Childs = new JsonNodeCollection();
-                foreach (var cToken in jContainer)
+                foreach (JToken cToken in jContainer)
                 {
-                    var cNode = new JsonNode();
+                    JsonNode cNode = new JsonNode();
                     cNode.Parent = node;
                     ParseNode(cNode, cToken);
                     node.Childs.Add(cNode);
@@ -245,9 +245,9 @@ namespace MyLibrary.Data.Formats
         {
             get
             {
-                for (var i = 0; i < Count; i++)
+                for (int i = 0; i < Count; i++)
                 {
-                    var node = this[i];
+                    JsonNode node = this[i];
                     if (node.Name == name)
                     {
                         return node;

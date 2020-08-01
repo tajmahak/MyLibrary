@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5951418A-5A08-41C2-9D3F-F9C5C1DEFD9E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MyLibrary.DataBase</RootNamespace>
+    <AssemblyName>MyLibrary.DataBase</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FirebirdSql.Data.FirebirdClient">
+      <HintPath>..\_libs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\_libs\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\DataBaseCache.cs" />
+    <Compile Include="DBColumn.cs" />
+    <Compile Include="DBColumnCollection.cs" />
+    <Compile Include="DBCompiledQuery.cs" />
+    <Compile Include="DBContext.cs" />
+    <Compile Include="DBContextCommitInfo.cs" />
+    <Compile Include="DBFunction.cs" />
+    <Compile Include="DBIndex.cs" />
+    <Compile Include="DBIndexCollection.cs" />
+    <Compile Include="DBInternal.cs" />
+    <Compile Include="DBOrmColumnAttribute.cs" />
+    <Compile Include="DBOrmRow.cs" />
+    <Compile Include="DBOrmTableAttribute.cs" />
+    <Compile Include="DBParameter.cs" />
+    <Compile Include="DBProvider.cs" />
+    <Compile Include="DBQuery.cs" />
+    <Compile Include="DBQueryStructureBlock.cs" />
+    <Compile Include="DBQueryStructureBlockCollection.cs" />
+    <Compile Include="DBQueryStructureType.cs" />
+    <Compile Include="DBReader.cs" />
+    <Compile Include="DBRow.cs" />
+    <Compile Include="DBRowCollection.cs" />
+    <Compile Include="DBTable.cs" />
+    <Compile Include="DBTableCollection.cs" />
+    <Compile Include="DBTempId.cs" />
+    <Compile Include="FireBirdProvider.cs" />
+    <Compile Include="MsSqlServerProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQLiteProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyLibrary\MyLibrary.csproj">
+      <Project>{b4a36aae-e770-4551-ab4e-75efd6d850f6}</Project>
+      <Name>MyLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

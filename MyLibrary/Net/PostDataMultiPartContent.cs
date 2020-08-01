@@ -8,8 +8,8 @@ namespace MyLibrary.Net
     {
         private PostDataMultiPartContent()
         {
-            var boundary = new StringBuilder();
-            for (var i = 0; i < 14; i++)
+            StringBuilder boundary = new StringBuilder();
+            for (int i = 0; i < 14; i++)
             {
                 boundary.Append(_rnd.Next(10));
             }
@@ -29,9 +29,9 @@ namespace MyLibrary.Net
 
         public byte[] GetContent()
         {
-            using (var memoryStream = new MemoryStream())
+            using (MemoryStream memoryStream = new MemoryStream())
             {
-                using (var streamWriter = new StreamWriter(memoryStream))
+                using (StreamWriter streamWriter = new StreamWriter(memoryStream))
                 {
                     streamWriter.WriteLine($"-----------------------------{Boundary}");
                     if (ContentDisposition != null)

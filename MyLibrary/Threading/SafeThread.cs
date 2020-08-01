@@ -15,7 +15,7 @@ namespace MyLibrary.Threading
         }
         public static SafeThread Start(Action<SafeThread> action)
         {
-            var safeThread = new SafeThread(action);
+            SafeThread safeThread = new SafeThread(action);
             safeThread.CurrentThread.Start();
             return safeThread;
         }

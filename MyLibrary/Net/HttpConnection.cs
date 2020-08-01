@@ -54,11 +54,11 @@ namespace MyLibrary.Net
         {
             GetWebData(() =>
             {
-                var contentLength = Response.ContentLength;
-                var knownContentLength = (contentLength != -1);
+                long contentLength = Response.ContentLength;
+                bool knownContentLength = (contentLength != -1);
 
-                var buffer = new byte[BUFFER_SIZE];
-                using (var stream = GetResponseStream())
+                byte[] buffer = new byte[BUFFER_SIZE];
+                using (Stream stream = GetResponseStream())
                 {
                     long totalBytesToReceive = 0;
                     int bytesReceived;
@@ -70,7 +70,7 @@ namespace MyLibrary.Net
 
                         if (ResponseDataReceived != null)
                         {
-                            var args = new ResponseDataReceivedEventArgs
+                            ResponseDataReceivedEventArgs args = new ResponseDataReceivedEventArgs
                             {
                                 ContentLength = contentLength,
                                 ReceivedBytesCount = bytesReceived,
@@ -98,18 +98,18 @@ namespace MyLibrary.Net
 
         public static string GetStringFromResponse(HttpWebResponse response)
         {
-            var encoding = string.IsNullOrEmpty(response.CharacterSet) ?
+            Encoding encoding = string.IsNullOrEmpty(response.CharacterSet) ?
                    Encoding.UTF8 : Encoding.GetEncoding(response.CharacterSet);
 
-            using (var stream = GetStreamFromResponse(response))
-            using (var reader = new StreamReader(stream, encoding))
+            using (Stream stream = GetStreamFromResponse(response))
+            using (StreamReader reader = new StreamReader(stream, encoding))
             {
                 return reader.ReadToEnd();
             }
         }
         public static Stream GetStreamFromResponse(HttpWebResponse response)
         {
-            var stream = response.GetResponseStream();
+            Stream stream = response.GetResponseStream();
 
             // Выбор метода распаковки потока
             switch (response.ContentEncoding)
@@ -123,7 +123,7 @@ namespace MyLibrary.Net
         }
         public static string GetString(string requestUri, IPostDataContent postData = null)
         {
-            using (var connection = new HttpConnection(requestUri))
+            using (HttpConnection connection = new HttpConnection(requestUri))
             {
                 connection.PostDataContent = postData;
                 return connection.GetString();
@@ -131,7 +131,7 @@ namespace MyLibrary.Net
         }
         public static void GetData(Stream outputStream, string requestUri, IPostDataContent postData = null)
         {
-            using (var connection = new HttpConnection(requestUri))
+            using (HttpConnection connection = new HttpConnection(requestUri))
             {
                 connection.PostDataContent = postData;
                 connection.GetData(outputStream);
@@ -156,7 +156,7 @@ namespace MyLibrary.Net
 
                 foreach (string headerName in Headers)
                 {
-                    var headerValue = Headers[headerName];
+                    string headerValue = Headers[headerName];
                     Request.Headers.Add(headerName, headerValue);
                 }
 
@@ -178,9 +178,9 @@ namespace MyLibrary.Net
                 {
                     // Отправка POST-данных запроса на сервер
                     Request.ContentType = PostDataContent.GetContentType();
-                    var content = PostDataContent.GetContent();
+                    byte[] content = PostDataContent.GetContent();
                     Request.ContentLength = content.Length;
-                    using (var requestStream = Request.GetRequestStream())
+                    using (Stream requestStream = Request.GetRequestStream())
                     {
                         requestStream.Write(content, 0, content.Length);
                     }

@@ -16,12 +16,12 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static Image GetResizeImage(Image image, int width, int height, bool highQuality)
         {
-            var destRect = new Rectangle(0, 0, width, height);
-            var destImage = new Bitmap(width, height);
+            Rectangle destRect = new Rectangle(0, 0, width, height);
+            Bitmap destImage = new Bitmap(width, height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-            using (var graphics = Graphics.FromImage(destImage))
+            using (Graphics graphics = Graphics.FromImage(destImage))
             {
                 if (highQuality)
                 {
@@ -31,7 +31,7 @@ namespace MyLibrary.Data
                     graphics.SmoothingMode = SmoothingMode.HighQuality;
                     graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 }
-                using (var wrapMode = new ImageAttributes())
+                using (ImageAttributes wrapMode = new ImageAttributes())
                 {
                     wrapMode.SetWrapMode(WrapMode.TileFlipXY);
                     graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
@@ -49,8 +49,8 @@ namespace MyLibrary.Data
         public static Image GetOverlayImage(Image image, Image backgroundImage)
         {
             backgroundImage = new Bitmap(backgroundImage);
-            var destRect = new Rectangle(0, 0, backgroundImage.Width, backgroundImage.Height);
-            using (var graphics = Graphics.FromImage(backgroundImage))
+            Rectangle destRect = new Rectangle(0, 0, backgroundImage.Width, backgroundImage.Height);
+            using (Graphics graphics = Graphics.FromImage(backgroundImage))
             {
                 graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
             }
@@ -65,10 +65,10 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static Image GetColorCircleImage(Image image, Color backgrColor)
         {
-            var scalePixel = image.Width / 10;
-            var newImg = new Bitmap(image.Width, image.Height);
-            var destRect = new Rectangle(scalePixel, scalePixel, image.Width - scalePixel, image.Height - scalePixel);
-            using (var graphics = Graphics.FromImage(newImg))
+            int scalePixel = image.Width / 10;
+            Bitmap newImg = new Bitmap(image.Width, image.Height);
+            Rectangle destRect = new Rectangle(scalePixel, scalePixel, image.Width - scalePixel, image.Height - scalePixel);
+            using (Graphics graphics = Graphics.FromImage(newImg))
             {
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.FillEllipse(new SolidBrush(backgrColor), new Rectangle(0, 0, newImg.Width - 1, newImg.Height - 1));
@@ -85,8 +85,8 @@ namespace MyLibrary.Data
         public static Image GetWatermarkImage(Image image, Image watermarkImage)
         {
             watermarkImage = new Bitmap(watermarkImage);
-            var destRect = new Rectangle(0, 0, image.Width, image.Height);
-            using (var graphics = Graphics.FromImage(image))
+            Rectangle destRect = new Rectangle(0, 0, image.Width, image.Height);
+            using (Graphics graphics = Graphics.FromImage(image))
             {
                 graphics.DrawImage(watermarkImage, destRect, -2, -2, image.Width, image.Height, GraphicsUnit.Pixel);
             }

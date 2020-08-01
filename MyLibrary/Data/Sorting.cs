@@ -17,12 +17,12 @@ namespace MyLibrary.Data
         public static void StableInsertionSort(this IList list, Comparison<object> comparison)
         {
             // сортировка вставками
-            var count = list.Count;
-            for (var j = 1; j < count; j++)
+            int count = list.Count;
+            for (int j = 1; j < count; j++)
             {
-                var key = list[j];
+                object key = list[j];
 
-                var i = j - 1;
+                int i = j - 1;
                 for (; i >= 0 && comparison(list[i], key) > 0; i--)
                 {
                     list[i + 1] = list[i];

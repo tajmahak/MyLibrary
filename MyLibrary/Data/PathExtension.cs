@@ -7,7 +7,7 @@ namespace MyLibrary.Data
     {
         public static string ReplaceWrongChars(string value, params char[] chars)
         {
-            foreach (var c in chars)
+            foreach (char c in chars)
             {
                 value = value.Replace(c, '_');
             }
@@ -31,12 +31,12 @@ namespace MyLibrary.Data
             {
                 fileName = ReplaceWrongChars(fileName, Path.GetInvalidFileNameChars());
 
-                var path = Path.Combine(directoryPath, fileName);
+                string path = Path.Combine(directoryPath, fileName);
 
                 if (path.Length > 259)
                 {
                     // обрезка имени файла до нужной длины
-                    var fileNameExt = Path.GetExtension(fileName);
+                    string fileNameExt = Path.GetExtension(fileName);
                     fileName = Path.GetFileNameWithoutExtension(fileName);
 
                     path = Path.Combine(directoryPath, fileName);

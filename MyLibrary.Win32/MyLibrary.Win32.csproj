@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1170A4F-5F61-4DA4-9E17-22CE137FF7A5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MyLibrary.Win32</RootNamespace>
+    <AssemblyName>MyLibrary.Win32</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\_libs\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\_libs\Microsoft.Office.Interop.Word.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Interop\MSOffice\AlignmentEnum.cs" />
+    <Compile Include="Interop\MSOffice\ExcelBorderEnum.cs" />
+    <Compile Include="Interop\MSOffice\ExcelCellValueFormatEnum.cs" />
+    <Compile Include="Interop\MSOffice\ExcelInterop.cs" />
+    <Compile Include="Interop\MSOffice\ExcelRange.cs" />
+    <Compile Include="Interop\MSOffice\WordInterop.cs" />
+    <Compile Include="Interop\MSOffice\WordRange.cs" />
+    <Compile Include="Interop\MSOffice\WordTable.cs" />
+    <Compile Include="Interop\NativeMethods.cs" />
+    <Compile Include="Interop\RecycleBin.cs" />
+    <Compile Include="Interop\ShellThumbnail.cs" />
+    <Compile Include="Interop\SystemTime.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WinForms\ControlExtension.cs" />
+    <Compile Include="WinForms\ControlStyle.cs" />
+    <Compile Include="WinForms\Controls\ClipboardMonitor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\Controls\DataGridViewProgressColumn.cs" />
+    <Compile Include="WinForms\Controls\MyButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\Controls\MyDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\Controls\MyDateTimePicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\Controls\MyNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\Controls\MyTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinForms\DataGridViewExtension.cs" />
+    <Compile Include="WinForms\DataGridViewRowManager.cs" />
+    <Compile Include="WinForms\MsgBox.cs" />
+    <Compile Include="WinForms\TaskbarProgress.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyLibrary\MyLibrary.csproj">
+      <Project>{b4a36aae-e770-4551-ab4e-75efd6d850f6}</Project>
+      <Name>MyLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

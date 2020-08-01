@@ -9,8 +9,8 @@ namespace MyLibrary.Net
     {
         public PostDataMultiPartListContent()
         {
-            var boundary = new StringBuilder();
-            for (var i = 0; i < 14; i++)
+            StringBuilder boundary = new StringBuilder();
+            for (int i = 0; i < 14; i++)
             {
                 boundary.Append(_rnd.Next(10));
             }
@@ -35,11 +35,11 @@ namespace MyLibrary.Net
         }
         public byte[] GetContent()
         {
-            using (var memoryStream = new MemoryStream())
+            using (MemoryStream memoryStream = new MemoryStream())
             {
-                using (var streamWriter = new StreamWriter(memoryStream))
+                using (StreamWriter streamWriter = new StreamWriter(memoryStream))
                 {
-                    foreach (var item in Items)
+                    foreach (string[] item in Items)
                     {
                         streamWriter.WriteLine($"--MU--{Boundary}--");
                         streamWriter.WriteLine($"Content-Disposition: {item[0]}; name=\"{item[1]}\"");

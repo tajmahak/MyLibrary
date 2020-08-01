@@ -10,8 +10,8 @@ namespace MyLibrary.Data
     {
         public static string SerializeToXml(object obj)
         {
-            var xmlSerializer = GetXmlSerializer(obj.GetType());
-            using (var textWriter = new StringWriter())
+            XmlSerializer xmlSerializer = GetXmlSerializer(obj.GetType());
+            using (StringWriter textWriter = new StringWriter())
             {
                 xmlSerializer.Serialize(textWriter, obj);
                 return textWriter.ToString();
@@ -19,10 +19,10 @@ namespace MyLibrary.Data
         }
         public static T DeserializeFromXml<T>(string xml)
         {
-            var xmlSerializer = new XmlSerializer(typeof(T));
-            using (var textReader = new StringReader(xml))
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+            using (StringReader textReader = new StringReader(xml))
             {
-                var obj = (T)xmlSerializer.Deserialize(textReader);
+                T obj = (T)xmlSerializer.Deserialize(textReader);
                 CorrectObject(obj);
                 return obj;
             }
@@ -30,26 +30,26 @@ namespace MyLibrary.Data
 
         public static string SerializeToText(object obj)
         {
-            var type = obj.GetType();
-            var properties = type.GetProperties();
+            Type type = obj.GetType();
+            System.Reflection.PropertyInfo[] properties = type.GetProperties();
 
-            var str = new StringBuilder();
-            foreach (var property in properties)
+            StringBuilder str = new StringBuilder();
+            foreach (System.Reflection.PropertyInfo property in properties)
             {
-                var value = property.GetValue(obj, null);
+                object value = property.GetValue(obj, null);
                 str.AppendLine($"{property.Name} = {value}");
             }
             return str.ToString();
         }
         public static T DeserializeFromText<T>(string text)
         {
-            var config = Activator.CreateInstance<T>();
+            T config = Activator.CreateInstance<T>();
 
-            var lines = text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            var properties = typeof(T).GetProperties();
-            for (var i = 0; i < lines.Length; i++)
+            string[] lines = text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            System.Reflection.PropertyInfo[] properties = typeof(T).GetProperties();
+            for (int i = 0; i < lines.Length; i++)
             {
-                var line = lines[i];
+                string line = lines[i];
                 line = line.Trim();
 
                 if (line.Length == 0 || line.StartsWith("#"))
@@ -57,17 +57,17 @@ namespace MyLibrary.Data
                     continue;
                 }
 
-                var charIndex = line.IndexOf('=');
-                var parameterName = line.Substring(0, charIndex).TrimEnd();
-                var parameterValue = line.Remove(0, charIndex + 1).TrimStart();
+                int charIndex = line.IndexOf('=');
+                string parameterName = line.Substring(0, charIndex).TrimEnd();
+                string parameterValue = line.Remove(0, charIndex + 1).TrimStart();
 
                 parameterName = parameterName.ToUpperInvariant();
-                var property = Array.Find(properties, x => x.Name.ToUpper() == parameterName);
+                System.Reflection.PropertyInfo property = Array.Find(properties, x => x.Name.ToUpper() == parameterName);
                 if (property != null)
                 {
                     try
                     {
-                        var value = Convert.ChangeType(parameterValue, property.PropertyType);
+                        object value = Convert.ChangeType(parameterValue, property.PropertyType);
                         property.SetValue(config, value, null);
                     }
                     catch
@@ -94,7 +94,7 @@ namespace MyLibrary.Data
             {
                 if (!_xmlSerializers.ContainsKey(type))
                 {
-                    var xmlSerializer = new XmlSerializer(type);
+                    XmlSerializer xmlSerializer = new XmlSerializer(type);
                     _xmlSerializers.Add(type, xmlSerializer);
                 }
             }
@@ -102,11 +102,11 @@ namespace MyLibrary.Data
         private static void CorrectObject(object obj)
         {
             //  исправление многострочного string после десериализации XML
-            foreach (var property in obj.GetType().GetProperties())
+            foreach (System.Reflection.PropertyInfo property in obj.GetType().GetProperties())
             {
                 if (property.PropertyType == typeof(string))
                 {
-                    var value = (string)property.GetValue(obj, null);
+                    string value = (string)property.GetValue(obj, null);
                     if (value != null)
                     {
                         value = value.Replace("\n", "\r\n");

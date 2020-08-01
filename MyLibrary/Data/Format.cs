@@ -14,7 +14,7 @@ namespace MyLibrary.Data
     {
         public static T Convert<T>(object value)
         {
-            var type = typeof(T);
+            Type type = typeof(T);
 
             // определение основного типа данных
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -39,10 +39,10 @@ namespace MyLibrary.Data
         }
         public static List<TOut> ConvertList<TIn, TOut>(IList<TIn> srcList, Converter<TIn, TOut> converter)
         {
-            var destList = new List<TOut>(srcList.Count);
-            foreach (var srcItem in srcList)
+            List<TOut> destList = new List<TOut>(srcList.Count);
+            foreach (TIn srcItem in srcList)
             {
-                var destItem = converter(srcItem);
+                TOut destItem = converter(srcItem);
                 destList.Add(destItem);
             }
             return destList;
@@ -124,7 +124,7 @@ namespace MyLibrary.Data
                 return false;
             }
 
-            var type = typeof(T);
+            Type type = typeof(T);
             if (type.BaseType == typeof(Array))
             {
                 return IsEqualsArray((T[])(object)x, (T[])(object)y);
@@ -143,8 +143,8 @@ namespace MyLibrary.Data
                 return false;
             }
 
-            var type1 = x.GetType();
-            var type2 = y.GetType();
+            Type type1 = x.GetType();
+            Type type2 = y.GetType();
 
             #region Приведение типов из Enum
 
@@ -204,8 +204,8 @@ namespace MyLibrary.Data
                 return false;
             }
 
-            var length = blob1.Length;
-            for (var i = 0; i < length; ++i)
+            int length = blob1.Length;
+            for (int i = 0; i < length; ++i)
             {
                 if (!blob1[i].Equals(blob2[i]))
                 {
@@ -250,7 +250,7 @@ namespace MyLibrary.Data
         }
         public static void SetValue(object obj, string memberName, object value)
         {
-            var type = obj.GetType();
+            Type type = obj.GetType();
             MemberInfo[] members;
             while (true)
             {
@@ -268,15 +268,15 @@ namespace MyLibrary.Data
                 throw new NotImplementedException();
             }
 
-            var member = members[0];
+            MemberInfo member = members[0];
             if (member is FieldInfo)
             {
-                var field = member as FieldInfo;
+                FieldInfo field = member as FieldInfo;
                 field.SetValue(obj, value);
             }
             else if (member is PropertyInfo)
             {
-                var property = member as PropertyInfo;
+                PropertyInfo property = member as PropertyInfo;
                 property.SetValue(obj, value, null);
             }
             else
@@ -287,10 +287,10 @@ namespace MyLibrary.Data
 
         public static byte[] CompressText(string value)
         {
-            var data = Encoding.UTF8.GetBytes(value);
-            using (var mem = new MemoryStream())
+            byte[] data = Encoding.UTF8.GetBytes(value);
+            using (MemoryStream mem = new MemoryStream())
             {
-                using (var stream = new DeflateStream(mem, CompressionMode.Compress))
+                using (DeflateStream stream = new DeflateStream(mem, CompressionMode.Compress))
                 {
                     stream.Write(data, 0, data.Length);
                 }
@@ -300,11 +300,11 @@ namespace MyLibrary.Data
         }
         public static string DecompressText(byte[] value)
         {
-            using (var mem = new MemoryStream(value))
-            using (var stream = new DeflateStream(mem, CompressionMode.Decompress))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            using (MemoryStream mem = new MemoryStream(value))
+            using (DeflateStream stream = new DeflateStream(mem, CompressionMode.Decompress))
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
             {
-                var text = reader.ReadToEnd();
+                string text = reader.ReadToEnd();
                 return text;
             }
         }
@@ -318,11 +318,11 @@ namespace MyLibrary.Data
         }
         public static string ToHexText(byte[] value)
         {
-            var charArray = new char[value.Length * 2];
-            var byteIndex = 0;
-            for (var i = 0; i < charArray.Length; i += 2)
+            char[] charArray = new char[value.Length * 2];
+            int byteIndex = 0;
+            for (int i = 0; i < charArray.Length; i += 2)
             {
-                var byteValue = value[byteIndex++];
+                byte byteValue = value[byteIndex++];
                 charArray[i] = ToHexValue(byteValue / 16);
                 charArray[i + 1] = ToHexValue(byteValue % 16);
             }
@@ -335,12 +335,12 @@ namespace MyLibrary.Data
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
 
-            var byteArray = new byte[value.Length / 2];
-            var byteIndex = 0;
-            for (var i = 0; i < value.Length; i += 2)
+            byte[] byteArray = new byte[value.Length / 2];
+            int byteIndex = 0;
+            for (int i = 0; i < value.Length; i += 2)
             {
-                var n1 = FromHexValue(char.ToUpper(value[i]));
-                var n2 = FromHexValue(char.ToUpper(value[i + 1]));
+                int n1 = FromHexValue(char.ToUpper(value[i]));
+                int n2 = FromHexValue(char.ToUpper(value[i + 1]));
                 byteArray[byteIndex++] = (byte)((n1 << 4) | n2);
             }
 
@@ -359,7 +359,7 @@ namespace MyLibrary.Data
                 value = decimal.Zero;
             }
 
-            var text = System.Convert.ToDecimal(value).ToString($"N{decimals}");
+            string text = System.Convert.ToDecimal(value).ToString($"N{decimals}");
             if (text.Length > 0)
             {
                 if (text[0] == '-')
@@ -373,22 +373,22 @@ namespace MyLibrary.Data
         public static string FormattedFileSize(long value)
         {
             string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
-            var order = 0;
-            var len = value;
+            int order = 0;
+            long len = value;
             while (len >= 1024 && order < sizes.Length - 1)
             {
                 order++;
                 len /= 1024;
             }
 
-            var val = value / (decimal)Math.Pow(1024, order);
-            var text = $"{val:0.00} {sizes[order]}".Replace(',', '.');
+            decimal val = value / (decimal)Math.Pow(1024, order);
+            string text = $"{val:0.00} {sizes[order]}".Replace(',', '.');
             return text;
         }
 
         public static decimal Round(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
-            var digit = Convert<decimal>(value);
+            decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals, mode);
         }
         public static decimal? RoundNullableDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
@@ -408,9 +408,9 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static decimal LevenshteinDistancePercent(string value1, string value2)
         {
-            var distance = (decimal)LevenshteinDistance(value1, value2);
-            var maxLength = (decimal)Math.Max(value1.Length, value2.Length);
-            var percent = 100m - (distance / maxLength * 100m);
+            decimal distance = LevenshteinDistance(value1, value2);
+            decimal maxLength = Math.Max(value1.Length, value2.Length);
+            decimal percent = 100m - (distance / maxLength * 100m);
             return percent;
         }
         /// <summary>
@@ -421,9 +421,9 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static int LevenshteinDistance(string value1, string value2)
         {
-            var n = value1.Length;
-            var m = value2.Length;
-            var d = new int[n + 1, m + 1];
+            int n = value1.Length;
+            int m = value2.Length;
+            int[,] d = new int[n + 1, m + 1];
 
             // Step 1
             if (n == 0)
@@ -437,24 +437,24 @@ namespace MyLibrary.Data
             }
 
             // Step 2
-            for (var i = 0; i <= n; d[i, 0] = i++)
+            for (int i = 0; i <= n; d[i, 0] = i++)
             {
                 ;
             }
 
-            for (var j = 0; j <= m; d[0, j] = j++)
+            for (int j = 0; j <= m; d[0, j] = j++)
             {
                 ;
             }
 
             // Step 3
-            for (var i = 1; i <= n; i++)
+            for (int i = 1; i <= n; i++)
             {
                 //Step 4
-                for (var j = 1; j <= m; j++)
+                for (int j = 1; j <= m; j++)
                 {
                     // Step 5
-                    var cost = (value2[j - 1] == value1[i - 1]) ? 0 : 1;
+                    int cost = (value2[j - 1] == value1[i - 1]) ? 0 : 1;
 
                     // Step 6
                     d[i, j] = Math.Min(

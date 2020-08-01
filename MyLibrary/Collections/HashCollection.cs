@@ -6,8 +6,8 @@ namespace MyLibrary.Collections
 {
     internal class HashCollection<T> : ICollection<T>
     {
-        private readonly List<T> _list;
-        private readonly HashSet<T> _hash;
+        private readonly List<T> _list = null;
+        private readonly HashSet<T> _hash = null;
 
         public T this[int index] => _list[index];
         public int Count => _list.Count;

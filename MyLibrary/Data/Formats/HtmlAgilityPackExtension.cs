@@ -7,7 +7,7 @@ namespace MyLibrary.Data.Formats
     {
         public static HtmlDocument Parse(string html)
         {
-            var document = new HtmlDocument();
+            HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
             return document;
         }
@@ -27,8 +27,8 @@ namespace MyLibrary.Data.Formats
                 return collection;
             }
 
-            var newCollection = new HtmlNodeCollection(collection[0].ParentNode);
-            for (var i = 0; i < collection.Count; i++)
+            HtmlNodeCollection newCollection = new HtmlNodeCollection(collection[0].ParentNode);
+            for (int i = 0; i < collection.Count; i++)
             {
                 if (pattern(collection[i]))
                 {
@@ -47,8 +47,8 @@ namespace MyLibrary.Data.Formats
         }
         public static HtmlNodeCollection Find(this HtmlNodeCollection collection, Predicate<HtmlNode> pattern)
         {
-            var newCollection = new HtmlNodeCollection(null);
-            foreach (var node in collection)
+            HtmlNodeCollection newCollection = new HtmlNodeCollection(null);
+            foreach (HtmlNode node in collection)
             {
                 if (pattern(node))
                 {
@@ -57,8 +57,8 @@ namespace MyLibrary.Data.Formats
 
                 if (node.ChildNodes.Count > 0)
                 {
-                    var child_collection = Find(node.ChildNodes, pattern);
-                    foreach (var childNode in child_collection)
+                    HtmlNodeCollection child_collection = Find(node.ChildNodes, pattern);
+                    foreach (HtmlNode childNode in child_collection)
                     {
                         newCollection.Add(childNode);
                     }

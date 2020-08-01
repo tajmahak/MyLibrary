@@ -20,7 +20,7 @@ namespace MyLibrary.Threading
         /// <returns></returns>
         public static ThreadManager Start(int threadsCount, int tasksCount, Action<int> action)
         {
-            var threadManager = new ThreadManager(threadsCount, tasksCount);
+            ThreadManager threadManager = new ThreadManager(threadsCount, tasksCount);
             threadManager.Start(action);
             return threadManager;
         }
@@ -33,7 +33,7 @@ namespace MyLibrary.Threading
         /// <returns></returns>
         public static ThreadManager Start(int threadsCount, int tasksCount, Action<ThreadManager, int> action)
         {
-            var threadManager = new ThreadManager(threadsCount, tasksCount);
+            ThreadManager threadManager = new ThreadManager(threadsCount, tasksCount);
             threadManager.Start(action);
             return threadManager;
         }
@@ -72,11 +72,11 @@ namespace MyLibrary.Threading
         {
             Started?.Invoke(this, EventArgs.Empty);
 
-            var completedThreads = 0;
-            var index = 0;
-            for (var i = 0; i < _threads.Length; i++)
+            int completedThreads = 0;
+            int index = 0;
+            for (int i = 0; i < _threads.Length; i++)
             {
-                var thread = new Thread(() =>
+                Thread thread = new Thread(() =>
                 {
                     try
                     {
@@ -125,7 +125,7 @@ namespace MyLibrary.Threading
             _aborted = true;
             lock (_threads)
             {
-                for (var i = 0; i < _threads.Length; i++)
+                for (int i = 0; i < _threads.Length; i++)
                 {
                     _threads[i].Abort();
                 }
@@ -143,7 +143,7 @@ namespace MyLibrary.Threading
         /// </summary>
         public void Join()
         {
-            for (var i = 0; i < _threads.Length; i++)
+            for (int i = 0; i < _threads.Length; i++)
             {
                 _threads[i].Join();
             }

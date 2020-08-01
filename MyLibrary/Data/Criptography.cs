@@ -1,5 +1,4 @@
-﻿using MyLibrary.Interop;
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -15,7 +14,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] EncryptAES(byte[] data, byte[] key)
         {
-            using (var aes = Aes.Create())
+            using (Aes aes = Aes.Create())
             {
                 aes.KeySize = key.Length * 8;
                 aes.BlockSize = 128;
@@ -24,9 +23,9 @@ namespace MyLibrary.Data
                 aes.Key = key;
                 aes.GenerateIV();
 
-                using (var ms = new MemoryStream())
-                using (var writer = new BinaryWriter(ms))
-                using (var encryptor = aes.CreateEncryptor())
+                using (MemoryStream ms = new MemoryStream())
+                using (BinaryWriter writer = new BinaryWriter(ms))
+                using (ICryptoTransform encryptor = aes.CreateEncryptor())
                 {
                     writer.Write(data.Length);
                     writer.Write(aes.IV);
@@ -43,23 +42,23 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] DecryptAES(byte[] data, byte[] key)
         {
-            using (var aes = Aes.Create())
+            using (Aes aes = Aes.Create())
             {
                 aes.KeySize = key.Length * 8;
                 aes.BlockSize = 128;
                 aes.Padding = PaddingMode.Zeros;
 
-                using (var ms = new MemoryStream(data))
-                using (var reader = new BinaryReader(ms))
+                using (MemoryStream ms = new MemoryStream(data))
+                using (BinaryReader reader = new BinaryReader(ms))
                 {
-                    var dataLength = reader.ReadInt32();
+                    int dataLength = reader.ReadInt32();
 
                     aes.Key = key;
                     aes.IV = reader.ReadBytes(aes.IV.Length);
 
-                    using (var decryptor = aes.CreateDecryptor())
+                    using (ICryptoTransform decryptor = aes.CreateDecryptor())
                     {
-                        var decryptData = reader.ReadBytes((int)(ms.Length - ms.Position));
+                        byte[] decryptData = reader.ReadBytes((int)(ms.Length - ms.Position));
                         decryptData = PerformCryptography(decryptData, decryptor);
 
                         if (decryptData.Length != dataLength)
@@ -80,7 +79,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetMD5Hash(byte[] data)
         {
-            using (var md5 = MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
                 return md5.ComputeHash(data);
             }
@@ -92,7 +91,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetMD5Hash(Stream inputStream)
         {
-            using (var md5 = MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
                 return md5.ComputeHash(inputStream);
             }
@@ -105,7 +104,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetSHA1Hash(byte[] data)
         {
-            using (var sha1 = SHA1.Create())
+            using (SHA1 sha1 = SHA1.Create())
             {
                 return sha1.ComputeHash(data);
             }
@@ -117,7 +116,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetSHA1Hash(Stream inputStream)
         {
-            using (var sha1 = SHA1.Create())
+            using (SHA1 sha1 = SHA1.Create())
             {
                 return sha1.ComputeHash(inputStream);
             }
@@ -130,7 +129,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetSHA256Hash(byte[] data)
         {
-            using (var sha256 = SHA256.Create())
+            using (SHA256 sha256 = SHA256.Create())
             {
                 return sha256.ComputeHash(data);
             }
@@ -142,7 +141,7 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetSHA256Hash(Stream inputStream)
         {
-            using (var sha256 = SHA256.Create())
+            using (SHA256 sha256 = SHA256.Create())
             {
                 return sha256.ComputeHash(inputStream);
             }
@@ -155,11 +154,13 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetCRC32Hash(byte[] data)
         {
-            uint crc32 = 0;
-            crc32 = NativeMethods.RtlComputeCrc32(crc32, data, data.Length);
-            data = BitConverter.GetBytes(crc32);
-            Array.Reverse(data, 0, data.Length);
-            return data;
+            return null;
+            //!!!
+            //uint crc32 = 0;
+            //crc32 = NativeMethods.RtlComputeCrc32(crc32, data, data.Length);
+            //data = BitConverter.GetBytes(crc32);
+            //Array.Reverse(data, 0, data.Length);
+            //return data;
         }
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
@@ -168,18 +169,20 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetCRC32Hash(Stream inputStream)
         {
-            uint crc32 = 0;
-            int readed;
-            var buffer = new byte[4096];
+            return null;
+            //!!!
+            //uint crc32 = 0;
+            //int readed;
+            //byte[] buffer = new byte[4096];
 
-            while ((readed = inputStream.Read(buffer, 0, buffer.Length)) != 0)
-            {
-                crc32 = NativeMethods.RtlComputeCrc32(crc32, buffer, readed);
-            }
+            //while ((readed = inputStream.Read(buffer, 0, buffer.Length)) != 0)
+            //{
+            //    crc32 = NativeMethods.RtlComputeCrc32(crc32, buffer, readed);
+            //}
 
-            var hash = BitConverter.GetBytes(crc32);
-            Array.Reverse(hash, 0, hash.Length);
-            return hash;
+            //byte[] hash = BitConverter.GetBytes(crc32);
+            //Array.Reverse(hash, 0, hash.Length);
+            //return hash;
         }
 
         /// <summary>
@@ -190,8 +193,8 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetRandomBytes(int length, bool nonZero = false)
         {
-            var data = new byte[length];
-            using (var provider = RandomNumberGenerator.Create())
+            byte[] data = new byte[length];
+            using (RandomNumberGenerator provider = RandomNumberGenerator.Create())
             {
                 if (nonZero)
                 {
@@ -207,8 +210,8 @@ namespace MyLibrary.Data
 
         private static byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
-            using (var ms = new MemoryStream())
-            using (var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+            using (MemoryStream ms = new MemoryStream())
+            using (CryptoStream cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
             {
                 cryptoStream.Write(data, 0, data.Length);
                 cryptoStream.FlushFinalBlock();
