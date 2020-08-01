@@ -154,8 +154,8 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetCRC32Hash(byte[] data)
         {
-            return null;
             //!!!
+            throw new NotImplementedException();
             //uint crc32 = 0;
             //crc32 = NativeMethods.RtlComputeCrc32(crc32, data, data.Length);
             //data = BitConverter.GetBytes(crc32);
@@ -169,8 +169,8 @@ namespace MyLibrary.Data
         /// <returns></returns>
         public static byte[] GetCRC32Hash(Stream inputStream)
         {
-            return null;
             //!!!
+            throw new NotImplementedException();
             //uint crc32 = 0;
             //int readed;
             //byte[] buffer = new byte[4096];
