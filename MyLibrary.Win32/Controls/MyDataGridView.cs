@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms.Controls
+namespace MyLibrary.Win32.Controls
 {
     [DebuggerStepThrough]
     public class MyDataGridView : DataGridView

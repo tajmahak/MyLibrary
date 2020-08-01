@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms.Controls
+namespace MyLibrary.Win32.Controls
 {
     public class DataGridViewProgressColumn : DataGridViewImageColumn
     {

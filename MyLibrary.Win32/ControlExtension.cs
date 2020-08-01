@@ -1,11 +1,11 @@
 ﻿using MyLibrary.Data;
-using MyLibrary.Interop;
+using MyLibrary.Win32.Interop;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms
+namespace MyLibrary.Win32
 {
     public static class ControlExtension
     {

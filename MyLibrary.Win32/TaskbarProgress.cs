@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace MyLibrary.WinForms
+namespace MyLibrary.Win32
 {
     public static class TaskbarProgress
     {

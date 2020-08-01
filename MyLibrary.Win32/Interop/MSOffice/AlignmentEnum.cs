@@ -1,4 +1,4 @@
-﻿namespace MyLibrary.Interop.MSOffice
+﻿namespace MyLibrary.Win32.Interop.MSOffice
 {
     public enum VerticalAlignmentEnum
     {

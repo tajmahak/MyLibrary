@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms.Controls
+namespace MyLibrary.Win32.Controls
 {
     [System.Diagnostics.DebuggerStepThrough]
     public class MyTextBox : TextBox

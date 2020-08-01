@@ -3,9 +3,9 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using static MyLibrary.Interop.NativeMethods;
+using static MyLibrary.Win32.Interop.NativeMethods;
 
-namespace MyLibrary.Interop
+namespace MyLibrary.Win32.Interop
 {
     public class ShellThumbnail : IDisposable
     {

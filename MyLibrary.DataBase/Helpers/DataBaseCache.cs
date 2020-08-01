@@ -2,7 +2,7 @@
 using System;
 using System.Text;
 
-namespace MyLibrary.DataBase.Data
+namespace MyLibrary.DataBase.Helpers
 {
     public class DataBaseCache
     {

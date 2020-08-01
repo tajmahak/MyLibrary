@@ -1,7 +1,7 @@
 ﻿using System;
 using E = Microsoft.Office.Interop.Excel;
 
-namespace MyLibrary.Interop.MSOffice
+namespace MyLibrary.Win32.Interop.MSOffice
 {
     public sealed class ExcelRange
     {

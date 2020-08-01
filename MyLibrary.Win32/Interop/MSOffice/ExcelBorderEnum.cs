@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyLibrary.Interop.MSOffice
+namespace MyLibrary.Win32.Interop.MSOffice
 {
     [Flags]
     public enum ExcelBorderEnum

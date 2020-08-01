@@ -1,10 +1,10 @@
-﻿using MyLibrary.Interop;
+﻿using MyLibrary.Win32.Interop;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms.Controls
+namespace MyLibrary.Win32.Controls
 {
     [DefaultEvent(nameof(ClipboardChanged))]
     public class ClipboardMonitor : Control

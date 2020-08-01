@@ -1,7 +1,7 @@
 ﻿using MyLibrary.Data;
 using W = Microsoft.Office.Interop.Word;
 
-namespace MyLibrary.Interop.MSOffice
+namespace MyLibrary.Win32.Interop.MSOffice
 {
     public sealed class WordTable
     {

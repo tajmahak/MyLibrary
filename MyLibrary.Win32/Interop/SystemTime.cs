@@ -1,7 +1,7 @@
 ﻿using System;
-using static MyLibrary.Interop.NativeMethods;
+using static MyLibrary.Win32.Interop.NativeMethods;
 
-namespace MyLibrary.Interop
+namespace MyLibrary.Win32.Interop
 {
     public static class SystemTime
     {

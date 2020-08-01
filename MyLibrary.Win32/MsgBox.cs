@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms
+namespace MyLibrary.Win32
 {
     [System.Diagnostics.DebuggerStepThrough]
     public static class MsgBox

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace MyLibrary.WinForms
+namespace MyLibrary.Win32
 {
     public class DataGridViewRowManager
     {
