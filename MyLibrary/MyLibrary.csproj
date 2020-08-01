@@ -30,6 +30,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>MyLibrary.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\_libs\HtmlAgilityPack.dll</HintPath>
@@ -68,6 +74,9 @@
     <Compile Include="Threading\SafeThread.cs" />
     <Compile Include="Threading\ThreadExtension.cs" />
     <Compile Include="Threading\ThreadManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MyLibrary.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
