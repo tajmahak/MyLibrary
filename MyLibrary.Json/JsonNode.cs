@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyLibrary.Data.Formats
+namespace MyLibrary.Json
 {
     public class JsonNode : IEnumerable<JsonNode>
     {

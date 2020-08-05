@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MyLibrary.Collections
+namespace MyLibrary.Html
 {
     internal class HashCollection<T> : ICollection<T>
     {
