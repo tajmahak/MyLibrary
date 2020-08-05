@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: Guid("3ff31189-430d-439e-b5e4-12d81416c7f6")]
-[assembly: AssemblyTitle("MyLibrary.Html")]
-[assembly: AssemblyProduct("MyLibrary.Html")]
+[assembly: Guid("7c415d8a-a13f-4a1e-befc-db1645ea62ec")]
+[assembly: AssemblyTitle("MyLibrary.DataBase.Firebird")]
+[assembly: AssemblyProduct("MyLibrary.DataBase.Firebird")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

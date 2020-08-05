@@ -5,7 +5,7 @@ namespace MyLibrary.DataBase
     /// <summary>
     /// Предоставляет статические методы для внутреннего использования в пространстве имён <see cref="DataBase"/>.
     /// </summary>
-    internal static class DBInternal
+    public static class DBInternal
     {
         public static TRow CreateOrmRow<TRow>(DBRow row) where TRow : DBOrmRow
         {

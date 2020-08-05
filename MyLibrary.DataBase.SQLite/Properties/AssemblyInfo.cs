@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: Guid("3ff31189-430d-439e-b5e4-12d81416c7f6")]
-[assembly: AssemblyTitle("MyLibrary.Html")]
-[assembly: AssemblyProduct("MyLibrary.Html")]
+[assembly: Guid("e333c3e6-9566-4a8c-9c8f-00b744eac138")]
+[assembly: AssemblyTitle("MyLibrary.DataBase.SQLite")]
+[assembly: AssemblyProduct("MyLibrary.DataBase.SQLite")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

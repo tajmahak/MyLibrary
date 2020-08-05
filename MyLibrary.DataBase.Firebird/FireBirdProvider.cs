@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 
-namespace MyLibrary.DataBase
+namespace MyLibrary.DataBase.Firebird
 {
     /// <summary>
     /// Модель БД "FireBird".

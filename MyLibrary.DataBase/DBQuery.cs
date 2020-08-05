@@ -29,8 +29,8 @@ namespace MyLibrary.DataBase
         public StatementType StatementType { get; protected set; }
         public bool IsView { get; protected set; }
         public DBTable Table { get; private set; }
-        protected internal DBContext Context { get; private set; }
-        protected internal DBQueryStructureBlockCollection Structure { get; private set; } = new DBQueryStructureBlockCollection();
+        public DBContext Context { get; private set; }
+        public DBQueryStructureBlockCollection Structure { get; private set; } = new DBQueryStructureBlockCollection();
 
         // Работа с контекстом БД
         public DBReader<DBRow> Read()

@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLibrary.Json", "MyLibrary
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLibrary.MSOffice", "MyLibrary.MSOffice\MyLibrary.MSOffice.csproj", "{7786C7C8-DF0F-4645-8677-667017E79398}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLibrary.DataBase.Firebird", "MyLibrary.DataBase.Firebird\MyLibrary.DataBase.Firebird.csproj", "{7C415D8A-A13F-4A1E-BEFC-DB1645EA62EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLibrary.DataBase.SQLite", "MyLibrary.DataBase.SQLite\MyLibrary.DataBase.SQLite.csproj", "{E333C3E6-9566-4A8C-9C8F-00B744EAC138}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{7786C7C8-DF0F-4645-8677-667017E79398}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7786C7C8-DF0F-4645-8677-667017E79398}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7786C7C8-DF0F-4645-8677-667017E79398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C415D8A-A13F-4A1E-BEFC-DB1645EA62EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C415D8A-A13F-4A1E-BEFC-DB1645EA62EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C415D8A-A13F-4A1E-BEFC-DB1645EA62EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C415D8A-A13F-4A1E-BEFC-DB1645EA62EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E333C3E6-9566-4A8C-9C8F-00B744EAC138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E333C3E6-9566-4A8C-9C8F-00B744EAC138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E333C3E6-9566-4A8C-9C8F-00B744EAC138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E333C3E6-9566-4A8C-9C8F-00B744EAC138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

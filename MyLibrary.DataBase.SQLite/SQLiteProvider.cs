@@ -1,78 +1,36 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Text;
 
-namespace MyLibrary.DataBase
+namespace MyLibrary.DataBase.SQLite
 {
     /// <summary>
-    /// Модель БД "Microsoft SQL Server"
+    /// Модель БД "SQLite".
     /// </summary>
-    public sealed class MSSQLServerProvider : DBProvider
+    public sealed class SQLiteProvider : DBProvider
     {
-        public MSSQLServerProvider()
+        public SQLiteProvider()
         {
             OpenBlock = "[";
             CloseBlock = "]";
         }
 
-        protected override string GetInsertCommandText(DBTable table)
-        {
-            StringBuilder sql = new StringBuilder();
-
-            sql.Concat("INSERT INTO ", GetShortName(table.Name), "(");
-
-            int index = 0;
-            foreach (DBColumn column in table.Columns)
-            {
-                if (index > 0)
-                {
-                    sql.Concat(',');
-                }
-                if (!column.IsPrimary)
-                {
-                    sql.Concat(GetShortName(column.Name));
-                    index++;
-                }
-            }
-
-            sql.Concat(") OUTPUT INSERTED.", GetShortName(table.PrimaryKeyColumn.Name), " VALUES(");
-
-            index = 0;
-            foreach (DBColumn column in table.Columns)
-            {
-                if (index > 0)
-                {
-                    sql.Concat(',');
-                }
-                if (!column.IsPrimary)
-                {
-                    sql.Concat("@p", index);
-                    index++;
-                }
-            }
-
-            sql.Concat(")");
-
-            return sql.ToString();
-        }
-        public override DbParameter CreateParameter(string name, object value)
-        {
-            return new SqlParameter(name, value);
-        }
         public override void FillTableSchema(DbConnection dbConnection)
         {
             using (DataTable tableSchema = dbConnection.GetSchema("Tables"))
             {
                 foreach (DataRow tableRow in tableSchema.Rows)
                 {
-                    DBTable table = new DBTable()
+                    if ((string)tableRow["TABLE_TYPE"] != "SYSTEM_TABLE")
                     {
-                        Name = (string)tableRow["TABLE_NAME"]
-                    };
-                    Tables.Add(table);
+                        DBTable table = new DBTable()
+                        {
+                            Name = (string)tableRow["TABLE_NAME"]
+                        };
+                        Tables.Add(table);
+                    }
                 }
             }
 
@@ -80,8 +38,8 @@ namespace MyLibrary.DataBase
             {
                 foreach (DBTable table in Tables)
                 {
-                    string query = string.Concat("SELECT TOP 0 * FROM [", table.Name, "]");
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(query, (SqlConnection)dbConnection))
+                    string query = string.Concat("SELECT * FROM \"", table.Name, "\" LIMIT 0");
+                    using (SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, (SQLiteConnection)dbConnection))
                     {
                         dataAdapter.Fill(dataSet, 0, 0, table.Name);
                     }
@@ -116,36 +74,38 @@ namespace MyLibrary.DataBase
                         string columnName = (string)columnRow["COLUMN_NAME"];
                         DBColumn column = table.Columns.Find(x => x.Name == columnName);
 
-                        column.NotNull = (string)columnRow["IS_NULLABLE"] == "NO";
+                        column.NotNull = (bool)columnRow["IS_NULLABLE"] == false;
                         string defaultValue = columnRow["COLUMN_DEFAULT"].ToString();
                         if (defaultValue.Length > 0)
                         {
-                            defaultValue = defaultValue.Trim('(', ')', '\'');
                             column.DefaultValue = Convert.ChangeType(defaultValue, column.DataType);
                         }
-                        if (columnRow["CHARACTER_MAXIMUM_LENGTH"] is int maximumLength)
+                        column.Size = (int)columnRow["CHARACTER_MAXIMUM_LENGTH"];
+                        object description = columnRow["DESCRIPTION"];
+                        if (description != DBNull.Value)
                         {
-                            column.Size = maximumLength;
+                            column.Description = (string)description;
+                        }
+                        if ((bool)columnRow["PRIMARY_KEY"])
+                        {
+                            column.IsPrimary = true;
+                            table.PrimaryKeyColumn = column;
                         }
                     }
                 }
             }
-
-            using (DataTable primaryKeySchema = dbConnection.GetSchema("IndexColumns"))
+        }
+        public override DbParameter CreateParameter(string name, object value)
+        {
+            return new SQLiteParameter(name, value);
+        }
+        public override object ExecuteInsertCommand(DbCommand dbCommand)
+        {
+            SQLiteConnection dbConnection = (SQLiteConnection)dbCommand.Connection;
+            lock (dbConnection)
             {
-                foreach (DataRow primaryKeyRow in primaryKeySchema.Rows)
-                {
-                    if ((byte)primaryKeyRow["KeyType"] == 56)
-                    {
-                        string tableName = (string)primaryKeyRow["table_name"];
-                        DBTable table = Tables[tableName];
-
-                        string columnName = (string)primaryKeyRow["column_name"];
-                        DBColumn column = table.Columns.Find(x => x.Name == columnName);
-                        column.IsPrimary = true;
-                        table.PrimaryKeyColumn = column;
-                    }
-                }
+                dbCommand.ExecuteNonQuery();
+                return dbConnection.LastInsertRowId;
             }
         }
         public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
@@ -175,7 +135,7 @@ namespace MyLibrary.DataBase
                 block = query.Structure.Find(DBQueryStructureType.Limit);
                 if (block != null)
                 {
-                    sql.Insert(6, string.Concat(" TOP ", block[0]));
+                    sql.Insert(6, string.Concat(" FIRST ", block[0]));
                 }
 
                 PrepareJoinBlock(sql, query);
