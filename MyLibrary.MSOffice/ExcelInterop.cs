@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MyLibrary.Win32.Interop;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using E = Microsoft.Office.Interop.Excel;
 
-namespace MyLibrary.Win32.Interop.MSOffice
+namespace MyLibrary.MSOffice
 {
     public sealed class ExcelInterop : IDisposable
     {
