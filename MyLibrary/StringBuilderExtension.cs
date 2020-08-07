@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     public static class StringBuilderExtension
     {

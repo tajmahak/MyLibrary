@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     public class DbfReader : IDisposable, IEnumerable<DBFRow>, IEnumerator<DBFRow>
     {

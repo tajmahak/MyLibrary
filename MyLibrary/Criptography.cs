@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     public static class Cryptography
     {

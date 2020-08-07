@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -136,7 +135,7 @@ namespace MyLibrary.DataBase
             using (DbCommand dbCommand = Context.Provider.CreateCommand(Context.Connection, this))
             {
                 object value = dbCommand.ExecuteScalar();
-                return Format.Convert<TValue>(value);
+                return Data.Convert<TValue>(value);
             }
         }
         public bool ReadBoolean()

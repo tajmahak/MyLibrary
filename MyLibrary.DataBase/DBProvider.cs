@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -1238,7 +1237,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 2)
                     {
                         string arg = getArgument(2);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(" ESCAPE ", arg);
                         }
@@ -1258,7 +1257,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 2)
                     {
                         string arg = getArgument(2);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(" ESCAPE ", arg);
                         }
@@ -1330,7 +1329,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 2)
                     {
                         string arg = getArgument(2);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(",", arg);
                         }
@@ -1343,7 +1342,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 3)
                     {
                         string arg = getArgument(3);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(" FOR ", arg);
                         }
@@ -1368,7 +1367,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 2)
                     {
                         string arg = getArgument(2);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(",", arg);
                         }
@@ -1381,7 +1380,7 @@ namespace MyLibrary.DataBase
                     if (argumentsCount > 2)
                     {
                         string arg = getArgument(2);
-                        if (!Format.IsEmpty(arg))
+                        if (!Data.IsEmpty(arg))
                         {
                             sql.Concat(" FOR ", arg);
                         }

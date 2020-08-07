@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     /// <summary>
     /// Представляет методы сортировки

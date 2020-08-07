@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -76,8 +75,8 @@ namespace MyLibrary.Win32.Controls
             {
                 SortOrder sortOrder = (direction == ListSortDirection.Ascending) ? SortOrder.Ascending : SortOrder.Descending;
 
-                Format.SetValue(this, "sortedColumn", dataGridViewColumn);
-                Format.SetValue(this, "sortOrder", sortOrder);
+                Data.SetValue(this, "sortedColumn", dataGridViewColumn);
+                Data.SetValue(this, "sortOrder", sortOrder);
                 for (int i = 0; i < Columns.Count; i++)
                 {
                     DataGridViewColumn column = Columns[i];
@@ -110,7 +109,7 @@ namespace MyLibrary.Win32.Controls
                     }
                     else
                     {
-                        return Format.Compare(cellValue1, cellValue2);
+                        return Data.Compare(cellValue1, cellValue2);
                     }
                 });
 

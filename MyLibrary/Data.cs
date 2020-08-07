@@ -5,12 +5,12 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     /// <summary>
     /// Представляет набор методов для работы с данными
     /// </summary>
-    public static class Format
+    public static class Data
     {
         public static T Convert<T>(object value)
         {

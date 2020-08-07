@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using MyLibrary.Win32.Interop;
+﻿using MyLibrary.Win32.Interop;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -101,7 +100,7 @@ namespace MyLibrary.MSOffice
         }
         public void ReplaceText(object text, object replaceText)
         {
-            ReplaceText(Format.Convert<string>(text), Format.Convert<string>(replaceText));
+            ReplaceText(Data.Convert<string>(text), Data.Convert<string>(replaceText));
         }
         public WordTable GetTable(int index)
         {

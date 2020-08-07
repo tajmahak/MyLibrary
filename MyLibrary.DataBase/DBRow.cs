@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Data;
 
 namespace MyLibrary.DataBase
@@ -53,7 +52,7 @@ namespace MyLibrary.DataBase
         public TValue GetValue<TValue>(int columnIndex)
         {
             object value = Values[columnIndex];
-            return Format.Convert<TValue>(value);
+            return Data.Convert<TValue>(value);
         }
         public bool GetBoolean(string columnName)
         {
@@ -180,7 +179,7 @@ namespace MyLibrary.DataBase
         public bool IsNull(int columnIndex)
         {
             object value = Values[columnIndex];
-            return Format.IsNull(value);
+            return Data.IsNull(value);
         }
 
         public void SetNotNull(string columnName)
@@ -221,7 +220,7 @@ namespace MyLibrary.DataBase
             {
                 if (column.NotNull)
                 {
-                    value = Format.GetNotNullValue(column.DataType);
+                    value = Data.GetNotNullValue(column.DataType);
                 }
             }
             else
@@ -259,7 +258,7 @@ namespace MyLibrary.DataBase
                 }
                 else if (value is byte[] array && prevValue is byte[] prevArray)
                 {
-                    modified = !Format.IsEqualsArray(array, prevArray);
+                    modified = !Data.IsEqualsArray(array, prevArray);
                 }
 
                 if (modified)
@@ -277,7 +276,7 @@ namespace MyLibrary.DataBase
                 object value = Values[column.OrderIndex];
                 if (value is DBNull)
                 {
-                    value = Format.GetNotNullValue(column.DataType);
+                    value = Data.GetNotNullValue(column.DataType);
                     SetValue(column, value);
                 }
             }

@@ -45,14 +45,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\HashCollection.cs" />
-    <Compile Include="Data\Criptography.cs" />
-    <Compile Include="Data\Format.cs" />
-    <Compile Include="Data\DbfReader.cs" />
-    <Compile Include="Data\ImageManager.cs" />
-    <Compile Include="Data\PathExtension.cs" />
-    <Compile Include="Data\Serializer.cs" />
-    <Compile Include="Data\Sorting.cs" />
-    <Compile Include="Data\StringBuilderExtension.cs" />
+    <Compile Include="Criptography.cs" />
+    <Compile Include="Data.cs" />
+    <Compile Include="DbfReader.cs" />
+    <Compile Include="ImageManager.cs" />
+    <Compile Include="PathExtension.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="Sorting.cs" />
+    <Compile Include="StringBuilderExtension.cs" />
     <Compile Include="Net\HttpConnection.cs" />
     <Compile Include="Net\IPostDataContent.cs" />
     <Compile Include="Net\PostDataBytesContent.cs" />

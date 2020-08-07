@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -169,7 +168,7 @@ namespace MyLibrary.Win32
 
         public static T GetValue<T>(this DataGridViewCell gridCell)
         {
-            T value = Format.Convert<T>(gridCell.Value);
+            T value = Data.Convert<T>(gridCell.Value);
             return value;
         }
         public static T GetValue<T>(this DataGridViewRow gridRow, int columnIndex)
@@ -269,7 +268,7 @@ namespace MyLibrary.Win32
                 {
                     object value = gridCell.Value;
                     string text = (value == null) ? string.Empty : value.ToString();
-                    if (!Format.IsEquals(editingControl.Text, text))
+                    if (!Data.IsEquals(editingControl.Text, text))
                     {
                         editingControl.Text = text;
                     }
@@ -291,7 +290,7 @@ namespace MyLibrary.Win32
             }
 
             string text = editingControl.Text;
-            if (text == Format.ConvertToNotNullString(gridCell.Value))
+            if (text == Data.ConvertToNotNullString(gridCell.Value))
             {
                 return false;
             }

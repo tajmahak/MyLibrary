@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MyLibrary.Data
+namespace MyLibrary
 {
     public static class PathExtension
     {

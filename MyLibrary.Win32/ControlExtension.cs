@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using MyLibrary.Win32.Interop;
+﻿using MyLibrary.Win32.Interop;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -107,7 +106,7 @@ namespace MyLibrary.Win32
         /// <param name="value"></param>
         public static void SetDoubleBuffer(Control control, bool value)
         {
-            Format.SetValue(control, "DoubleBuffered", value);
+            Data.SetValue(control, "DoubleBuffered", value);
         }
     }
 }

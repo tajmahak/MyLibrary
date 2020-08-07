@@ -1,5 +1,4 @@
 ﻿using FirebirdSql.Data.FirebirdClient;
-using MyLibrary.Data;
 using System;
 using System.Data;
 using System.Data.Common;

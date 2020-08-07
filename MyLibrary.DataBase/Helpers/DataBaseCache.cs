@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using System;
+﻿using System;
 using System.Text;
 
 namespace MyLibrary.DataBase.Helpers
@@ -54,7 +53,7 @@ namespace MyLibrary.DataBase.Helpers
             return new CacheContent<string>
             {
                 CreateTime = content.CreateTime,
-                Data = Format.DecompressText(content.Data),
+                Data = Data.DecompressText(content.Data),
             };
         }
         public void SaveData(string key, byte[] data)
@@ -72,7 +71,7 @@ namespace MyLibrary.DataBase.Helpers
         }
         public void SaveString(string key, string text)
         {
-            byte[] data = Format.CompressText(text);
+            byte[] data = Data.CompressText(text);
             SaveData(key, data);
         }
         public void Clear(DateTime limitDate)
@@ -89,7 +88,7 @@ namespace MyLibrary.DataBase.Helpers
         {
             byte[] data = Encoding.UTF8.GetBytes(text);
             data = Cryptography.GetMD5Hash(data);
-            return Format.ToHexText(data);
+            return Data.ToHexText(data);
         }
     }
 

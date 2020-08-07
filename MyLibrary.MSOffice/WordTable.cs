@@ -1,5 +1,4 @@
-﻿using MyLibrary.Data;
-using W = Microsoft.Office.Interop.Word;
+﻿using W = Microsoft.Office.Interop.Word;
 
 namespace MyLibrary.MSOffice
 {
@@ -18,7 +17,7 @@ namespace MyLibrary.MSOffice
         public object this[int rowIndex, int columnIndex]
         {
             get => GetValue(rowIndex, columnIndex);
-            set => SetValue(rowIndex, columnIndex, Format.Convert<string>(value));
+            set => SetValue(rowIndex, columnIndex, Data.Convert<string>(value));
         }
 
         public void SetValue(int rowIndex, int columnIndex, string text)
@@ -28,7 +27,7 @@ namespace MyLibrary.MSOffice
         }
         public void SetValue(int rowIndex, int columnIndex, object value)
         {
-            SetValue(rowIndex, columnIndex, Format.Convert<string>(value));
+            SetValue(rowIndex, columnIndex, Data.Convert<string>(value));
         }
 
         public void MergeCells(int rowIndex, int columnIndex, int rowsCount, int columnsCount)
