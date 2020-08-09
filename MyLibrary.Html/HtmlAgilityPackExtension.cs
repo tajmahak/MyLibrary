@@ -16,10 +16,12 @@ namespace MyLibrary.Html
         {
             return Filter(document.DocumentNode, pattern);
         }
+
         public static HtmlNodeCollection Filter(this HtmlNode node, Predicate<HtmlNode> pattern)
         {
             return Filter(node.ChildNodes, pattern);
         }
+
         public static HtmlNodeCollection Filter(this HtmlNodeCollection collection, Predicate<HtmlNode> pattern)
         {
             if (collection.Count == 0)
@@ -37,14 +39,17 @@ namespace MyLibrary.Html
             }
             return newCollection;
         }
+
         public static HtmlNodeCollection Find(this HtmlDocument document, Predicate<HtmlNode> pattern)
         {
             return Find(document.DocumentNode, pattern);
         }
+
         public static HtmlNodeCollection Find(this HtmlNode node, Predicate<HtmlNode> pattern)
         {
             return Find(node.ChildNodes, pattern);
         }
+
         public static HtmlNodeCollection Find(this HtmlNodeCollection collection, Predicate<HtmlNode> pattern)
         {
             HtmlNodeCollection newCollection = new HtmlNodeCollection(null);
@@ -71,6 +76,7 @@ namespace MyLibrary.Html
         {
             return node.Attributes.Contains(name);
         }
+
         public static bool HasAttribute(this HtmlNode node, string name, string value)
         {
             if (!node.Attributes.Contains(name))
@@ -80,10 +86,12 @@ namespace MyLibrary.Html
 
             return node.Attributes[name].Value == value;
         }
+
         public static bool HasClass(this HtmlNode node, string value)
         {
             return HasAttribute(node, "class", value);
         }
+
         public static string GetAttributeValue(this HtmlNode node, string name)
         {
             return node.Attributes[name].Value;

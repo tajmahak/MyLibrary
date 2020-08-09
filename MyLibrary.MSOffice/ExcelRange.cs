@@ -1,48 +1,50 @@
 ﻿using System;
-using E = Microsoft.Office.Interop.Excel;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace MyLibrary.MSOffice
 {
     public sealed class ExcelRange
     {
-        public E.Range Range { get; private set; }
+        public Excel.Range Range { get; private set; }
         public int RowsCount => Range.Rows.Count;
         public int ColumnsCount => Range.Columns.Count;
 
-        public ExcelRange(E.Range eRange)
+        public ExcelRange(Excel.Range eRange)
         {
             Range = eRange;
         }
 
         public void SetBorder(int weight = 2)
         {
-            E.Borders eBorder = Range.Borders;
+            Excel.Borders eBorder = Range.Borders;
             eBorder.Weight = weight;
         }
+
         public void SetBorder(int weight, ExcelBorderEnum border)
         {
-            E.Borders eBorder = Range.Borders;
+            Excel.Borders eBorder = Range.Borders;
             if (border.HasFlag(ExcelBorderEnum.Top))
             {
-                eBorder[E.XlBordersIndex.xlEdgeTop].LineStyle = E.XlLineStyle.xlContinuous;
-                eBorder[E.XlBordersIndex.xlEdgeTop].Weight = weight;
+                eBorder[Excel.XlBordersIndex.xlEdgeTop].LineStyle = Excel.XlLineStyle.xlContinuous;
+                eBorder[Excel.XlBordersIndex.xlEdgeTop].Weight = weight;
             }
             if (border.HasFlag(ExcelBorderEnum.Bottom))
             {
-                eBorder[E.XlBordersIndex.xlEdgeBottom].LineStyle = E.XlLineStyle.xlContinuous;
-                eBorder[E.XlBordersIndex.xlEdgeBottom].Weight = weight;
+                eBorder[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                eBorder[Excel.XlBordersIndex.xlEdgeBottom].Weight = weight;
             }
             if (border.HasFlag(ExcelBorderEnum.Left))
             {
-                eBorder[E.XlBordersIndex.xlEdgeLeft].LineStyle = E.XlLineStyle.xlContinuous;
-                eBorder[E.XlBordersIndex.xlEdgeLeft].Weight = weight;
+                eBorder[Excel.XlBordersIndex.xlEdgeLeft].LineStyle = Excel.XlLineStyle.xlContinuous;
+                eBorder[Excel.XlBordersIndex.xlEdgeLeft].Weight = weight;
             }
             if (border.HasFlag(ExcelBorderEnum.Right))
             {
-                eBorder[E.XlBordersIndex.xlEdgeRight].LineStyle = E.XlLineStyle.xlContinuous;
-                eBorder[E.XlBordersIndex.xlEdgeRight].Weight = weight;
+                eBorder[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                eBorder[Excel.XlBordersIndex.xlEdgeRight].Weight = weight;
             }
         }
+
         public void SetFont(int size = -1, bool bold = false)
         {
             Range.Font.Bold = bold;
@@ -51,38 +53,42 @@ namespace MyLibrary.MSOffice
                 Range.Font.Size = size;
             }
         }
+
         public void SetAlignment(HorizontalAlignmentEnum horizontalAlignment = HorizontalAlignmentEnum.Left, VerticalAlignmentEnum verticalAlignment = VerticalAlignmentEnum.Top)
         {
-            E.Style eStyle = (E.Style)Range.Style;
+            Excel.Style eStyle = (Excel.Style)Range.Style;
             switch (horizontalAlignment)
             {
                 case HorizontalAlignmentEnum.Left:
-                    eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignLeft; break;
+                    eStyle.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft; break;
                 case HorizontalAlignmentEnum.Center:
-                    eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignCenter; break;
+                    eStyle.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter; break;
                 case HorizontalAlignmentEnum.Justify:
-                    eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignJustify; break;
+                    eStyle.HorizontalAlignment = Excel.XlHAlign.xlHAlignJustify; break;
                 case HorizontalAlignmentEnum.Right:
-                    eStyle.HorizontalAlignment = E.XlHAlign.xlHAlignRight; break;
+                    eStyle.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight; break;
             }
             switch (verticalAlignment)
             {
                 case VerticalAlignmentEnum.Top:
-                    eStyle.VerticalAlignment = E.XlVAlign.xlVAlignTop; break;
+                    eStyle.VerticalAlignment = Excel.XlVAlign.xlVAlignTop; break;
                 case VerticalAlignmentEnum.Center:
-                    eStyle.VerticalAlignment = E.XlVAlign.xlVAlignCenter; break;
+                    eStyle.VerticalAlignment = Excel.XlVAlign.xlVAlignCenter; break;
                 case VerticalAlignmentEnum.Bottom:
-                    eStyle.VerticalAlignment = E.XlVAlign.xlVAlignBottom; break;
+                    eStyle.VerticalAlignment = Excel.XlVAlign.xlVAlignBottom; break;
             }
         }
+
         public void Merge()
         {
             Range.Merge();
         }
+
         public void SetValues(object[,] values)
         {
-            Range.set_Value(E.XlRangeValueDataType.xlRangeValueDefault, values);
+            Range.set_Value(Excel.XlRangeValueDataType.xlRangeValueDefault, values);
         }
+
         public void SetCellValueFormat(ExcelCellValueFormatEnum format)
         {
             switch (format)
@@ -91,6 +97,7 @@ namespace MyLibrary.MSOffice
                     Range.Cells.NumberFormat = "@"; break;
             }
         }
+
         public object[,] GetValues()
         {
             object[,] eValues = (object[,])Range.Value2;

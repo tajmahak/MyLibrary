@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -22,25 +23,30 @@ namespace MyLibrary.Json
 
         public string Name { get; set; }
         public string Value { get; set; }
-
         public JsonNode Parent { get; set; }
         public JsonNodeCollection Childs
         {
             get
             {
-                if (_childs != null)
+                if (childs != null)
                 {
-                    return _childs;
+                    return childs;
                 }
 
                 return new JsonNodeCollection(0); // чтобы не было исключения при использовании foreach
             }
-            set => _childs = value;
+            set => childs = value;
         }
-        public bool HasChilds => (_childs != null && _childs.Count > 0);
-
+        public bool HasChilds => (childs != null && childs.Count > 0);
         public JsonNode this[int index] => Childs[index];
         public JsonNode this[string name] => Childs[name];
+        private JsonNodeCollection childs; // сделано для уменьшения потребления ОЗУ
+
+
+        public IEnumerator<JsonNode> GetEnumerator()
+        {
+            return Childs.GetEnumerator();
+        }
 
         public override string ToString()
         {
@@ -58,7 +64,6 @@ namespace MyLibrary.Json
             return str.TrimStart();
         }
 
-        #region Скрытые сущности
 
         // Преобразование JSON перед парсингом для избежания ошибки "Bad JSON escape sequence..."
         // Источник: https://github.com/JamesNK/Newtonsoft.Json/issues/980
@@ -140,6 +145,7 @@ namespace MyLibrary.Json
             }
             return builder.ToString();
         }
+
         private static string EncodeJSString(string sInput)
         {
             StringBuilder builder;
@@ -169,6 +175,7 @@ namespace MyLibrary.Json
             }
             return builder.ToString();
         }
+
         private static int HexToInt(char h)
         {
             if (h < 0x30 || h > 0x39)
@@ -186,7 +193,6 @@ namespace MyLibrary.Json
             return (h - 0x30);
         }
 
-        private JsonNodeCollection _childs; // сделано для уменьшения потребления ОЗУ
         private static void ParseNode(JsonNode node, JToken token)
         {
             #region JProperty
@@ -221,26 +227,14 @@ namespace MyLibrary.Json
             #endregion
         }
 
-        public IEnumerator<JsonNode> GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return Childs.GetEnumerator();
         }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Childs.GetEnumerator();
-        }
-
-        #endregion
     }
+
     public class JsonNodeCollection : List<JsonNode>
     {
-        public JsonNodeCollection()
-        {
-        }
-        public JsonNodeCollection(int capacity) : base(capacity)
-        {
-        }
-
         public JsonNode this[string name]
         {
             get
@@ -255,6 +249,15 @@ namespace MyLibrary.Json
                 }
                 return null;
             }
+        }
+
+
+        public JsonNodeCollection()
+        {
+        }
+
+        public JsonNodeCollection(int capacity) : base(capacity)
+        {
         }
     }
 }

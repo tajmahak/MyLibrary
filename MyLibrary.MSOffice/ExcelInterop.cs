@@ -3,50 +3,29 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using E = Microsoft.Office.Interop.Excel;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace MyLibrary.MSOffice
 {
     public sealed class ExcelInterop : IDisposable
     {
-
-        public E.Application Application { get; private set; }
-        public E.Workbook Workbook { get; private set; }
-        public E.Worksheet Worksheet { get; private set; }
+        public Excel.Application Application { get; private set; }
+        public Excel.Workbook Workbook { get; private set; }
+        public Excel.Worksheet Worksheet { get; private set; }
         public int SheetsCount => Workbook.Sheets.Count;
         public int SheetRowsCount => Worksheet.UsedRange.Rows.Count;
         public int SheetColumnsCount => Worksheet.UsedRange.Columns.Count;
+        private bool disposed;
+
 
         public ExcelInterop()
         {
-            Application = new E.Application();
+            Application = new Excel.Application();
             SetVisibleMode(false);
             Application.UserControl = true;
             Application.DisplayAlerts = false;
         }
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                if (Application != null)
-                {
-                    Marshal.FinalReleaseComObject(Application);
-                }
-                if (Workbook != null)
-                {
-                    Marshal.FinalReleaseComObject(Workbook);
-                }
-                if (Worksheet != null)
-                {
-                    Marshal.FinalReleaseComObject(Worksheet);
-                }
-                _disposed = true;
-            }
-        }
-        ~ExcelInterop()
-        {
-            Dispose();
-        }
+
 
         public void OpenWorkbook(string path, bool readOnly = false)
         {
@@ -55,16 +34,19 @@ namespace MyLibrary.MSOffice
                 ReadOnly: readOnly);
             OpenSheet(0);
         }
+
         public void CreateWorkbook(int sheetsCount = 1)
         {
             Application.SheetsInNewWorkbook = sheetsCount;
             Workbook = Application.Workbooks.Add();
             OpenSheet(0);
         }
+
         public void OpenSheet(int index)
         {
-            Worksheet = (E.Worksheet)Workbook.Sheets[index + 1];
+            Worksheet = (Excel.Worksheet)Workbook.Sheets[index + 1];
         }
+
         public void CloseApplication(bool saveChanges)
         {
             Process process = GetApplicationProcess();
@@ -75,6 +57,7 @@ namespace MyLibrary.MSOffice
 
             process?.Kill(); // процесс не завершается после закрытия приложения
         }
+
         public void SetSheetName(string name)
         {
             if (name.Length > 31)
@@ -83,6 +66,7 @@ namespace MyLibrary.MSOffice
             }
             Worksheet.Name = name;
         }
+
         public void SetVisibleMode(bool visible)
         {
             Application.Visible = visible;
@@ -100,6 +84,7 @@ namespace MyLibrary.MSOffice
                 }
             }
         }
+
         public void SetCellValueFormat(ExcelCellValueFormatEnum format)
         {
             switch (format)
@@ -108,10 +93,12 @@ namespace MyLibrary.MSOffice
                     Worksheet.Cells.NumberFormat = "@"; break;
             }
         }
+
         public void AutoFitColumns()
         {
             Worksheet.Columns.AutoFit();
         }
+
         public ExcelRange GetRange(int rowIndex, int columnIndex, int rowsCount = 1, int columnsCount = 1)
         {
             dynamic eCell1 = Worksheet.Cells[rowIndex + 1, columnIndex + 1];
@@ -126,10 +113,12 @@ namespace MyLibrary.MSOffice
                 return new ExcelRange(eRange);
             }
         }
+
         public ExcelRange GetWorksheetUsedRange()
         {
             return new ExcelRange(Worksheet.UsedRange);
         }
+
         public Process GetApplicationProcess()
         {
             IntPtr handle = (IntPtr)Application.Hwnd;
@@ -142,6 +131,30 @@ namespace MyLibrary.MSOffice
             return null;
         }
 
-        private bool _disposed;
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                if (Application != null)
+                {
+                    Marshal.FinalReleaseComObject(Application);
+                }
+                if (Workbook != null)
+                {
+                    Marshal.FinalReleaseComObject(Workbook);
+                }
+                if (Worksheet != null)
+                {
+                    Marshal.FinalReleaseComObject(Worksheet);
+                }
+                disposed = true;
+            }
+        }
+
+
+        ~ExcelInterop()
+        {
+            Dispose();
+        }
     }
 }

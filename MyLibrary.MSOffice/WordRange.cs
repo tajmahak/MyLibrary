@@ -1,39 +1,44 @@
 ﻿using System.Drawing;
-using W = Microsoft.Office.Interop.Word;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace MyLibrary.MSOffice
 {
     public sealed class WordRange
     {
-        public W.Range Range { get; private set; }
+        public Word.Range Range { get; private set; }
 
-        public WordRange(W.Range wRange)
+
+        public WordRange(Word.Range wRange)
         {
             Range = wRange;
         }
+
 
         public void SetFontColor(Color color)
         {
             Range.Font.Color = GetColor(color);
         }
+
         public void SetBackgrondColor(Color color)
         {
             Range.Shading.BackgroundPatternColor = GetColor(color);
         }
+
         public void SetAlignment(HorizontalAlignmentEnum alignment = HorizontalAlignmentEnum.Left)
         {
             switch (alignment)
             {
                 case HorizontalAlignmentEnum.Left:
-                    Range.ParagraphFormat.Alignment = W.WdParagraphAlignment.wdAlignParagraphLeft; break;
+                    Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft; break;
                 case HorizontalAlignmentEnum.Center:
-                    Range.ParagraphFormat.Alignment = W.WdParagraphAlignment.wdAlignParagraphCenter; break;
+                    Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter; break;
                 case HorizontalAlignmentEnum.Justify:
-                    Range.ParagraphFormat.Alignment = W.WdParagraphAlignment.wdAlignParagraphJustify; break;
+                    Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphJustify; break;
                 case HorizontalAlignmentEnum.Right:
-                    Range.ParagraphFormat.Alignment = W.WdParagraphAlignment.wdAlignParagraphRight; break;
+                    Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphRight; break;
             }
         }
+
         public void SetFont(string name = null, float? size = null, bool? bold = null, bool? italic = null, bool? underline = null)
         {
             if (name != null)
@@ -54,13 +59,14 @@ namespace MyLibrary.MSOffice
             }
             if (underline != null)
             {
-                Range.Font.Underline = underline.Value ? W.WdUnderline.wdUnderlineSingle : W.WdUnderline.wdUnderlineNone;
+                Range.Font.Underline = underline.Value ? Word.WdUnderline.wdUnderlineSingle : Word.WdUnderline.wdUnderlineNone;
             }
         }
 
-        private static W.WdColor GetColor(Color color)
+
+        private static Word.WdColor GetColor(Color color)
         {
-            W.WdColor wColor = (W.WdColor)(color.R + (0x100 * color.G) + (0x10000 * color.B));
+            Word.WdColor wColor = (Word.WdColor)(color.R + (0x100 * color.G) + (0x10000 * color.B));
             return wColor;
         }
     }

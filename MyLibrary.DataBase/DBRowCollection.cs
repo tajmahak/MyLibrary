@@ -31,16 +31,16 @@ namespace MyLibrary.DataBase
         public int Clear(Predicate<DBRow> match)
         {
             // вероятно, операция добавления работает быстрее, чем List<>.Remove
-            List<DBRow> list = list.FindAll(x => !match(x));
-            if (list.Count != list.Count)
+            List<DBRow> findList = list.FindAll(x => !match(x));
+            if (findList.Count != findList.Count)
             {
                 Clear();
-                foreach (DBRow item in list)
+                foreach (DBRow item in findList)
                 {
                     Add(item);
                 }
             }
-            return list.Count - list.Count;
+            return findList.Count - findList.Count;
         }
 
         public bool Contains(DBRow item)
