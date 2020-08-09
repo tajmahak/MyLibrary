@@ -14,6 +14,7 @@ namespace MyLibrary
 
             return value;
         }
+
         public static string GetCorrectPath(string directoryPath, string fileName)
         {
             // преобразование пути из переменного окружения
@@ -47,6 +48,7 @@ namespace MyLibrary
                 return path;
             }
         }
+
         /// <summary>
         /// Создает все каталоги и подкаталоги, указанные в параметре path
         /// </summary>

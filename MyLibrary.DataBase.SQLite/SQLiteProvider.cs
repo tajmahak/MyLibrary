@@ -17,6 +17,11 @@ namespace MyLibrary.DataBase.SQLite
             CloseBlock = "]";
         }
 
+        public override DbConnection CreateConnection(string connectionString)
+        {
+            return new SQLiteConnection(connectionString);
+        }
+
         public override void FillTableSchema(DbConnection dbConnection)
         {
             using (DataTable tableSchema = dbConnection.GetSchema("Tables"))
@@ -95,10 +100,12 @@ namespace MyLibrary.DataBase.SQLite
                 }
             }
         }
+
         public override DbParameter CreateParameter(string name, object value)
         {
             return new SQLiteParameter(name, value);
         }
+
         public override object ExecuteInsertCommand(DbCommand dbCommand)
         {
             SQLiteConnection dbConnection = (SQLiteConnection)dbCommand.Connection;
@@ -108,6 +115,7 @@ namespace MyLibrary.DataBase.SQLite
                 return dbConnection.LastInsertRowId;
             }
         }
+
         public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
         {
             DBCompiledQuery cQuery = new DBCompiledQuery()

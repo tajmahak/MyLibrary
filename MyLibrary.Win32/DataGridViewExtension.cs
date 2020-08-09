@@ -268,7 +268,7 @@ namespace MyLibrary.Win32
                 {
                     object value = gridCell.Value;
                     string text = (value == null) ? string.Empty : value.ToString();
-                    if (!Data.IsEquals(editingControl.Text, text))
+                    if (!Data.Equals(editingControl.Text, text))
                     {
                         editingControl.Text = text;
                     }
@@ -290,7 +290,7 @@ namespace MyLibrary.Win32
             }
 
             string text = editingControl.Text;
-            if (text == Data.ConvertToNotNullString(gridCell.Value))
+            if (text == Data.ToNotNullString(gridCell.Value))
             {
                 return false;
             }

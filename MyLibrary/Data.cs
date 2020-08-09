@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MyLibrary
 {
@@ -37,6 +38,7 @@ namespace MyLibrary
 
             return (T)value;
         }
+
         public static List<TOut> ConvertList<TIn, TOut>(IList<TIn> srcList, Converter<TIn, TOut> converter)
         {
             List<TOut> destList = new List<TOut>(srcList.Count);
@@ -47,6 +49,7 @@ namespace MyLibrary
             }
             return destList;
         }
+
 
         public static int Compare<T>(T x, T y) where T : IComparable
         {
@@ -67,6 +70,7 @@ namespace MyLibrary
 
             return x.CompareTo(y);
         }
+
         public static int Compare(object x, object y)
         {
             if (IsNull(x) && IsNull(y))
@@ -91,19 +95,21 @@ namespace MyLibrary
             throw new Exception("Сравнение указанных значений невозможно.");
         }
 
+
         public static bool IsNull(object value)
         {
             return value == null || value is DBNull;
         }
+
         public static bool IsEmpty(object value)
         {
             if (IsNull(value))
             {
                 return true;
             }
-            if (value is string @string)
+            if (value is string stringValue)
             {
-                return string.IsNullOrEmpty(@string);
+                return string.IsNullOrEmpty(stringValue);
             }
             if (value is StringBuilder stringBuilder)
             {
@@ -112,7 +118,8 @@ namespace MyLibrary
             return Equals(value, Activator.CreateInstance(value.GetType()));
         }
 
-        public static bool IsEquals<T>(T x, T y) where T : IEquatable<T>
+
+        public static bool Equals<T>(T x, T y) where T : IEquatable<T>
         {
             if (x == null && y == null)
             {
@@ -127,11 +134,12 @@ namespace MyLibrary
             Type type = typeof(T);
             if (type.BaseType == typeof(Array))
             {
-                return IsEqualsArray((T[])(object)x, (T[])(object)y);
+                return Equals((T[])(object)x, (T[])(object)y);
             }
             return Equals(x, y);
         }
-        public static bool IsEquals(object x, object y)
+
+        public static new bool Equals(object x, object y)
         {
             if (IsNull(x) && IsNull(y))
             {
@@ -178,26 +186,12 @@ namespace MyLibrary
 
             if (type1 == typeof(byte[]))
             {
-                return IsEqualsArray((byte[])x, (byte[])y);
+                return Equals((byte[])x, (byte[])y);
             }
             return Equals(x, y);
         }
-        public static bool IsEqualsString(string str1, string str2, bool ignoreCase = false)
-        {
-            if (ignoreCase)
-            {
-                if (!IsEmpty(str1))
-                {
-                    str1 = str1.ToUpper();
-                }
-                if (!IsEmpty(str2))
-                {
-                    str2 = str2.ToUpper();
-                }
-            }
-            return IsEquals(str1, str2);
-        }
-        public static bool IsEqualsArray<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
+
+        public static bool Equals<T>(T[] blob1, T[] blob2) where T : IEquatable<T>
         {
             if (blob1.Length != blob2.Length)
             {
@@ -215,7 +209,8 @@ namespace MyLibrary
             return true;
         }
 
-        public static bool IsContainsString(string str1, string str2, bool ignoreCase = false)
+
+        public static bool Contains(this string str1, string str2, bool ignoreCase = false)
         {
             if (ignoreCase)
             {
@@ -239,6 +234,7 @@ namespace MyLibrary
 
             return Activator.CreateInstance(type);
         }
+
         public static T GetNotNullValue<T>(T value)
         {
             if (value == null)
@@ -247,16 +243,14 @@ namespace MyLibrary
             }
             return value;
         }
-        public static string ConvertToNotNullString(object value)
+
+        public static string ToNotNullString(object value)
         {
             value = Convert<string>(value);
             return IsNull(value) ? string.Empty : (string)value;
         }
 
-        public static string[] Split(string value, params string[] values)
-        {
-            return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
-        }
+
         public static void SetValue(object obj, string memberName, object value)
         {
             Type type = obj.GetType();
@@ -294,6 +288,7 @@ namespace MyLibrary
             }
         }
 
+
         public static byte[] CompressText(string value)
         {
             byte[] data = Encoding.UTF8.GetBytes(value);
@@ -307,6 +302,7 @@ namespace MyLibrary
             }
             return data;
         }
+
         public static string DecompressText(byte[] value)
         {
             using (MemoryStream mem = new MemoryStream(value))
@@ -317,14 +313,19 @@ namespace MyLibrary
                 return text;
             }
         }
+
+
         public static string ToBase64(byte[] value)
         {
             return System.Convert.ToBase64String(value);
         }
+
         public static byte[] FromBase64(string value)
         {
             return System.Convert.FromBase64String(value);
         }
+
+
         public static string ToHexText(byte[] value)
         {
             char[] charArray = new char[value.Length * 2];
@@ -337,6 +338,7 @@ namespace MyLibrary
             }
             return new string(charArray);
         }
+
         public static byte[] FromHexText(string value)
         {
             if (value.Length % 2 != 0)
@@ -355,6 +357,63 @@ namespace MyLibrary
 
             return byteArray;
         }
+
+
+        public static string ToCSVFormat(string line, string delimiter)
+        {
+            StringBuilder str = new StringBuilder();
+            string[] split = line.Split(new string[] { delimiter }, StringSplitOptions.None);
+            for (int i = 0; i < split.Length; i++)
+            {
+                string item = split[i];
+                bool containsQuote = item.Contains("\"");
+                if (item.Contains(";") || containsQuote)
+                {
+                    if (containsQuote)
+                    {
+                        item = item.Replace("\"", "\"\"");
+                    }
+                    item = "\"" + item + "\"";
+                }
+                if (i > 0)
+                {
+                    str.Append(";");
+                }
+                str.Append(item);
+            }
+
+            return str.ToString();
+        }
+
+        public static string FromCSVFormat(string line, string delimiter)
+        {
+            StringBuilder str = new StringBuilder();
+
+            string regexPattern = "(\\;|\\n|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\"\\;\\n]*))";
+            MatchCollection matches = Regex.Matches(line, regexPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            int counter = 0;
+            foreach (Match match in matches)
+            {
+                string item = match.Value;
+                item = item.TrimStart(';');
+                if (item.Length > 1 && item[0] == '\"' && item[item.Length - 1] == '\"')
+                {
+                    item = item.Remove(item.Length - 1);
+                    item = item.Substring(1);
+                    item = item.Replace("\"\"", "\"");
+                }
+
+                if (counter > 0)
+                {
+                    str.Append(delimiter);
+                }
+                str.Append(item);
+                counter++;
+            }
+
+            return str.ToString();
+        }
+
 
         public static string FormattedDigit(object value, int decimals = 0, bool allowNull = false)
         {
@@ -379,6 +438,7 @@ namespace MyLibrary
             }
             return text;
         }
+
         public static string FormattedFileSize(long value)
         {
             string[] sizes = { "б", "Кб", "Мб", "Гб", "Тб" };
@@ -395,12 +455,14 @@ namespace MyLibrary
             return text;
         }
 
+
         public static decimal Round(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
             decimal digit = Convert<decimal>(value);
             return Math.Round(digit, decimals, mode);
         }
-        public static decimal? RoundNullableDigit(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
+
+        public static decimal? RoundNullable(object value, int decimals = 0, MidpointRounding mode = MidpointRounding.ToEven)
         {
             if (IsEmpty(value))
             {
@@ -408,6 +470,7 @@ namespace MyLibrary
             }
             return Round(value, decimals, mode);
         }
+
 
         /// <summary>
         /// Процентное соотношение совпадений двух строк на основе расчёта расстояния Левенштейна.
@@ -422,6 +485,7 @@ namespace MyLibrary
             decimal percent = 100m - (distance / maxLength * 100m);
             return percent;
         }
+
         /// <summary>
         /// Расчёт расстояния Левенштейна между двумя строками 
         /// </summary>
@@ -475,10 +539,12 @@ namespace MyLibrary
             return d[n, m];
         }
 
+
         private static char ToHexValue(int n)
         {
             return (n >= 10) ? (char)(n - 10 + 65) : (char)(n + 48); //65 для прописного, 97 для строчного
         }
+
         private static int FromHexValue(char c)
         {
             return c > 57 ? (c + 10 - 65) : (c - 48);

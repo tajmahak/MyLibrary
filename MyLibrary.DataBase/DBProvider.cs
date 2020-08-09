@@ -23,6 +23,7 @@ namespace MyLibrary.DataBase
         private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
         private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
 
+        public abstract DbConnection CreateConnection(string connectionString);
         public abstract void FillTableSchema(DbConnection dbConnection);
         public abstract DbParameter CreateParameter(string name, object value);
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);

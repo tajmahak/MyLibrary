@@ -16,6 +16,11 @@ namespace MyLibrary.DataBase.Firebird
             OpenBlock = CloseBlock = "\"";
         }
 
+        public override DbConnection CreateConnection(string connectionString)
+        {
+            return new FbConnection(connectionString);
+        }
+
         public override void FillTableSchema(DbConnection dbConnection)
         {
             #region Tables
@@ -174,14 +179,17 @@ namespace MyLibrary.DataBase.Firebird
             //}
             //var text = str.ToString();
         }
+
         protected override string GetInsertCommandText(DBTable table)
         {
             return string.Concat(base.GetInsertCommandText(table), " RETURNING ", GetShortName(table.PrimaryKeyColumn.Name));
         }
+
         public override DbParameter CreateParameter(string name, object value)
         {
             return new FbParameter(name, value);
         }
+
         public override DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0)
         {
             DBCompiledQuery cQuery = new DBCompiledQuery()
@@ -244,18 +252,22 @@ namespace MyLibrary.DataBase.Firebird
             return cQuery;
         }
 
+
         public string GetUpdateSelectivityIndexCommandText(DBIndex index)
         {
             return string.Concat("SET STATISTICS INDEX ", GetShortName(index.Name));
         }
+
         public string GetActivateIndexCommandText(DBIndex index)
         {
             return string.Concat("ALTER INDEX ", GetShortName(index.Name), " ACTIVE");
         }
+
         public string GetDeactivateIndexCommandText(DBIndex index)
         {
             return string.Concat("ALTER INDEX ", GetShortName(index.Name), " INACTIVE");
         }
+
 
         private void PrepareBatchingCommand(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
@@ -313,6 +325,7 @@ namespace MyLibrary.DataBase.Firebird
                 throw new NotImplementedException();
             }
         }
+
         private void PrepareReturningBlock(StringBuilder sql, DBQueryBase query)
         {
             System.Collections.Generic.List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Returning);

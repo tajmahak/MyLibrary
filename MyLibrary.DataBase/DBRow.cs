@@ -258,7 +258,7 @@ namespace MyLibrary.DataBase
                 }
                 else if (value is byte[] array && prevValue is byte[] prevArray)
                 {
-                    modified = !Data.IsEqualsArray(array, prevArray);
+                    modified = !Data.Equals(array, prevArray);
                 }
 
                 if (modified)
