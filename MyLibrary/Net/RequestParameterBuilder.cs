@@ -4,24 +4,26 @@ namespace MyLibrary.Net
 {
     public class RequestParameterBuilder
     {
+        private readonly StringBuilder str = new StringBuilder();
+
+
         public RequestParameterBuilder Add(string name, object value)
         {
-            if (_str.Length > 0)
+            if (str.Length > 0)
             {
-                _str.Append("&");
+                str.Append("&");
             }
-            _str.Append(name);
-            _str.Append("=");
-            _str.Append(value);
+            str.Append(name);
+            str.Append("=");
+            str.Append(value);
 
             return this;
         }
 
+
         public override string ToString()
         {
-            return _str.ToString();
+            return str.ToString();
         }
-
-        private readonly StringBuilder _str = new StringBuilder();
     }
 }

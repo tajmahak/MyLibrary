@@ -30,6 +30,7 @@ namespace MyLibrary
                 list[i + 1] = key;
             }
         }
+
         /// <summary>
         /// Сортировка вставками (устойчивая)
         /// </summary>
@@ -40,6 +41,7 @@ namespace MyLibrary
         {
             StableInsertionSort((IList)list, (x, y) => comparison((T)x, (T)y));
         }
+
         /// <summary>
         /// Сортировка вставками (устойчивая)
         /// </summary>
@@ -50,6 +52,7 @@ namespace MyLibrary
         {
             StableInsertionSort(list, (x, y) => comparer.Compare(x, y));
         }
+
         /// <summary>
         /// Сортировка вставками (устойчивая)
         /// </summary>

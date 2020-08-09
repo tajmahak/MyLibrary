@@ -8,11 +8,18 @@ namespace MyLibrary.Threading
     /// </summary>
     public class SafeThread
     {
+        public Thread CurrentThread { get; private set; }
+        public bool Aborted => aborted;
+        private volatile bool aborted;
+     
+       
         public SafeThread(Action<SafeThread> action)
         {
             CurrentThread = new Thread(() => action(this));
             CurrentThread.IsBackground = true;
         }
+
+       
         public static SafeThread Start(Action<SafeThread> action)
         {
             SafeThread safeThread = new SafeThread(action);
@@ -20,21 +27,19 @@ namespace MyLibrary.Threading
             return safeThread;
         }
 
-        public Thread CurrentThread { get; private set; }
-        public bool Aborted => _aborted;
         public void Start()
         {
             CurrentThread.Start();
         }
+
         public void Join()
         {
             CurrentThread.Join();
         }
+
         public void SafeAbort()
         {
-            _aborted = true;
+            aborted = true;
         }
-
-        private volatile bool _aborted;
     }
 }

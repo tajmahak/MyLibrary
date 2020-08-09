@@ -34,6 +34,7 @@ namespace MyLibrary
                 }
             }
         }
+
         /// <summary>
         /// Выполняет симметричное дешифрование с помощью алгоритма AES.
         /// </summary>
@@ -72,6 +73,7 @@ namespace MyLibrary
             }
         }
 
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма MD5.
         /// </summary>
@@ -84,6 +86,7 @@ namespace MyLibrary
                 return md5.ComputeHash(data);
             }
         }
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма MD5.
         /// </summary>
@@ -97,6 +100,7 @@ namespace MyLibrary
             }
         }
 
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-1.
         /// </summary>
@@ -109,6 +113,7 @@ namespace MyLibrary
                 return sha1.ComputeHash(data);
             }
         }
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-1.
         /// </summary>
@@ -122,6 +127,7 @@ namespace MyLibrary
             }
         }
 
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-256.
         /// </summary>
@@ -134,6 +140,7 @@ namespace MyLibrary
                 return sha256.ComputeHash(data);
             }
         }
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма SHA-256.
         /// </summary>
@@ -146,6 +153,7 @@ namespace MyLibrary
                 return sha256.ComputeHash(inputStream);
             }
         }
+
 
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
@@ -162,6 +170,7 @@ namespace MyLibrary
             //Array.Reverse(data, 0, data.Length);
             //return data;
         }
+
         /// <summary>
         /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
         /// </summary>
@@ -185,6 +194,7 @@ namespace MyLibrary
             //return hash;
         }
 
+
         /// <summary>
         /// Заполняет массив байтов криптостойкой случайной последовательностью значений.
         /// </summary>
@@ -207,6 +217,7 @@ namespace MyLibrary
             }
             return data;
         }
+
 
         private static byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {

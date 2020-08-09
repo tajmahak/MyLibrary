@@ -12,6 +12,7 @@ namespace MyLibrary.Threading
             thread.Start();
             return thread;
         }
+     
         public static Thread StartBackgroundThread(ThreadStart start)
         {
             Thread thread = new Thread(start);
@@ -19,6 +20,7 @@ namespace MyLibrary.Threading
             thread.Start();
             return thread;
         }
+      
         public static SafeThread StartSafeThread(Action<SafeThread> start)
         {
             SafeThread thread = new SafeThread(start);

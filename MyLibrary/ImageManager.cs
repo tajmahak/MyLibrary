@@ -40,6 +40,7 @@ namespace MyLibrary
 
             return destImage;
         }
+
         /// <summary>
         /// Накладывание изображения поверх другого
         /// </summary>
@@ -57,6 +58,7 @@ namespace MyLibrary
 
             return backgroundImage;
         }
+
         /// <summary>
         /// Изображение в круглом фоне
         /// </summary>
@@ -76,6 +78,7 @@ namespace MyLibrary
             }
             return newImg;
         }
+
         /// <summary>
         /// Изображение с водяным знаком в правом нижнем углу (водяной знак не масштабируется)
         /// </summary>

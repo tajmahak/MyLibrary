@@ -8,6 +8,9 @@ namespace MyLibrary
 {
     public static class Serializer
     {
+        private static readonly Dictionary<Type, XmlSerializer> xmlSerializers = new Dictionary<Type, XmlSerializer>();
+        
+        
         public static string SerializeToXml(object obj)
         {
             XmlSerializer xmlSerializer = GetXmlSerializer(obj.GetType());
@@ -17,6 +20,7 @@ namespace MyLibrary
                 return textWriter.ToString();
             }
         }
+
         public static T DeserializeFromXml<T>(string xml)
         {
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
@@ -41,6 +45,7 @@ namespace MyLibrary
             }
             return str.ToString();
         }
+
         public static T DeserializeFromText<T>(string text)
         {
             T config = Activator.CreateInstance<T>();
@@ -79,26 +84,28 @@ namespace MyLibrary
             return config;
         }
 
-        private static readonly Dictionary<Type, XmlSerializer> _xmlSerializers = new Dictionary<Type, XmlSerializer>();
+
         private static XmlSerializer GetXmlSerializer(Type type)
         {
             InitializeXmlType(type);
-            lock (_xmlSerializers)
+            lock (xmlSerializers)
             {
-                return _xmlSerializers[type];
+                return xmlSerializers[type];
             }
         }
+
         private static void InitializeXmlType(Type type)
         {
-            lock (_xmlSerializers)
+            lock (xmlSerializers)
             {
-                if (!_xmlSerializers.ContainsKey(type))
+                if (!xmlSerializers.ContainsKey(type))
                 {
                     XmlSerializer xmlSerializer = new XmlSerializer(type);
-                    _xmlSerializers.Add(type, xmlSerializer);
+                    xmlSerializers.Add(type, xmlSerializer);
                 }
             }
         }
+
         private static void CorrectObject(object obj)
         {
             //  исправление многострочного string после десериализации XML

@@ -21,25 +21,27 @@ namespace MyLibrary.Net
         public HttpWebResponse Response { get; private set; }
         public WebHeaderCollection Headers { get; private set; } = new WebHeaderCollection();
         public CookieContainer Cookies { get; private set; } = new CookieContainer();
-
-        public event EventHandler CreatingRequest;
-        public event EventHandler ResponseReceived;
-        public event EventHandler<ResponseDataReceivedEventArgs> ResponseDataReceived;
+        private const int BUFFER_SIZE = 0x40000; // 256 кб
 
         public HttpConnection()
         {
             Headers.Add("Accept-Encoding", "gzip, deflate");
             Headers.Add("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
         }
+
         public HttpConnection(string requestUri)
             : this()
         {
             RequestUri = requestUri;
         }
-        public void Dispose()
-        {
-            Response?.Close();
-        }
+
+      
+        public event EventHandler CreatingRequest;
+
+        public event EventHandler ResponseReceived;
+
+        public event EventHandler<ResponseDataReceivedEventArgs> ResponseDataReceived;
+
 
         public string GetString()
         {
@@ -50,6 +52,7 @@ namespace MyLibrary.Net
             });
             return data;
         }
+
         public void GetData(Stream outputStream)
         {
             GetWebData(() =>
@@ -86,11 +89,13 @@ namespace MyLibrary.Net
                 }
             });
         }
+
         public HttpWebResponse GetResponse()
         {
             GetWebData(null);
             return Response;
         }
+
         public Stream GetResponseStream()
         {
             return GetStreamFromResponse(Response);
@@ -107,6 +112,7 @@ namespace MyLibrary.Net
                 return reader.ReadToEnd();
             }
         }
+
         public static Stream GetStreamFromResponse(HttpWebResponse response)
         {
             Stream stream = response.GetResponseStream();
@@ -121,6 +127,7 @@ namespace MyLibrary.Net
             }
             return stream;
         }
+
         public static string GetString(string requestUri, IPostDataContent postData = null)
         {
             using (HttpConnection connection = new HttpConnection(requestUri))
@@ -129,6 +136,7 @@ namespace MyLibrary.Net
                 return connection.GetString();
             }
         }
+
         public static void GetData(Stream outputStream, string requestUri, IPostDataContent postData = null)
         {
             using (HttpConnection connection = new HttpConnection(requestUri))
@@ -137,6 +145,12 @@ namespace MyLibrary.Net
                 connection.GetData(outputStream);
             }
         }
+
+        public void Dispose()
+        {
+            Response?.Close();
+        }
+
 
         private void GetWebData(Action getDataAction)
         {
@@ -201,8 +215,6 @@ namespace MyLibrary.Net
                 throw;
             }
         }
-
-        private const int BUFFER_SIZE = 0x40000; // 256 кб
     }
 
     public class ResponseDataReceivedEventArgs : EventArgs

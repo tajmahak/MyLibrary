@@ -10,7 +10,6 @@ namespace MyLibrary.Threading
     [DebuggerStepThrough]
     public class ThreadManager
     {
-        // Статические методы
         /// <summary>
         /// Запуск обработки
         /// </summary>
@@ -24,6 +23,7 @@ namespace MyLibrary.Threading
             threadManager.Start(action);
             return threadManager;
         }
+
         /// <summary>
         /// Запуск обработки
         /// </summary>
@@ -38,8 +38,11 @@ namespace MyLibrary.Threading
             return threadManager;
         }
 
-        // Свойства
-        public bool Aborted => _aborted;
+        
+        public bool Aborted => aborted;
+        private readonly Thread[] threads;
+        private readonly int tasksCount;
+        private volatile bool aborted;
 
         /// <summary>
         /// 
@@ -53,9 +56,22 @@ namespace MyLibrary.Threading
                 threadsCount = tasksCount;
             }
 
-            _threads = new Thread[threadsCount];
-            _tasksCount = tasksCount;
+            threads = new Thread[threadsCount];
+            this.tasksCount = tasksCount;
         }
+
+      
+        /// <summary>
+        /// Происходит перед началом операций
+        /// </summary>
+        public event EventHandler<EventArgs> Started;
+
+        /// <summary>
+        /// Происходит после завершения/остановки всех потоковых операций
+        /// </summary>
+        public event EventHandler<EventArgs> Completed;
+
+       
         /// <summary>
         /// Запуск обработки
         /// </summary>
@@ -64,6 +80,7 @@ namespace MyLibrary.Threading
         {
             Start((manager, index) => action(index));
         }
+
         /// <summary>
         /// Запуск обработки
         /// </summary>
@@ -74,7 +91,7 @@ namespace MyLibrary.Threading
 
             int completedThreads = 0;
             int index = 0;
-            for (int i = 0; i < _threads.Length; i++)
+            for (int i = 0; i < threads.Length; i++)
             {
                 Thread thread = new Thread(() =>
                 {
@@ -82,15 +99,15 @@ namespace MyLibrary.Threading
                     {
                         while (true)
                         {
-                            if (_aborted)
+                            if (aborted)
                             {
                                 return;
                             }
 
                             int current_index;
-                            lock (_threads)
+                            lock (threads)
                             {
-                                if (index >= _tasksCount)
+                                if (index >= tasksCount)
                                 {
                                     break;
                                 }
@@ -102,10 +119,10 @@ namespace MyLibrary.Threading
                     }
                     finally
                     {
-                        lock (_threads)
+                        lock (threads)
                         {
                             completedThreads++;
-                            if (completedThreads == _threads.Length)
+                            if (completedThreads == threads.Length)
                             {
                                 Completed?.Invoke(this, EventArgs.Empty);
                             }
@@ -114,54 +131,42 @@ namespace MyLibrary.Threading
                 });
                 thread.IsBackground = true;
                 thread.Start();
-                _threads[i] = thread;
+                threads[i] = thread;
             }
         }
+
         /// <summary>
         /// Принудительно останавливает выполнение операции для всех потоков вызовом метода Thread.Abort()
         /// </summary>
         public void Abort()
         {
-            _aborted = true;
-            lock (_threads)
+            aborted = true;
+            lock (threads)
             {
-                for (int i = 0; i < _threads.Length; i++)
+                for (int i = 0; i < threads.Length; i++)
                 {
-                    _threads[i].Abort();
+                    threads[i].Abort();
                 }
             }
         }
+
         /// <summary>
         /// Безопасная остановка выполнения операции с использованием свойства Abort
         /// </summary>
         public void SafeAbort()
         {
-            _aborted = true;
+            aborted = true;
         }
+
         /// <summary>
         /// Блокирует вызывающий поток до завершения всех потоков
         /// </summary>
         public void Join()
         {
-            for (int i = 0; i < _threads.Length; i++)
+            for (int i = 0; i < threads.Length; i++)
             {
-                _threads[i].Join();
+                threads[i].Join();
             }
         }
-
-        // События
-        /// <summary>
-        /// Происходит перед началом операций
-        /// </summary>
-        public event EventHandler<EventArgs> Started;
-        /// <summary>
-        /// Происходит после завершения/остановки всех потоковых операций
-        /// </summary>
-        public event EventHandler<EventArgs> Completed;
-
-        // Закрытые сущности
-        private readonly Thread[] _threads;
-        private readonly int _tasksCount;
-        private volatile bool _aborted;
     }
 }

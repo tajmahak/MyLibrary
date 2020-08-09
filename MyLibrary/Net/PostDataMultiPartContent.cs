@@ -6,15 +6,14 @@ namespace MyLibrary.Net
 {
     public class PostDataMultiPartContent : IPostDataContent
     {
-        private PostDataMultiPartContent()
-        {
-            StringBuilder boundary = new StringBuilder();
-            for (int i = 0; i < 14; i++)
-            {
-                boundary.Append(_rnd.Next(10));
-            }
-            Boundary = boundary.ToString();
-        }
+        private static readonly Random rnd = new Random();
+
+        public string Boundary { get; private set; }
+        public string ContentDisposition { get; set; }
+        public string ContentType { get; set; }
+        public byte[] Content { get; set; }
+
+
         public PostDataMultiPartContent(byte[] content, string contentDisposition = null, string contentType = null) : this()
         {
             Content = content;
@@ -22,10 +21,6 @@ namespace MyLibrary.Net
             ContentType = contentType;
         }
 
-        public string Boundary { get; private set; }
-        public string ContentDisposition { get; set; }
-        public string ContentType { get; set; }
-        public byte[] Content { get; set; }
 
         public byte[] GetContent()
         {
@@ -56,11 +51,21 @@ namespace MyLibrary.Net
                 return memoryStream.ToArray();
             }
         }
+
         public string GetContentType()
         {
             return $"multipart/form-data; boundary=---------------------------{Boundary}";
         }
 
-        private static readonly Random _rnd = new Random();
+
+        private PostDataMultiPartContent()
+        {
+            StringBuilder boundary = new StringBuilder();
+            for (int i = 0; i < 14; i++)
+            {
+                boundary.Append(rnd.Next(10));
+            }
+            Boundary = boundary.ToString();
+        }
     }
 }
