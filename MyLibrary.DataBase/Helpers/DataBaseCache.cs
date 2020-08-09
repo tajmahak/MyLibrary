@@ -5,28 +5,30 @@ namespace MyLibrary.DataBase.Helpers
 {
     public class DataBaseCache
     {
-        private readonly DBContext _context;
-        private readonly string _tableName, _keyColumnName, _dataColumnName, _timeColumnName;
+        private readonly DBContext context;
+        private readonly string tableName, keyColumnName, dataColumnName, timeColumnName;
+
 
         public DataBaseCache(DBContext context, string tableName, string keyColumnName, string dataColumnName, string timeColumnName)
         {
-            _context = context;
-            _tableName = tableName;
-            _keyColumnName = tableName + "." + keyColumnName;
-            _dataColumnName = tableName + "." + dataColumnName;
-            _timeColumnName = tableName + "." + timeColumnName;
+            this.context = context;
+            this.tableName = tableName;
+            this.keyColumnName = tableName + "." + keyColumnName;
+            this.dataColumnName = tableName + "." + dataColumnName;
+            this.timeColumnName = tableName + "." + timeColumnName;
         }
+
 
         public CacheContent<byte[]> LoadData(string key)
         {
             string hash = CalculateHash(key);
 
             DBRow row;
-            lock (_context)
+            lock (context)
             {
-                row = _context.Select(_tableName)
-                    .Select(_timeColumnName, _dataColumnName)
-                    .Where(_keyColumnName, hash)
+                row = context.Select(tableName)
+                    .Select(timeColumnName, dataColumnName)
+                    .Where(keyColumnName, hash)
                     .ReadRow();
             }
 
@@ -37,10 +39,11 @@ namespace MyLibrary.DataBase.Helpers
 
             return new CacheContent<byte[]>
             {
-                CreateTime = row.GetDateTime(_timeColumnName),
-                Data = row.GetBytes(_dataColumnName),
+                CreateTime = row.GetDateTime(timeColumnName),
+                Data = row.GetBytes(dataColumnName),
             };
         }
+
         public CacheContent<string> LoadString(string key)
         {
             CacheContent<byte[]> content = LoadData(key);
@@ -56,33 +59,37 @@ namespace MyLibrary.DataBase.Helpers
                 Data = Data.DecompressText(content.Data),
             };
         }
+
         public void SaveData(string key, byte[] data)
         {
             string hash = CalculateHash(key);
-            lock (_context)
+            lock (context)
             {
-                _context.Insert(_tableName)
-                    .UpdateOrInsert(_keyColumnName)
-                    .Set(_keyColumnName, hash)
-                    .Set(_dataColumnName, data)
-                    .Set(_timeColumnName, DateTime.Now)
+                context.Insert(tableName)
+                    .UpdateOrInsert(keyColumnName)
+                    .Set(keyColumnName, hash)
+                    .Set(dataColumnName, data)
+                    .Set(timeColumnName, DateTime.Now)
                     .Execute();
             }
         }
+
         public void SaveString(string key, string text)
         {
             byte[] data = Data.CompressText(text);
             SaveData(key, data);
         }
+
         public void Clear(DateTime limitDate)
         {
-            lock (_context)
+            lock (context)
             {
-                _context.Delete(_tableName)
-                    .Where(_timeColumnName, "<", limitDate)
+                context.Delete(tableName)
+                    .Where(timeColumnName, "<", limitDate)
                     .Execute();
             }
         }
+
 
         private string CalculateHash(string text)
         {

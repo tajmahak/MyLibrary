@@ -18,6 +18,7 @@ namespace MyLibrary.DataBase
         private readonly DBTable _table;
         private readonly Converter<DBRow, T> _rowConverter;
 
+
         public DBReader(DBProvider provider, DbConnection connection, DBQueryBase query, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
             _dbCommand = provider.CreateCommand(connection, query);
@@ -25,11 +26,7 @@ namespace MyLibrary.DataBase
             _table = query.IsView ? GetTableFromSchema() : query.Table;
             _rowConverter = rowConverter;
         }
-        public void Dispose()
-        {
-            _dbReader.Dispose();
-            _dbCommand.Dispose();
-        }
+
 
         public bool MoveNext()
         {
@@ -43,6 +40,7 @@ namespace MyLibrary.DataBase
             }
             return false;
         }
+
         public List<T> ToList()
         {
             List<T> list = new List<T>();
@@ -52,10 +50,28 @@ namespace MyLibrary.DataBase
             }
             return list;
         }
+
         public T[] ToArray()
         {
             return ToList().ToArray();
         }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this;
+        }
+
+        public void Reset()
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Dispose()
+        {
+            _dbReader.Dispose();
+            _dbCommand.Dispose();
+        }
+
 
         private DBTable GetTableFromSchema()
         {
@@ -79,22 +95,12 @@ namespace MyLibrary.DataBase
             }
             return table;
         }
-        #region Сущности интерфейсов IEnumerable, IEnumerator
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return this;
-        }
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this;
         }
-        object IEnumerator.Current => Current;
-        public void Reset()
-        {
-            throw new NotSupportedException();
-        }
 
-        #endregion
+        object IEnumerator.Current => Current;
     }
 }

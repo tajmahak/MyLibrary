@@ -7,27 +7,27 @@
     {
         public static object As(object expr, string alias)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         public static object Descending(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         public static object Distinct(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         public static object All(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         public static object Alias(string columnName)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #region Предикаты сравнения
@@ -40,7 +40,7 @@
         /// <returns></returns>
         public static bool Between(object value, object value_1, object value_2)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         /// <returns></returns>
         public static bool Like(string match_value, string pattern, char escape_character)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@
         /// <returns></returns>
         public static bool Like(string match_value, string pattern)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -74,7 +74,7 @@
         /// <returns></returns>
         public static bool StartingWith(object value_1, object value_2)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -85,7 +85,7 @@
         /// <returns></returns>
         public static bool Containing(string value1, string value2)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -97,7 +97,7 @@
         /// <returns></returns>
         public static bool SimilarTo(string match_value, string pattern, char escape_character)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -108,7 +108,7 @@
         /// <returns></returns>
         public static bool SimilarTo(string match_value, string pattern)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion
@@ -122,7 +122,7 @@
         /// <returns></returns>
         public static decimal Avg(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -132,7 +132,7 @@
         /// <returns></returns>
         public static int Count(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -141,7 +141,7 @@
         /// <returns></returns>
         public static int Count()
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@
         /// <returns></returns>
         public static string List(object expr, char separator)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -162,7 +162,7 @@
         /// <returns></returns>
         public static string List(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -172,7 +172,7 @@
         /// <returns></returns>
         public static decimal Max(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -182,7 +182,7 @@
         /// <returns></returns>
         public static decimal Min(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -192,7 +192,7 @@
         /// <returns></returns>
         public static decimal Sum(object expr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion
@@ -206,7 +206,7 @@
         /// <returns></returns>
         public static int CharLength(string str)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -216,7 +216,7 @@
         /// <returns></returns>
         public static long Hash(string str)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -227,7 +227,7 @@
         /// <returns></returns>
         public static string Left(string str, int num)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -237,7 +237,7 @@
         /// <returns></returns>
         public static string Lower(string str)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -249,7 +249,7 @@
         /// <returns></returns>
         public static string LPad(string str, int endlen, string padstr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -260,7 +260,7 @@
         /// <returns></returns>
         public static string LPad(string str, int endlen)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -274,7 +274,7 @@
         /// <returns></returns>
         public static string Overlay(string @string, string replacement, int pos, int? length)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -287,7 +287,7 @@
         /// <returns></returns>
         public static string Overlay(string @string, string replacement, int pos)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -299,7 +299,7 @@
         /// <returns></returns>
         public static string Replace(string str, string find, string repl)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -309,7 +309,7 @@
         /// <returns></returns>
         public static string Reverse(string str)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -320,7 +320,7 @@
         /// <returns></returns>
         public static long Right(string str, int num)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -332,7 +332,7 @@
         /// <returns></returns>
         public static string RPad(string str, int endlen, string padstr)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -344,7 +344,7 @@
         /// <returns></returns>
         public static string RPad(string str, int endlen)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -356,7 +356,7 @@
         /// <returns></returns>
         public static string SubString(string str, int startpos, int? length)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -367,7 +367,7 @@
         /// <returns></returns>
         public static string SubString(string str, int startpos)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -377,7 +377,7 @@
         /// <returns></returns>
         public static string Upper(string str)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion
@@ -391,7 +391,7 @@
         /// <returns></returns>
         public static bool Exists(DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -401,7 +401,7 @@
         /// <returns></returns>
         public static bool In(object value, DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -411,7 +411,7 @@
         /// <returns></returns>
         public static bool In(object value, object[] value_list)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -421,7 +421,7 @@
         /// <returns></returns>
         public static bool Singular(DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion
@@ -435,7 +435,7 @@
         /// <returns></returns>
         public static decimal All(DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -445,7 +445,7 @@
         /// <returns></returns>
         public static decimal Any(DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -455,7 +455,7 @@
         /// <returns></returns>
         public static decimal Some(DBQueryBase select_stmt)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion
@@ -471,7 +471,7 @@
         /// <returns></returns>
         public static object Coalesce(object expr1, object expr2, params object[] expr_list)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -487,7 +487,7 @@
         /// <returns></returns>
         public static object Decode(object testexpr, params object[] value_list)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -497,7 +497,7 @@
         /// <returns></returns>
         public static object MaxValue(object expr, params object[] expr_list)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -507,7 +507,7 @@
         /// <returns></returns>
         public static object MinValue(object expr, params object[] expr_list)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         /// <summary>
@@ -518,7 +518,7 @@
         /// <returns></returns>
         public static object NullIf(object expr1, object expr2)
         {
-            throw DBInternal.DBFunctionException();
+            throw DBExceptionFactory.DBFunctionException();
         }
 
         #endregion

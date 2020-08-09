@@ -9,10 +9,13 @@
         public bool IsForeign { get; set; }
         public DBTable Table { get; private set; }
 
+
         public DBIndex(DBTable table)
         {
             Table = table;
         }
+
+
         public override string ToString()
         {
             return Name;

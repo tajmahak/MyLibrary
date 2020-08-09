@@ -17,14 +17,15 @@ namespace MyLibrary.DataBase
             get
             {
                 int count = 0;
-                foreach (DBRowCollection tableRows in _tableRows.Values)
+                foreach (DBRowCollection tableRows in tableRows.Values)
                 {
                     count += tableRows.Count;
                 }
                 return count;
             }
         }
-        private readonly Dictionary<DBTable, DBRowCollection> _tableRows = new Dictionary<DBTable, DBRowCollection>();
+        private readonly Dictionary<DBTable, DBRowCollection> tableRows = new Dictionary<DBTable, DBRowCollection>();
+
 
         public DBContext(DBProvider provider, DbConnection connection)
         {
@@ -37,34 +38,42 @@ namespace MyLibrary.DataBase
             }
         }
 
+
         public DBQuery Select(string tableName)
         {
             return CreateQuery(tableName, StatementType.Select);
         }
+
         public DBQuery Insert(string tableName)
         {
             return CreateQuery(tableName, StatementType.Insert);
         }
+
         public DBQuery Update(string tableName)
         {
             return CreateQuery(tableName, StatementType.Update);
         }
+
         public DBQuery Delete(string tableName)
         {
             return CreateQuery(tableName, StatementType.Delete);
         }
+
         public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Select);
         }
+
         public DBQuery<TRow> Insert<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Insert);
         }
+
         public DBQuery<TRow> Update<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Update);
         }
+
         public DBQuery<TRow> Delete<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Delete);
@@ -83,7 +92,7 @@ namespace MyLibrary.DataBase
 
                 List<DBTable> emptyTables = new List<DBTable>();
 
-                foreach (KeyValuePair<DBTable, DBRowCollection> tableRowsItem in _tableRows)
+                foreach (KeyValuePair<DBTable, DBRowCollection> tableRowsItem in tableRows)
                 {
                     DBTable table = tableRowsItem.Key;
                     DBRowCollection rowCollection = tableRowsItem.Value;
@@ -109,7 +118,7 @@ namespace MyLibrary.DataBase
 
                 foreach (DBTable table in emptyTables)
                 {
-                    _tableRows.Remove(table);
+                    tableRows.Remove(table);
                 }
 
                 #endregion
@@ -123,7 +132,7 @@ namespace MyLibrary.DataBase
 
                 #region Формирование списков
 
-                foreach (KeyValuePair<DBTable, DBRowCollection> item in _tableRows)
+                foreach (KeyValuePair<DBTable, DBRowCollection> item in tableRows)
                 {
                     DBTable table = item.Key;
                     DBRowCollection rowCollection = item.Value;
@@ -201,7 +210,7 @@ namespace MyLibrary.DataBase
                     {
                         if (insertError)
                         {
-                            throw DBInternal.DbSaveWrongRelationsException();
+                            throw DBExceptionFactory.DbSaveWrongRelationsException();
                         }
                         rowContainerList.Sort((x, y) => x.TempIdCount.CompareTo(y.TempIdCount));
                         i = -1;
@@ -216,7 +225,7 @@ namespace MyLibrary.DataBase
 
                 #region UPDATE
 
-                foreach (KeyValuePair<DBTable, DBRowCollection> tableRowsItem in _tableRows)
+                foreach (KeyValuePair<DBTable, DBRowCollection> tableRowsItem in tableRows)
                 {
                     DBTable table = tableRowsItem.Key;
                     DBRowCollection rowCollection = tableRowsItem.Value;
@@ -241,7 +250,7 @@ namespace MyLibrary.DataBase
             {
                 transaction?.Rollback();
                 transaction?.Dispose();
-                throw DBInternal.DbSaveException(row, ex);
+                throw DBExceptionFactory.DbSaveException(row, ex);
             }
             return commitInfo;
         }
@@ -253,6 +262,7 @@ namespace MyLibrary.DataBase
             AddRow(row);
             return row;
         }
+
         public TRow NewRow<TRow>() where TRow : DBOrmRow
         {
             string tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
@@ -264,7 +274,7 @@ namespace MyLibrary.DataBase
         {
             if (row.Table.Name == null)
             {
-                throw DBInternal.ProcessRowException();
+                throw DBExceptionFactory.ProcessRowException();
             }
 
             if (row.State == DataRowState.Deleted && row.PrimaryKeyValueIsTemporary)
@@ -272,10 +282,10 @@ namespace MyLibrary.DataBase
                 return 0;
             }
 
-            if (!_tableRows.TryGetValue(row.Table, out DBRowCollection rowCollection))
+            if (!tableRows.TryGetValue(row.Table, out DBRowCollection rowCollection))
             {
                 rowCollection = new DBRowCollection();
-                _tableRows.Add(row.Table, rowCollection);
+                tableRows.Add(row.Table, rowCollection);
             }
 
             if (!rowCollection.Contains(row))
@@ -290,10 +300,12 @@ namespace MyLibrary.DataBase
 
             return 1;
         }
+
         public int AddRow<TRow>(TRow row) where TRow : DBOrmRow
         {
             return AddRow(DBInternal.ExtractDBRow(row));
         }
+
         public int AddRows(IEnumerable<DBRow> collection)
         {
             int count = 0;
@@ -303,6 +315,7 @@ namespace MyLibrary.DataBase
             }
             return count;
         }
+
         public int AddRows<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             int count = 0;
@@ -315,7 +328,7 @@ namespace MyLibrary.DataBase
 
         public void Clear()
         {
-            foreach (DBRowCollection rowCollection in _tableRows.Values)
+            foreach (DBRowCollection rowCollection in tableRows.Values)
             {
                 foreach (DBRow row in rowCollection)
                 {
@@ -325,17 +338,19 @@ namespace MyLibrary.DataBase
                     }
                 }
             }
-            _tableRows.Clear();
+            tableRows.Clear();
         }
+
         public void Clear<TRow>()
         {
             string tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
             Clear(tableName);
         }
+
         public void Clear(string tableName)
         {
             DBTable table = Provider.Tables[tableName];
-            if (_tableRows.TryGetValue(table, out DBRowCollection rowCollection))
+            if (tableRows.TryGetValue(table, out DBRowCollection rowCollection))
             {
                 foreach (DBRow row in rowCollection)
                 {
@@ -344,17 +359,18 @@ namespace MyLibrary.DataBase
                         row.State = DataRowState.Detached;
                     }
                 }
-                _tableRows.Remove(table);
+                tableRows.Remove(table);
             }
         }
+
         public void Clear(DBRow row)
         {
             if (row.Table.Name == null)
             {
-                throw DBInternal.ProcessRowException();
+                throw DBExceptionFactory.ProcessRowException();
             }
 
-            if (_tableRows.TryGetValue(row.Table, out DBRowCollection rowCollection))
+            if (tableRows.TryGetValue(row.Table, out DBRowCollection rowCollection))
             {
                 if (rowCollection.Remove(row))
                 {
@@ -364,15 +380,17 @@ namespace MyLibrary.DataBase
                     }
                     if (rowCollection.Count == 0)
                     {
-                        _tableRows.Remove(row.Table);
+                        tableRows.Remove(row.Table);
                     }
                 }
             }
         }
+
         public void Clear<TRow>(TRow row) where TRow : DBOrmRow
         {
             Clear(DBInternal.ExtractDBRow(row));
         }
+
         public void Clear(IEnumerable<DBRow> collection)
         {
             foreach (DBRow row in collection)
@@ -380,6 +398,7 @@ namespace MyLibrary.DataBase
                 Clear(row);
             }
         }
+
         public void Clear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             foreach (TRow row in collection)
@@ -393,24 +412,28 @@ namespace MyLibrary.DataBase
             Commit();
             Clear();
         }
+
         public void CommitAndClear(DBRow row)
         {
             AddRow(row);
             Commit();
             Clear(row);
         }
+
         public void CommitAndClear<TRow>(TRow row) where TRow : DBOrmRow
         {
             AddRow(row);
             Commit();
             Clear(row);
         }
+
         public void CommitAndClear(IEnumerable<DBRow> collection)
         {
             AddRows(collection);
             Commit();
             Clear(collection);
         }
+
         public void CommitAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
             AddRows(collection);
@@ -418,12 +441,14 @@ namespace MyLibrary.DataBase
             Clear(collection);
         }
 
+
         private DBQuery CreateQuery(string tableName, StatementType statementType)
         {
             DBTable table = Provider.Tables[tableName];
             DBQuery query = new DBQuery(table, this, statementType);
             return query;
         }
+
         private DBQuery<TRow> CreateQuery<TRow>(StatementType statementType) where TRow : DBOrmRow
         {
             string tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
@@ -431,6 +456,7 @@ namespace MyLibrary.DataBase
             DBQuery<TRow> query = new DBQuery<TRow>(table, this, statementType);
             return query;
         }
+
         private object ExecuteInsertCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (DbCommand dbCommand = Connection.CreateCommand())
@@ -451,6 +477,7 @@ namespace MyLibrary.DataBase
                 return Provider.ExecuteInsertCommand(dbCommand);
             }
         }
+
         private int ExecuteUpdateCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (DbCommand dbCommand = Connection.CreateCommand())
@@ -477,6 +504,7 @@ namespace MyLibrary.DataBase
                 return dbCommand.ExecuteNonQuery();
             }
         }
+
         private int ExecuteDeleteCommand(DBRow row, DbTransaction dbTransaction)
         {
             using (DbCommand dbCommand = Connection.CreateCommand())
@@ -491,6 +519,7 @@ namespace MyLibrary.DataBase
             }
         }
 
+
         private class InsertRowContainer
         {
             public DBRow Row;
@@ -501,6 +530,7 @@ namespace MyLibrary.DataBase
                 Row = row;
             }
         }
+
         private class TempIdContainer
         {
             public DBRow Row;

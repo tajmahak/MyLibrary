@@ -281,7 +281,7 @@ namespace MyLibrary.DataBase.Firebird
                 System.Collections.Generic.List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
                 {
-                    throw DBInternal.WrongUpdateCommandException();
+                    throw DBExceptionFactory.WrongUpdateCommandException();
                 }
 
                 for (int i = 0; i < blockList.Count; i++)

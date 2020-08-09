@@ -10,15 +10,6 @@ namespace MyLibrary.DataBase
     {
         public DBTable Table { get; private set; }
         public DataRowState State { get; internal set; }
-        internal object[] Values;
-
-        internal DBRow(DBTable table)
-        {
-            Table = table;
-            Values = new object[table.Columns.Count];
-            State = DataRowState.Detached;
-        }
-
         public object this[string columnName]
         {
             get
@@ -43,107 +34,141 @@ namespace MyLibrary.DataBase
         }
         public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
         public bool PrimaryKeyValueIsTemporary => PrimaryKeyValue is DBTempId;
+        internal object[] Values;
+
+
+        internal DBRow(DBTable table)
+        {
+            Table = table;
+            Values = new object[table.Columns.Count];
+            State = DataRowState.Detached;
+        }
+
 
         public TValue GetValue<TValue>(string columnName)
         {
             DBColumn column = Table.Columns[columnName];
             return GetValue<TValue>(column.OrderIndex);
         }
+
         public TValue GetValue<TValue>(int columnIndex)
         {
             object value = Values[columnIndex];
             return Data.Convert<TValue>(value);
         }
+
         public bool GetBoolean(string columnName)
         {
             return GetValue<bool>(columnName);
         }
+
         public bool GetBoolean(int columnIndex)
         {
             return GetValue<bool>(columnIndex);
         }
+
         public byte GetByte(string columnName)
         {
             return GetValue<byte>(columnName);
         }
+
         public byte GetByte(int columnIndex)
         {
             return GetValue<byte>(columnIndex);
         }
+
         public byte[] GetBytes(string columnName)
         {
             return GetValue<byte[]>(columnName);
         }
+
         public byte[] GetBytes(int columnIndex)
         {
             return GetValue<byte[]>(columnIndex);
         }
+
         public DateTime GetDateTime(string columnName)
         {
             return GetValue<DateTime>(columnName);
         }
+
         public DateTime GetDateTime(int columnIndex)
         {
             return GetValue<DateTime>(columnIndex);
         }
+
         public decimal GetDecimal(string columnName)
         {
             return GetValue<decimal>(columnName);
         }
+
         public decimal GetDecimal(int columnIndex)
         {
             return GetValue<decimal>(columnIndex);
         }
+
         public double GetDouble(string columnName)
         {
             return GetValue<double>(columnName);
         }
+
         public double GetDouble(int columnIndex)
         {
             return GetValue<double>(columnIndex);
         }
+
         public short GetInt16(string columnName)
         {
             return GetValue<short>(columnName);
         }
+
         public short GetInt16(int columnIndex)
         {
             return GetValue<short>(columnIndex);
         }
+
         public int GetInt32(string columnName)
         {
             return GetValue<int>(columnName);
         }
+
         public int GetInt32(int columnIndex)
         {
             return GetValue<int>(columnIndex);
         }
+
         public long GetInt64(string columnName)
         {
             return GetValue<long>(columnName);
         }
+
         public long GetInt64(int columnIndex)
         {
             return GetValue<long>(columnIndex);
         }
+
         public float GetSingle(string columnName)
         {
             return GetValue<float>(columnName);
         }
+
         public float GetSingle(int columnIndex)
         {
             return GetValue<float>(columnIndex);
         }
+
         public string GetString(string columnName, bool allowNull = false)
         {
             DBColumn column = Table.Columns[columnName];
             return GetString(column.OrderIndex, allowNull);
         }
+
         public string GetString(string columnName, string format)
         {
             DBColumn column = Table.Columns[columnName];
             return GetString(column.OrderIndex, format);
         }
+
         public string GetString(int columnIndex, bool allowNull = false)
         {
             string value = GetValue<string>(columnIndex);
@@ -153,6 +178,7 @@ namespace MyLibrary.DataBase
             }
             return value;
         }
+
         public string GetString(int columnIndex, string format)
         {
             object value = this[columnIndex];
@@ -160,12 +186,14 @@ namespace MyLibrary.DataBase
             {
                 return formattable.ToString(format, null);
             }
-            throw DBInternal.StringFormatException();
+            throw DBExceptionFactory.StringFormatException();
         }
+
         public TimeSpan GetTimeSpan(string columnName)
         {
             return GetValue<TimeSpan>(columnName);
         }
+
         public TimeSpan GetTimeSpan(int columnIndex)
         {
             return GetValue<TimeSpan>(columnIndex);
@@ -176,6 +204,7 @@ namespace MyLibrary.DataBase
             DBColumn column = Table.Columns[columnName];
             return IsNull(column.OrderIndex);
         }
+
         public bool IsNull(int columnIndex)
         {
             object value = Values[columnIndex];
@@ -187,11 +216,13 @@ namespace MyLibrary.DataBase
             DBColumn column = Table.Columns[columnName];
             SetNotNull(column.OrderIndex);
         }
+
         public void SetNotNull(int columnIndex)
         {
             DBColumn column = Table.Columns[columnIndex];
             SetNotNull(column);
         }
+
         public void SetNotNull()
         {
             for (int i = 0; i < Table.Columns.Count; i++)
@@ -205,6 +236,7 @@ namespace MyLibrary.DataBase
             State = DataRowState.Deleted;
         }
 
+
         private void SetValue(DBColumn column, object value)
         {
             value = value ?? DBNull.Value;
@@ -213,7 +245,7 @@ namespace MyLibrary.DataBase
             {
                 if (column.IsPrimary)
                 {
-                    throw DBInternal.GenerateSetIDException(column);
+                    throw DBExceptionFactory.GenerateSetIDException(column);
                 }
             }
             else if (value is DBNull)
@@ -233,7 +265,7 @@ namespace MyLibrary.DataBase
                     }
                     catch (Exception ex)
                     {
-                        throw DBInternal.DataConvertException(column, value, ex);
+                        throw DBExceptionFactory.DataConvertException(column, value, ex);
                     }
                 }
             }
@@ -243,7 +275,7 @@ namespace MyLibrary.DataBase
                 // проверка на максимальную длину текстовой строки
                 if (stringValue.Length > column.Size)
                 {
-                    throw DBInternal.StringOverflowException(column);
+                    throw DBExceptionFactory.StringOverflowException(column);
                 }
             }
 
@@ -269,6 +301,7 @@ namespace MyLibrary.DataBase
 
             Values[column.OrderIndex] = value;
         }
+
         private void SetNotNull(DBColumn column)
         {
             if (column.NotNull)

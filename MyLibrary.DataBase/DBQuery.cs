@@ -14,11 +14,11 @@ namespace MyLibrary.DataBase
         {
             if (table == null)
             {
-                throw DBInternal.ArgumentNullException(nameof(table));
+                throw DBExceptionFactory.ArgumentNullException(nameof(table));
             }
             if (table.Name == null)
             {
-                throw DBInternal.ProcessViewException();
+                throw DBExceptionFactory.ProcessViewException();
             }
             Table = table;
             Context = context;
@@ -44,7 +44,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.SqlExecuteException();
+                throw DBExceptionFactory.SqlExecuteException();
             }
             return new DBReader<T>(Context.Provider, Context.Connection, this, rowConverter, CommandBehavior.Default);
         }
@@ -63,7 +63,7 @@ namespace MyLibrary.DataBase
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.SqlExecuteException();
+                throw DBExceptionFactory.SqlExecuteException();
             }
 
             DBReader<T> reader = new DBReader<T>(Context.Provider, Context.Connection, this, rowConverter, CommandBehavior.SingleRow);
@@ -98,7 +98,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType == StatementType.Select)
             {
-                throw DBInternal.SqlExecuteException();
+                throw DBExceptionFactory.SqlExecuteException();
             }
             DbTransaction dbTransaction = null;
             try
@@ -220,7 +220,7 @@ namespace MyLibrary.DataBase
         {
             if (matchingColumns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(matchingColumns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(matchingColumns));
             }
 
             StatementType = StatementType.Batch;
@@ -231,12 +231,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType == StatementType.Select || StatementType == StatementType.Delete)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.Set, columnName, value);
@@ -246,7 +246,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType == StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.Returning, columns);
@@ -305,7 +305,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -316,17 +316,17 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -337,12 +337,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -353,12 +353,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -369,12 +369,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -385,12 +385,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -401,12 +401,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -417,12 +417,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -433,7 +433,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -445,7 +445,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.Distinct);
@@ -460,7 +460,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.Limit, count);
@@ -470,7 +470,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.Offset, count);
@@ -480,7 +480,7 @@ namespace MyLibrary.DataBase
         {
             if (query == null)
             {
-                throw DBInternal.ArgumentNullException(nameof(query));
+                throw DBExceptionFactory.ArgumentNullException(nameof(query));
             }
 
             Structure.Add(DBQueryStructureType.UnionAll, query);
@@ -490,7 +490,7 @@ namespace MyLibrary.DataBase
         {
             if (query == null)
             {
-                throw DBInternal.ArgumentNullException(nameof(query));
+                throw DBExceptionFactory.ArgumentNullException(nameof(query));
             }
 
             Structure.Add(DBQueryStructureType.UnionDistinct, query);
@@ -503,7 +503,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -514,7 +514,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -525,17 +525,17 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
@@ -547,12 +547,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -563,22 +563,22 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -592,7 +592,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -603,7 +603,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -614,17 +614,17 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.LeftJoin, joinColumnName, columnName);
@@ -636,12 +636,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -652,22 +652,22 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -681,7 +681,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -692,7 +692,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -703,17 +703,17 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.RightJoin, joinColumnName, columnName);
@@ -725,12 +725,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -741,22 +741,22 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -770,7 +770,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -781,7 +781,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -792,17 +792,17 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.FullJoin, joinColumnName, columnName);
@@ -814,12 +814,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -830,22 +830,22 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(alias))
             {
-                throw DBInternal.ArgumentNullException(nameof(alias));
+                throw DBExceptionFactory.ArgumentNullException(nameof(alias));
             }
 
             if (string.IsNullOrEmpty(joinColumnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(joinColumnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(joinColumnName));
             }
 
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -905,12 +905,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(equalOperator))
             {
-                throw DBInternal.ArgumentNullException(nameof(equalOperator));
+                throw DBExceptionFactory.ArgumentNullException(nameof(equalOperator));
             }
 
             Structure.Add(DBQueryStructureType.Where, columnName, equalOperator, value);
@@ -920,7 +920,7 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             Structure.Add(DBQueryStructureType.WhereBetween, columnName, value1, value2);
@@ -930,12 +930,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw DBInternal.ArgumentNullException(nameof(value));
+                throw DBExceptionFactory.ArgumentNullException(nameof(value));
             }
 
             Structure.Add(DBQueryStructureType.WhereUpper, columnName, value);
@@ -945,12 +945,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw DBInternal.ArgumentNullException(nameof(value));
+                throw DBExceptionFactory.ArgumentNullException(nameof(value));
             }
 
             Structure.Add(DBQueryStructureType.WhereContaining, columnName, value);
@@ -960,12 +960,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw DBInternal.ArgumentNullException(nameof(value));
+                throw DBExceptionFactory.ArgumentNullException(nameof(value));
             }
 
             Structure.Add(DBQueryStructureType.WhereContainingUpper, columnName, value);
@@ -975,12 +975,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw DBInternal.ArgumentNullException(nameof(value));
+                throw DBExceptionFactory.ArgumentNullException(nameof(value));
             }
 
             Structure.Add(DBQueryStructureType.WhereLike, columnName, value);
@@ -990,12 +990,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw DBInternal.ArgumentNullException(nameof(value));
+                throw DBExceptionFactory.ArgumentNullException(nameof(value));
             }
 
             Structure.Add(DBQueryStructureType.WhereLikeUpper, columnName, value);
@@ -1005,12 +1005,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (query == null)
             {
-                throw DBInternal.ArgumentNullException(nameof(query));
+                throw DBExceptionFactory.ArgumentNullException(nameof(query));
             }
 
             Structure.Add(DBQueryStructureType.WhereInQuery, columnName, query);
@@ -1020,12 +1020,12 @@ namespace MyLibrary.DataBase
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw DBInternal.ArgumentNullException(nameof(columnName));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columnName));
             }
 
             if (values == null || values.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(values));
+                throw DBExceptionFactory.ArgumentNullException(nameof(values));
             }
 
             Structure.Add(DBQueryStructureType.WhereInValues, columnName, values);
@@ -1037,7 +1037,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
@@ -1048,7 +1048,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
@@ -1060,7 +1060,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
@@ -1073,7 +1073,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByExpression, expression.Body);
@@ -1083,12 +1083,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderBy, columns);
@@ -1100,7 +1100,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
@@ -1111,7 +1111,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
@@ -1123,7 +1123,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
@@ -1136,7 +1136,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByDescendingExpression, expression.Body);
@@ -1146,12 +1146,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByDescending, columns);
@@ -1162,12 +1162,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByUpper, columns);
@@ -1177,12 +1177,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.OrderByUpperDesc, columns);
@@ -1194,7 +1194,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
@@ -1205,7 +1205,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
@@ -1217,7 +1217,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
@@ -1230,7 +1230,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
@@ -1240,12 +1240,12 @@ namespace MyLibrary.DataBase
         {
             if (columns.Length == 0)
             {
-                throw DBInternal.ArgumentNullException(nameof(columns));
+                throw DBExceptionFactory.ArgumentNullException(nameof(columns));
             }
 
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             IsView = true;
@@ -1257,7 +1257,7 @@ namespace MyLibrary.DataBase
         {
             if (StatementType != StatementType.Select)
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             Structure.Add(DBQueryStructureType.HavingExpression, expression.Body);

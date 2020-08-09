@@ -10,6 +10,7 @@ namespace MyLibrary.DataBase
     {
         public string TableName { get; private set; }
 
+
         public DBOrmTableAttribute(string tableName)
         {
             TableName = tableName;

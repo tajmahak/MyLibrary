@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBExceptionFactory.cs" />
     <Compile Include="Helpers\DataBaseCache.cs" />
     <Compile Include="DBColumn.cs" />
     <Compile Include="DBColumnCollection.cs" />

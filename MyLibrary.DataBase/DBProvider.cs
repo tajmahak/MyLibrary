@@ -18,15 +18,20 @@ namespace MyLibrary.DataBase
         public string OpenBlock { get; protected set; } = string.Empty;
         public string CloseBlock { get; protected set; } = string.Empty;
         public bool Initialized { get; private set; }
-        private readonly Dictionary<DBTable, string> _selectCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _insertCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _updateCommandsDict = new Dictionary<DBTable, string>();
-        private readonly Dictionary<DBTable, string> _deleteCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> selectCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> insertCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> updateCommandsDict = new Dictionary<DBTable, string>();
+        private readonly Dictionary<DBTable, string> deleteCommandsDict = new Dictionary<DBTable, string>();
+
 
         public abstract DbConnection CreateConnection(string connectionString);
+
         public abstract void FillTableSchema(DbConnection dbConnection);
+
         public abstract DbParameter CreateParameter(string name, object value);
+
         public abstract DBCompiledQuery CompileQuery(DBQueryBase query, int nextParameterNumber = 0);
+
         public virtual object ExecuteInsertCommand(DbCommand dbCommand)
         {
             return dbCommand.ExecuteScalar();
@@ -39,6 +44,7 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             Initialized = true;
         }
+
         public void Initialize(Type dbType)
         {
             List<Type> ormTableTypes = new List<Type>();
@@ -103,29 +109,31 @@ namespace MyLibrary.DataBase
             InitializeDictionaries();
             Initialized = true;
         }
+
         public string GetDefaultSqlQuery(DBTable table, StatementType statementType)
         {
             if (statementType != StatementType.Select && table.PrimaryKeyColumn == null)
             {
-                throw DBInternal.GetDefaultSqlQueryException(table);
+                throw DBExceptionFactory.GetDefaultSqlQueryException(table);
             }
 
             switch (statementType)
             {
                 case StatementType.Select:
-                    return _selectCommandsDict[table];
+                    return selectCommandsDict[table];
 
                 case StatementType.Insert:
-                    return _insertCommandsDict[table];
+                    return insertCommandsDict[table];
 
                 case StatementType.Update:
-                    return _updateCommandsDict[table];
+                    return updateCommandsDict[table];
 
                 case StatementType.Delete:
-                    return _deleteCommandsDict[table];
+                    return deleteCommandsDict[table];
             }
             throw new NotImplementedException();
         }
+
         public DbCommand CreateCommand(DbConnection dbConnection, DBQueryBase query)
         {
             DBCompiledQuery compiledQuery = CompileQuery(query);
@@ -138,10 +146,48 @@ namespace MyLibrary.DataBase
             }
             return dbCommand;
         }
+
         public DBContext CreateDBContext(DbConnection dbConnection)
         {
             DBContext context = new DBContext(this, dbConnection);
             return context;
+        }
+
+
+
+        protected string GetSelectCommandText(DBTable table)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Concat("SELECT ", GetShortName(table.Name), ".* FROM ", GetShortName(table.Name));
+            return sql.ToString();
+        }
+
+        protected string GetUpdateCommandText(DBTable table)
+        {
+            StringBuilder sql = new StringBuilder();
+
+            sql.Concat("UPDATE ", GetShortName(table.Name), " SET ");
+            int index = 0;
+            foreach (DBColumn column in table.Columns)
+            {
+                if (!column.IsPrimary)
+                {
+                    if (index != 0)
+                    {
+                        sql.Concat(',');
+                    }
+                    sql.Concat(GetShortName(column.Name), "=@p", index++);
+                }
+            }
+            sql.Concat(" WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
+        }
+
+        protected string GetDeleteCommandText(DBTable table)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Concat("DELETE FROM ", GetShortName(table.Name), " WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
+            return sql.ToString();
         }
 
         protected virtual string GetInsertCommandText(DBTable table)
@@ -169,70 +215,13 @@ namespace MyLibrary.DataBase
             sql.Concat(')');
             return sql.ToString();
         }
-        protected string GetSelectCommandText(DBTable table)
-        {
-            StringBuilder sql = new StringBuilder();
-            sql.Concat("SELECT ", GetShortName(table.Name), ".* FROM ", GetShortName(table.Name));
-            return sql.ToString();
-        }
-        protected string GetUpdateCommandText(DBTable table)
-        {
-            StringBuilder sql = new StringBuilder();
-
-            sql.Concat("UPDATE ", GetShortName(table.Name), " SET ");
-            int index = 0;
-            foreach (DBColumn column in table.Columns)
-            {
-                if (!column.IsPrimary)
-                {
-                    if (index != 0)
-                    {
-                        sql.Concat(',');
-                    }
-                    sql.Concat(GetShortName(column.Name), "=@p", index++);
-                }
-            }
-            sql.Concat(" WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-        protected string GetDeleteCommandText(DBTable table)
-        {
-            StringBuilder sql = new StringBuilder();
-            sql.Concat("DELETE FROM ", GetShortName(table.Name), " WHERE ", GetShortName(table.PrimaryKeyColumn.Name), "=@id");
-            return sql.ToString();
-        }
-        private void InitializeDictionaries()
-        {
-            Columns.Clear();
-            _selectCommandsDict.Clear();
-            _insertCommandsDict.Clear();
-            _updateCommandsDict.Clear();
-            _deleteCommandsDict.Clear();
-            foreach (DBTable table in Tables)
-            {
-                _selectCommandsDict.Add(table, GetSelectCommandText(table));
-                if (table.PrimaryKeyColumn != null)
-                {
-                    _insertCommandsDict.Add(table, GetInsertCommandText(table));
-                    _updateCommandsDict.Add(table, GetUpdateCommandText(table));
-                    _deleteCommandsDict.Add(table, GetDeleteCommandText(table));
-                }
-
-                foreach (DBColumn column in table.Columns)
-                {
-                    Columns.Add(column);
-                }
-            }
-        }
-
-        #region Вспомогательные сущности для получения SQL-команд
 
         protected void PrepareSelectBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(x => x.StartsWith("Select"));
             if (blockList.Count == 0)
             {
-                sql.Concat(_selectCommandsDict[query.Table]);
+                sql.Concat(selectCommandsDict[query.Table]);
             }
             else
             {
@@ -402,6 +391,7 @@ namespace MyLibrary.DataBase
                 sql.Concat(" FROM ", GetShortName(query.Table.Name));
             }
         }
+
         protected void PrepareInsertBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             sql.Concat("INSERT INTO ", GetShortName(query.Table.Name), '(');
@@ -409,7 +399,7 @@ namespace MyLibrary.DataBase
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
-                throw DBInternal.WrongInsertCommandException();
+                throw DBExceptionFactory.WrongInsertCommandException();
             }
 
             for (int i = 0; i < blockList.Count; i++)
@@ -433,6 +423,7 @@ namespace MyLibrary.DataBase
             }
             sql.Concat(')');
         }
+
         protected void PrepareUpdateBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             sql.Concat("UPDATE ", GetShortName(query.Table.Name), " SET ");
@@ -440,7 +431,7 @@ namespace MyLibrary.DataBase
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Set);
             if (blockList.Count == 0)
             {
-                throw DBInternal.WrongUpdateCommandException();
+                throw DBExceptionFactory.WrongUpdateCommandException();
             }
 
             for (int i = 0; i < blockList.Count; i++)
@@ -453,10 +444,12 @@ namespace MyLibrary.DataBase
                 sql.Concat(GetFullName(block[0]), '=', GetParameter(block[1], cQuery));
             }
         }
+
         protected void PrepareDeleteBlock(StringBuilder sql, DBQueryBase query)
         {
             sql.Concat("DELETE FROM ", GetShortName(query.Table.Name));
         }
+
         protected void PrepareJoinBlock(StringBuilder sql, DBQueryBase query)
         {
             foreach (DBQueryStructureBlock block in query.Structure)
@@ -508,7 +501,7 @@ namespace MyLibrary.DataBase
                         string[] foreignKey = DBInternal.GetForeignKey((Type)block[0], (Type)block[1]);
                         if (foreignKey == null)
                         {
-                            throw DBInternal.ForeignKeyException();
+                            throw DBExceptionFactory.ForeignKeyException();
                         }
                         string[] split = foreignKey[1].Split('.');
                         switch (block.Type)
@@ -551,6 +544,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
+
         protected void PrepareWhereBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(x => x.StartsWith("Where"));
@@ -662,6 +656,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
+
         protected void PrepareOrderByBlock(StringBuilder sql, DBQueryBase query)
         {
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(x => x.StartsWith("OrderBy"));
@@ -732,6 +727,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
+
         protected void PrepareGroupByBlock(StringBuilder sql, DBQueryBase query)
         {
             List<DBQueryStructureBlock> blockList = query.Structure.FindAll(x => x.StartsWith("GroupBy"));
@@ -766,6 +762,7 @@ namespace MyLibrary.DataBase
                 }
             }
         }
+
         protected void PrepareHavingBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             DBQueryStructureBlock block = query.Structure.Find(x => x == DBQueryStructureType.HavingExpression);
@@ -774,6 +771,7 @@ namespace MyLibrary.DataBase
                 sql.Concat(" HAVING ", GetSqlFromExpression(block[0], cQuery));
             }
         }
+
         protected void PrepareUnionBlock(StringBuilder sql, DBQueryBase query, DBCompiledQuery cQuery)
         {
             foreach (DBQueryStructureBlock block in query.Structure)
@@ -796,16 +794,19 @@ namespace MyLibrary.DataBase
             string[] split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock, '.', OpenBlock, split[1], CloseBlock);
         }
+
         protected string GetShortName(object value)
         {
             string[] split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[0], CloseBlock);
         }
+
         protected string GetColumnName(object value)
         {
             string[] split = ((string)value).Split('.');
             return string.Concat(OpenBlock, split[1], CloseBlock);
         }
+
         protected string GetParameter(object value, DBCompiledQuery cQuery)
         {
             value = value ?? DBNull.Value;
@@ -831,22 +832,26 @@ namespace MyLibrary.DataBase
 
             return parameter.Name;
         }
+
         protected string GetSubQuery(DBQueryBase subQuery, DBCompiledQuery cQuery)
         {
             DBCompiledQuery subCQuery = CompileQuery(subQuery, cQuery.Parameters.Count);
             cQuery.Parameters.AddRange(subCQuery.Parameters);
             return string.Concat('(', subCQuery.CommandText, ')');
         }
+
         protected string GetSqlFromExpression(object expression, DBCompiledQuery cQuery, object parentExpression = null)
         {
             object value = ParseExpression(false, (Expression)expression, cQuery, (Expression)parentExpression);
             return value.ToString();
         }
+
         protected object GetValueFromExpression(object expression, object parentExpression = null)
         {
             object value = ParseExpression(true, (Expression)expression, null, (Expression)parentExpression);
             return value;
         }
+
         protected string GetStringListFromExpression(object expression, DBCompiledQuery cQuery)
         {
             StringBuilder sql = new StringBuilder();
@@ -863,6 +868,7 @@ namespace MyLibrary.DataBase
 
             return sql.ToString();
         }
+
         protected string[] GetListFromExpression(object expression, DBCompiledQuery cQuery)
         {
             List<string> list = new List<string>();
@@ -889,6 +895,7 @@ namespace MyLibrary.DataBase
             return list.ToArray();
         }
 
+       
         private object ParseExpression(bool parseValue, Expression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             StringBuilder sql = new StringBuilder();
@@ -939,7 +946,7 @@ namespace MyLibrary.DataBase
                         case ExpressionType.MultiplyChecked:
                             @operator = "*"; break;
 
-                        default: throw DBInternal.UnsupportedCommandContextException();
+                        default: throw DBExceptionFactory.UnsupportedCommandContextException();
                     }
 
                     #endregion
@@ -1055,7 +1062,7 @@ namespace MyLibrary.DataBase
                 }
                 else
                 {
-                    throw DBInternal.UnsupportedCommandContextException();
+                    throw DBExceptionFactory.UnsupportedCommandContextException();
                 }
 
                 #endregion
@@ -1114,7 +1121,7 @@ namespace MyLibrary.DataBase
                     }
                     else
                     {
-                        throw DBInternal.UnsupportedCommandContextException();
+                        throw DBExceptionFactory.UnsupportedCommandContextException();
                     }
                 }
 
@@ -1172,18 +1179,43 @@ namespace MyLibrary.DataBase
                 }
                 else
                 {
-                    throw DBInternal.UnsupportedCommandContextException();
+                    throw DBExceptionFactory.UnsupportedCommandContextException();
                 }
 
                 #endregion
             }
             else
             {
-                throw DBInternal.UnsupportedCommandContextException();
+                throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
             return sql.ToString();
         }
+
+        private void InitializeDictionaries()
+        {
+            Columns.Clear();
+            selectCommandsDict.Clear();
+            insertCommandsDict.Clear();
+            updateCommandsDict.Clear();
+            deleteCommandsDict.Clear();
+            foreach (DBTable table in Tables)
+            {
+                selectCommandsDict.Add(table, GetSelectCommandText(table));
+                if (table.PrimaryKeyColumn != null)
+                {
+                    insertCommandsDict.Add(table, GetInsertCommandText(table));
+                    updateCommandsDict.Add(table, GetUpdateCommandText(table));
+                    deleteCommandsDict.Add(table, GetDeleteCommandText(table));
+                }
+
+                foreach (DBColumn column in table.Columns)
+                {
+                    Columns.Add(column);
+                }
+            }
+        }
+
         private string ParseExpressionFunction(MethodCallExpression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             StringBuilder sql = new StringBuilder();
@@ -1499,7 +1531,5 @@ namespace MyLibrary.DataBase
 
             return sql.ToString();
         }
-
-        #endregion
     }
 }
