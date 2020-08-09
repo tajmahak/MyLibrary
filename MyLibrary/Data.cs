@@ -239,11 +239,20 @@ namespace MyLibrary
 
             return Activator.CreateInstance(type);
         }
+        public static T GetNotNullValue<T>(T value)
+        {
+            if (value == null)
+            {
+                return (T)GetNotNullValue(typeof(T));
+            }
+            return value;
+        }
         public static string ConvertToNotNullString(object value)
         {
             value = Convert<string>(value);
             return IsNull(value) ? string.Empty : (string)value;
         }
+
         public static string[] Split(string value, params string[] values)
         {
             return value.Split(values, StringSplitOptions.RemoveEmptyEntries);
