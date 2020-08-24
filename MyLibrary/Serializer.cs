@@ -9,8 +9,8 @@ namespace MyLibrary
     public static class Serializer
     {
         private static readonly Dictionary<Type, XmlSerializer> xmlSerializers = new Dictionary<Type, XmlSerializer>();
-        
-        
+
+
         public static string SerializeToXml(object obj)
         {
             XmlSerializer xmlSerializer = GetXmlSerializer(obj.GetType());

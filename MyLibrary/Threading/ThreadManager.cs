@@ -38,7 +38,7 @@ namespace MyLibrary.Threading
             return threadManager;
         }
 
-        
+
         public bool Aborted => aborted;
         private readonly Thread[] threads;
         private readonly int tasksCount;
@@ -60,7 +60,7 @@ namespace MyLibrary.Threading
             this.tasksCount = tasksCount;
         }
 
-      
+
         /// <summary>
         /// Происходит перед началом операций
         /// </summary>
@@ -71,7 +71,7 @@ namespace MyLibrary.Threading
         /// </summary>
         public event EventHandler<EventArgs> Completed;
 
-       
+
         /// <summary>
         /// Запуск обработки
         /// </summary>

@@ -895,7 +895,7 @@ namespace MyLibrary.DataBase
             return list.ToArray();
         }
 
-       
+
         private object ParseExpression(bool parseValue, Expression expression, DBCompiledQuery cQuery, Expression parentExpression)
         {
             StringBuilder sql = new StringBuilder();

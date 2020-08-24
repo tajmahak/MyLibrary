@@ -35,7 +35,7 @@ namespace MyLibrary.Net
             RequestUri = requestUri;
         }
 
-      
+
         public event EventHandler CreatingRequest;
 
         public event EventHandler ResponseReceived;

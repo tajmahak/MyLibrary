@@ -12,7 +12,7 @@ namespace MyLibrary.Win32
         /// Переключение фокуса на окно уже открытого экземпляра программы
         /// </summary>
         /// <returns></returns>
-        public static bool FocusProgram()
+        public static bool SetForegroundWindow()
         {
             string exePath = Assembly.GetEntryAssembly().Location;
             Process currentProcess = Process.GetCurrentProcess();

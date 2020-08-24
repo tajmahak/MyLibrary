@@ -3,7 +3,7 @@
     public interface IPostDataContent
     {
         byte[] GetContent();
-       
+
         string GetContentType();
     }
 }

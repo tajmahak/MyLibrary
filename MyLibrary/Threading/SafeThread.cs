@@ -11,15 +11,15 @@ namespace MyLibrary.Threading
         public Thread CurrentThread { get; private set; }
         public bool Aborted => aborted;
         private volatile bool aborted;
-     
-       
+
+
         public SafeThread(Action<SafeThread> action)
         {
             CurrentThread = new Thread(() => action(this));
             CurrentThread.IsBackground = true;
         }
 
-       
+
         public static SafeThread Start(Action<SafeThread> action)
         {
             SafeThread safeThread = new SafeThread(action);
