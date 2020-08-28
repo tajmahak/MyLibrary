@@ -255,30 +255,30 @@ namespace MyLibrary.DataBase
 
         public TQuery Select(Expression<Func<object>> expression)
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object>> expression)
             where TRow : DBOrmRow
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object[]>> expression)
             where TRow : DBOrmRow
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
             where TRow : DBOrmRow
             where TRow2 : DBOrmRow
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -286,8 +286,8 @@ namespace MyLibrary.DataBase
             where TRow2 : DBOrmRow
             where TRow3 : DBOrmRow
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3, TRow4>(Expression<Func<TRow, TRow2, TRow3, TRow4, object[]>> expression)
@@ -296,8 +296,8 @@ namespace MyLibrary.DataBase
             where TRow3 : DBOrmRow
             where TRow4 : DBOrmRow
         {
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
+            IsView = GetSelectQueryIsView();
             return This;
         }
 
@@ -308,8 +308,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.Select, columns);
+            IsView = GetSelectQueryIsView();
             return This;
         }
         public TQuery SelectAs(string alias, string columnName)
@@ -1262,6 +1262,27 @@ namespace MyLibrary.DataBase
 
             Structure.Add(DBQueryStructureType.HavingExpression, expression.Body);
             return This;
+        }
+
+        private bool GetSelectQueryIsView()
+        {
+            System.Collections.Generic.List<DBQueryStructureBlock> selectBlocks = Structure.FindAll(DBQueryStructureType.Select);
+            if (selectBlocks.Count == 1)
+            {
+                DBQueryStructureBlock selectBlock = selectBlocks[0];
+                if (selectBlock.Args.Length == 1)
+                {
+                    object arg = selectBlock.Args[0];
+                    if (arg is string stringArg && stringArg == Table.Name)
+                    {
+                        // В случае, если в блоке Select выбираются только поля искомой таблицы, 
+                        // полученный результат не будет считаться представлением.
+                        // Может применяться в связке с блоками типа Join.
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 
