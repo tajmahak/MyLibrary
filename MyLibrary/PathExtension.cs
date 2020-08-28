@@ -65,5 +65,33 @@ namespace MyLibrary
                 Directory.CreateDirectory(path);
             }
         }
+
+        /// <summary>
+        /// Добавление префикса к имени файла
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public static string AddFileNamePrefix(string path, string prefix)
+        {
+            string dirPath = Path.GetDirectoryName(path);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            string ext = Path.GetExtension(path);
+            return dirPath + "\\" + prefix + fileName + ext;
+        }
+
+        /// <summary>
+        /// Добавление суффикса к имени файла
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="suffix"></param>
+        /// <returns></returns>
+        public static string AddFileNameSuffix(string path, string suffix)
+        {
+            string dirPath = Path.GetDirectoryName(path);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            string ext = Path.GetExtension(path);
+            return dirPath + "\\" + fileName + suffix + ext;
+        }
     }
 }
