@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TypeExtension.cs" />
     <Compile Include="Collections\HashCollection.cs" />
     <Compile Include="Criptography.cs" />
     <Compile Include="Data.cs" />

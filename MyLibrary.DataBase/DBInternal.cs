@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace MyLibrary.DataBase
 {
@@ -27,18 +28,18 @@ namespace MyLibrary.DataBase
 
         public static string GetTableNameFromAttribute(Type type)
         {
-            object[] attrArray = type.GetCustomAttributes(typeof(DBOrmTableAttribute), true);
-            if (attrArray.Length == 0)
+            var attr = TypeExtension.GetAttribute<DBOrmTableAttribute>(type, true);
+            if (attr != null)
             {
-                throw DBExceptionFactory.OrmTableNotAttributeException(type);
+                return attr.TableName;
             }
-            return ((DBOrmTableAttribute)attrArray[0]).TableName;
+            throw DBExceptionFactory.OrmTableNotAttributeException(type);
         }
 
         public static string[] GetForeignKey(Type type1, Type type2)
         {
             string table = GetTableNameFromAttribute(type2);
-            foreach (System.Reflection.PropertyInfo property in type1.GetProperties())
+            foreach (PropertyInfo property in type1.GetProperties())
             {
                 foreach (DBOrmColumnAttribute attribute in property.GetCustomAttributes(typeof(DBOrmColumnAttribute), false))
                 {
