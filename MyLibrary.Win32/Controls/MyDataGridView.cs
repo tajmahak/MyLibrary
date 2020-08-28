@@ -13,11 +13,18 @@ namespace MyLibrary.Win32.Controls
             base.DoubleBuffered = true;
         }
 
+
         [DefaultValue(false)]
         public bool NextTabOnEnterButton { get; set; }
 
         [DefaultValue(false)]
         public bool StableSort { get; set; }
+
+
+        public bool MoveToNextCell()
+        {
+            return ProcessTabKey(Keys.Tab);
+        }
 
         protected override bool ProcessDialogKey(Keys keyData)
         {
@@ -29,9 +36,24 @@ namespace MyLibrary.Win32.Controls
             return base.ProcessDialogKey(keyData);
         }
 
-        public bool MoveToNextCell()
+        protected override void OnCellMouseDown(DataGridViewCellMouseEventArgs e)
         {
-            return ProcessTabKey(Keys.Tab);
+            if (ContextMenuStrip != null)
+            {
+                if (e.RowIndex != -1)
+                {
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        DataGridViewRow gridRow = Rows[e.RowIndex];
+                        if (!gridRow.Selected)
+                        {
+                            ClearSelection();
+                            gridRow.Selected = true;
+                        }
+                    }
+                }
+            }
+            base.OnCellMouseDown(e);
         }
 
         protected override bool ProcessDataGridViewKey(KeyEventArgs e)
