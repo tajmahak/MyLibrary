@@ -70,25 +70,35 @@ namespace MyLibrary.Win32
 
             return MessageBox.Show(owner, text, caption, buttons, icon, defaultButton);
         }
+
         public static DialogResult ShowError(params object[] items)
         {
             return Show(items, MessageBoxIcon.Error);
         }
+
         public static DialogResult ShowWarning(params object[] items)
         {
             return Show(items, MessageBoxIcon.Warning);
         }
+
         public static DialogResult ShowInformation(params object[] items)
         {
             return Show(items, MessageBoxIcon.Information);
         }
+
         public static DialogResult ShowQuestion(params object[] items)
         {
             return Show(items, MessageBoxIcon.Warning, MessageBoxButtons.YesNo);
         }
+
         public static DialogResult ShowDeleteRecordQuestion(params object[] items)
         {
             return ShowQuestion(items, "Вы действительно хотите удалить текущую запись?", MessageBoxButtons.YesNo);
+        }
+
+        public static bool ConfirmDeleteRecordQuestion(params object[] items)
+        {
+            return ShowDeleteRecordQuestion(items) == DialogResult.Yes;
         }
     }
 }
