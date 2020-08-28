@@ -329,8 +329,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectAs, alias, columnName);
+            IsView = true;
             return This;
         }
         public TQuery SelectSum(params string[] columns)
@@ -345,8 +345,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectSum, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectSumAs(params string[] columns)
@@ -361,8 +361,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectSumAs, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectMax(params string[] columns)
@@ -377,8 +377,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectMax, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectMaxAs(params string[] columns)
@@ -393,8 +393,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectMaxAs, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectMin(params string[] columns)
@@ -409,8 +409,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectMin, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectMinAs(params string[] columns)
@@ -425,8 +425,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectMinAs, columns);
+            IsView = true;
             return This;
         }
         public TQuery SelectCount(params string[] columns)
@@ -436,8 +436,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.SelectCount, columns);
+            IsView = true;
             return This;
         }
 
@@ -484,6 +484,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.UnionAll, query);
+            IsView = true;
             return This;
         }
         public TQuery UnionDistinct(DBQueryBase query)
@@ -494,6 +495,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.UnionDistinct, query);
+            IsView = true;
             return This;
         }
 
@@ -506,8 +508,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.InnerJoinType, typeof(TRow), typeof(TRow2));
+            IsView = true;
             return This;
         }
         public TQuery InnerJoin(Type rowType, Type row2Type)
@@ -517,8 +519,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.InnerJoinType, rowType, row2Type);
+            IsView = true;
             return This;
         }
         public TQuery InnerJoin(string joinColumnName, string columnName)
@@ -555,8 +557,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.InnerJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            IsView = true;
             return This;
         }
         public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
@@ -581,8 +583,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
+            IsView = true;
             return This;
         }
 
@@ -595,8 +597,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
+            IsView = true;
             return This;
         }
         public TQuery LeftJoin(Type rowType, Type row2Type)
@@ -606,8 +608,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinType, rowType, row2Type);
+            IsView = true;
             return This;
         }
         public TQuery LeftJoin(string joinColumnName, string columnName)
@@ -644,8 +646,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            IsView = true;
             return This;
         }
         public TQuery LeftJoinAs(string alias, string joinColumnName, string columnName)
@@ -670,8 +672,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.LeftJoinAs, alias, joinColumnName, columnName);
+            IsView = true;
             return This;
         }
 
@@ -684,8 +686,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
+            IsView = true;
             return This;
         }
         public TQuery RightJoin(Type rowType, Type row2Type)
@@ -695,8 +697,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.RightJoinType, rowType, row2Type);
+            IsView = true;
             return This;
         }
         public TQuery RightJoin(string joinColumnName, string columnName)
@@ -733,8 +735,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.RightJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            IsView = true;
             return This;
         }
         public TQuery RightJoinAs(string alias, string joinColumnName, string columnName)
@@ -759,8 +761,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.RightJoinAs, alias, joinColumnName, columnName);
+            IsView = true;
             return This;
         }
 
@@ -773,8 +775,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
+            IsView = true;
             return This;
         }
         public TQuery FullJoin(Type rowType, Type row2Type)
@@ -784,8 +786,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinType, rowType, row2Type);
+            IsView = true;
             return This;
         }
         public TQuery FullJoin(string joinColumnName, string columnName)
@@ -822,8 +824,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinAsType, typeof(TRow), typeof(TRow2), alias);
+            IsView = true;
             return This;
         }
         public TQuery FullJoinAs(string alias, string joinColumnName, string columnName)
@@ -848,8 +850,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.FullJoinAs, alias, joinColumnName, columnName);
+            IsView = true;
             return This;
         }
 
@@ -1198,6 +1200,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
+            IsView = true;
             return This;
         }
         public TQuery GroupBy<TRow>(Expression<Func<TRow, object[]>> expression)
@@ -1209,6 +1212,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
+            IsView = true;
             return This;
         }
         public TQuery GroupBy<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
@@ -1221,6 +1225,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
+            IsView = true;
             return This;
         }
         public TQuery GroupBy<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -1234,6 +1239,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.GroupByExpression, expression.Body);
+            IsView = true;
             return This;
         }
         public TQuery GroupBy(params string[] columns)
@@ -1248,8 +1254,8 @@ namespace MyLibrary.DataBase
                 throw DBExceptionFactory.UnsupportedCommandContextException();
             }
 
-            IsView = true;
             Structure.Add(DBQueryStructureType.GroupBy, columns);
+            IsView = true;
             return This;
         }
 
@@ -1261,6 +1267,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.HavingExpression, expression.Body);
+            IsView = true;
             return This;
         }
 
