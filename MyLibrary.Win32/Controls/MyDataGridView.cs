@@ -20,6 +20,11 @@ namespace MyLibrary.Win32.Controls
         [DefaultValue(false)]
         public bool StableSort { get; set; }
 
+        /// <summary>
+        /// используется для вызова события CellValuePushed/CellValueChanged сразу после изменения значения ячейки
+        /// </summary>
+        [DefaultValue(false)]
+        public bool CommitAfterInput { get; set; }
 
         public bool MoveToNextCell()
         {
@@ -54,6 +59,15 @@ namespace MyLibrary.Win32.Controls
                 }
             }
             base.OnCellMouseDown(e);
+        }
+
+        protected override void OnCellContentClick(DataGridViewCellEventArgs e)
+        {
+            base.OnCellContentClick(e);
+            if (CommitAfterInput)
+            {
+                CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
         }
 
         protected override bool ProcessDataGridViewKey(KeyEventArgs e)
