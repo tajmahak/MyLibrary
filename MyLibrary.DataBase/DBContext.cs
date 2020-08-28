@@ -409,36 +409,66 @@ namespace MyLibrary.DataBase
 
         public void CommitAndClear()
         {
-            Commit();
-            Clear();
+            try
+            {
+                Commit();
+            }
+            finally
+            {
+                Clear();
+            }
         }
 
         public void CommitAndClear(DBRow row)
         {
-            AddRow(row);
-            Commit();
-            Clear(row);
+            try
+            {
+                AddRow(row);
+                Commit();
+            }
+            finally
+            {
+                Clear(row);
+            }
         }
 
         public void CommitAndClear<TRow>(TRow row) where TRow : DBOrmRow
         {
-            AddRow(row);
-            Commit();
-            Clear(row);
+            try
+            {
+                AddRow(row);
+                Commit();
+            }
+            finally
+            {
+                Clear(row);
+            }
         }
 
         public void CommitAndClear(IEnumerable<DBRow> collection)
         {
-            AddRows(collection);
-            Commit();
-            Clear(collection);
+            try
+            {
+                AddRows(collection);
+                Commit();
+            }
+            finally
+            {
+                Clear(collection);
+            }
         }
 
         public void CommitAndClear<TRow>(IEnumerable<TRow> collection) where TRow : DBOrmRow
         {
-            AddRows(collection);
-            Commit();
-            Clear(collection);
+            try
+            {
+                AddRows(collection);
+                Commit();
+            }
+            finally
+            {
+                Clear(collection);
+            }
         }
 
 
