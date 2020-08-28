@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -256,21 +257,21 @@ namespace MyLibrary.DataBase
         public TQuery Select(Expression<Func<object>> expression)
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object>> expression)
             where TRow : DBOrmRow
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery Select<TRow>(Expression<Func<TRow, object[]>> expression)
             where TRow : DBOrmRow
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2>(Expression<Func<TRow, TRow2, object[]>> expression)
@@ -278,7 +279,7 @@ namespace MyLibrary.DataBase
             where TRow2 : DBOrmRow
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3>(Expression<Func<TRow, TRow2, TRow3, object[]>> expression)
@@ -287,7 +288,7 @@ namespace MyLibrary.DataBase
             where TRow3 : DBOrmRow
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery Select<TRow, TRow2, TRow3, TRow4>(Expression<Func<TRow, TRow2, TRow3, TRow4, object[]>> expression)
@@ -297,7 +298,7 @@ namespace MyLibrary.DataBase
             where TRow4 : DBOrmRow
         {
             Structure.Add(DBQueryStructureType.SelectExpression, expression.Body);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
 
@@ -309,7 +310,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.Select, columns);
-            IsView = GetSelectQueryIsView();
+            IsView = QueryIsView();
             return This;
         }
         public TQuery SelectAs(string alias, string columnName)
@@ -509,7 +510,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.InnerJoinType, typeof(TRow), typeof(TRow2));
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery InnerJoin(Type rowType, Type row2Type)
@@ -520,7 +521,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.InnerJoinType, rowType, row2Type);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery InnerJoin(string joinColumnName, string columnName)
@@ -541,6 +542,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.InnerJoin, joinColumnName, columnName);
+            IsView = QueryIsView();
             return This;
         }
         public TQuery InnerJoinAs<TRow, TRow2>(string alias)
@@ -558,7 +560,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.InnerJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery InnerJoinAs(string alias, string joinColumnName, string columnName)
@@ -584,7 +586,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.InnerJoinAs, alias, joinColumnName, columnName);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
 
@@ -598,7 +600,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.LeftJoinType, typeof(TRow), typeof(TRow2));
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery LeftJoin(Type rowType, Type row2Type)
@@ -609,7 +611,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.LeftJoinType, rowType, row2Type);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery LeftJoin(string joinColumnName, string columnName)
@@ -630,6 +632,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.LeftJoin, joinColumnName, columnName);
+            IsView = QueryIsView();
             return This;
         }
         public TQuery LeftJoinAs<TRow, TRow2>(string alias)
@@ -647,7 +650,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.LeftJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery LeftJoinAs(string alias, string joinColumnName, string columnName)
@@ -673,7 +676,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.LeftJoinAs, alias, joinColumnName, columnName);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
 
@@ -687,7 +690,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.RightJoinType, typeof(TRow), typeof(TRow2));
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery RightJoin(Type rowType, Type row2Type)
@@ -698,7 +701,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.RightJoinType, rowType, row2Type);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery RightJoin(string joinColumnName, string columnName)
@@ -719,6 +722,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.RightJoin, joinColumnName, columnName);
+            IsView = QueryIsView();
             return This;
         }
         public TQuery RightJoinAs<TRow, TRow2>(string alias)
@@ -736,7 +740,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.RightJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery RightJoinAs(string alias, string joinColumnName, string columnName)
@@ -762,7 +766,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.RightJoinAs, alias, joinColumnName, columnName);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
 
@@ -776,7 +780,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.FullJoinType, typeof(TRow), typeof(TRow2));
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery FullJoin(Type rowType, Type row2Type)
@@ -787,7 +791,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.FullJoinType, rowType, row2Type);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery FullJoin(string joinColumnName, string columnName)
@@ -808,6 +812,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.FullJoin, joinColumnName, columnName);
+            IsView = QueryIsView();
             return This;
         }
         public TQuery FullJoinAs<TRow, TRow2>(string alias)
@@ -825,7 +830,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.FullJoinAsType, typeof(TRow), typeof(TRow2), alias);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
         public TQuery FullJoinAs(string alias, string joinColumnName, string columnName)
@@ -851,7 +856,7 @@ namespace MyLibrary.DataBase
             }
 
             Structure.Add(DBQueryStructureType.FullJoinAs, alias, joinColumnName, columnName);
-            IsView = true;
+            IsView = QueryIsView();
             return This;
         }
 
@@ -1271,9 +1276,9 @@ namespace MyLibrary.DataBase
             return This;
         }
 
-        private bool GetSelectQueryIsView()
+        private bool QueryIsView()
         {
-            System.Collections.Generic.List<DBQueryStructureBlock> selectBlocks = Structure.FindAll(DBQueryStructureType.Select);
+            List<DBQueryStructureBlock> selectBlocks = Structure.FindAll(DBQueryStructureType.Select);
             if (selectBlocks.Count == 1)
             {
                 DBQueryStructureBlock selectBlock = selectBlocks[0];
