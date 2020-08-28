@@ -76,22 +76,25 @@ namespace MyLibrary.DataBase
             return default;
         }
 
-        public DBRow ReadRowOrNew()
+        public DBRow ReadRowOrNew(bool addToContext)
         {
             DBRow row = ReadRow();
             if (row != null)
             {
-                Context.AddRow(row);
+                if (addToContext)
+                {
+                    Context.AddRow(row);
+                }
             }
             else
             {
-                row = Context.NewRow(Table.Name);
+                row = Context.NewRow(Table.Name, addToContext);
             }
             return row;
         }
-        public TRow ReadRowOrNew<TRow>() where TRow : DBOrmRow
+        public TRow ReadRowOrNew<TRow>(bool addToContext) where TRow : DBOrmRow
         {
-            DBRow row = ReadRowOrNew();
+            DBRow row = ReadRowOrNew(addToContext);
             return DBInternal.CreateOrmRow<TRow>(row);
         }
 
@@ -1334,13 +1337,13 @@ namespace MyLibrary.DataBase
         {
             return ReadRow(x => rowConverter(DBInternal.CreateOrmRow<TRow>(x)));
         }
-        public new TRow ReadRowOrNew()
+        public new TRow ReadRowOrNew(bool addToContext)
         {
-            return ReadRowOrNew<TRow>();
+            return ReadRowOrNew<TRow>(addToContext);
         }
-        public TRow NewRow()
+        public TRow NewRow(bool addToContext)
         {
-            return Context.NewRow<TRow>();
+            return Context.NewRow<TRow>(addToContext);
         }
 
         public new DBQuery<TRow> Select(Expression<Func<object>> expression)

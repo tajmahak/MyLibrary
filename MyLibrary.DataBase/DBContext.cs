@@ -59,6 +59,7 @@ namespace MyLibrary.DataBase
             return CreateQuery(tableName, StatementType.Delete);
         }
 
+
         public DBQuery<TRow> Select<TRow>() where TRow : DBOrmRow
         {
             return CreateQuery<TRow>(StatementType.Select);
@@ -78,6 +79,7 @@ namespace MyLibrary.DataBase
         {
             return CreateQuery<TRow>(StatementType.Delete);
         }
+
 
         public DBContextCommitInfo Commit()
         {
@@ -255,20 +257,25 @@ namespace MyLibrary.DataBase
             return commitInfo;
         }
 
-        public DBRow NewRow(string tableName)
+
+        public DBRow NewRow(string tableName, bool addToContext)
         {
             DBTable table = Provider.Tables[tableName];
             DBRow row = table.CreateRow();
-            AddRow(row);
+            if (addToContext)
+            {
+                AddRow(row);
+            }
             return row;
         }
 
-        public TRow NewRow<TRow>() where TRow : DBOrmRow
+        public TRow NewRow<TRow>(bool addToContext) where TRow : DBOrmRow
         {
             string tableName = DBInternal.GetTableNameFromAttribute(typeof(TRow));
-            DBRow row = NewRow(tableName);
+            DBRow row = NewRow(tableName, addToContext);
             return DBInternal.CreateOrmRow<TRow>(row);
         }
+
 
         public int AddRow(DBRow row)
         {
@@ -325,6 +332,7 @@ namespace MyLibrary.DataBase
             }
             return count;
         }
+
 
         public void Clear()
         {
@@ -406,6 +414,7 @@ namespace MyLibrary.DataBase
                 Clear(row);
             }
         }
+
 
         public void CommitAndClear()
         {
