@@ -28,7 +28,7 @@ namespace MyLibrary.DataBase
 
         public static string GetTableNameFromAttribute(Type type)
         {
-            var attr = TypeExtension.GetAttribute<DBOrmTableAttribute>(type, true);
+            DBOrmTableAttribute attr = TypeExtension.GetAttribute<DBOrmTableAttribute>(type, true);
             if (attr != null)
             {
                 return attr.TableName;

@@ -77,7 +77,7 @@ namespace MyLibrary
             string dirPath = Path.GetDirectoryName(path);
             string fileName = Path.GetFileNameWithoutExtension(path);
             string ext = Path.GetExtension(path);
-            return dirPath + "\\" + prefix + fileName + ext;
+            return Path.Combine(dirPath, prefix + fileName + ext);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace MyLibrary
             string dirPath = Path.GetDirectoryName(path);
             string fileName = Path.GetFileNameWithoutExtension(path);
             string ext = Path.GetExtension(path);
-            return dirPath + "\\" + fileName + suffix + ext;
+            return Path.Combine(dirPath, fileName + suffix + ext);
         }
     }
 }
