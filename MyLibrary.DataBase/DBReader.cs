@@ -13,29 +13,29 @@ namespace MyLibrary.DataBase
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
         public T Current { get; private set; }
-        private readonly DbCommand _dbCommand;
-        private readonly DbDataReader _dbReader;
-        private readonly DBTable _table;
-        private readonly Converter<DBRow, T> _rowConverter;
+        private readonly DbCommand dbCommand;
+        private readonly DbDataReader dbReader;
+        private readonly DBTable table;
+        private readonly Converter<DBRow, T> rowConverter;
 
 
         public DBReader(DBProvider provider, DbConnection connection, DBQueryBase query, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
-            _dbCommand = provider.CreateCommand(connection, query);
-            _dbReader = _dbCommand.ExecuteReader(behavior);
-            _table = query.IsView ? GetTableFromSchema() : query.Table;
-            _rowConverter = rowConverter;
+            dbCommand = provider.CreateCommand(connection, query);
+            dbReader = dbCommand.ExecuteReader(behavior);
+            table = query.IsView ? GetTableFromSchema() : query.Table;
+            this.rowConverter = rowConverter;
         }
 
 
         public bool MoveNext()
         {
-            if (_dbReader.Read())
+            if (dbReader.Read())
             {
-                DBRow row = new DBRow(_table);
-                _dbReader.GetValues(row.Values);
+                DBRow row = new DBRow(table);
+                dbReader.GetValues(row.Values);
                 row.State = DataRowState.Unchanged;
-                Current = _rowConverter(row);
+                Current = rowConverter(row);
                 return true;
             }
             return false;
@@ -68,15 +68,15 @@ namespace MyLibrary.DataBase
 
         public void Dispose()
         {
-            _dbReader.Dispose();
-            _dbCommand.Dispose();
+            dbReader.Dispose();
+            dbCommand.Dispose();
         }
 
 
         private DBTable GetTableFromSchema()
         {
             DBTable table = new DBTable();
-            using (DataTable schema = _dbReader.GetSchemaTable())
+            using (DataTable schema = dbReader.GetSchemaTable())
             {
                 int orderIndex = 0;
                 foreach (DataRow schemaRow in schema.Rows)
