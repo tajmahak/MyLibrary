@@ -1,5 +1,6 @@
 ﻿using FirebirdSql.Data.FirebirdClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Text;
@@ -278,7 +279,7 @@ namespace MyLibrary.DataBase.Firebird
 
                 sql.Concat("UPDATE OR INSERT INTO ", GetShortName(query.Table.Name), '(');
 
-                System.Collections.Generic.List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Set);
+                List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Set);
                 if (blockList.Count == 0)
                 {
                     throw DBExceptionFactory.WrongUpdateCommandException();
@@ -328,7 +329,7 @@ namespace MyLibrary.DataBase.Firebird
 
         private void PrepareReturningBlock(StringBuilder sql, DBQueryBase query)
         {
-            System.Collections.Generic.List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Returning);
+            List<DBQueryStructureBlock> blockList = query.Structure.FindAll(DBQueryStructureType.Returning);
             if (blockList.Count > 0)
             {
                 sql.Concat(" RETURNING ");

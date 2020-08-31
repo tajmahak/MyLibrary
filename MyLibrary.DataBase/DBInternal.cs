@@ -55,7 +55,7 @@ namespace MyLibrary.DataBase
             }
 
             table = GetTableNameFromAttribute(type1);
-            foreach (System.Reflection.PropertyInfo property in type2.GetProperties())
+            foreach (PropertyInfo property in type2.GetProperties())
             {
                 foreach (DBOrmColumnAttribute attribute in property.GetCustomAttributes(typeof(DBOrmColumnAttribute), false))
                 {
