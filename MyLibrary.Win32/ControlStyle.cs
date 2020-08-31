@@ -21,6 +21,7 @@ namespace MyLibrary.Win32
             }
 
         }
+
         public void ApplyStyle(Control control, bool recursive, params Control[] excludeControls)
         {
             ControlExtension.SetDoubleBuffer(control, true);
@@ -125,6 +126,10 @@ namespace MyLibrary.Win32
             }
         }
 
+
+        private readonly Dictionary<Type, Control> _styleControls = new Dictionary<Type, Control>();
+
+
         private T GetStyle<T>() where T : Control
         {
             Type type = typeof(T);
@@ -134,6 +139,7 @@ namespace MyLibrary.Win32
             }
             return default;
         }
+
         private Type GetControlType(Control control)
         {
             if (control is Form)
@@ -142,7 +148,5 @@ namespace MyLibrary.Win32
             }
             return control.GetType();
         }
-
-        private readonly Dictionary<Type, Control> _styleControls = new Dictionary<Type, Control>();
     }
 }

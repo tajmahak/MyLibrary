@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MyLibrary.Win32.Interop
 {
-    public static class NativeMethods
+    public static class Native
     {
         [DllImport("user32.dll")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -53,11 +53,11 @@ namespace MyLibrary.Win32.Interop
 
         #region const
 
-        internal const uint ShgfiIcon = 0x000000100;     // get icon
-        internal const uint ShgfiLinkoverlay = 0x000008000;     // put a link overlay on icon
-        internal const uint ShgfiLargeicon = 0x000000000;     // get large icon
-        internal const uint ShgfiSmallicon = 0x000000001;     // get small icon
-        internal const uint ShgfiUsefileattributes = 0x000000010;     // use passed dwFileAttribute
+        internal const uint ShgfiIcon = 0x000000100;              // get icon
+        internal const uint ShgfiLinkoverlay = 0x000008000;       // put a link overlay on icon
+        internal const uint ShgfiLargeicon = 0x000000000;         // get large icon
+        internal const uint ShgfiSmallicon = 0x000000001;         // get small icon
+        internal const uint ShgfiUsefileattributes = 0x000000010; // use passed dwFileAttribute
         internal const uint FileAttributeNormal = 0x00000080;
 
         #endregion
@@ -219,6 +219,34 @@ namespace MyLibrary.Win32.Interop
             IntPtr Release();
         }
 
+        [ComImport]
+        [Guid("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface ITaskbarList3
+        {
+            // ITaskbarList
+            [PreserveSig]
+            void HrInit();
+            [PreserveSig]
+            void AddTab(IntPtr hwnd);
+            [PreserveSig]
+            void DeleteTab(IntPtr hwnd);
+            [PreserveSig]
+            void ActivateTab(IntPtr hwnd);
+            [PreserveSig]
+            void SetActiveAlt(IntPtr hwnd);
+
+            // ITaskbarList2
+            [PreserveSig]
+            void MarkFullscreenWindow(IntPtr hwnd, [MarshalAs(UnmanagedType.Bool)] bool fFullscreen);
+
+            // ITaskbarList3
+            [PreserveSig]
+            void SetProgressValue(IntPtr hwnd, ulong ullCompleted, ulong ullTotal);
+            [PreserveSig]
+            void SetProgressState(IntPtr hwnd, TaskbarStates state);
+        }
+
         #endregion
 
         #region enum
@@ -342,6 +370,17 @@ namespace MyLibrary.Win32.Interop
             /// Rename the object(s)
             /// </summary>
             FO_RENAME = 0x0004,
+        }
+
+        #endregion
+
+        #region class
+
+        [ComImport]
+        [Guid("56fdf344-fd6d-11d0-958a-006097c9a090")]
+        [ClassInterface(ClassInterfaceType.None)]
+        internal class TaskbarInstance
+        {
         }
 
         #endregion

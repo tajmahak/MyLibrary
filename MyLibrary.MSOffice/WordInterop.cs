@@ -9,12 +9,6 @@ namespace MyLibrary.MSOffice
 {
     public sealed class WordInterop : IDisposable
     {
-        public Word.Application Application { get; private set; }
-        public Word.Document Document { get; private set; }
-        private readonly string caption; // для идентификации процесса при установке фокуса на окно
-        private bool disposed;
-
-
         public WordInterop()
         {
             caption = Path.GetRandomFileName();
@@ -24,6 +18,10 @@ namespace MyLibrary.MSOffice
             Application.DisplayAlerts = Word.WdAlertLevel.wdAlertsNone;
         }
 
+        public Word.Application Application { get; private set; }
+        public Word.Document Document { get; private set; }
+        private readonly string caption; // для идентификации процесса при установке фокуса на окно
+        private bool disposed;
 
         public void OpenDocument(string path)
         {
@@ -51,7 +49,7 @@ namespace MyLibrary.MSOffice
                 Process process = GetApplicationProcess();
                 if (process != null)
                 {
-                    NativeMethods.SetForegroundWindow(process.Handle);
+                    Native.SetForegroundWindow(process.Handle);
                 }
             }
         }

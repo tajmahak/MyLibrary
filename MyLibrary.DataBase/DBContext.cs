@@ -10,6 +10,17 @@ namespace MyLibrary.DataBase
     /// </summary>
     public class DBContext
     {
+        public DBContext(DBProvider provider, DbConnection connection)
+        {
+            Provider = provider;
+            Connection = connection;
+
+            if (!Provider.Initialized)
+            {
+                Provider.Initialize(Connection);
+            }
+        }
+
         public DBProvider Provider { get; private set; }
         public DbConnection Connection { get; set; }
         public int RowCount
@@ -24,19 +35,8 @@ namespace MyLibrary.DataBase
                 return count;
             }
         }
+
         private readonly Dictionary<DBTable, DBRowCollection> tableRows = new Dictionary<DBTable, DBRowCollection>();
-
-
-        public DBContext(DBProvider provider, DbConnection connection)
-        {
-            Provider = provider;
-            Connection = connection;
-
-            if (!Provider.Initialized)
-            {
-                Provider.Initialize(Connection);
-            }
-        }
 
 
         public DBQuery Select(string tableName)
@@ -561,27 +561,27 @@ namespace MyLibrary.DataBase
 
         private class InsertRowContainer
         {
-            public DBRow Row;
-            public int TempIdCount;
-
             public InsertRowContainer(DBRow row)
             {
                 Row = row;
             }
+
+            public DBRow Row;
+            public int TempIdCount;
         }
 
         private class TempIdContainer
         {
-            public DBRow Row;
-            public int ColumnIndex;
-            public InsertRowContainer InsertRowContainer;
-
             public TempIdContainer(DBRow row, int columnIndex, InsertRowContainer insertRowContainer)
             {
                 Row = row;
                 ColumnIndex = columnIndex;
                 InsertRowContainer = insertRowContainer;
             }
+
+            public DBRow Row;
+            public int ColumnIndex;
+            public InsertRowContainer InsertRowContainer;
         }
     }
 }

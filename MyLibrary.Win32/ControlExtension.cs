@@ -22,7 +22,7 @@ namespace MyLibrary.Win32
             {
                 if (string.Equals(exePath, currentProcess.MainModule.FileName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    NativeMethods.SetForegroundWindow(process.MainWindowHandle);
+                    Native.SetForegroundWindow(process.MainWindowHandle);
                     return true;
                 }
             }
@@ -65,6 +65,7 @@ namespace MyLibrary.Win32
                 e.Handled = !(char.IsControl(c) || char.IsDigit(c) || c == '-');
             }
         }
+
         /// <summary>
         /// Обработка события KeyPress при вводе текста согласно указанному формату вводимых данных в DataGridView
         /// </summary>

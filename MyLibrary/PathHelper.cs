@@ -3,7 +3,7 @@ using System.IO;
 
 namespace MyLibrary
 {
-    public static class PathExtension
+    public static class PathHelper
     {
         public static string ReplaceWrongChars(string value, params char[] chars)
         {

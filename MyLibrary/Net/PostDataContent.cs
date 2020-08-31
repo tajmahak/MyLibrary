@@ -2,10 +2,6 @@
 {
     public class PostDataContent : IPostDataContent
     {
-        public byte[] Content { get; set; }
-        public string ContentType { get; set; }
-
-
         public PostDataContent()
         {
 
@@ -17,6 +13,8 @@
             ContentType = contentType;
         }
 
+        public byte[] Content { get; set; }
+        public string ContentType { get; set; }
 
         public byte[] GetContent()
         {

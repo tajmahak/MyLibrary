@@ -8,9 +8,9 @@ namespace MyLibrary.DataBase
     {
         public int Count => list.Count;
         public bool IsReadOnly => false;
+
         private readonly List<DBIndex> list = new List<DBIndex>();
         private readonly HashSet<DBIndex> hashSet = new HashSet<DBIndex>();
-
 
         public DBIndex this[int index] => list[index];
 

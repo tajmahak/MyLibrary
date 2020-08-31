@@ -8,6 +8,13 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBRow
     {
+        internal DBRow(DBTable table)
+        {
+            Table = table;
+            Values = new object[table.Columns.Count];
+            State = DataRowState.Detached;
+        }
+
         public DBTable Table { get; private set; }
         public DataRowState State { get; internal set; }
         public object this[string columnName]
@@ -35,15 +42,6 @@ namespace MyLibrary.DataBase
         public object PrimaryKeyValue => this[Table.PrimaryKeyColumn.OrderIndex];
         public bool PrimaryKeyValueIsTemporary => PrimaryKeyValue is DBTempId;
         internal object[] Values;
-
-
-        internal DBRow(DBTable table)
-        {
-            Table = table;
-            Values = new object[table.Columns.Count];
-            State = DataRowState.Detached;
-        }
-
 
         public TValue GetValue<TValue>(string columnName)
         {

@@ -7,6 +7,11 @@ namespace MyLibrary.DataBase
     /// </summary>
     public sealed class DBColumn
     {
+        public DBColumn(DBTable table)
+        {
+            Table = table;
+        }
+
         public int OrderIndex { get; set; }
         public string Name { get; set; }
         public string FullName => Table.Name == null ? Name : string.Concat(Table.Name, '.', Name);
@@ -17,13 +22,6 @@ namespace MyLibrary.DataBase
         public int Size { get; set; } = -1;
         public string Description { get; set; }
         public DBTable Table { get; private set; }
-
-
-        public DBColumn(DBTable table)
-        {
-            Table = table;
-        }
-
 
         public override string ToString()
         {

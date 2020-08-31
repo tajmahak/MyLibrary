@@ -5,14 +5,14 @@ namespace MyLibrary.MSOffice
 {
     public sealed class ExcelRange
     {
-        public Excel.Range Range { get; private set; }
-        public int RowsCount => Range.Rows.Count;
-        public int ColumnsCount => Range.Columns.Count;
-
         public ExcelRange(Excel.Range eRange)
         {
             Range = eRange;
         }
+
+        public Excel.Range Range { get; private set; }
+        public int RowsCount => Range.Rows.Count;
+        public int ColumnsCount => Range.Columns.Count;
 
         public void SetBorder(int weight = 2)
         {

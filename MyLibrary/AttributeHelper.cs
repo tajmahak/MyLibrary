@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace MyLibrary
 {
-    public class TypeExtension
+    public class AttributeHelper
     {
         public static T GetAttribute<T>(Type type, bool inherit = false) where T : Attribute
         {

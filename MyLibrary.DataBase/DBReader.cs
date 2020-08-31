@@ -12,13 +12,6 @@ namespace MyLibrary.DataBase
     /// <typeparam name="T"></typeparam>
     public sealed class DBReader<T> : IEnumerable<T>, IEnumerator<T>
     {
-        public T Current { get; private set; }
-        private readonly DbCommand dbCommand;
-        private readonly DbDataReader dbReader;
-        private readonly DBTable table;
-        private readonly Converter<DBRow, T> rowConverter;
-
-
         public DBReader(DBProvider provider, DbConnection connection, DBQueryBase query, Converter<DBRow, T> rowConverter, CommandBehavior behavior)
         {
             dbCommand = provider.CreateCommand(connection, query);
@@ -27,6 +20,11 @@ namespace MyLibrary.DataBase
             this.rowConverter = rowConverter;
         }
 
+        public T Current { get; private set; }
+        private readonly DbCommand dbCommand;
+        private readonly DbDataReader dbReader;
+        private readonly DBTable table;
+        private readonly Converter<DBRow, T> rowConverter;
 
         public bool MoveNext()
         {

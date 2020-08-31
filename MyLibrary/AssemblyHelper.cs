@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace MyLibrary
 {
-    public static class Product
+    public static class AssemblyHelper
     {
         public static string GetAssemblyName(Assembly assembly)
         {
@@ -13,13 +13,13 @@ namespace MyLibrary
 
         public static string GetProductName(Assembly assembly)
         {
-            AssemblyProductAttribute attr = TypeExtension.GetAttribute<AssemblyProductAttribute>(assembly);
+            AssemblyProductAttribute attr = AttributeHelper.GetAttribute<AssemblyProductAttribute>(assembly);
             return attr.Product;
         }
 
         public static string GetAssemblyTitle(Assembly assembly)
         {
-            AssemblyTitleAttribute attr = TypeExtension.GetAttribute<AssemblyTitleAttribute>(assembly);
+            AssemblyTitleAttribute attr = AttributeHelper.GetAttribute<AssemblyTitleAttribute>(assembly);
             return attr.Title;
         }
 

@@ -4,6 +4,12 @@ namespace MyLibrary.MSOffice
 {
     public sealed class WordTable
     {
+        public WordTable(Word.Table wTable, Word.Document wDocument)
+        {
+            Table = wTable;
+            Document = wDocument;
+        }
+
         public Word.Table Table { get; private set; }
         public Word.Document Document { get; private set; }
         public int RowsCount => Table.Rows.Count;
@@ -12,13 +18,6 @@ namespace MyLibrary.MSOffice
         {
             get => GetValue(rowIndex, columnIndex);
             set => SetValue(rowIndex, columnIndex, Data.Convert<string>(value));
-        }
-
-
-        public WordTable(Word.Table wTable, Word.Document wDocument)
-        {
-            Table = wTable;
-            Document = wDocument;
         }
 
 

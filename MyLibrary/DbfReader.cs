@@ -9,18 +9,24 @@ using System.Threading;
 
 namespace MyLibrary
 {
-    public class DbfReader : IDisposable, IEnumerable<DBFRow>, IEnumerator<DBFRow>
+    public class DbfReader : IDisposable, IEnumerable<DbfRow>, IEnumerator<DbfRow>
     {
+        public DbfReader(string path, Encoding encoding)
+        {
+            this.encoding = encoding;
+            OpenFile(path);
+        }
+
         public static DataTable ToDataTable(string filePath, Encoding encoding)
         {
             DataTable dataTable = new DataTable();
             using (DbfReader dbf = new DbfReader(filePath, encoding))
             {
-                foreach (DBFColumn column in dbf.Columns)
+                foreach (DbfColumn column in dbf.Columns)
                 {
                     dataTable.Columns.Add(column.Name, column.ValueType);
                 }
-                foreach (DBFRow row in dbf)
+                foreach (DbfRow row in dbf)
                 {
                     dataTable.Rows.Add(row.Values);
                 }
@@ -28,22 +34,15 @@ namespace MyLibrary
             return dataTable;
         }
 
-        public DBFColumn[] Columns { get; private set; }
-        public DBFRow Current { get; private set; }
+        public DbfColumn[] Columns { get; private set; }
+        public DbfRow Current { get; private set; }
 
         private int recordNumber = 1;
         private readonly Encoding encoding;
         private BinaryReader stream;
-        private DBFHeader header;
+        private DbfHeaderDescriptor header;
         private readonly Dictionary<string, int> columnDict = new Dictionary<string, int>();
         private readonly ArrayList fields = new ArrayList();
-
-
-        public DbfReader(string path, Encoding encoding)
-        {
-            this.encoding = encoding;
-            OpenFile(path);
-        }
 
 
         public int GetColumnIndex(string columnName)
@@ -51,7 +50,7 @@ namespace MyLibrary
             return columnDict[columnName];
         }
 
-        public IEnumerator<DBFRow> GetEnumerator()
+        public IEnumerator<DbfRow> GetEnumerator()
         {
             return this;
         }
@@ -131,17 +130,17 @@ namespace MyLibrary
             FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             stream = new BinaryReader(fileStream);
 
-            byte[] buffer = stream.ReadBytes(Marshal.SizeOf(typeof(DBFHeader)));
+            byte[] buffer = stream.ReadBytes(Marshal.SizeOf(typeof(DbfHeaderDescriptor)));
 
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            header = (DBFHeader)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(DBFHeader));
+            header = (DbfHeaderDescriptor)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(DbfHeaderDescriptor));
             handle.Free();
 
             while ((13 != stream.PeekChar()))
             {
-                buffer = stream.ReadBytes(Marshal.SizeOf(typeof(FieldDescriptor)));
+                buffer = stream.ReadBytes(Marshal.SizeOf(typeof(DbfFieldDescriptor)));
                 handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                fields.Add((FieldDescriptor)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(FieldDescriptor)));
+                fields.Add((DbfFieldDescriptor)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(DbfFieldDescriptor)));
                 handle.Free();
             }
 
@@ -151,26 +150,26 @@ namespace MyLibrary
             buffer = stream.ReadBytes(header.recordLen);
             BinaryReader recReader = new BinaryReader(new MemoryStream(buffer));
 
-            List<DBFColumn> colList = new List<DBFColumn>();
-            foreach (FieldDescriptor field in fields)
+            List<DbfColumn> colList = new List<DbfColumn>();
+            foreach (DbfFieldDescriptor field in fields)
             {
                 string number = Encoding.UTF8.GetString(recReader.ReadBytes(field.fieldLen));
                 switch (field.fieldType)
                 {
                     case 'N':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(decimal))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(decimal))); break;
                     case 'C':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(string))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(string))); break;
                     case 'T':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(DateTime))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(DateTime))); break;
                     case 'D':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(DateTime))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(DateTime))); break;
                     case 'L':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(bool))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(bool))); break;
                     case 'F':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(decimal))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(decimal))); break;
                     case 'M':
-                        colList.Add(new DBFColumn(field.fieldName, typeof(byte[]))); break;
+                        colList.Add(new DbfColumn(field.fieldName, typeof(byte[]))); break;
                 }
             }
             Columns = colList.ToArray();
@@ -200,7 +199,7 @@ namespace MyLibrary
                 string number;
                 for (int i = 0; i < fields.Count; i++)
                 {
-                    FieldDescriptor field = (FieldDescriptor)fields[i];
+                    DbfFieldDescriptor field = (DbfFieldDescriptor)fields[i];
                     switch (field.fieldType)
                     {
                         case 'N':  // Number
@@ -274,25 +273,23 @@ namespace MyLibrary
 
                 #endregion
 
-                Current = new DBFRow(this, values);
+                Current = new DbfRow(this, values);
                 return true;
             }
             return false;
         }
     }
 
-    public class DBFColumn
+    public class DbfColumn
     {
-        public string Name { get; private set; }
-        public Type ValueType { get; private set; }
-
-
-        internal DBFColumn(string name, Type type)
+        internal DbfColumn(string name, Type type)
         {
             Name = name;
             ValueType = type;
         }
 
+        public string Name { get; private set; }
+        public Type ValueType { get; private set; }
 
         public override string ToString()
         {
@@ -300,30 +297,29 @@ namespace MyLibrary
         }
     }
 
-    public class DBFRow
+    public class DbfRow
     {
+        internal DbfRow(DbfReader reader, object[] values)
+        {
+            this.reader = reader;
+            Values = values;
+        }
+
         public object[] Values { get; private set; }
         public object this[int index] => Values[index];
         public object this[string columnName]
         {
             get
             {
-                int columnIndex = _reader.GetColumnIndex(columnName);
+                int columnIndex = reader.GetColumnIndex(columnName);
                 return Values[columnIndex];
             }
         }
-        private readonly DbfReader _reader;
-
-
-        internal DBFRow(DbfReader reader, object[] values)
-        {
-            _reader = reader;
-            Values = values;
-        }
+        private readonly DbfReader reader;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    internal struct DBFHeader
+    internal struct DbfHeaderDescriptor
     {
         public byte version;
         public byte updateYear;
@@ -343,7 +339,7 @@ namespace MyLibrary
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    internal struct FieldDescriptor
+    internal struct DbfFieldDescriptor
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 11)]
         public string fieldName;

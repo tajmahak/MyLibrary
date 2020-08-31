@@ -1,26 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace MyLibrary.Net
 {
     public class PostDataMultiPartContent : IPostDataContent
     {
-        private static readonly Random rnd = new Random();
-
-        public string Boundary { get; private set; }
-        public string ContentDisposition { get; set; }
-        public string ContentType { get; set; }
-        public byte[] Content { get; set; }
-
-
-        public PostDataMultiPartContent(byte[] content, string contentDisposition = null, string contentType = null) : this()
+        public PostDataMultiPartContent(byte[] content, string contentDisposition = null, string contentType = null)
         {
             Content = content;
             ContentDisposition = contentDisposition;
             ContentType = contentType;
         }
 
+        public string Boundary { get; private set; } = "85692478526984";
+        public string ContentDisposition { get; set; }
+        public string ContentType { get; set; }
+        public byte[] Content { get; set; }
 
         public byte[] GetContent()
         {
@@ -55,17 +49,6 @@ namespace MyLibrary.Net
         public string GetContentType()
         {
             return $"multipart/form-data; boundary=---------------------------{Boundary}";
-        }
-
-
-        private PostDataMultiPartContent()
-        {
-            StringBuilder boundary = new StringBuilder();
-            for (int i = 0; i < 14; i++)
-            {
-                boundary.Append(rnd.Next(10));
-            }
-            Boundary = boundary.ToString();
         }
     }
 }

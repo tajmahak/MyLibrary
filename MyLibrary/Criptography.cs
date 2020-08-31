@@ -156,46 +156,6 @@ namespace MyLibrary
 
 
         /// <summary>
-        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
-        /// </summary>
-        /// <param name="data">Массив байтов.</param>
-        /// <returns></returns>
-        public static byte[] GetCRC32Hash(byte[] data)
-        {
-            //!!!
-            throw new NotImplementedException();
-            //uint crc32 = 0;
-            //crc32 = NativeMethods.RtlComputeCrc32(crc32, data, data.Length);
-            //data = BitConverter.GetBytes(crc32);
-            //Array.Reverse(data, 0, data.Length);
-            //return data;
-        }
-
-        /// <summary>
-        /// Вычисляет хэш-значение для заданного массива байтов с использованием алгоритма CRC-32.
-        /// </summary>
-        /// <param name="inputStream">Входные данные, для которых вычисляется хэш-код.</param>
-        /// <returns></returns>
-        public static byte[] GetCRC32Hash(Stream inputStream)
-        {
-            //!!!
-            throw new NotImplementedException();
-            //uint crc32 = 0;
-            //int readed;
-            //byte[] buffer = new byte[4096];
-
-            //while ((readed = inputStream.Read(buffer, 0, buffer.Length)) != 0)
-            //{
-            //    crc32 = NativeMethods.RtlComputeCrc32(crc32, buffer, readed);
-            //}
-
-            //byte[] hash = BitConverter.GetBytes(crc32);
-            //Array.Reverse(hash, 0, hash.Length);
-            //return hash;
-        }
-
-
-        /// <summary>
         /// Заполняет массив байтов криптостойкой случайной последовательностью значений.
         /// </summary>
         /// <param name="length">Длина получаемого массива байт.</param>

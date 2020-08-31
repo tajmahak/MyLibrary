@@ -9,15 +9,6 @@ namespace MyLibrary.MSOffice
 {
     public sealed class ExcelInterop : IDisposable
     {
-        public Excel.Application Application { get; private set; }
-        public Excel.Workbook Workbook { get; private set; }
-        public Excel.Worksheet Worksheet { get; private set; }
-        public int SheetsCount => Workbook.Sheets.Count;
-        public int SheetRowsCount => Worksheet.UsedRange.Rows.Count;
-        public int SheetColumnsCount => Worksheet.UsedRange.Columns.Count;
-        private bool disposed;
-
-
         public ExcelInterop()
         {
             Application = new Excel.Application();
@@ -26,6 +17,13 @@ namespace MyLibrary.MSOffice
             Application.DisplayAlerts = false;
         }
 
+        public Excel.Application Application { get; private set; }
+        public Excel.Workbook Workbook { get; private set; }
+        public Excel.Worksheet Worksheet { get; private set; }
+        public int SheetsCount => Workbook.Sheets.Count;
+        public int SheetRowsCount => Worksheet.UsedRange.Rows.Count;
+        public int SheetColumnsCount => Worksheet.UsedRange.Columns.Count;
+        private bool disposed;
 
         public void OpenWorkbook(string path, bool readOnly = false)
         {
@@ -80,7 +78,7 @@ namespace MyLibrary.MSOffice
                 Process process = GetApplicationProcess();
                 if (process != null)
                 {
-                    NativeMethods.SetForegroundWindow(process.Handle);
+                    Native.SetForegroundWindow(process.Handle);
                 }
             }
         }

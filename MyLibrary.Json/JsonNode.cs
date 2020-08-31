@@ -42,7 +42,6 @@ namespace MyLibrary.Json
         public JsonNode this[string name] => Childs[name];
         private JsonNodeCollection childs; // сделано для уменьшения потребления ОЗУ
 
-
         public IEnumerator<JsonNode> GetEnumerator()
         {
             return Childs.GetEnumerator();
@@ -63,7 +62,6 @@ namespace MyLibrary.Json
 
             return str.TrimStart();
         }
-
 
         // Преобразование JSON перед парсингом для избежания ошибки "Bad JSON escape sequence..."
         // Источник: https://github.com/JamesNK/Newtonsoft.Json/issues/980
@@ -235,6 +233,14 @@ namespace MyLibrary.Json
 
     public class JsonNodeCollection : List<JsonNode>
     {
+        public JsonNodeCollection()
+        {
+        }
+
+        public JsonNodeCollection(int capacity) : base(capacity)
+        {
+        }
+
         public JsonNode this[string name]
         {
             get
@@ -249,15 +255,6 @@ namespace MyLibrary.Json
                 }
                 return null;
             }
-        }
-
-
-        public JsonNodeCollection()
-        {
-        }
-
-        public JsonNodeCollection(int capacity) : base(capacity)
-        {
         }
     }
 }

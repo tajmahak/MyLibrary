@@ -5,10 +5,6 @@ namespace MyLibrary.DataBase.Helpers
 {
     public class DataBaseCache
     {
-        private readonly DBContext context;
-        private readonly string tableName, keyColumnName, dataColumnName, timeColumnName;
-
-
         public DataBaseCache(DBContext context, string tableName, string keyColumnName, string dataColumnName, string timeColumnName)
         {
             this.context = context;
@@ -18,6 +14,8 @@ namespace MyLibrary.DataBase.Helpers
             this.timeColumnName = tableName + "." + timeColumnName;
         }
 
+        private readonly DBContext context;
+        private readonly string tableName, keyColumnName, dataColumnName, timeColumnName;
 
         public CacheContent<byte[]> LoadData(string key)
         {

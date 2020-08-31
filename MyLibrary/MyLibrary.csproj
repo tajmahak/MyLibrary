@@ -44,14 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Product.cs" />
-    <Compile Include="TypeExtension.cs" />
+    <Compile Include="AssemblyHelper.cs" />
+    <Compile Include="AttributeHelper.cs" />
     <Compile Include="Collections\HashCollection.cs" />
     <Compile Include="Criptography.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="DbfReader.cs" />
-    <Compile Include="ImageManager.cs" />
-    <Compile Include="PathExtension.cs" />
+    <Compile Include="ImageHelper.cs" />
+    <Compile Include="PathHelper.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Sorting.cs" />
     <Compile Include="StringBuilderExtension.cs" />

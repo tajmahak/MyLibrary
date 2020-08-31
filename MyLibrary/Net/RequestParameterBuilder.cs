@@ -6,7 +6,6 @@ namespace MyLibrary.Net
     {
         private readonly StringBuilder str = new StringBuilder();
 
-
         public RequestParameterBuilder Add(string name, object value)
         {
             if (str.Length > 0)
@@ -19,7 +18,6 @@ namespace MyLibrary.Net
 
             return this;
         }
-
 
         public override string ToString()
         {

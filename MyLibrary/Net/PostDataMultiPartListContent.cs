@@ -1,28 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace MyLibrary.Net
 {
     public class PostDataMultiPartListContent : IPostDataContent
     {
-        private static readonly Random rnd = new Random();
-
-        public string Boundary { get; private set; }
+        public string Boundary { get; private set; } = "18637495287369";
         public List<string[]> Items { get; private set; } = new List<string[]>();
-
-
-        public PostDataMultiPartListContent()
-        {
-            StringBuilder boundary = new StringBuilder();
-            for (int i = 0; i < 14; i++)
-            {
-                boundary.Append(rnd.Next(10));
-            }
-            Boundary = boundary.ToString();
-        }
-
 
         public void Add(string name, string value)
         {

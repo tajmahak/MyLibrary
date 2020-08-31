@@ -5,14 +5,14 @@ namespace MyLibrary.Win32
 {
     public class DataGridViewRowManager
     {
-        public DataGridView DataGridView { get; private set; }
-        public int Count => _gridRows.Count;
-        private readonly List<DataGridViewRow> _gridRows = new List<DataGridViewRow>();
-
         public DataGridViewRowManager(DataGridView grid)
         {
             DataGridView = grid;
         }
+
+        public DataGridView DataGridView { get; private set; }
+        public int Count => _gridRows.Count;
+        private readonly List<DataGridViewRow> _gridRows = new List<DataGridViewRow>();
 
         public DataGridViewRow Add(params object[] values)
         {
@@ -32,6 +32,7 @@ namespace MyLibrary.Win32
             _gridRows.Add(gridRow);
             return gridRow;
         }
+
         public void Commit(bool crearExistRows = true)
         {
             if (crearExistRows)

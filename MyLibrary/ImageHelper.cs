@@ -4,7 +4,7 @@ using System.Drawing.Imaging;
 
 namespace MyLibrary
 {
-    public static class ImageManager
+    public static class ImageHelper
     {
         /// <summary>
         /// Изменение размера изображения

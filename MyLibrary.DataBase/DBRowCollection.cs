@@ -12,7 +12,6 @@ namespace MyLibrary.DataBase
         private readonly HashSet<DBRow> hashSet = new HashSet<DBRow>();
         public DBRow this[int index] => list[index];
 
-
         public void Add(DBRow item)
         {
             if (!hashSet.Contains(item))

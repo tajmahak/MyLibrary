@@ -7,6 +7,11 @@ namespace MyLibrary.DataBase
     /// </summary>
     public abstract class DBOrmRow
     {
+        public DBOrmRow(DBRow row)
+        {
+            Row = row;
+        }
+
         public DBRow Row { get; set; }
         public object this[string columnName]
         {
@@ -18,13 +23,6 @@ namespace MyLibrary.DataBase
             get => Row[columnIndex];
             set => Row[columnIndex] = value;
         }
-
-
-        public DBOrmRow(DBRow row)
-        {
-            Row = row;
-        }
-
 
         public void Delete()
         {

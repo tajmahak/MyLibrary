@@ -11,6 +11,22 @@ namespace MyLibrary.Threading
     public class ThreadManager
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="threadsCount">Количество создаваемых потоков для выполнения задач</param>
+        /// <param name="tasksCount">Количество выполняемых задач</param>
+        public ThreadManager(int threadsCount, int tasksCount)
+        {
+            if (threadsCount > tasksCount)
+            {
+                threadsCount = tasksCount;
+            }
+
+            threads = new Thread[threadsCount];
+            this.tasksCount = tasksCount;
+        }
+
+        /// <summary>
         /// Запуск обработки
         /// </summary>
         /// <param name="threadsCount">Количество создаваемых потоков для выполнения задач</param>
@@ -38,28 +54,10 @@ namespace MyLibrary.Threading
             return threadManager;
         }
 
-
         public bool Aborted => aborted;
         private readonly Thread[] threads;
         private readonly int tasksCount;
         private volatile bool aborted;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="threadsCount">Количество создаваемых потоков для выполнения задач</param>
-        /// <param name="tasksCount">Количество выполняемых задач</param>
-        public ThreadManager(int threadsCount, int tasksCount)
-        {
-            if (threadsCount > tasksCount)
-            {
-                threadsCount = tasksCount;
-            }
-
-            threads = new Thread[threadsCount];
-            this.tasksCount = tasksCount;
-        }
-
 
         /// <summary>
         /// Происходит перед началом операций

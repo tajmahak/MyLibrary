@@ -198,11 +198,11 @@ namespace MyLibrary.DataBase
     /// <typeparam name="TQuery"></typeparam>
     public abstract class DBQueryBase<TQuery> : DBQueryBase where TQuery : DBQueryBase
     {
-        private TQuery This => (TQuery)(object)this;
-
         internal DBQueryBase(DBTable table, DBContext context, StatementType statementType) : base(table, context, statementType)
         {
         }
+
+        private TQuery This => (TQuery)(object)this;
 
         public TQuery Insert()
         {

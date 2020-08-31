@@ -13,7 +13,7 @@ namespace MyLibrary.Win32.Controls
         {
             BackColor = Color.Red;
             Visible = false;
-            _nextClipboardViewer = (IntPtr)NativeMethods.SetClipboardViewer((int)Handle);
+            _nextClipboardViewer = (IntPtr)Native.SetClipboardViewer((int)Handle);
         }
 
         public event EventHandler<ClipboardChangedEventArgs> ClipboardChanged;
@@ -28,7 +28,7 @@ namespace MyLibrary.Win32.Controls
             {
                 case WM_DRAWCLIPBOARD:
                     OnClipboardChanged();
-                    NativeMethods.SendMessage(_nextClipboardViewer, m.Msg, m.WParam, m.LParam);
+                    Native.SendMessage(_nextClipboardViewer, m.Msg, m.WParam, m.LParam);
                     break;
 
                 case WM_CHANGECBCHAIN:
@@ -38,7 +38,7 @@ namespace MyLibrary.Win32.Controls
                     }
                     else
                     {
-                        NativeMethods.SendMessage(_nextClipboardViewer, m.Msg, m.WParam, m.LParam);
+                        Native.SendMessage(_nextClipboardViewer, m.Msg, m.WParam, m.LParam);
                     }
                     break;
 
@@ -51,7 +51,7 @@ namespace MyLibrary.Win32.Controls
         {
             try
             {
-                NativeMethods.ChangeClipboardChain(Handle, _nextClipboardViewer);
+                Native.ChangeClipboardChain(Handle, _nextClipboardViewer);
             }
             catch { }
         }

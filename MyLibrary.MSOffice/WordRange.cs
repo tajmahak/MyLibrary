@@ -5,13 +5,12 @@ namespace MyLibrary.MSOffice
 {
     public sealed class WordRange
     {
-        public Word.Range Range { get; private set; }
-
-
         public WordRange(Word.Range wRange)
         {
             Range = wRange;
         }
+
+        public Word.Range Range { get; private set; }
 
 
         public void SetFontColor(Color color)

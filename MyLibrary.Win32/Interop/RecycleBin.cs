@@ -1,5 +1,5 @@
 ﻿using System;
-using static MyLibrary.Win32.Interop.NativeMethods;
+using static MyLibrary.Win32.Interop.Native;
 
 namespace MyLibrary.Win32.Interop
 {

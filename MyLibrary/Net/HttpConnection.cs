@@ -8,21 +8,6 @@ namespace MyLibrary.Net
 {
     public class HttpConnection : IDisposable
     {
-        public string RequestUri { get; set; }
-        public IPostDataContent PostDataContent { get; set; }
-        public bool UseHeadRequest { get; set; }
-        public int Timeout { get; set; } = 100000;
-        public string Accept { get; set; } = "*/*";
-        public string Referer { get; set; }
-        public string UserAgent { get; set; }
-        public long? StartRange { get; set; }
-        public long? EndRange { get; set; }
-        public HttpWebRequest Request { get; private set; }
-        public HttpWebResponse Response { get; private set; }
-        public WebHeaderCollection Headers { get; private set; } = new WebHeaderCollection();
-        public CookieContainer Cookies { get; private set; } = new CookieContainer();
-        private const int BUFFER_SIZE = 0x40000; // 256 кб
-
         public HttpConnection()
         {
             Headers.Add("Accept-Encoding", "gzip, deflate");
@@ -33,72 +18,6 @@ namespace MyLibrary.Net
             : this()
         {
             RequestUri = requestUri;
-        }
-
-
-        public event EventHandler CreatingRequest;
-
-        public event EventHandler ResponseReceived;
-
-        public event EventHandler<ResponseDataReceivedEventArgs> ResponseDataReceived;
-
-
-        public string GetString()
-        {
-            string data = null;
-            GetWebData(() =>
-            {
-                data = GetStringFromResponse(Response);
-            });
-            return data;
-        }
-
-        public void GetData(Stream outputStream)
-        {
-            GetWebData(() =>
-            {
-                long contentLength = Response.ContentLength;
-                bool knownContentLength = (contentLength != -1);
-
-                byte[] buffer = new byte[BUFFER_SIZE];
-                using (Stream stream = GetResponseStream())
-                {
-                    long totalBytesToReceive = 0;
-                    int bytesReceived;
-                    do
-                    {
-                        bytesReceived = stream.Read(buffer, 0, buffer.Length);
-                        outputStream.Write(buffer, 0, bytesReceived);
-                        totalBytesToReceive += bytesReceived;
-
-                        if (ResponseDataReceived != null)
-                        {
-                            ResponseDataReceivedEventArgs args = new ResponseDataReceivedEventArgs
-                            {
-                                ContentLength = contentLength,
-                                ReceivedBytesCount = bytesReceived,
-                                TotalBytesToReceive = totalBytesToReceive,
-                            };
-                            ResponseDataReceived.Invoke(this, args);
-                            if (args.Cancel)
-                            {
-                                break;
-                            }
-                        }
-                    } while ((knownContentLength && totalBytesToReceive < contentLength) || (!knownContentLength && bytesReceived > 0));
-                }
-            });
-        }
-
-        public HttpWebResponse GetResponse()
-        {
-            GetWebData(null);
-            return Response;
-        }
-
-        public Stream GetResponseStream()
-        {
-            return GetStreamFromResponse(Response);
         }
 
         public static string GetStringFromResponse(HttpWebResponse response)
@@ -144,6 +63,87 @@ namespace MyLibrary.Net
                 connection.PostDataContent = postData;
                 connection.GetData(outputStream);
             }
+        }
+
+        public string RequestUri { get; set; }
+        public IPostDataContent PostDataContent { get; set; }
+        public bool UseHeadRequest { get; set; }
+        public int Timeout { get; set; } = 100000;
+        public string Accept { get; set; } = "*/*";
+        public string Referer { get; set; }
+        public string UserAgent { get; set; }
+        public long? StartRange { get; set; }
+        public long? EndRange { get; set; }
+        public HttpWebRequest Request { get; private set; }
+        public HttpWebResponse Response { get; private set; }
+        public WebHeaderCollection Headers { get; private set; } = new WebHeaderCollection();
+        public CookieContainer Cookies { get; private set; } = new CookieContainer();
+        private const int BufferSize = 0x40000; // 256 кб
+
+
+        public event EventHandler CreatingRequest;
+
+        public event EventHandler ResponseReceived;
+
+        public event EventHandler<ResponseDataReceivedEventArgs> ResponseDataReceived;
+
+
+        public string GetString()
+        {
+            string data = null;
+            GetWebData(() =>
+            {
+                data = GetStringFromResponse(Response);
+            });
+            return data;
+        }
+
+        public void GetData(Stream outputStream)
+        {
+            GetWebData(() =>
+            {
+                long contentLength = Response.ContentLength;
+                bool knownContentLength = (contentLength != -1);
+
+                byte[] buffer = new byte[BufferSize];
+                using (Stream stream = GetResponseStream())
+                {
+                    long totalBytesToReceive = 0;
+                    int bytesReceived;
+                    do
+                    {
+                        bytesReceived = stream.Read(buffer, 0, buffer.Length);
+                        outputStream.Write(buffer, 0, bytesReceived);
+                        totalBytesToReceive += bytesReceived;
+
+                        if (ResponseDataReceived != null)
+                        {
+                            ResponseDataReceivedEventArgs args = new ResponseDataReceivedEventArgs
+                            {
+                                ContentLength = contentLength,
+                                ReceivedBytesCount = bytesReceived,
+                                TotalBytesToReceive = totalBytesToReceive,
+                            };
+                            ResponseDataReceived.Invoke(this, args);
+                            if (args.Cancel)
+                            {
+                                break;
+                            }
+                        }
+                    } while ((knownContentLength && totalBytesToReceive < contentLength) || (!knownContentLength && bytesReceived > 0));
+                }
+            });
+        }
+
+        public HttpWebResponse GetResponse()
+        {
+            GetWebData(null);
+            return Response;
+        }
+
+        public Stream GetResponseStream()
+        {
+            return GetStreamFromResponse(Response);
         }
 
         public void Dispose()

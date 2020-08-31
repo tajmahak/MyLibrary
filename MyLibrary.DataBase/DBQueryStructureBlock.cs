@@ -6,8 +6,11 @@
     public sealed class DBQueryStructureBlock
     {
         public DBQueryStructureType Type { get; set; }
+
         public object[] Args { get; set; }
+
         public int Length => Args.Length;
+
         public object this[int index]
         {
             get => Args[index];

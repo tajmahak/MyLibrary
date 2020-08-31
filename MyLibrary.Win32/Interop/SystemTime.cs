@@ -1,5 +1,5 @@
 ﻿using System;
-using static MyLibrary.Win32.Interop.NativeMethods;
+using static MyLibrary.Win32.Interop.Native;
 
 namespace MyLibrary.Win32.Interop
 {
@@ -18,7 +18,7 @@ namespace MyLibrary.Win32.Interop
                 wSecond = (short)time.Second,
                 wYear = (short)time.Year
             };
-            return NativeMethods.SetSystemTime(ref systemTime);
+            return Native.SetSystemTime(ref systemTime);
         }
     }
 }

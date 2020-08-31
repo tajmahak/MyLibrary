@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
 
 namespace MyLibrary.DataBase.SQLite
 {
@@ -14,7 +10,7 @@ namespace MyLibrary.DataBase.SQLite
             SQLiteConnectionStringBuilder conBuilder = new SQLiteConnectionStringBuilder();
             conBuilder.DataSource = dataSource;
 
-            var dbConnection = new SQLiteConnection(conBuilder.ToString());
+            SQLiteConnection dbConnection = new SQLiteConnection(conBuilder.ToString());
             return dbConnection;
         }
     }

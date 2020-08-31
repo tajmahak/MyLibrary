@@ -8,11 +8,6 @@ namespace MyLibrary.DataBase
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class DBOrmColumnAttribute : Attribute
     {
-        public string ColumnName { get; set; }
-        public bool NotNull { get; set; }
-        public bool PrimaryKey { get; set; }
-        public string ForeignKey { get; set; }
-
         public DBOrmColumnAttribute(string columnName, bool NotNull = false, bool PrimaryKey = false, string ForeignKey = null)
         {
             ColumnName = columnName;
@@ -20,5 +15,10 @@ namespace MyLibrary.DataBase
             this.PrimaryKey = PrimaryKey;
             this.ForeignKey = ForeignKey;
         }
+
+        public string ColumnName { get; set; }
+        public bool NotNull { get; set; }
+        public bool PrimaryKey { get; set; }
+        public string ForeignKey { get; set; }
     }
 }

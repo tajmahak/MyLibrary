@@ -4,11 +4,6 @@ namespace MyLibrary.Net
 {
     public class PostDataStringContent : IPostDataContent
     {
-        public string Text { get; set; }
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
-        public string ContentType { get; set; } = "application/x-www-form-urlencoded";
-
-
         public PostDataStringContent(string data)
         {
             Text = data;
@@ -24,6 +19,9 @@ namespace MyLibrary.Net
             ContentType = contentType;
         }
 
+        public string Text { get; set; }
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+        public string ContentType { get; set; } = "application/x-www-form-urlencoded";
 
         public byte[] GetContent()
         {
