@@ -809,11 +809,6 @@ namespace MyLibrary.DataBase
 
         protected string GetParameter(object value, DBCompiledQuery cQuery)
         {
-            if (value is IDBID dbId)
-            {
-                value = dbId.GetValue();
-            }
-
             value = value ?? DBNull.Value;
 
             if (value is string stringValue && Columns.Contains(stringValue))
@@ -1025,11 +1020,6 @@ namespace MyLibrary.DataBase
                     else
                     {
                         value = propertyInfo.GetValue(null, null);
-                    }
-
-                    if (value is IDBID dbId)
-                    {
-                        value = dbId.GetValue();
                     }
 
                     if (parseValue)
