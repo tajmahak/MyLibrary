@@ -42,5 +42,13 @@ namespace MyLibrary.Win32
             DataGridView.Rows.AddRange(_gridRows.ToArray());
             _gridRows.Clear();
         }
+
+        public void CommitAndRefresh(bool crearExistRows = true)
+        {
+            DataGridView.Refresh(() =>
+            {
+                Commit(crearExistRows);
+            });
+        }
     }
 }
