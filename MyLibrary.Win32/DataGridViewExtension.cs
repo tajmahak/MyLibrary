@@ -235,27 +235,25 @@ namespace MyLibrary.Win32
         }
         public static void Refresh(this DataGridView grid, Action updateListAction)
         {
-            int? selectedRowIndex = grid.GetSelectedRow()?.Index;
+            int rowIndex = grid.GetSelectedCell()?.RowIndex ?? 0;
+            int columnIndex = grid.GetSelectedCell()?.ColumnIndex ?? 0;
             int firstRowIndex = grid.FirstDisplayedScrollingRowIndex;
 
             grid.SuspendLayout();
             updateListAction();
             grid.ResumeLayout();
 
-            if (selectedRowIndex != null && selectedRowIndex > 0)
+            if (grid.Rows.Count > 0)
             {
-                if (selectedRowIndex >= grid.Rows.Count)
+                if (rowIndex >= grid.Rows.Count)
                 {
-                    selectedRowIndex = grid.Rows.Count - 1;
+                    rowIndex = grid.Rows.Count - 1;
                 }
-                if (selectedRowIndex != -1)
+                grid.SelectElement(rowIndex, columnIndex);
+                if (firstRowIndex != -1 && firstRowIndex < grid.Rows.Count)
                 {
-                    grid.SelectElement(selectedRowIndex.Value);
+                    grid.FirstDisplayedScrollingRowIndex = firstRowIndex;
                 }
-            }
-            if (firstRowIndex != -1 && firstRowIndex < grid.Rows.Count)
-            {
-                grid.FirstDisplayedScrollingRowIndex = firstRowIndex;
             }
         }
         public static void RefreshEditingControl(this DataGridView grid)
