@@ -13,13 +13,13 @@ namespace MyLibrary
 
         public static string GetProductName(Assembly assembly)
         {
-            AssemblyProductAttribute attr = AttributeHelper.GetAttribute<AssemblyProductAttribute>(assembly);
+            AssemblyProductAttribute attr = ReflectionHelper.GetAttribute<AssemblyProductAttribute>(assembly);
             return attr.Product;
         }
 
         public static string GetAssemblyTitle(Assembly assembly)
         {
-            AssemblyTitleAttribute attr = AttributeHelper.GetAttribute<AssemblyTitleAttribute>(assembly);
+            AssemblyTitleAttribute attr = ReflectionHelper.GetAttribute<AssemblyTitleAttribute>(assembly);
             return attr.Title;
         }
 

@@ -107,7 +107,7 @@ namespace MyLibrary.Win32
         /// <param name="value"></param>
         public static void SetDoubleBuffer(Control control, bool value)
         {
-            Data.SetValue(control, "DoubleBuffered", value);
+            ReflectionHelper.SetValue(control, "DoubleBuffered", value);
         }
     }
 }

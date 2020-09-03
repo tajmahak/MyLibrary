@@ -111,8 +111,8 @@ namespace MyLibrary.Win32.Controls
             {
                 SortOrder sortOrder = (direction == ListSortDirection.Ascending) ? SortOrder.Ascending : SortOrder.Descending;
 
-                Data.SetValue(this, "sortedColumn", dataGridViewColumn);
-                Data.SetValue(this, "sortOrder", sortOrder);
+                ReflectionHelper.SetValue(this, "sortedColumn", dataGridViewColumn);
+                ReflectionHelper.SetValue(this, "sortOrder", sortOrder);
                 for (int i = 0; i < Columns.Count; i++)
                 {
                     DataGridViewColumn column = Columns[i];

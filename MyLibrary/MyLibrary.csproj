@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyHelper.cs" />
-    <Compile Include="AttributeHelper.cs" />
+    <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Collections\HashCollection.cs" />
     <Compile Include="Criptography.cs" />
     <Compile Include="Data.cs" />
