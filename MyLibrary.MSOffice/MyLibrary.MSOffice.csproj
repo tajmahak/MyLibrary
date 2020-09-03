@@ -61,6 +61,7 @@
     <Compile Include="ExcelCellValueFormatEnum.cs" />
     <Compile Include="ExcelInterop.cs" />
     <Compile Include="ExcelRange.cs" />
+    <Compile Include="WordDocumentBuilder.cs" />
     <Compile Include="WordInterop.cs" />
     <Compile Include="WordRange.cs" />
     <Compile Include="WordTable.cs" />
