@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -109,7 +110,7 @@ namespace MyLibrary
         private static void CorrectObject(object obj)
         {
             //  исправление многострочного string после десериализации XML
-            foreach (System.Reflection.PropertyInfo property in obj.GetType().GetProperties())
+            foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
                 if (property.PropertyType == typeof(string))
                 {
