@@ -83,11 +83,11 @@ namespace MyLibrary.DataBase
 
         public DBContextCommitInfo Commit()
         {
-            DBContextCommitInfo commitInfo = new DBContextCommitInfo();
             DBRow row = null;
             DbTransaction transaction = null;
             try
             {
+                DBContextCommitInfo commitInfo = new DBContextCommitInfo();
                 transaction = Connection.BeginTransaction();
 
                 #region DELETE
@@ -247,6 +247,7 @@ namespace MyLibrary.DataBase
 
                 transaction.Commit();
                 transaction.Dispose();
+                return commitInfo;
             }
             catch (Exception ex)
             {
@@ -254,7 +255,26 @@ namespace MyLibrary.DataBase
                 transaction?.Dispose();
                 throw DBExceptionFactory.DbSaveException(row, ex);
             }
-            return commitInfo;
+        }
+
+        public void ExecuteTransaction(Action transactionAction)
+        {
+            DbTransaction transaction = null;
+            try
+            {
+                transaction = Connection.BeginTransaction();
+
+                transactionAction();
+
+                transaction.Commit();
+                transaction.Dispose();
+            }
+            catch
+            {
+                transaction?.Rollback();
+                transaction?.Dispose();
+                throw;
+            }
         }
 
 
