@@ -52,6 +52,7 @@
     <Compile Include="Interop\RecycleBin.cs" />
     <Compile Include="Interop\ShellThumbnail.cs" />
     <Compile Include="Interop\SystemTime.cs" />
+    <Compile Include="IValueContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ControlExtension.cs" />
     <Compile Include="ControlStyle.cs" />

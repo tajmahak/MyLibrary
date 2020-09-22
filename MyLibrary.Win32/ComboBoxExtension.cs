@@ -1,28 +1,50 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace MyLibrary.Win32
 {
     public static class ComboBoxExtension
     {
-        public static SelectItem<T> GetSelectedItem<T>(this ComboBox comboBox)
+        public static ValueContainer<T> GetSelectedItem<T>(this ComboBox comboBox)
         {
             object item = comboBox.SelectedItem;
             return comboBox.GetItem<T>(item);
         }
 
-        public static SelectItem<T> GetItem<T>(this ComboBox comboBox, int index)
+        public static ValueContainer<T> GetItem<T>(this ComboBox comboBox, int index)
         {
             object item = comboBox.Items[index];
             return comboBox.GetItem<T>(item);
         }
 
-        public static SelectItem<T> GetItem<T>(this ComboBox comboBox, object item)
+        public static ValueContainer<T> GetItem<T>(this ComboBox comboBox, object item)
         {
             if (item != null)
             {
-                return (SelectItem<T>)item;
+                return (ValueContainer<T>)item;
             }
             return default;
+        }
+
+        public static int SelectValue(this ComboBox comboBox, object value)
+        {
+            if (comboBox.Items.Count > 0 && !(comboBox.Items[0] is IValueContainer))
+            {
+                throw new NotSupportedException();
+            }
+
+            for (int i = 0; i < comboBox.Items.Count; i++)
+            {
+                IValueContainer item = (IValueContainer)comboBox.Items[i];
+                if (Equals(item.GetValue(), value))
+                {
+                    comboBox.SelectedIndex = i;
+                    return i;
+                }
+            }
+
+            comboBox.SelectedIndex = -1;
+            return -1;
         }
     }
 }
