@@ -8,22 +8,18 @@ namespace MyLibrary.Win32
         public static ValueContainer<T> GetSelectedItem<T>(this ComboBox comboBox)
         {
             object item = comboBox.SelectedItem;
-            return comboBox.GetItem<T>(item);
+            return GetItem<T>(item);
+        }
+
+        public static T GetSelectedValue<T>(this ComboBox comboBox)
+        {
+            return comboBox.GetSelectedItem<T>().Value;
         }
 
         public static ValueContainer<T> GetItem<T>(this ComboBox comboBox, int index)
         {
             object item = comboBox.Items[index];
-            return comboBox.GetItem<T>(item);
-        }
-
-        public static ValueContainer<T> GetItem<T>(this ComboBox comboBox, object item)
-        {
-            if (item != null)
-            {
-                return (ValueContainer<T>)item;
-            }
-            return default;
+            return GetItem<T>(item);
         }
 
         public static int SelectValue(this ComboBox comboBox, object value)
@@ -45,6 +41,16 @@ namespace MyLibrary.Win32
 
             comboBox.SelectedIndex = -1;
             return -1;
+        }
+
+
+        private static ValueContainer<T> GetItem<T>(object item)
+        {
+            if (item != null)
+            {
+                return (ValueContainer<T>)item;
+            }
+            return default;
         }
     }
 }

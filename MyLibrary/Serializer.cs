@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace MyLibrary
@@ -17,7 +18,13 @@ namespace MyLibrary
             XmlSerializer xmlSerializer = GetXmlSerializer(obj.GetType());
             using (StringWriter textWriter = new StringWriter())
             {
-                xmlSerializer.Serialize(textWriter, obj);
+                XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
+                xmlWriterSettings.OmitXmlDeclaration = true;
+                xmlWriterSettings.Indent = true;
+                using (XmlWriter xmlWriter = XmlWriter.Create(textWriter, xmlWriterSettings))
+                {
+                    xmlSerializer.Serialize(xmlWriter, obj);
+                }
                 return textWriter.ToString();
             }
         }

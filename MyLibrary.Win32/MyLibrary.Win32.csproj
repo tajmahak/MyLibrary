@@ -78,7 +78,7 @@
     <Compile Include="DataGridViewExtension.cs" />
     <Compile Include="DataGridViewRowManager.cs" />
     <Compile Include="MsgBox.cs" />
-    <Compile Include="SelectItem.cs" />
+    <Compile Include="ValueContainer.cs" />
     <Compile Include="TaskbarProgress.cs" />
   </ItemGroup>
   <ItemGroup>
